@@ -70,7 +70,7 @@ class ChannelMethods {
         } else if (data.file) {
             return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), 'post', 'multipart', data);
         } else {
-            return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES, 'post', 'json', data);
+            return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), 'post', 'json', data);
         }
     }
 
