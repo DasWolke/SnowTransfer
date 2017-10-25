@@ -11,7 +11,7 @@ class SnowTransfer {
     /**
      * Create a new Rest Client
      * @param {String} token - Discord Bot token to use
-     * @param {Object} options - options
+     * @param {Object} [options] - options
      * @param {boolean} [options.useRedis=false] - whether to use redis for ratelimit storage
      * @param {String} [options.sentryDsn] - Dsn to use for the sentry integration, disables the integration when empty
      * @param {Object} [options.sentryOptions] - Options to use for the sentry client, check the [sentry docs](https://docs.sentry.io/clients/node/config/) for more infos

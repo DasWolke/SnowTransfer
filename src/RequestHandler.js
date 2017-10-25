@@ -18,42 +18,104 @@ class RequestHandler {
         this.ratelimiter = ratelimiter;
         this.client = axios.create({
             baseURL: Endpoints.BASE_HOST + Endpoints.BASE_URL,
-            headers: {Authorization: options.token, 'User-Agent': `DiscordBot (no github repo yet :<, ${version})`}
+            headers: {
+                Authorization: options.token,
+                'User-Agent': `DiscordBot (https://github.com/DasWolke/SnowTransfer, ${version})`
+            }
         });
+        this.latency = 500;
+        this.remaining = {};
+        this.reset = {};
+        this.limit = {};
     }
 
-    async request(endpoint, method, dataType, data) {
-        let request;
-        try {
-            switch (dataType) {
-                case 'json':
-                    request = await this._request(endpoint, method, data);
-                    break;
-                case 'multipart':
-                    request = await this._multiPartRequest(endpoint, method, data);
-                    break;
-                default:
-                    break;
-            }
-            if (request.data) {
-                return request.data;
-            }
-            return Promise.resolve();
-        } catch (error) {
-            if (error.response) {
-                throw new Error(error.response);
-            } else if (error.request) {
-                throw new Error(error.request);
-            }
-            throw error;
+
+    request(endpoint, method, dataType, data, attempts = 0) {
+        return new Promise(async (res, rej) => {
+            this.ratelimiter.queue(async (bkt) => {
+                let request;
+                let latency = Date.now();
+                try {
+                    switch (dataType) {
+                        case 'json':
+                            request = await this._request(endpoint, method, data, endpoint.includes('/bans'));
+                            break;
+                        case 'multipart':
+                            request = await this._multiPartRequest(endpoint, method, data);
+                            break;
+                        default:
+                            break;
+                    }
+                    this.latency = Date.now() - latency;
+                    let offsetDate = this.getOffsetDateFromHeader(request.headers['date']);
+                    this.applyRatelimitHeaders(bkt, request.headers, offsetDate, endpoint.endsWith('/reactions/:id'));
+                    if (request.data) {
+                        return res(request.data);
+                    }
+                    return res();
+                } catch (error) {
+                    if (attempts === 3) {
+                        return rej({error: 'Request failed after 3 attempts', request: error});
+                    }
+                    if (error.response) {
+                        let offsetDate = this.getOffsetDateFromHeader(error.response.headers['date']);
+                        if (error.response.status === 429) {
+                            //TODO WARN ABOUT THIS :< either bug or meme
+                            this.applyRatelimitHeaders(bkt, request.headers, offsetDate, endpoint.endsWith('/reactions/:id'));
+                            return this.request(endpoint, method, dataType, data, attempts ? ++attempts : 1);
+                        }
+                        if (error.response.status === 502) {
+                            return this.request(endpoint, method, dataType, data, attempts ? ++attempts : 1);
+                        }
+                        return rej(error);
+                    }
+                    return rej(error);
+                }
+            }, endpoint, method);
+        });
+
+    }
+
+    getOffsetDateFromHeader(dateHeader) {
+        let discordDate = Date.parse(dateHeader);
+        let offset = Date.now() - discordDate;
+        return Date.now() + offset;
+    }
+
+    applyRatelimitHeaders(bkt, headers, offsetDate, reactions = false) {
+        if (headers['x-ratelimit-global']) {
+            bkt.ratelimiter.global = true;
+            bkt.ratelimiter.globalReset = parseInt(headers['retry_after']);
         }
+        if (headers['x-ratelimit-reset']) {
+            let reset = (headers['x-ratelimit-reset'] * 1000) - offsetDate;
+            if (reactions) {
+                bkt.reset = Math.max(reset, 250);
+            } else {
+                bkt.reset = reset;
+            }
+        }
+        if (headers['x-ratelimit-remaining']) {
+            bkt.remaining = parseInt(headers['x-ratelimit-remaining']);
+        } else {
+            bkt.remaining = 1;
+        }
+        if (headers['x-ratelimit-limit']) {
+            bkt.limit = parseInt(headers['x-ratelimit-limit']);
+        }
+
     }
 
-    async _request(endpoint, method, data) {
-        if (method === 'get') {
-            return this.client({url: endpoint, method, params: data});
+    async _request(endpoint, method, data, useParams = false) {
+        let headers = {};
+        if (data.reason) {
+            headers['X-Audit-Log-Reason'] = data.reason;
+            delete data.reason;
+        }
+        if (useParams) {
+            return this.client({url: endpoint, method, params: data, headers});
         } else {
-            return this.client({url: endpoint, method, data});
+            return this.client({url: endpoint, method, data, headers});
         }
     }
 
