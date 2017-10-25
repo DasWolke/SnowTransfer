@@ -61,7 +61,7 @@ class RequestHandler {
                         let offsetDate = this.getOffsetDateFromHeader(error.response.headers['date']);
                         if (error.response.status === 429) {
                             //TODO WARN ABOUT THIS :< either bug or meme
-                            this.applyRatelimitHeaders(bkt, request.headers, offsetDate, endpoint.endsWith('/reactions/:id'));
+                            this.applyRatelimitHeaders(bkt, error.response.headers, offsetDate, endpoint.endsWith('/reactions/:id'));
                             return this.request(endpoint, method, dataType, data, attempts ? ++attempts : 1);
                         }
                         if (error.response.status === 502) {
