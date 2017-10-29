@@ -7,7 +7,7 @@ class EmojiMethods {
     /**
      * Create a new Emoji Method handler
      * @param {RequestHandler} requestHandler - request handler that calls the rest api
-     * @param {Object} options - options
+     * @param {Object} [options] - options
      * @constructor
      */
     constructor(requestHandler, options) {

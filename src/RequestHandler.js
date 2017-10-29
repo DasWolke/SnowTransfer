@@ -16,8 +16,10 @@ class RequestHandler {
      */
     constructor(ratelimiter, options) {
         this.ratelimiter = ratelimiter;
+        this.options = {baseHost: Endpoints.BASE_HOST, baseURL: Endpoints.BASE_URL};
+        Object.assign(this.options, options);
         this.client = axios.create({
-            baseURL: Endpoints.BASE_HOST + Endpoints.BASE_URL,
+            baseURL: this.options.baseHost + Endpoints.BASE_URL,
             headers: {
                 Authorization: options.token,
                 'User-Agent': `DiscordBot (https://github.com/DasWolke/SnowTransfer, ${version})`
