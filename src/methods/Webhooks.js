@@ -1,6 +1,10 @@
 const Endpoints = require('../Endpoints');
 
 class WebhookMethods {
+    /**
+     *
+     * @param {RequestHandler} requestHandler
+     */
     constructor(requestHandler) {
         this.requestHandler = requestHandler;
     }

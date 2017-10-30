@@ -31,8 +31,16 @@ class RequestHandler {
         this.limit = {};
     }
 
-
-    request(endpoint, method, dataType, data, attempts = 0) {
+    /**
+     * Request a route from the discord api
+     * @param {String} endpoint - endpoint to request
+     * @param {String} method - http method to use
+     * @param {String} [dataType=json] - type of the data being sent
+     * @param {Object} [data] - data to send, if any
+     * @param {Number} [attempts=0] - Number of attempts of the current request
+     * @returns {Promise.<Object>} - Result of the request
+     */
+    request(endpoint, method, dataType = 'json', data = {}, attempts = 0) {
         return new Promise(async (res, rej) => {
             this.ratelimiter.queue(async (bkt) => {
                 let request;
@@ -40,7 +48,7 @@ class RequestHandler {
                 try {
                     switch (dataType) {
                         case 'json':
-                            request = await this._request(endpoint, method, data, endpoint.includes('/bans'));
+                            request = await this._request(endpoint, method, data, (method === 'get' || endpoint.includes('/bans') || endpoint.includes('/prune')));
                             break;
                         case 'multipart':
                             request = await this._multiPartRequest(endpoint, method, data);
@@ -49,8 +57,8 @@ class RequestHandler {
                             break;
                     }
                     this.latency = Date.now() - latency;
-                    let offsetDate = this.getOffsetDateFromHeader(request.headers['date']);
-                    this.applyRatelimitHeaders(bkt, request.headers, offsetDate, endpoint.endsWith('/reactions/:id'));
+                    let offsetDate = this._getOffsetDateFromHeader(request.headers['date']);
+                    this._applyRatelimitHeaders(bkt, request.headers, offsetDate, endpoint.endsWith('/reactions/:id'));
                     if (request.data) {
                         return res(request.data);
                     }
@@ -60,10 +68,10 @@ class RequestHandler {
                         return rej({error: 'Request failed after 3 attempts', request: error});
                     }
                     if (error.response) {
-                        let offsetDate = this.getOffsetDateFromHeader(error.response.headers['date']);
+                        let offsetDate = this._getOffsetDateFromHeader(error.response.headers['date']);
                         if (error.response.status === 429) {
                             //TODO WARN ABOUT THIS :< either bug or meme
-                            this.applyRatelimitHeaders(bkt, error.response.headers, offsetDate, endpoint.endsWith('/reactions/:id'));
+                            this._applyRatelimitHeaders(bkt, error.response.headers, offsetDate, endpoint.endsWith('/reactions/:id'));
                             return this.request(endpoint, method, dataType, data, attempts ? ++attempts : 1);
                         }
                         if (error.response.status === 502) {
@@ -78,13 +86,27 @@ class RequestHandler {
 
     }
 
-    getOffsetDateFromHeader(dateHeader) {
+    /**
+     * Calculate the time difference between the local server and discord
+     * @param {String} dateHeader - Date header value returned by discord
+     * @returns {number} - Offset in milliseconds
+     * @private
+     */
+    _getOffsetDateFromHeader(dateHeader) {
         let discordDate = Date.parse(dateHeader);
         let offset = Date.now() - discordDate;
         return Date.now() + offset;
     }
 
-    applyRatelimitHeaders(bkt, headers, offsetDate, reactions = false) {
+    /**
+     * Apply the received ratelimit headers to the ratelimit bucket
+     * @param {LocalBucket} bkt - Ratelimit bucket to apply the headers to
+     * @param {Object} headers - Http headers received from discord
+     * @param {Number} offsetDate - Unix timestamp of the current date + offset to discord time
+     * @param {Boolean} reactions - Whether to use reaction ratelimits (1/250ms)
+     * @private
+     */
+    _applyRatelimitHeaders(bkt, headers, offsetDate, reactions = false) {
         if (headers['x-ratelimit-global']) {
             bkt.ratelimiter.global = true;
             bkt.ratelimiter.globalReset = parseInt(headers['retry_after']);
@@ -108,6 +130,15 @@ class RequestHandler {
 
     }
 
+    /**
+     * Execute a normal json request
+     * @param {String} endpoint - Endpoint to use
+     * @param {String} method - Http Method to use
+     * @param {Object} data - Data to send
+     * @param {Boolean} useParams - Whether to send the data in the body or use query params
+     * @returns {Promise.<Object>} - Result of the request
+     * @private
+     */
     async _request(endpoint, method, data, useParams = false) {
         let headers = {};
         if (data.reason) {
@@ -121,6 +152,17 @@ class RequestHandler {
         }
     }
 
+    /**
+     * Execute a multipart/form-data request
+     * @param {String} endpoint - Endpoint to use
+     * @param {String} method - Http Method to use
+     * @param {Object} data - data to send
+     * @param {Object} [data.file] - file to attach
+     * @param {String} [data.file.name] - name of the file
+     * @param {Buffer} [data.file.file] - Buffer with the file content
+     * @returns {Promise.<Object>} - Result of the request
+     * @private
+     */
     async _multiPartRequest(endpoint, method, data) {
         let formData = new FormData();
         if (data.file.file) {

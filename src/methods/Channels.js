@@ -16,14 +16,38 @@ class ChannelMethods {
         this.options = options;
     }
 
+    /**
+     * Get a channel via id
+     * @param {String} channelId - Id of the channel
+     * @returns {Promise.<Object>} - Returns a [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object on success
+     */
     async getChannel(channelId) {
         return this.requestHandler.request(Endpoints.CHANNEL(channelId), 'get', 'json');
     }
 
+    /**
+     * Update a channel
+     * @param {String} channelId - Id of the channel
+     * @param {Object} data - Data to send
+     * @param {String} [data.name] - New name of the channel
+     * @param {Number} [data.position] - New position of the channel
+     * @param {String} [data.topic] - New topic of the channel
+     * @param {Boolean} [data.nsfw] - Update nsfw type of the channel
+     * @param {Number} [data.bitrate] - Update bitrate of the channel
+     * @param {Number} [data.user_limit] - Update the limit of users that are allowed to be in a channel
+     * @param {Array} [data.permission_overwrites] - Update the permission overwrites
+     * @param {String} [data.parent_id] - Id of the parent category of the channel
+     * @returns {Promise.<Object>} - Returns a [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object on success
+     */
     async updateChannel(channelId, data) {
         return this.requestHandler.request(Endpoints.CHANNEL(channelId), 'patch', 'json', data);
     }
 
+    /**
+     * Delete a channel via id
+     * @param {String} channelId - Id of the channel
+     * @returns {Promise.<Object>} - Returns a [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object on success
+     */
     async deleteChannel(channelId) {
         return this.requestHandler.request(Endpoints.CHANNEL(channelId), 'delete', 'json');
     }
