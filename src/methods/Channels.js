@@ -19,7 +19,7 @@ class ChannelMethods {
     /**
      * Get a channel via id
      * @param {String} channelId - Id of the channel
-     * @returns {Promise.<Object>} - Returns a [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object on success
+     * @returns {Promise.<Object>} - [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
      */
     async getChannel(channelId) {
         return this.requestHandler.request(Endpoints.CHANNEL(channelId), 'get', 'json');
@@ -37,7 +37,7 @@ class ChannelMethods {
      * @param {Number} [data.user_limit] - Update the limit of users that are allowed to be in a channel
      * @param {Array} [data.permission_overwrites] - Update the permission overwrites
      * @param {String} [data.parent_id] - Id of the parent category of the channel
-     * @returns {Promise.<Object>} - Returns a [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object on success
+     * @returns {Promise.<Object>} - [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
      */
     async updateChannel(channelId, data) {
         return this.requestHandler.request(Endpoints.CHANNEL(channelId), 'patch', 'json', data);
@@ -46,12 +46,22 @@ class ChannelMethods {
     /**
      * Delete a channel via id
      * @param {String} channelId - Id of the channel
-     * @returns {Promise.<Object>} - Returns a [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object on success
+     * @returns {Promise.<Object>} - [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
      */
     async deleteChannel(channelId) {
         return this.requestHandler.request(Endpoints.CHANNEL(channelId), 'delete', 'json');
     }
 
+    /**
+     * Get a list of channel messages from a channel
+     * @param {String} channelId - id of the channel
+     * @param {Object} [options]
+     * @param {String} [options.around] - Get's messages around the id of the passed snowflake
+     * @param {String} [options.before] - Get's messages before the id of the passed snowflake
+     * @param {String} [options.after] - Get's messages after the id of the passed snowflake
+     * @param {Number} [options.limit=50] - Number of messages to get, values between 1-100 allowed
+     * @returns {Promise.<Object>}
+     */
     async getChannelMessages(channelId, options = {}) {
         if (options.around) {
             delete options.before;
@@ -83,7 +93,7 @@ class ChannelMethods {
      * @param {Object} [data.file] - File, that should be uploaded
      * @param {String} [data.file.name] - Name of the file
      * @param {File} [data.file.file] - Stream of the file
-     * @returns {Promise.<Object>} - Returns a [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) object on success
+     * @returns {Promise.<Object>} - [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) object
      */
     async createMessage(channelId, data) {
         if (typeof data !== 'string' && !data.content && !data.embed && !data.file) {
@@ -117,7 +127,12 @@ class ChannelMethods {
         if (messages.length < Constants.BULK_DELETE_MESSAGES_MIN || messages.length > Constants.BULK_DELETE_MESSAGES_MAX) {
             throw new Error(`Amount of messages to be deleted has to be between ${Constants.BULK_DELETE_MESSAGES_MIN} and ${Constants.BULK_DELETE_MESSAGES_MAX}`);
         }
-        // TODO add check for id date, to make sure that ids can not be older than 2 weeks
+        // (Current date - (discord epoch + 2 weeks)) * weird constant that everybody seems to use
+        let oldestSnowflake = (Date.now() - 1421280000000) * 4194304;
+        let forbiddenMessage = messages.find(m => m < oldestSnowflake);
+        if (forbiddenMessage) {
+            throw new Error(`The message ${forbiddenMessage} is older than 2 weeks and may not be deleted using the bulk delete endpoint`);
+        }
         return this.requestHandler.request(Endpoints.CHANNEL_BULK_DELETE(channelId), 'post', 'json', messages);
     }
 

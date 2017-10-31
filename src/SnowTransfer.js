@@ -7,6 +7,8 @@ let UserMethods = require('./methods/Users');
 let EmojiMethods = require('./methods/Emojis');
 let WebhookMethods = require('./methods/Webhooks');
 let GuildMethods = require('./methods/Guilds');
+let InviteMethods = require('./methods/Invites');
+let VoiceMethods = require('./methods/Voices');
 
 /**
  * The main client to use when you want to execute actions with the discord rest api
@@ -15,6 +17,8 @@ let GuildMethods = require('./methods/Guilds');
  * @property {EmojiMethods} emoji
  * @property {WebhookMethods} webhook
  * @property {GuildMethods} guild
+ * @property {InviteMethods} invite
+ * @property {VoiceMethods} voice
  */
 class SnowTransfer {
     /**
@@ -46,6 +50,8 @@ class SnowTransfer {
         this.emoji = new EmojiMethods(this.requestHandler);
         this.webhook = new WebhookMethods(this.requestHandler);
         this.guild = new GuildMethods(this.requestHandler);
+        this.invite = new InviteMethods(this.requestHandler);
+        this.voice = new VoiceMethods(this.requestHandler);
     }
 }
 
