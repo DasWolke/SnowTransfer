@@ -17,7 +17,7 @@ class ChannelMethods {
     /**
      * Get a channel via id
      * @param {String} channelId - Id of the channel
-     * @returns {Promise.<Object>} - [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
+     * @returns {Promise.<Channel>} - [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
      */
     async getChannel(channelId) {
         return this.requestHandler.request(Endpoints.CHANNEL(channelId), 'get', 'json');
@@ -35,7 +35,7 @@ class ChannelMethods {
      * @param {Number} [data.user_limit] - Update the limit of users that are allowed to be in a channel
      * @param {Array} [data.permission_overwrites] - Update the permission overwrites
      * @param {String} [data.parent_id] - Id of the parent category of the channel
-     * @returns {Promise.<Object>} - [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
+     * @returns {Promise.<Channel>} - [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
      */
     async updateChannel(channelId, data) {
         return this.requestHandler.request(Endpoints.CHANNEL(channelId), 'patch', 'json', data);
@@ -44,7 +44,7 @@ class ChannelMethods {
     /**
      * Delete a channel via id
      * @param {String} channelId - Id of the channel
-     * @returns {Promise.<Object>} - [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
+     * @returns {Promise.<Channel>} - [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
      */
     async deleteChannel(channelId) {
         return this.requestHandler.request(Endpoints.CHANNEL(channelId), 'delete', 'json');
@@ -201,7 +201,7 @@ class ChannelMethods {
      * @param {String} channelId - id of the channel
      * @param {String} messageId - id of the message
      * @param {String} emoji - reaction emoji
-     * @returns {Promise.<Array>} array of [user objects](https://discordapp.com/developers/docs/resources/user#user-object)
+     * @returns {Promise.<User[]>} array of [user objects](https://discordapp.com/developers/docs/resources/user#user-object)
      */
     async getReactions(channelId, messageId, emoji) {
         return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji), 'get', 'json');
@@ -224,17 +224,127 @@ class ChannelMethods {
      * @param {PermissionOverwrite} data
      * @returns {Promise}
      */
-    async editChannelPermissions(channelId, permissionId, data) {
+    async editChannelPermission(channelId, permissionId, data) {
         return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), 'put', 'json', data);
+    }
+
+    /**
+     * Delete a permission overwrite from a channel
+     * @param {String} channelId - id of the channel
+     * @param {String} permissionId - id of the permission overwrite
+     * @returns {Promise}
+     */
+    async deleteChannelPermission(channelId, permissionId) {
+        return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), 'delete', 'json');
+    }
+
+    /**
+     * Get a list of invites for a channel
+     * @param {String} channelId - id of the channel
+     * @returns {Promise.<Invite[]>}
+     */
+    async getChannelInvites(channelId) {
+        return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), 'get', 'json');
+    }
+
+    /**
+     * Create a invite for a channel
+     * @param {String} channelId - id of the channel
+     * @param {Object} data
+     * @param {Number} [data.max_age=86400] - max age of the invite in seconds
+     * @param {Number} [data.max_uses=0] - max uses of the invite
+     * @param {Boolean} [data.temporary=false] - if this invite only allows temporary membership
+     * @param {Boolean} [data.unique=false] - does not try to re-use similar invites when true (useful for creating many one-time invites)
+     * @returns {Promise.<Invite>}
+     */
+    async createChannelInvite(channelId, data = {}) {
+        return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), 'post', 'json', data);
+    }
+
+    /**
+     * Send an indicator that the current user is typing within a channel.
+     * You should generally avoid this method unless used for longer computations (>1s)
+     * @param {String} channelId - id of the channel
+     * @returns {Promise.<void>}
+     */
+    async startChannelTyping(channelId) {
+        return this.requestHandler.request(Endpoints.CHANNEL_TYPING(channelId), 'post', 'json');
+    }
+
+    /**
+     * Get a list of pinned messages for a channel
+     * @param {String} channelId - id of the channel
+     * @returns {Promise.<Array>} - Array of [message](https://discordapp.com/developers/docs/resources/channel#message-object) objects
+     */
+    async getChannelPinnedMessages(channelId) {
+        return this.requestHandler.request(Endpoints.CHANNEL_PINS(channelId), 'get', 'json');
+    }
+
+    /**
+     * Pin a message within a channel
+     * @param {String} channelId - id of the channel
+     * @param {String} messageId - id of the message
+     * @returns {Promise.<void>}
+     */
+    async addChannelPinnedMessage(channelId, messageId) {
+        return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), 'put', 'json');
+    }
+
+    /**
+     * Remove a pinned message from a channel
+     * @param {String} channelId - id of the channel
+     * @param {String} messageId - id of the message
+     * @returns {Promise.<void>}
+     */
+    async removeChannelPinnedMessage(channelId, messageId) {
+        return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), 'delete', 'json');
+    }
+
+    /**
+     * Add a user to a group dm
+     * @param {String} channelId - id of the channel
+     * @param {String} userId - id of the user to be removed
+     * @param {Object} data
+     * @param {String} data.access_token - access token of the user that granted the app the gdm.join scope
+     * @param {String} [data.nick] - nickname of the user being added
+     * @returns {Promise.<void>}
+     */
+    async dmChannelAddRecipient(channelId, userId, data) {
+        return this.requestHandler.request(Endpoints.CHANNEL_RECIPIENT(channelId, userId), 'put', 'json', data);
+    }
+
+    /**
+     * Remove a recipient from a group dm
+     * @param {String} channelId - id of the channel
+     * @param {String} userId - id of the user to be removed
+     * @returns {Promise}
+     */
+    async dmChannelRemoveRecipient(channelId, userId) {
+        return this.requestHandler.request(Endpoints.CHANNEL_RECIPIENT(channelId, userId), 'delete', 'json');
     }
 
 }
 
+// To anyone wanting to write a library: JUST COPY THIS SHIT, filling this out manually wasn't fun :<
+// https://www.youtube.com/watch?v=LIlZCmETvsY have a weird video to distract yourself from the problems that will come upon ya
 /**
  * @typedef {Object} Channel
  * @property {String} id - id of the channel
  * @property {Number} type - [type](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types) of channel
  * @property {String} [guild_id] - id of the {Guild} of the channel
+ * @property {Number} [position] - sorting position of the channel
+ * @property {PermissionOverwrite[]} [permission_overwrites] - array of permission overwrites for this channel
+ * @property {String} [name] - name of the channel
+ * @property {String} [topic] - topic of the channel
+ * @property {Boolean} [nsfw] - if the channel is nsfw (guild only)
+ * @property {String} [last_message_id] - the id of the last message sent in this channel
+ * @property {Number} [bitrate] - bitrate of the channel (voice only)
+ * @property {Number} [user_limit] - limit of users in a channel (voice only)
+ * @property {User[]} [recipients] - recipients of a dm (dm only)
+ * @property {String} [icon] - icon hash (dm only)
+ * @property {String} [owner_id] - id of the DM creator (dm only)
+ * @property {String} [application_id] - application id of the creator of the group dm if a bot created it (group dm only)
+ * @property {String} [parent_id] - id of the parent category for a channel
  */
 
 /**
