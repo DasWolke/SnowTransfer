@@ -3,3 +3,4 @@ node_modules
 docs
 snowtransfer.iml
 .idea
+.DS_STORE

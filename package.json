@@ -3,21 +3,27 @@
   "version": "0.1.0",
   "description": "Minimalistic Rest client for the discord app api",
   "main": "index.js",
+  "engines": {
+    "node": ">=8.0.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build:docs":"node_modules/.bin/jsdoc --configure .jsdoc.json --verbose -r"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DasWolke/SnowTransfer.git"
   },
   "author": "wolke <wolke@weeb.sh>",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.16.2",
-    "form-data": "^2.3.1",
-    "raven": "^2.2.1",
-    "redis": "^2.8.0",
-    "tsubaki": "^1.2.0"
+    "axios": "~0.16.2",
+    "form-data": "~2.3.1"
+  },
+  "optionalDependencies": {
+    "raven": "~2.2.1"
   },
   "devDependencies": {
-    "jsdoc": "^3.5.5",
-    "minami": "^1.2.3"
+    "jsdoc": "~3.5.5",
+    "minami": "~1.2.3"
   }
 }

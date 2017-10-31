@@ -2,7 +2,15 @@ let SnowTransfer = require('../src/SnowTransfer');
 let config = require('./config.json');
 let client = new SnowTransfer(config.token);
 let request = async () => {
-    await client.channel.createMessage('208911955140804608', '<:awooo:322522663304036352>');
+    // for (let i = 0; i < 10; i++) {
+    let message = await client.channel.createMessage('312298984964227072', {
+        embed: {
+            title: 'memes',
+            description: 'memes'
+        }
+    });
+    console.log(message);
+    // }
     // let messages = await client.channel.getChannelMessages('312298984964227072');
     // console.log(messages);
 };

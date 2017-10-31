@@ -40,6 +40,8 @@ module.exports.GUILD_EMBED = (guildID) => `/guilds/${guildID}/embed`;
 module.exports.GUILD_EMOJI = (guildID, emojiID) => `/guilds/${guildID}/emojis/${emojiID}`;
 module.exports.GUILD_EMOJIS = (guildID) => `/guilds/${guildID}/emojis`;
 module.exports.GUILD_INVITES = (guildID) => `/guilds/${guildID}/invites`;
+module.exports.GUILD_INTEGRATION = (guildID, integrationID) => `/guilds/${guildID}/integrations/${integrationID}`;
+module.exports.GUILD_INTEGRATIONS = (guildID) => `/guilds/${guildID}/integrations`;
 module.exports.GUILD_MEMBER = (guildID, memberID) => `/guilds/${guildID}/members/${memberID}`;
 module.exports.GUILD_MEMBER_NICK = (guildID, memberID) => `/guilds/${guildID}/members/${memberID}/nick`;
 module.exports.GUILD_MEMBER_ROLE = (guildID, memberID, roleID) => `/guilds/${guildID}/members/${memberID}/roles/${roleID}`;
