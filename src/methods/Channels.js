@@ -8,12 +8,10 @@ class ChannelMethods {
     /**
      * Create a new Channel Method handler
      * @param {RequestHandler} requestHandler - request handler that calls the rest api
-     * @param {Object} [options] - options
      * @constructor
      */
-    constructor(requestHandler, options) {
+    constructor(requestHandler) {
         this.requestHandler = requestHandler;
-        this.options = options;
     }
 
     /**
@@ -60,7 +58,7 @@ class ChannelMethods {
      * @param {String} [options.before] - Get's messages before the id of the passed snowflake
      * @param {String} [options.after] - Get's messages after the id of the passed snowflake
      * @param {Number} [options.limit=50] - Number of messages to get, values between 1-100 allowed
-     * @returns {Promise.<Object>}
+     * @returns {Promise.<Array>} Array of [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) objects
      */
     async getChannelMessages(channelId, options = {}) {
         if (options.around) {
@@ -95,10 +93,11 @@ class ChannelMethods {
      * @param {String} channelId - Id of the Channel to sent a message to
      * @param {Object|String} data - Data to send
      * @param {String} [data.content] - Content of the message
+     * @param {Boolean} [data.tts] - if this message is text-to-speech
      * @param {Object} [data.embed] - Embed to send
      * @param {Object} [data.file] - File, that should be uploaded
      * @param {String} [data.file.name] - Name of the file
-     * @param {File} [data.file.file] - Stream of the file
+     * @param {File} [data.file.file] - Buffer with file contents
      * @returns {Promise.<Object>} - [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) object
      */
     async createMessage(channelId, data) {
@@ -138,7 +137,7 @@ class ChannelMethods {
      * Delete a message
      * @param {String} channelId - id of the channel
      * @param {String} messageId - id of the message
-     * @returns {Promise.<Object>}
+     * @returns {Promise}
      */
     async deleteMessage(channelId, messageId) {
         return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), 'delete', 'json');
@@ -148,7 +147,7 @@ class ChannelMethods {
      * Bulk delete messages, messages may not be older than 2 weeks
      * @param {String} channelId - id of the channel
      * @param {String[]} messages - array of message ids to delete
-     * @returns {Promise.<Object>}
+     * @returns {Promise}
      */
     async bulkDeleteMessages(channelId, messages) {
         if (messages.length < Constants.BULK_DELETE_MESSAGES_MIN || messages.length > Constants.BULK_DELETE_MESSAGES_MAX) {
@@ -168,7 +167,7 @@ class ChannelMethods {
      * @param {String} channelId - id of the channel
      * @param {String} messageId - id of the message
      * @param {String} emoji - reaction emoji to add
-     * @returns {Promise.<Object>}
+     * @returns {Promise}
      */
     async createReaction(channelId, messageId, emoji) {
         return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, '@me'), 'put', 'json');
@@ -179,7 +178,7 @@ class ChannelMethods {
      * @param {String} channelId - id of the channel
      * @param {String} messageId - id of the message
      * @param {String} emoji - reaction emoji
-     * @returns {Promise.<Object>}
+     * @returns {Promise}
      */
     async deleteReactionSelf(channelId, messageId, emoji) {
         return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, '@me'), 'delete', 'json');
@@ -191,7 +190,7 @@ class ChannelMethods {
      * @param {String} messageId - id of the message
      * @param {String} emoji - reaction emoji
      * @param {String} userId - id of the user
-     * @returns {Promise.<Object>}
+     * @returns {Promise}
      */
     async deleteReaction(channelId, messageId, emoji, userId) {
         return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, userId), 'delete', 'json');
@@ -212,7 +211,7 @@ class ChannelMethods {
      * Delete all reactions from a message
      * @param {String} channelId - id of the channel
      * @param {String} messageId - id of the message
-     * @returns {Promise.<Object>}
+     * @returns {Promise}
      */
     async deleteAllReactions(channelId, messageId) {
         return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTIONS(channelId, messageId), 'delete', 'json');
@@ -222,16 +221,27 @@ class ChannelMethods {
      * Modify the permission overwrites of a channel
      * @param {String} channelId - id of the channel
      * @param {String} permissionId - id of the permission overwrite
-     * @param {Object} data
-     * @param {Number} [data.allow] - bitwise value of allowed permissions
-     * @param {Number} [data.deny] - bitwise value of disallowed permissions
-     * @param {String} [data.type] - type of the overwrite, either member or role
-     * @returns {Promise.<Object>}
+     * @param {PermissionOverwrite} data
+     * @returns {Promise}
      */
     async editChannelPermissions(channelId, permissionId, data) {
         return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), 'put', 'json', data);
     }
 
 }
+
+/**
+ * @typedef {Object} Channel
+ * @property {String} id - id of the channel
+ * @property {Number} type - [type](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types) of channel
+ * @property {String} [guild_id] - id of the {Guild} of the channel
+ */
+
+/**
+ * @typedef {Object} PermissionOverwrite
+ * @property {Number} allow - bitwise value of allowed permissions
+ * @property {Number} deny - bitwise value of disallowed permissions
+ * @property {String} type - type of the overwrite, either member or role
+ */
 
 module.exports = ChannelMethods;

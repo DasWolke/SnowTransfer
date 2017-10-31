@@ -14,11 +14,23 @@ class VoiceMethods {
 
     /**
      * Get currently available voice regions that can be used when creating servers
-     * @returns {Promise.<Array>} Array of [voice region](https://discordapp.com/developers/docs/resources/voice#voice-region-object) objects
+     * @returns {Promise.<VoiceRegion[]>} Array of [voice region](https://discordapp.com/developers/docs/resources/voice#voice-region-object) objects
      */
     async getVoiceRegions() {
         return this.requestHandler.request(Endpoints.VOICE_REGIONS, 'get', 'json');
     }
 }
+
+/**
+ * @typedef {Object} VoiceRegion
+ * @property {String} id - id of the region
+ * @property {String} name - name of the region
+ * @property {String} sample_hostname - example hostname of the region
+ * @property {Number} sample_port - example port of the region
+ * @property {Boolean} vip - if this is a vip region
+ * @property {Boolean} optimal - if this region is closest to the user
+ * @property {Boolean} deprecated - if this region should not be used anymore
+ * @property {Boolean} custom - if this is a custom region (used for events/etc)
+ */
 
 module.exports = VoiceMethods;

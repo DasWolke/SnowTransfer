@@ -26,6 +26,7 @@ class RequestHandler {
                 'User-Agent': `DiscordBot (https://github.com/DasWolke/SnowTransfer, ${version})`
             }
         });
+        this.raven = options.raven ? options.raven : null;
         this.latency = 500;
         this.remaining = {};
         this.reset = {};
@@ -65,6 +66,17 @@ class RequestHandler {
                     }
                     return res();
                 } catch (error) {
+                    if (this.raven) {
+                        this.raven.captureException(error, {
+                            extra: {
+                                route: endpoint,
+                                method,
+                                status: error.response ? error.response.status : null,
+                                statusText: error.response ? error.response.statusText : null,
+                                response: error.response ? error.response.data : null
+                            }
+                        });
+                    }
                     if (attempts === 3) {
                         return rej({error: 'Request failed after 3 attempts', request: error});
                     }

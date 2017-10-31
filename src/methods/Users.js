@@ -14,7 +14,7 @@ class UserMethods {
 
     /**
      * Get information about current user
-     * @returns {Promise.<Object>} [user object](https://discordapp.com/developers/docs/resources/user#user-object)
+     * @returns {Promise.<SelfUser>} [user object](https://discordapp.com/developers/docs/resources/user#user-object)
      */
     async getSelf() {
         return this.requestHandler.request(Endpoints.USER('@me'), 'get', 'json');
@@ -23,7 +23,7 @@ class UserMethods {
     /**
      * Get information about a user via id
      * @param {String} userId - id of the user
-     * @returns {Promise.<Object>} [user object](https://discordapp.com/developers/docs/resources/user#user-object)
+     * @returns {Promise.<User>} [user object](https://discordapp.com/developers/docs/resources/user#user-object)
      */
     async getUser(userId) {
         return this.requestHandler.request(Endpoints.USER(userId), 'get', 'json');
@@ -34,7 +34,7 @@ class UserMethods {
      * @param {Object} data
      * @param {String} [data.username] - Username to change
      * @param {String} [data.avatar] - Base64 encoded avatar
-     * @returns {Promise.<Object>} [user object](https://discordapp.com/developers/docs/resources/user#user-object)
+     * @returns {Promise.<SelfUser>} [user object](https://discordapp.com/developers/docs/resources/user#user-object)
      */
     async updateSelf(data) {
         return this.requestHandler.request(Endpoints.USER('@me'), 'patch', 'json', data);
@@ -42,7 +42,7 @@ class UserMethods {
 
     /**
      * Get guilds of the current user
-     * @returns {Promise.<Array>} Array of [partial guild object](https://discordapp.com/developers/docs/resources/guild#guild-object)
+     * @returns {Promise.<Guild[]>} Array of [partial guild objects](https://discordapp.com/developers/docs/resources/guild#guild-object)
      */
     async getGuilds() {
         return this.requestHandler.request(Endpoints.USER_GUILDS('@me'), 'get', 'json');
@@ -51,7 +51,7 @@ class UserMethods {
     /**
      * Leave a guild
      * @param {String} guildId - id of the guild
-     * @returns {Promise.<Object>}
+     * @returns {Promise}
      */
     async leaveGuild(guildId) {
         return this.requestHandler.request(Endpoints.USER_GUILD('@me', guildId), 'delete', 'json');
@@ -76,4 +76,19 @@ class UserMethods {
     }
 }
 
+/**
+ * @typedef {Object} User
+ * @property {String} id - id of the user
+ * @property {String} username - username of the user
+ * @property {String} discriminator - 4 digit long discord tag
+ * @property {String} avatar - avatar hash of the user
+ */
+
+/**
+ * @typedef {User} SelfUser
+ * @property {Boolean} bot - if the user is a bot
+ * @property {Boolean} mfa_enabled - if the user has mfa enabled
+ * @property {Boolean} verified - if the user is verified
+ * @property {String} email - email of the user
+ */
 module.exports = UserMethods;

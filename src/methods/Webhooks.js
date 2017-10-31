@@ -15,7 +15,9 @@ class WebhookMethods {
     /**
      * Create a new Webhook
      * @param {String} channelId - id of the channel
-     * @param data
+     * @param {Object} data
+     * @param {String} [data.name] - name of the webhook
+     * @param {String} [data.avatar] - base 64 encoded avatar
      * @returns {Promise.<Object>}
      */
     async createWebhook(channelId, data) {
@@ -57,7 +59,10 @@ class WebhookMethods {
      * Update a webhook
      * @param {String} webhookId - id of the webhook
      * @param {String} [token] - webhook token
-     * @param data
+     * @param {Object} data
+     * @param {String} [data.name] - default name of the webhook
+     * @param {String} [data.avatar] - base 64 image of the default avatar
+     * @param {String} [data.channel_id] - id of the new channel of the webhook
      * @returns {Promise.<Object>}
      */
     async updateWebhook(webhookId, token, data) {
@@ -84,7 +89,15 @@ class WebhookMethods {
      * Send a message via webhook
      * @param {String} webhookId - id of the webhook
      * @param {String} [token] - webhook token
-     * @param data
+     * @param {Object} data
+     * @param {String} [data.content] - content of the message
+     * @param {String} [data.username] - username to use for the webhook
+     * @param {String} [data.avatar_url] - avatar url of the webhook
+     * @param {Boolean} [data.tts] - send a text to speech message
+     * @param {Object} [data.file] - File, that should be uploaded
+     * @param {String} [data.file.name] - Name of the file
+     * @param {File} [data.file.file] - Buffer with file contents
+     * @param {Object[]} [data.embeds] - Array of [embed objects](https://discordapp.com/developers/docs/resources/channel#embed-object)
      * @returns {Promise.<Object>}
      */
     async executeWebhook(webhookId, token, data) {
@@ -104,7 +117,7 @@ class WebhookMethods {
      * Execute a slack style webhook
      * @param {String} webhookId - id of the webhook
      * @param {String} [token] - webhook token
-     * @param data
+     * @param {Object} data - Check [Slack's documentation](https://api.slack.com/incoming-webhooks)
      * @returns {Promise.<Object>}
      */
     async executeWebhookSlack(webhookId, token, data) {
