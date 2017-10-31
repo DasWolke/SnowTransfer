@@ -1,5 +1,9 @@
 const LocalBucket = require('./ratelimitBuckets/LocalBucket');
 
+/**
+ * Ratelimiter used for handling the ratelimits imposed by the rest api
+ * @private
+ */
 class Ratelimiter {
     constructor() {
         this.buckets = {};
@@ -24,6 +28,12 @@ class Ratelimiter {
         return route;
     }
 
+    /**
+     * Queue a rest call to be executed
+     * @param {Function} fn - function to call once the ratelimit is ready
+     * @param {String} url - Endpoint of the request
+     * @param {String} method - Http method used by the request
+     */
     queue(fn, url, method) {
         let routeKey = this.routify(url, method);
         if (!this.buckets[routeKey]) {

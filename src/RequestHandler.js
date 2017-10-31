@@ -5,6 +5,7 @@ const FormData = require('form-data');
 
 /**
  * Request Handler class
+ * @private
  */
 class RequestHandler {
     /**

@@ -79,6 +79,12 @@ class ChannelMethods {
         return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), 'get', 'json', options);
     }
 
+    /**
+     * Get a single message via id
+     * @param {String} channelId - id of the channel
+     * @param {String} messageId - id of the message
+     * @returns {Promise.<Object>} - [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) object
+     */
     async getChannelMessage(channelId, messageId) {
         return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), 'get', 'json');
     }
@@ -108,6 +114,15 @@ class ChannelMethods {
         }
     }
 
+    /**
+     * Edit a message sent by the current user
+     * @param {String} channelId - id of the channel
+     * @param {String} messageId - id of the message
+     * @param {Object|String} data - Data to send
+     * @param {String} [data.content] - Content of the message
+     * @param {Object} [data.embed] - Embed to send
+     * @returns {Promise.<Object>} [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) object
+     */
     async editMessage(channelId, messageId, data) {
         if (typeof data !== 'string' && !data.content && !data.embed) {
             throw new Error('Missing content or embed');
@@ -119,10 +134,22 @@ class ChannelMethods {
         }
     }
 
+    /**
+     * Delete a message
+     * @param {String} channelId - id of the channel
+     * @param {String} messageId - id of the message
+     * @returns {Promise.<Object>}
+     */
     async deleteMessage(channelId, messageId) {
         return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), 'delete', 'json');
     }
 
+    /**
+     * Bulk delete messages, messages may not be older than 2 weeks
+     * @param {String} channelId - id of the channel
+     * @param {String[]} messages - array of message ids to delete
+     * @returns {Promise.<Object>}
+     */
     async bulkDeleteMessages(channelId, messages) {
         if (messages.length < Constants.BULK_DELETE_MESSAGES_MIN || messages.length > Constants.BULK_DELETE_MESSAGES_MAX) {
             throw new Error(`Amount of messages to be deleted has to be between ${Constants.BULK_DELETE_MESSAGES_MIN} and ${Constants.BULK_DELETE_MESSAGES_MAX}`);
@@ -136,22 +163,71 @@ class ChannelMethods {
         return this.requestHandler.request(Endpoints.CHANNEL_BULK_DELETE(channelId), 'post', 'json', messages);
     }
 
+    /**
+     * Add a reaction to a message
+     * @param {String} channelId - id of the channel
+     * @param {String} messageId - id of the message
+     * @param {String} emoji - reaction emoji to add
+     * @returns {Promise.<Object>}
+     */
     async createReaction(channelId, messageId, emoji) {
         return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, '@me'), 'put', 'json');
     }
 
+    /**
+     * Delete a reaction added by the current user from a message
+     * @param {String} channelId - id of the channel
+     * @param {String} messageId - id of the message
+     * @param {String} emoji - reaction emoji
+     * @returns {Promise.<Object>}
+     */
+    async deleteReactionSelf(channelId, messageId, emoji) {
+        return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, '@me'), 'delete', 'json');
+    }
+
+    /**
+     * Delete a reaction from a message
+     * @param {String} channelId - id of the channel
+     * @param {String} messageId - id of the message
+     * @param {String} emoji - reaction emoji
+     * @param {String} userId - id of the user
+     * @returns {Promise.<Object>}
+     */
     async deleteReaction(channelId, messageId, emoji, userId) {
         return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, userId), 'delete', 'json');
     }
 
+    /**
+     * Get a list of users that reacted with a certain emoji on a certain message
+     * @param {String} channelId - id of the channel
+     * @param {String} messageId - id of the message
+     * @param {String} emoji - reaction emoji
+     * @returns {Promise.<Array>} array of [user objects](https://discordapp.com/developers/docs/resources/user#user-object)
+     */
     async getReactions(channelId, messageId, emoji) {
         return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji), 'get', 'json');
     }
 
+    /**
+     * Delete all reactions from a message
+     * @param {String} channelId - id of the channel
+     * @param {String} messageId - id of the message
+     * @returns {Promise.<Object>}
+     */
     async deleteAllReactions(channelId, messageId) {
         return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTIONS(channelId, messageId), 'delete', 'json');
     }
 
+    /**
+     * Modify the permission overwrites of a channel
+     * @param {String} channelId - id of the channel
+     * @param {String} permissionId - id of the permission overwrite
+     * @param {Object} data
+     * @param {Number} [data.allow] - bitwise value of allowed permissions
+     * @param {Number} [data.deny] - bitwise value of disallowed permissions
+     * @param {String} [data.type] - type of the overwrite, either member or role
+     * @returns {Promise.<Object>}
+     */
     async editChannelPermissions(channelId, permissionId, data) {
         return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), 'put', 'json', data);
     }
