@@ -83,7 +83,7 @@ class GuildMethods {
      * @param {Number} [data.type] - [type](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types) of the channel
      * @param {Number} [data.bitrate] - bitrate of the channel (voice only)
      * @param {Number} [data.user_limit] - user limit of a channel (voice only)
-     * @param {PermissionOverwrite[]} [data.permission_overwrites] -
+     * @param {PermissionOverwrite[]} [data.permission_overwrites] - permissions overwrites for the channel
      * @returns {Promise.<Channel>}
      */
     async createGuildChannel(guildId, data) {
