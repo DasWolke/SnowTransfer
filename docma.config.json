@@ -12,6 +12,7 @@
   "dest": "./docs",
   "app": {
     "title": "SnowTransfer",
+    "base": "/",
     "entrance": "content:index",
     "routing": "query",
     "server": "static"
