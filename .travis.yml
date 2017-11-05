@@ -1,0 +1,32 @@
+language: node_js
+install:
+- npm install
+script:
+- npm run build:docs
+deploy:
+- provider: s3
+  access_key_id: $aws_access_key_id
+  secret_access_key: $aws_secret_key
+  local-dir: docs
+  upload-dir: snowtransfer
+  bucket: wolke-library
+  region: eu-central-1
+  acl: public_read
+  skip_cleanup: true
+  on:
+    branch: master
+- provider: s3
+  access_key_id: $aws_access_key_id
+  secret_access_key: $aws_secret_key
+  local-dir: docs
+  upload-dir: snowtransfer-dev
+  bucket: emotionless
+  region: eu-central-1
+  acl: public_read
+  skip_cleanup: true
+  on:
+    branch: dev
+env:
+  global:
+  - secure: I6SZ8Z6pOFDDDJtk5+i1LatTkoc6USUwEaCWHPILTaowqojxGVxfgcHfzq2zZq2qGH8M1Dbyh+cRUeXXDHdYVl8jU4WCtxMGlqQ21w36C7oqC16A+LGUH3IM/d6wpnzOEE22ORkfeEvijEc1m3OkfNnLFyOPUEzpY9dpR32bOS6OxkDhQsEbj9XTciHPasc+/xhaD9GpnPE9OwR555TRasrAexF7RKOJyCGEhKuJchmJqLEHDBRSkinqjy3A0TXbSZybK93MQgqUZt0kBWzMrVIaVymNrDIRVL0utYQVCR0dGD4eOGokC4rlna9TsT9GF/VH9bWZwZdtgBWZEY4eoegC/cWwp8ckW75a+nNCpzAIhyLhslASkdXKFV9KyR/NTtCg340jUApDYQyn2zc9FR4bZ0ReaM2H4zhpiglBvPk9DtBZvN1y8/ldANacGReL9nK5SgVWsJQdmzczYy7wl4n1XgQTWFJcGmT+Tq8D4voMAk3huJvelzA39Me2hQcx54nhL8sqGQ7A4+ujf+XYdGDnk6fKfi8Gy165W/xsLL9OwWTIdwIE/Zq423Fha0LMicWewH94MSmNRvq9ndk0ECEglsfiNO7ZEwURhtuKglyr36yqhaf7QZ5jtnSwoLQHdPtT3SON3qQ5meqf6uHFvzG64kuJ7U5/1emcprcPLfM=
+  - secure: mqHV722X69gK8bPvypSTgFHqPBNVmAcKnU5v8U2ZVn8B6sx8LuUhkR0jKvyXSi9wpE9yZsZudC+osaNUaKL+KcZysPB1FFSHJUSGgxSoouw+h8RywjR28cOFTS7Aij1Ypwa9hi1DpRhX0kYcDWyR9w9f9tLcNGPlB5fTjab4ayBGataL/CfF8vTTUN9HKz3AzjhRojTnaBwiuwvbzqM8SSvdlJlmhLLN/O7QCksF1hnmKN+oSzBdMXp5Cew5FU9MuX//fx4RJ4pwq/Wd5ffIbZ+Vndrd/71tLBgw68w0AJxJRmHSNcCWHUhmkuNsDVAVXI3+orDMRJW95ExRf5CCHurOsVVGwfMu85m4Z3n+izobSI89lNlPcaSdarnA609Q8gJI7imhuzP5sVVTCbzDYTEbFYAUOmBtpCa9XgLBiGenL5XBAlC1R6LCExfGgw7rf8jjZoATO9LI0NoMTwXXOMu4cJ0wUUcgtK3R2VopQW5saTorczjWy07NRbPpB8xC8ludlgRoGmVOVN+MITuA4Jo9u5gaTUm9FsUCzqhoRn8DhFTX5mqgvJ5+J4H4blsou0yZRNUFNa6TS1nWXuerQLuZvXKBAxFOszwyarQt4id17CAE00SbjRVLqd1uoHLYD2X6HF05F0KvTDVZVxRn9ePOCQb9P5whriI00smto3g=

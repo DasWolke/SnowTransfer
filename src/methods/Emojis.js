@@ -50,7 +50,7 @@ class EmojiMethods {
      * @param {String} emojiId - id of the emoji
      * @param {Object} data
      * @param {String} data.name - new name of the emoji
-     * @returns {Promise.<Emoji>}
+     * @returns {Promise.<Emoji>} [emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
      */
     async updateEmoji(guildId, emojiId, data) {
         return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), 'patch', data);

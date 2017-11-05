@@ -221,7 +221,7 @@ class ChannelMethods {
      * Modify the permission overwrites of a channel
      * @param {String} channelId - id of the channel
      * @param {String} permissionId - id of the permission overwrite
-     * @param {PermissionOverwrite} data
+     * @param {PermissionOverwrite} data - modified [permission overwrite](https://discordapp.com/developers/docs/resources/channel#edit-channel-permissions-json-params) object
      * @returns {Promise}
      */
     async editChannelPermission(channelId, permissionId, data) {
@@ -241,7 +241,7 @@ class ChannelMethods {
     /**
      * Get a list of invites for a channel
      * @param {String} channelId - id of the channel
-     * @returns {Promise.<Invite[]>}
+     * @returns {Promise.<Invite[]>} list of [invite objects](https://discordapp.com/developers/docs/resources/invite#invite-object) (with metadata)
      */
     async getChannelInvites(channelId) {
         return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), 'get', 'json');
@@ -255,7 +255,7 @@ class ChannelMethods {
      * @param {Number} [data.max_uses=0] - max uses of the invite
      * @param {Boolean} [data.temporary=false] - if this invite only allows temporary membership
      * @param {Boolean} [data.unique=false] - does not try to re-use similar invites when true (useful for creating many one-time invites)
-     * @returns {Promise.<Invite>}
+     * @returns {Promise.<Invite>} [invite object](https://discordapp.com/developers/docs/resources/invite#invite-object) (with metadata)
      */
     async createChannelInvite(channelId, data = {}) {
         return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), 'post', 'json', data);
@@ -274,7 +274,7 @@ class ChannelMethods {
     /**
      * Get a list of pinned messages for a channel
      * @param {String} channelId - id of the channel
-     * @returns {Promise.<Array>} - Array of [message](https://discordapp.com/developers/docs/resources/channel#message-object) objects
+     * @returns {Promise.<Array>} - Array of [message objects](https://discordapp.com/developers/docs/resources/channel#message-object)
      */
     async getChannelPinnedMessages(channelId) {
         return this.requestHandler.request(Endpoints.CHANNEL_PINS(channelId), 'get', 'json');

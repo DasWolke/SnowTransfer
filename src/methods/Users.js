@@ -60,7 +60,7 @@ class UserMethods {
     /**
      * Get direct messages of a user
      * returns an empty array for bots
-     * @returns {Promise.<Array>}
+     * @returns {Promise.<Channel[]>} array of [dm channels](https://discordapp.com/developers/docs/resources/channel#channel-object)
      */
     async getDirectMessages() {
         return this.requestHandler.request(Endpoints.USER_CHANNELS('@me'), 'get', 'json');
@@ -69,7 +69,7 @@ class UserMethods {
     /**
      * Create a direct message channel with a user
      * @param {String} userId - id of the user to create the direct message channel with
-     * @returns {Promise.<Object>} [dm channel](https://discordapp.com/developers/docs/resources/channel#channel-object)
+     * @returns {Promise.<Channel>} [dm channel](https://discordapp.com/developers/docs/resources/channel#channel-object)
      */
     async createDirectMessageChannel(userId) {
         return this.requestHandler.request(Endpoints.USER_CHANNELS('@me'), 'post', 'json', {recipient_id: userId});

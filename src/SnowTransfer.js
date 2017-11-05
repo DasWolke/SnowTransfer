@@ -12,15 +12,16 @@ let VoiceMethods = require('./methods/Voices');
 let BotMethods = require('./methods/Bots');
 
 /**
- * The main client to use when you want to execute actions with the discord rest api
- * @property {ChannelMethods} channel
- * @property {UserMethods} user
- * @property {EmojiMethods} emoji
- * @property {WebhookMethods} webhook
- * @property {GuildMethods} guild
- * @property {InviteMethods} invite
- * @property {VoiceMethods} voice
- * @property {BotMethods} bot
+ * @typedef SnowTransfer
+ * @description The main client to use when you want to execute actions with the discord rest api
+ * @property {ChannelMethods} channel - Methods for channels
+ * @property {UserMethods} user - Methods for users
+ * @property {EmojiMethods} emoji - Methods for emojis
+ * @property {WebhookMethods} webhook - Methods for webhooks
+ * @property {GuildMethods} guild - Methods for guilds
+ * @property {InviteMethods} invite - Methods for invites
+ * @property {VoiceMethods} voice - Methods for voice
+ * @property {BotMethods} bot - Methods for bot related things (e.g. Gateway endpoint)
  * @property {Raven|null} [raven] - optional [sentry raven](https://docs.sentry.io/clients/node/config/) instance used for catching errors
  */
 class SnowTransfer {
@@ -30,6 +31,7 @@ class SnowTransfer {
      * @param {Object} [options] - options
      * @param {String} [options.sentryDsn] - Dsn to use for the sentry integration, disables the integration when empty
      * @param {Object} [options.sentryOptions] - Options to use for the sentry client, check the [sentry docs](https://docs.sentry.io/clients/node/config/) for more infos
+     * @return {SnowTransfer} - created instance
      * @constructor
      */
     constructor(token, options) {

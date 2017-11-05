@@ -1,0 +1,50 @@
+{
+  "src": [
+    {
+      "SnowTransfer": [
+        "./src/**/*.js"
+      ]
+    },
+    {
+      "index": "./README.md"
+    }
+  ],
+  "dest": "./docs",
+  "app": {
+    "title": "SnowTransfer",
+    "entrance": "content:index",
+    "routing": "query",
+    "server": "static"
+  },
+  "jsdoc": {
+    "access": "public",
+    "plugins": [
+      "plugins/markdown"
+    ]
+  },
+  "markdown": {
+    "gfm": true,
+    "tables": true,
+    "breaks": false,
+    "pedantic": false,
+    "sanitize": false,
+    "smartLists": false,
+    "smartypants": false,
+    "tasks": false,
+    "emoji": true
+  },
+  "template": {
+    "options": {
+      "navItems": [
+        {
+          "label": "Home",
+          "href": "?content=index"
+        },
+        {
+          "label": "Documentation",
+          "href": "?api=SnowTransfer#SnowTransfer"
+        }
+      ]
+    }
+  }
+}

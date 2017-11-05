@@ -6,7 +6,7 @@ const Endpoints = require('../Endpoints');
 class BotMethods {
     /**
      * Create a new Bot Method Handler
-     * @param {RequestHandler}requestHandler
+     * @param {RequestHandler} requestHandler request handler that calls the rest api
      */
     constructor(requestHandler) {
         this.requestHandler = requestHandler;
@@ -14,7 +14,7 @@ class BotMethods {
 
     /**
      * Get the gateway url to connect to
-     * @returns {Promise.<GatewayData>}
+     * @returns {Promise.<GatewayData>} [Gateway data](https://discordapp.com/developers/docs/topics/gateway#get-gateway-example-response)
      */
     getGateway() {
         return this.requestHandler.request(Endpoints.GATEWAY, 'get', 'json');
@@ -22,7 +22,7 @@ class BotMethods {
 
     /**
      * Get the gateway url to connect to and a recommended amount of shards to use
-     * @returns {Promise.<GatewayData>}
+     * @returns {Promise.<GatewayData>} [Gateway data](https://discordapp.com/developers/docs/topics/gateway#get-gateway-example-response)
      */
     getGatewayBot() {
         return this.requestHandler.request(Endpoints.GATEWAY_BOT, 'get', 'json');

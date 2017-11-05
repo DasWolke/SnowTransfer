@@ -6,7 +6,7 @@ const Endpoints = require('../Endpoints');
 class WebhookMethods {
     /**
      * Create a new Method Handler
-     * @param {RequestHandler} requestHandler
+     * @param {RequestHandler} requestHandler - request handler that calls the rest api
      */
     constructor(requestHandler) {
         this.requestHandler = requestHandler;
