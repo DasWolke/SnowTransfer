@@ -12,10 +12,10 @@
   "dest": "./docs",
   "app": {
     "title": "SnowTransfer",
-    "base": "/",
+    "base": "/SnowTransfer",
     "entrance": "content:index",
     "routing": "query",
-    "server": "static"
+    "server": "github"
   },
   "jsdoc": {
     "access": "public",
