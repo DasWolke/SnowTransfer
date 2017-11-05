@@ -9,7 +9,7 @@
       "index": "./README.md"
     }
   ],
-  "dest": "./docs",
+  "dest": "./SnowTransfer",
   "app": {
     "title": "SnowTransfer",
     "base": "/SnowTransfer",

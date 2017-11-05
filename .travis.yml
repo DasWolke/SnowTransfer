@@ -9,9 +9,9 @@ deploy:
 - provider: pages
   skip_cleanup: true
   github_token: $github_token
-  local_dir: docs
+  local_dir: SnowTransfer
   on:
-    branch: dev
+    branch: master
 env:
   global:
     secure: guRlUrTVgMhFlb6B4Wcjczcg9e/uRRVzbonyWywAf9z3+rJvsPBzPnwiK/23jIy945z1nf3/SpLZhlC55D76q2o/SV+QnSOD+a7v8d5qJ/RrEhx/u6MrWrCsnlS/wWBpEvli/GBLckTQbVOpOaMvIEPXiII4xm8YWWnj6Pebpt4hcmRfl/+u/bXcqVr+Q1gRXE4F/Qi9yvYMeo424cimozWzJxhS/rSvwj00XmCOdi2ZCue+V1UygRy6IQG0D3NxkXbLfu5dJw3pN+KjDsf1CvMbvSrSel6psbIeiVDOtBqbXGJ9agxvXbguax8oWuOlRbT0gkbymIEQ1JaFcSPIEZlXzxEvubLnmeRifvbPmaS0q5R8ODp6KfLrtrlkzdN+ktEfYEvPknrl+TtlWDBQwatYBC2nAJOd8JB5dGvF1AMTEUufaUnEdHd/j8E7yYvRZyKwsgddeAnEqE6TmiQ3c1coHqIa2xirPuwSlprsVxNr99LDwpl3A0wXLm2jkt0xrF7vXdifUQQccuc157dpbRXN0Re8rqg97+v796GXc9cK6Vk7Mjmwt8f2maGk9YPIFBzREVCUTBRTCevXrfeXyqXvHTEeVWNcyh1oFgjfeiVbul6PVDpqJ6EOIKW/i/U0mz/36GCeI+o0mcmVJy3CxCFrGAqVpt0X7nnRefsETh8=
