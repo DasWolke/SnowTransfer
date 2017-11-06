@@ -141,7 +141,7 @@ class ChannelMethods {
     /**
      * Creates a new Message within a channel
      *
-     * **Make sure to use a filename with a proper image extension (e.g. png, jpeg, etc.)**
+     * **Make sure to use a filename with a proper extension (e.g. png, jpeg, etc.) when you want to upload files**
      * @param {String} channelId - Id of the Channel to sent a message to
      * @param {Object|String} data - Data to send, if data is a string it will be used as the content of the message,
      * if data is not a string you should take a look at the properties below to know what you may send
@@ -314,6 +314,7 @@ class ChannelMethods {
      * @param {String} emoji - reaction emoji
      * @param {String} userId - Id of the user
      * @returns {Promise.<void>} Resolves the Promise on successful execution
+     *
      * | Permission        | Condition    |
      |-----------------    |-------:   |
      | MANAGE_MESSAGES    | always    |

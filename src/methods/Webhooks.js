@@ -18,11 +18,23 @@ class WebhookMethods {
 
     /**
      * Create a new Webhook
-     * @param {String} channelId - id of the channel
-     * @param {Object} data
-     * @param {String} [data.name] - name of the webhook
+     * @param {String} channelId - Id of the channel
+     * @param {Object} data - Object with webhook properties
+     * @param {String} data.name - name of the webhook
      * @param {String} [data.avatar] - base 64 encoded avatar
-     * @returns {Promise.<Object>}
+     * @returns {Promise.<Object>} [Webhook Object](https://discordapp.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
+     *
+     * | Permissions needed | condition |
+     |--------------------|-----------|
+     | MANAGE_WEBHOOKS    | always    |
+     *
+     * @example
+     * // Create a new Webhook with the name "Webby Webhook"
+     * let client = new SnowTransfer('TOKEN');
+     * let webhookData = {
+     *   name: "Webby Webhook"
+     * }
+     * client.webhook.createWebhook('channel Id', webhookData)
      */
     async createWebhook(channelId, data) {
         return this.requestHandler.request(Endpoints.CHANNEL_WEBHOOKS(channelId), 'post', 'json', data);
@@ -30,8 +42,12 @@ class WebhookMethods {
 
     /**
      * Get webhooks created within a channel
-     * @param {String} channelId - id of the channel
-     * @returns {Promise.<Object>}
+     * @param {String} channelId - Id of the channel
+     * @returns {Promise.<Object[]>} Array of [Webhook Objects](https://discordapp.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
+     *
+     * | Permissions needed | condition |
+     |--------------------|-----------|
+     | MANAGE_WEBHOOKS    | always    |
      */
     async getWebhooksChannel(channelId) {
         return this.requestHandler.request(Endpoints.CHANNEL_WEBHOOKS(channelId), 'get', 'json');
@@ -39,18 +55,26 @@ class WebhookMethods {
 
     /**
      * Get all webhooks within a guild
-     * @param {String} guildId - id of the guild
-     * @returns {Promise.<Object>}
+     * @param {String} guildId - Id of the guild
+     * @returns {Promise.<Object>} Array of [Webhook Objects](https://discordapp.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
+     *
+     * | Permissions needed | condition |
+     |--------------------|-----------|
+     | MANAGE_WEBHOOKS    | always    |
      */
     async getWebhooksGuild(guildId) {
         return this.requestHandler.request(Endpoints.GUILD_WEBHOOKS(guildId), 'get', 'json');
     }
 
     /**
-     * Get a single webhook via id
-     * @param {String} webhookId - id of the webhook
-     * @param {String} [token] - webhook token
-     * @returns {Promise.<Object>}
+     * Get a single Webhook via Id
+     * @param {String} webhookId - Id of the webhook
+     * @param {String} [token] - Webhook token
+     * @returns {Promise.<Object>} [Webhook Object](https://discordapp.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
+     *
+     * | Permissions needed | condition |
+     |--------------------|---------------|
+     | MANAGE_WEBHOOKS    | without token |
      */
     async getWebhook(webhookId, token) {
         if (token) {
@@ -61,13 +85,16 @@ class WebhookMethods {
 
     /**
      * Update a webhook
-     * @param {String} webhookId - id of the webhook
-     * @param {String} [token] - webhook token
-     * @param {Object} data - Webhook data to send
-     * @param {String} [data.name] - default name of the webhook
-     * @param {String} [data.avatar] - base 64 image of the default avatar
-     * @param {String} [data.channel_id] - id of the new channel of the webhook
-     * @returns {Promise.<Object>}
+     * @param {String} webhookId - Id of the webhook
+     * @param {String} [token] - Webhook token
+     * @param {Object} data - Updated Webhook properties
+     * @param {String} [data.name] - New default name of the webhook
+     * @param {String} [data.avatar] - Updated base 64 image for the default avatar
+     * @param {String} [data.channel_id] - Id of the new channel of the webhook
+     * @returns {Promise.<Object>} Updated [Webhook Object](https://discordapp.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
+     * | Permissions needed | condition |
+     |--------------------|---------------|
+     | MANAGE_WEBHOOKS    | without token |
      */
     async updateWebhook(webhookId, token, data) {
         if (token) {
@@ -77,10 +104,13 @@ class WebhookMethods {
     }
 
     /**
-     * Delete a webhook
-     * @param {String} webhookId - id of the webhook
-     * @param {String} [token] - webhook token
-     * @returns {Promise.<Object>}
+     * Delete a Webhook
+     * @param {String} webhookId - Id of the webhook
+     * @param {String} [token] - Webhook token
+     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * | Permissions needed | condition |
+     |--------------------|---------------|
+     | MANAGE_WEBHOOKS    | without token |
      */
     async deleteWebhook(webhookId, token) {
         if (token) {
@@ -90,10 +120,10 @@ class WebhookMethods {
     }
 
     /**
-     * Send a message via webhook
-     * @param {String} webhookId - id of the webhook
-     * @param {String} [token] - webhook token
-     * @param {Object} data - webhook data to send
+     * Send a message via Webhook
+     * @param {String} webhookId - Id of the webhook
+     * @param {String} token - webhook token
+     * @param {Object} data - Webhook data to send
      * @param {String} [data.content] - content of the message
      * @param {?String} [data.username] - username to use for the webhook
      * @param {?String} [data.avatar_url] - avatar url of the webhook
@@ -102,10 +132,11 @@ class WebhookMethods {
      * @param {String} [data.file.name] - Name of the file
      * @param {File} [data.file.file] - Buffer with file contents
      * @param {Object[]} [data.embeds] - Array of [embed objects](https://discordapp.com/developers/docs/resources/channel#embed-object)
-     * @returns {Promise.<Object>}
+     * @returns {Promise.<void>} Resolves the Promise on successful execution
      * @example
+     * // Send a message saying "Hi from my webhook" with a previously created webhook
      * let client = new SnowTransfer('TOKEN');
-     * client.webhook.executeWebhook('webhook id', 'webhook token', {content: 'Hi from my webhook'})
+     * client.webhook.executeWebhook('webhook Id', 'webhook token', {content: 'Hi from my webhook'})
      */
     async executeWebhook(webhookId, token, data) {
         if (typeof data !== 'string' && !data.content && !data.embed && !data.file) {
@@ -121,11 +152,11 @@ class WebhookMethods {
     }
 
     /**
-     * Execute a slack style webhook
-     * @param {String} webhookId - id of the webhook
-     * @param {String} [token] - webhook token
+     * Execute a slack style Webhook
+     * @param {String} webhookId - Id of the Webhook
+     * @param {String} token - Webhook token
      * @param {Object} data - Check [Slack's documentation](https://api.slack.com/incoming-webhooks)
-     * @returns {Promise.<Object>}
+     * @returns {Promise.<void>} Resolves the Promise on successful execution
      */
     async executeWebhookSlack(webhookId, token, data) {
         return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_SLACK(webhookId, token), 'post', 'json', data);

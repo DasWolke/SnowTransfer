@@ -29,6 +29,10 @@ class InviteMethods {
      * Delete an invite
      * @param {String} inviteId
      * @returns {Promise.<Invite>} [Invite Object](https://discordapp.com/developers/docs/resources/invite#invite-object)
+     *
+     * | Permissions needed | condition |
+     |--------------------|-----------|
+     | MANAGE_CHANNELS    | always    |
      */
     async deleteInvite(inviteId) {
         return this.requestHandler.request(Endpoints.INVITE(inviteId), 'delete', 'json');

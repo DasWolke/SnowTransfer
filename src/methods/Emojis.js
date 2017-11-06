@@ -21,6 +21,10 @@ class EmojiMethods {
      * Get a list of emojis of a guild
      * @param {String} guildId - Id of the guild
      * @returns {Promise.<Emoji[]>} Array of [emoji objects](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
+     *
+     * | Permissions needed | condition |
+     |--------------------|----------:|
+     | MANAGE_EMOJIS      |    always |
      */
     async getEmojis(guildId) {
         return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), 'get', 'json');
@@ -30,7 +34,11 @@ class EmojiMethods {
      * Get an emoji via guildId + emojiId
      * @param {String} guildId - Id of the guild
      * @param {String} emojiId - Id of the emoji
-     * @returns {Promise.<Emoji>} [emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
+     * @returns {Promise.<Emoji>} [Emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
+     *
+     * | Permissions needed | condition |
+     |--------------------|----------:|
+     | MANAGE_EMOJIS      |    always |
      */
     async getEmoji(guildId, emojiId) {
         return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), 'get', 'json');
@@ -39,10 +47,23 @@ class EmojiMethods {
     /**
      * Create a new Emoji
      * @param {String} guildId - Id of the guild
-     * @param {Object} data
+     * @param {Object} data - Emoji data, check the example
      * @param {String} data.name - name of the emoji
      * @param {String} data.image - base 64 avatar
-     * @returns {Promise.<Emoji>} [emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
+     * @returns {Promise.<Emoji>} [Emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
+     *
+     * | Permissions needed | condition |
+     |--------------------|----------:|
+     | MANAGE_EMOJIS      |    always |
+     * @example
+     * // upload a simple png emoji with a name of "niceEmoji"
+     * let client = new SnowTransfer('TOKEN');
+     * let fileData = fs.readFileSync('nice_emoji.png') // You should probably use fs.readFile, since it's asynchronous, synchronous methods may lag your bot.
+     * let emojiData = {
+     *   name: 'niceEmoji',
+     *   image: `data:image/png;base64,${fileData.toString('base64')}` // base64 data url: data:mimetype;base64,base64String
+     * }
+     * client.emoji.createEmoji('guild id', emojiData)
      */
     async createEmoji(guildId, data) {
         return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), 'post', 'json', data);
@@ -52,9 +73,20 @@ class EmojiMethods {
      * Update an existing emoji
      * @param {String} guildId - Id of the guild
      * @param {String} emojiId - Id of the emoji
-     * @param {Object} data
+     * @param {Object} data - Emoji data, check the example
      * @param {String} data.name - new name of the emoji
-     * @returns {Promise.<Emoji>} [emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
+     * @returns {Promise.<Emoji>} [Emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
+     *
+     * | Permissions needed | condition |
+     |--------------------|----------:|
+     | MANAGE_EMOJIS      |    always |
+     * @example
+     * // Change the name of an existing emoji to "niceEmote"
+     * let client = new SnowTransfer('TOKEN');
+     * let emojiData = {
+     *   name: 'niceEmote'
+     * }
+     * client.emoji.updateEmoji('guild id', 'emoji id', emojiData)
      */
     async updateEmoji(guildId, emojiId, data) {
         return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), 'patch', data);
@@ -64,7 +96,11 @@ class EmojiMethods {
      * Delete a emoji
      * @param {String} guildId - Id of the guild
      * @param {String} emojiId - Id of the emoji
-     * @returns {Promise}
+     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     *
+     * | Permissions needed | condition |
+     |--------------------|----------:|
+     | MANAGE_EMOJIS      |    always |
      */
     async deleteEmoji(guildId, emojiId) {
         return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), 'delete');
