@@ -92,6 +92,7 @@ class WebhookMethods {
      * @param {String} [data.avatar] - Updated base 64 image for the default avatar
      * @param {String} [data.channel_id] - Id of the new channel of the webhook
      * @returns {Promise.<Object>} Updated [Webhook Object](https://discordapp.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
+     *
      * | Permissions needed | condition |
      |--------------------|---------------|
      | MANAGE_WEBHOOKS    | without token |
@@ -108,6 +109,7 @@ class WebhookMethods {
      * @param {String} webhookId - Id of the webhook
      * @param {String} [token] - Webhook token
      * @returns {Promise.<void>} Resolves the Promise on successful execution
+     *
      * | Permissions needed | condition |
      |--------------------|---------------|
      | MANAGE_WEBHOOKS    | without token |
