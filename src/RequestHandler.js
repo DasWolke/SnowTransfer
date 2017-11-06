@@ -188,7 +188,7 @@ class RequestHandler {
 
             delete data.file.file;
         }
-        formData.append('json_payload', JSON.stringify(data));
+        formData.append('payload_json', JSON.stringify(data));
         // :< axios is mean sometimes
         return this.client({
             url: endpoint,

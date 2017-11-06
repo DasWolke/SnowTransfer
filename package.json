@@ -23,6 +23,7 @@
     "raven": "~2.2.1"
   },
   "devDependencies": {
-    "docma": "^1.5.1"
+    "docma": "^1.5.1",
+    "eslint": "^4.4.1"
   }
 }

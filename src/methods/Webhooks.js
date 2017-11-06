@@ -6,6 +6,10 @@ const Endpoints = require('../Endpoints');
 class WebhookMethods {
     /**
      * Create a new Method Handler
+     *
+     * Usually SnowTransfer creates a method handler for you, this is here for completion
+     *
+     * You can access the methods listed via `client.webhook.method`, where `client` is an initialized SnowTransfer instance
      * @param {RequestHandler} requestHandler - request handler that calls the rest api
      */
     constructor(requestHandler) {
@@ -59,7 +63,7 @@ class WebhookMethods {
      * Update a webhook
      * @param {String} webhookId - id of the webhook
      * @param {String} [token] - webhook token
-     * @param {Object} data
+     * @param {Object} data - Webhook data to send
      * @param {String} [data.name] - default name of the webhook
      * @param {String} [data.avatar] - base 64 image of the default avatar
      * @param {String} [data.channel_id] - id of the new channel of the webhook
@@ -89,16 +93,19 @@ class WebhookMethods {
      * Send a message via webhook
      * @param {String} webhookId - id of the webhook
      * @param {String} [token] - webhook token
-     * @param {Object} data
+     * @param {Object} data - webhook data to send
      * @param {String} [data.content] - content of the message
-     * @param {String} [data.username] - username to use for the webhook
-     * @param {String} [data.avatar_url] - avatar url of the webhook
-     * @param {Boolean} [data.tts] - send a text to speech message
+     * @param {?String} [data.username] - username to use for the webhook
+     * @param {?String} [data.avatar_url] - avatar url of the webhook
+     * @param {?Boolean} [data.tts] - send a text to speech message
      * @param {Object} [data.file] - File, that should be uploaded
      * @param {String} [data.file.name] - Name of the file
      * @param {File} [data.file.file] - Buffer with file contents
      * @param {Object[]} [data.embeds] - Array of [embed objects](https://discordapp.com/developers/docs/resources/channel#embed-object)
      * @returns {Promise.<Object>}
+     * @example
+     * let client = new SnowTransfer('TOKEN');
+     * client.webhook.executeWebhook('webhook id', 'webhook token', {content: 'Hi from my webhook'})
      */
     async executeWebhook(webhookId, token, data) {
         if (typeof data !== 'string' && !data.content && !data.embed && !data.file) {

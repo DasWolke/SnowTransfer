@@ -6,6 +6,10 @@ const Endpoints = require('../Endpoints');
 class GuildMethods {
     /**
      * Create a new Guild Method Handler
+     *
+     * Usually SnowTransfer creates a method handler for you, this is here for completion
+     *
+     * You can access the methods listed via `client.guild.method`, where `client` is an initialized SnowTransfer instance
      * @param {RequestHandler} requestHandler - request handler that calls the rest api
      */
     constructor(requestHandler) {

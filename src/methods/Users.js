@@ -6,6 +6,10 @@ const Endpoints = require('../Endpoints');
 class UserMethods {
     /**
      * Create a new User Method handler
+     *
+     * Usually SnowTransfer creates a method handler for you, this is here for completion
+     *
+     * You can access the methods listed via `client.user.method`, where `client` is an initialized SnowTransfer instance
      * @param {RequestHandler} requestHandler
      */
     constructor(requestHandler) {

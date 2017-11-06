@@ -6,6 +6,10 @@ const Endpoints = require('../Endpoints');
 class EmojiMethods {
     /**
      * Create a new Emoji Method handler
+     *
+     * Usually SnowTransfer creates a method handler for you, this is here for completion
+     *
+     * You can access the methods listed via `client.emoji.method`, where `client` is an initialized SnowTransfer instance
      * @param {RequestHandler} requestHandler - request handler that calls the rest api
      * @constructor
      */
@@ -15,7 +19,7 @@ class EmojiMethods {
 
     /**
      * Get a list of emojis of a guild
-     * @param {String} guildId - id of the guild
+     * @param {String} guildId - Id of the guild
      * @returns {Promise.<Emoji[]>} Array of [emoji objects](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
      */
     async getEmojis(guildId) {
@@ -24,8 +28,8 @@ class EmojiMethods {
 
     /**
      * Get an emoji via guildId + emojiId
-     * @param {String} guildId - id of the guild
-     * @param {String} emojiId - id of the emoji
+     * @param {String} guildId - Id of the guild
+     * @param {String} emojiId - Id of the emoji
      * @returns {Promise.<Emoji>} [emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
      */
     async getEmoji(guildId, emojiId) {
@@ -34,7 +38,7 @@ class EmojiMethods {
 
     /**
      * Create a new Emoji
-     * @param {String} guildId - id of the guild
+     * @param {String} guildId - Id of the guild
      * @param {Object} data
      * @param {String} data.name - name of the emoji
      * @param {String} data.image - base 64 avatar
@@ -46,8 +50,8 @@ class EmojiMethods {
 
     /**
      * Update an existing emoji
-     * @param {String} guildId - id of the guild
-     * @param {String} emojiId - id of the emoji
+     * @param {String} guildId - Id of the guild
+     * @param {String} emojiId - Id of the emoji
      * @param {Object} data
      * @param {String} data.name - new name of the emoji
      * @returns {Promise.<Emoji>} [emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
@@ -58,8 +62,8 @@ class EmojiMethods {
 
     /**
      * Delete a emoji
-     * @param {String} guildId - id of the guild
-     * @param {String} emojiId - id of the emoji
+     * @param {String} guildId - Id of the guild
+     * @param {String} emojiId - Id of the emoji
      * @returns {Promise}
      */
     async deleteEmoji(guildId, emojiId) {
@@ -70,7 +74,7 @@ class EmojiMethods {
 
 /**
  * @typedef {Object} Emoji
- * @property {String} id - id of the emoji
+ * @property {String} id - Id of the emoji
  * @property {String} name - name of the emoji
  * @property {Array} [roles] - array of roles whitelisted to use the emoji (whitelisted apps only)
  * @property {User} [user] - User that created this emoji
