@@ -31,7 +31,7 @@ class InviteMethods {
      * @returns {Promise.<Invite>} [Invite Object](https://discordapp.com/developers/docs/resources/invite#invite-object)
      *
      * | Permissions needed | condition |
-     |--------------------|-----------|
+     |--------------------|-----------:|
      | MANAGE_CHANNELS    | always    |
      */
     async deleteInvite(inviteId) {

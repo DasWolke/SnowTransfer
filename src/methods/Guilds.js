@@ -117,7 +117,7 @@ class GuildMethods {
      * @returns {Promise.<Channel>} [channel object](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-structure)
      *
      * | Permissions needed | condition |
-     |--------------------|-----------|
+     |--------------------|-----------:|
      | MANAGE_CHANNELS    | always    |
      */
     async createGuildChannel(guildId, data) {

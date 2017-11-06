@@ -25,7 +25,7 @@ class WebhookMethods {
      * @returns {Promise.<Object>} [Webhook Object](https://discordapp.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
      *
      * | Permissions needed | condition |
-     |--------------------|-----------|
+     |--------------------|-----------:|
      | MANAGE_WEBHOOKS    | always    |
      *
      * @example
@@ -46,7 +46,7 @@ class WebhookMethods {
      * @returns {Promise.<Object[]>} Array of [Webhook Objects](https://discordapp.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
      *
      * | Permissions needed | condition |
-     |--------------------|-----------|
+     |--------------------|-----------:|
      | MANAGE_WEBHOOKS    | always    |
      */
     async getWebhooksChannel(channelId) {
@@ -59,7 +59,7 @@ class WebhookMethods {
      * @returns {Promise.<Object>} Array of [Webhook Objects](https://discordapp.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
      *
      * | Permissions needed | condition |
-     |--------------------|-----------|
+     |--------------------|-----------:|
      | MANAGE_WEBHOOKS    | always    |
      */
     async getWebhooksGuild(guildId) {
@@ -73,7 +73,7 @@ class WebhookMethods {
      * @returns {Promise.<Object>} [Webhook Object](https://discordapp.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
      *
      * | Permissions needed | condition |
-     |--------------------|---------------|
+     |--------------------|---------------:|
      | MANAGE_WEBHOOKS    | without token |
      */
     async getWebhook(webhookId, token) {
@@ -94,7 +94,7 @@ class WebhookMethods {
      * @returns {Promise.<Object>} Updated [Webhook Object](https://discordapp.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
      *
      * | Permissions needed | condition |
-     |--------------------|---------------|
+     |--------------------|---------------:|
      | MANAGE_WEBHOOKS    | without token |
      */
     async updateWebhook(webhookId, token, data) {
@@ -111,7 +111,7 @@ class WebhookMethods {
      * @returns {Promise.<void>} Resolves the Promise on successful execution
      *
      * | Permissions needed | condition |
-     |--------------------|---------------|
+     |--------------------|---------------:|
      | MANAGE_WEBHOOKS    | without token |
      */
     async deleteWebhook(webhookId, token) {
