@@ -33,7 +33,7 @@ class SnowTransfer {
      * @constructor
      */
     constructor(token, options) {
-        if (!token && token !== '') {
+        if (!token) {
             throw new Error('Missing token');
         }
         if (!token.startsWith('Bot')) {
