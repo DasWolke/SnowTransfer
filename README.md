@@ -2,6 +2,11 @@
 ## A minimalistic rest client for the discord api
 
 ---
+[![GitHub stars](https://img.shields.io/github/stars/DasWolke/SnowTransfer.svg)](https://github.com/DasWolke/SnowTransfer/stargazers)
+[![Travis](https://img.shields.io/travis/DasWolke/SnowTransfer.svg)]()
+[![npm](https://img.shields.io/npm/dm/snowtransfer.svg)]()
+[![npm](https://img.shields.io/npm/v/snowtransfer.svg)]()
+
 Part of the WeatherStack
 
 SnowTransfer is a small library specially made to **only** cover the REST/HTTP area of the discord api.
