@@ -6,6 +6,16 @@
   "engines": {
     "node": ">=8.0.0"
   },
+  "keywords": [
+    "discord",
+    "api",
+    "rest",
+    "http",
+    "microservice",
+    "discord bot",
+    "discord bot microservice",
+    "microservice bot"
+  ],
   "scripts": {
     "build:docs": "node_modules/.bin/docma -c docma.config.json"
   },
