@@ -1,7 +1,7 @@
 {
   "name": "snowtransfer",
   "version": "0.1.0",
-  "description": "Minimalistic Rest client for the discord app api",
+  "description": "Minimalistic Rest client for the Discord Api",
   "main": "index.js",
   "engines": {
     "node": ">=8.0.0"
@@ -13,6 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/DasWolke/SnowTransfer.git"
   },
+  "bugs": "https://github.com/DasWolke/SnowTransfer/issues",
   "author": "wolke <wolke@weeb.sh>",
   "license": "MIT",
   "dependencies": {
