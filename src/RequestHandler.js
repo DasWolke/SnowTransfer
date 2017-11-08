@@ -14,6 +14,7 @@ class RequestHandler {
      * @param {Object} options - options
      * @param {String} options.token - token to use for calling the rest api
      * @constructor
+     * @private
      */
     constructor(ratelimiter, options) {
         this.ratelimiter = ratelimiter;
@@ -41,6 +42,7 @@ class RequestHandler {
      * @param {Object} [data] - data to send, if any
      * @param {Number} [attempts=0] - Number of attempts of the current request
      * @returns {Promise.<Object>} - Result of the request
+     * @protected
      */
     request(endpoint, method, dataType = 'json', data = {}, attempts = 0) {
         return new Promise(async (res, rej) => {
@@ -90,7 +92,6 @@ class RequestHandler {
                         if (error.response.status === 502) {
                             return this.request(endpoint, method, dataType, data, attempts ? ++attempts : 1);
                         }
-                        return rej(error);
                     }
                     return rej(error);
                 }
@@ -187,7 +188,7 @@ class RequestHandler {
 
             delete data.file.file;
         }
-        formData.append('json_payload', JSON.stringify(data));
+        formData.append('payload_json', JSON.stringify(data));
         // :< axios is mean sometimes
         return this.client({
             url: endpoint,

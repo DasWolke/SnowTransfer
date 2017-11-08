@@ -6,6 +6,10 @@ const Endpoints = require('../Endpoints');
 class InviteMethods {
     /**
      * Create a new Invite Method Handler
+     *
+     * Usually SnowTransfer creates a method handler for you, this is here for completion
+     *
+     * You can access the methods listed via `client.invite.method`, where `client` is an initialized SnowTransfer instance
      * @param {RequestHandler} requestHandler - request handler that calls the rest api
      */
     constructor(requestHandler) {
@@ -25,6 +29,10 @@ class InviteMethods {
      * Delete an invite
      * @param {String} inviteId
      * @returns {Promise.<Invite>} [Invite Object](https://discordapp.com/developers/docs/resources/invite#invite-object)
+     *
+     * | Permissions needed | condition |
+     |--------------------|-----------:|
+     | MANAGE_CHANNELS    | always    |
      */
     async deleteInvite(inviteId) {
         return this.requestHandler.request(Endpoints.INVITE(inviteId), 'delete', 'json');

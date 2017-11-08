@@ -7,7 +7,7 @@
     "node": ">=8.0.0"
   },
   "scripts": {
-    "build:docs":"node_modules/.bin/jsdoc --configure .jsdoc.json --verbose -r"
+    "build:docs": "node_modules/.bin/docma -c docma.config.json"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,7 @@
     "raven": "~2.2.1"
   },
   "devDependencies": {
-    "jsdoc": "~3.5.5",
-    "minami": "~1.2.3"
+    "docma": "^1.5.1",
+    "eslint": "^4.4.1"
   }
 }
