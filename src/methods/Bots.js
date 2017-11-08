@@ -18,7 +18,7 @@ class BotMethods {
 
     /**
      * Get the gateway url to connect to
-     * @returns {Promise.<GatewayData>} [Gateway data](https://discordapp.com/developers/docs/topics/gateway#get-gateway-example-response)
+     * @returns  {Promise.<GatewayData>} [Gateway data](https://discordapp.com/developers/docs/topics/gateway#get-gateway-example-response)
      * @example
      * let client = new SnowTransfer('TOKEN');
      * let result = await client.bot.getGateway();
