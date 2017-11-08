@@ -27,7 +27,7 @@ class GuildMethods {
      * @param {Number} [data.default_message_notifications] - default message [notification setting](https://discordapp.com/developers/docs/resources/guild#default-message-notification-level)
      * @param {Channel[]} [data.channels] - array of [channels](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-structure)
      * @param {Role[]} [data.roles] - array of [roles](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-structure)
-     * @returns {Promise.<Guild>} - [Guild](https://discordapp.com/developers/docs/resources/guild#guild-object)
+     * @returns {Promise.<Guild>} [Guild](https://discordapp.com/developers/docs/resources/guild#guild-object)
      *
      * @example
      * // Creates a simple guild with the name "Demo Guild"
