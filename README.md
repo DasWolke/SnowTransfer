@@ -2,10 +2,7 @@
 ## A minimalistic rest client for the discord api
 
 ---
-[![GitHub stars](https://img.shields.io/github/stars/DasWolke/SnowTransfer.svg)](https://github.com/DasWolke/SnowTransfer/stargazers)
-[![Travis](https://img.shields.io/travis/DasWolke/SnowTransfer.svg)]()
-[![npm](https://img.shields.io/npm/dm/snowtransfer.svg)]()
-[![npm](https://img.shields.io/npm/v/snowtransfer.svg)]()
+[![GitHub stars](https://img.shields.io/github/stars/DasWolke/SnowTransfer.svg)](https://github.com/DasWolke/SnowTransfer/stargazers) [![Travis](https://img.shields.io/travis/DasWolke/SnowTransfer.svg)](https://github.com/DasWolke/SnowTransfer) [![npm](https://img.shields.io/npm/dm/snowtransfer.svg)](https://github.com/DasWolke/SnowTransfer) [![npm](https://img.shields.io/npm/v/snowtransfer.svg)](https://github.com/DasWolke/SnowTransfer)
 
 Part of the WeatherStack
 
