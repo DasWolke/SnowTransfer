@@ -10,7 +10,7 @@ let GuildMethods = require('./methods/Guilds');
 let InviteMethods = require('./methods/Invites');
 let VoiceMethods = require('./methods/Voices');
 let BotMethods = require('./methods/Bots');
-
+const Endpoints = require('./Endpoints');
 /**
  * @typedef SnowTransfer
  * @description The main client to use when you want to execute actions with the discord rest api
@@ -31,6 +31,7 @@ class SnowTransfer {
      * @param {Object} [options] - options
      * @param {String} [options.sentryDsn] - Dsn to use for the sentry integration, disables the integration when empty
      * @param {Object} [options.sentryOptions] - Options to use for the sentry client, check the [sentry docs](https://docs.sentry.io/clients/node/config/) for more infos
+     * @param {String} [options.baseHost=https://discordapp.com] - Base host to use for the requests, may be replaced when using a local hosted proxy
      * @return {SnowTransfer} - created instance
      * @constructor
      */
@@ -50,7 +51,11 @@ class SnowTransfer {
             this.raven = Raven;
         }
         this.ratelimiter = new Ratelimiter();
-        this.requestHandler = new RequestHandler(this.ratelimiter, {token: this.token, raven: this.raven});
+        this.requestHandler = new RequestHandler(this.ratelimiter, {
+            token: this.token,
+            raven: this.raven,
+            baseHost: this.options.baseHost || Endpoints.BASE_HOST
+        });
         this.channel = new ChannelMethods(this.requestHandler);
         this.user = new UserMethods(this.requestHandler);
         this.emoji = new EmojiMethods(this.requestHandler);
