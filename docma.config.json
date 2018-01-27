@@ -2,7 +2,35 @@
   "src": [
     {
       "SnowTransfer": [
-        "./src/**/*.js"
+        "./src/**/*.js",
+        "!./src/methods/**/*.js"
+      ],
+      "AuditLog": [
+        "./src/methods/AuditLog.js"
+      ],
+      "Bots": [
+        "./src/methods/Bots.js"
+      ],
+      "Channels": [
+        "./src/methods/Channels.js"
+      ],
+      "Emojis": [
+        "./src/methods/Emojis.js"
+      ],
+      "Guilds": [
+        "./src/methods/Guilds.js"
+      ],
+      "Invites": [
+        "./src/methods/Invites.js"
+      ],
+      "Users": [
+        "./src/methods/Users.js"
+      ],
+      "Voices": [
+        "./src/methods/Voices.js"
+      ],
+      "Webhooks": [
+        "./src/methods/Webhooks.js"
       ]
     },
     {
@@ -43,7 +71,55 @@
         },
         {
           "label": "Documentation",
-          "href": "?api=SnowTransfer#SnowTransfer"
+          "iconClass": "ico ico-book",
+          "items": [
+            {
+              "label": "Client",
+              "href": "?api=SnowTransfer"
+            },
+            {
+              "label": "AuditLog",
+              "href": "?api=AuditLog"
+            },
+            {
+              "label": "Bots",
+              "href": "?api=Bots"
+            },
+            {
+              "label": "Channels",
+              "href": "?api=Channels"
+            },
+            {
+              "label": "Emojis",
+              "href": "?api=Emojis"
+            },
+            {
+              "label": "Guilds",
+              "href": "?api=Guilds"
+            },
+            {
+              "label": "Invites",
+              "href": "?api=Invites"
+            },
+            {
+              "label": "Users",
+              "href": "?api=Users"
+            },
+            {
+              "label": "Voices",
+              "href": "?api=Voices"
+            },
+            {
+              "label": "Webhooks",
+              "href": "?api=Webhooks"
+            }
+          ]
+        },
+        {
+          "label": "GitHub",
+          "href": "https://github.com/DasWolke/SnowTransfer",
+          "target": "_blank",
+          "iconClass": "ico-md ico-github"
         }
       ]
     }

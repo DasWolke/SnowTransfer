@@ -19,10 +19,11 @@ class InviteMethods {
     /**
      * Get the invite data on an invite id
      * @param {String} inviteId - Id of the invite
+     * @param {Boolean} [withCounts] - When set to true you get an invite object with additional `approximate_presence_count` and `approximate_member_count` fields
      * @returns {Promise.<Invite>} [Invite Object](https://discordapp.com/developers/docs/resources/invite#invite-object)
      */
-    async getInvite(inviteId) {
-        return this.requestHandler.request(Endpoints.INVITE(inviteId), 'get', 'json');
+    async getInvite(inviteId, withCounts) {
+        return this.requestHandler.request(Endpoints.INVITE(inviteId), 'get', 'json', {with_counts: withCounts});
     }
 
     /**
