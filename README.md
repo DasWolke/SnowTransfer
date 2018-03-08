@@ -34,7 +34,7 @@ Then run the following command in a terminal `npm install snowtransfer`
 
 ### Example: 
 ```js
-let SnowTransfer = require('snowtranfer');
+let SnowTransfer = require('snowtransfer');
 let client = new SnowTransfer('DISCORD BOT TOKEN');
 let request = async () => {
     let message = await client.channel.createMessage('channel id', 'hi there');
