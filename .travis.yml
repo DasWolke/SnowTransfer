@@ -6,7 +6,9 @@ install:
 script:
 - npm run build:docs
 deploy:
-- provider: pages
+- edge:
+    branch: pages-ivar-set
+  provider: pages
   skip_cleanup: true
   github_token: $github_token
   local_dir: SnowTransfer
