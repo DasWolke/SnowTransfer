@@ -141,7 +141,7 @@ class WebhookMethods {
      * client.webhook.executeWebhook('webhook Id', 'webhook token', {content: 'Hi from my webhook'})
      */
     async executeWebhook(webhookId, token, data) {
-        if (typeof data !== 'string' && !data.content && !data.embed && !data.file) {
+        if (typeof data !== 'string' && !data.content && !data.embeds && !data.file) {
             throw new Error('Missing content or embed');
         }
         if (typeof data === 'string') {
