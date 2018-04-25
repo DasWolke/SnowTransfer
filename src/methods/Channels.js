@@ -259,7 +259,7 @@ class ChannelMethods {
         if (forbiddenMessage) {
             throw new Error(`The message ${forbiddenMessage} is older than 2 weeks and may not be deleted using the bulk delete endpoint`);
         }
-        return this.requestHandler.request(Endpoints.CHANNEL_BULK_DELETE(channelId), 'post', 'json', messages);
+        return this.requestHandler.request(Endpoints.CHANNEL_BULK_DELETE(channelId), 'post', 'json', {messages});
     }
 
     /**
