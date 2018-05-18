@@ -52,17 +52,22 @@ class LocalBucket {
      * @protected
      */
     checkQueue() {
+        if (this.reset < 0) {
+            this.reset = 100;
+        }
         if (this.ratelimiter.global) {
             this.resetTimeout = setTimeout(() => this.resetRemaining(), this.ratelimiter.globalReset);
             return;
         }
         if (this.remaining === 0) {
-            this.resetTimeout = setTimeout(() => this.resetRemaining(), this.reset);
-            return;
+            if (!this.resetTimeout) {
+                this.resetTimeout = setTimeout(() => this.resetRemaining(), this.reset);
+            }
         }
         if (this.fnQueue.length > 0 && this.remaining !== 0) {
             let queuedFunc = this.fnQueue.splice(0, 1)[0];
             queuedFunc.callback();
+            this.checkQueue();
         }
     }
 
@@ -73,6 +78,7 @@ class LocalBucket {
     resetRemaining() {
         this.remaining = this.limit;
         clearTimeout(this.resetTimeout);
+        this.resetTimeout = null;
         this.checkQueue();
     }
 
