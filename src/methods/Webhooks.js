@@ -11,9 +11,11 @@ class WebhookMethods {
      *
      * You can access the methods listed via `client.webhook.method`, where `client` is an initialized SnowTransfer instance
      * @param {RequestHandler} requestHandler - request handler that calls the rest api
+     * @param {Boolean} disableEveryone - Disable @everyone/@here on outgoing messages
      */
-    constructor(requestHandler) {
+    constructor(requestHandler, disableEveryone) {
         this.requestHandler = requestHandler;
+        this.disableEveryone = disableEveryone;
     }
 
     /**
@@ -134,19 +136,27 @@ class WebhookMethods {
      * @param {String} [data.file.name] - Name of the file
      * @param {File} [data.file.file] - Buffer with file contents
      * @param {Object[]} [data.embeds] - Array of [embed objects](https://discordapp.com/developers/docs/resources/channel#embed-object)
+     * @param {?Boolean} [options.disableEveryone] - Disable @everyone/@here on the message
      * @returns {Promise.<void>} Resolves the Promise on successful execution
      * @example
      * // Send a message saying "Hi from my webhook" with a previously created webhook
      * let client = new SnowTransfer('TOKEN');
      * client.webhook.executeWebhook('webhook Id', 'webhook token', {content: 'Hi from my webhook'})
      */
-    async executeWebhook(webhookId, token, data) {
+    async executeWebhook(webhookId, token, data, options = {}) {
         if (typeof data !== 'string' && !data.content && !data.embeds && !data.file) {
             throw new Error('Missing content or embed');
         }
         if (typeof data === 'string') {
-            return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), 'post', 'json', {content: data});
-        } else if (data.file) {
+            data = {content: data};
+        }
+
+        // Sanitize the message
+        if (data.content && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) {
+            data.content = data.content.replace(/@everyone/g, "@\u200beveryone").replace(/@here/g, "@\u200bhere");
+        }
+
+        if (data.file) {
             return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), 'post', 'multipart', data);
         } else {
             return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), 'post', 'json', data);
@@ -158,9 +168,15 @@ class WebhookMethods {
      * @param {String} webhookId - Id of the Webhook
      * @param {String} token - Webhook token
      * @param {Object} data - Check [Slack's documentation](https://api.slack.com/incoming-webhooks)
+     * @param {?Boolean} [options.disableEveryone] - Disable @everyone/@here on the message
      * @returns {Promise.<void>} Resolves the Promise on successful execution
      */
-    async executeWebhookSlack(webhookId, token, data) {
+    async executeWebhookSlack(webhookId, token, data, options = {}) {
+        // Sanitize the message
+        if (data.text && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) {
+            data.text = data.text.replace(/@everyone/g, "@\u200beveryone").replace(/@here/g, "@\u200bhere");
+        }
+
         return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_SLACK(webhookId, token), 'post', 'json', data);
     }
 }

@@ -12,10 +12,12 @@ class ChannelMethods {
      *
      * You can access the methods listed via `client.channel.method`, where `client` is an initialized SnowTransfer instance
      * @param {RequestHandler} requestHandler - request handler that calls the rest api
+     * @param {Boolean} disableEveryone - Disable @everyone/@here on outgoing messages
      * @constructor
      */
-    constructor(requestHandler) {
+    constructor(requestHandler, disableEveryone) {
         this.requestHandler = requestHandler;
+        this.disableEveryone = disableEveryone;
     }
 
     /**
@@ -151,6 +153,7 @@ class ChannelMethods {
      * @param {Object} [data.file] - File, that should be uploaded
      * @param {String} [data.file.name] - Name of the file
      * @param {File} [data.file.file] - Buffer with file contents
+     * @param {?Boolean} [options.disableEveryone] - Disable @everyone/@here on the message
      * @returns {Promise.<Object>} [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) object
      *
      * | Permissions needed | condition |
@@ -182,13 +185,20 @@ class ChannelMethods {
      * let fileData = fs.readFileSync('nice_picture.png') // You should probably use fs.readFile, since it's asynchronous, synchronous methods may lag your bot.
      * client.channel.createMessage('channel id', {content: 'This is a nice picture', file: {name: 'Optional Filename.png', file: fileData}})
      */
-    async createMessage(channelId, data) {
+    async createMessage(channelId, data, options = {}) {
         if (typeof data !== 'string' && !data.content && !data.embed && !data.file) {
             throw new Error('Missing content or embed');
         }
         if (typeof data === 'string') {
-            return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), 'post', 'json', {content: data});
-        } else if (data.file) {
+            data = {content: data};
+        }
+
+        // Sanitize the message
+        if (data.content && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) {
+            data.content = data.content.replace(/@everyone/g, "@\u200beveryone").replace(/@here/g, "@\u200bhere");
+        }
+
+        if (data.file) {
             return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), 'post', 'multipart', data);
         } else {
             return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), 'post', 'json', data);
@@ -202,6 +212,7 @@ class ChannelMethods {
      * @param {Object|String} data - Data to send
      * @param {String} [data.content] - Content of the message
      * @param {Object} [data.embed] - Embed to send
+     * @param {?Boolean} [options.disableEveryone] - Disable @everyone/@here on the message
      * @returns {Promise.<Object>} [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) object
      * @example
      * // Simple ping response
@@ -210,15 +221,20 @@ class ChannelMethods {
      * let message = await client.channel.createMessage('channel id', 'pong')
      * client.channel.editMessage('channel id', message.id, `pong ${Date.now() - time}ms`)
      */
-    async editMessage(channelId, messageId, data) {
+    async editMessage(channelId, messageId, data, options = {}) {
         if (typeof data !== 'string' && !data.content && !data.embed) {
             throw new Error('Missing content or embed');
         }
         if (typeof data === 'string') {
-            return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), 'patch', 'json', {content: data});
-        } else {
-            return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), 'patch', 'json', data);
+            data = {content: data};
         }
+
+        // Sanitize the message
+        if (data.content && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) {
+            data.content = data.content.replace(/@everyone/g, "@\u200beveryone").replace(/@here/g, "@\u200bhere");
+        }
+
+        return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), 'patch', 'json', data);
     }
 
     /**
