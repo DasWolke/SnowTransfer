@@ -260,14 +260,16 @@ class GuildMethods {
      * @param {String} guildId - Id of the guild
      * @param {String} memberId - Id of the guild member
      * @param {String} roleId - Id of the role
+     * @param {Object} [data] - object with reason property
+     * @param {String} [data.reason] - Audit log reason for the remove
      * @returns {Promise.<void>} Resolves the Promise on successful execution
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
      | MANAGE_ROLES       |    always |
      */
-    async addGuildMemberRole(guildId, memberId, roleId) {
-        return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), 'put', 'json');
+    async addGuildMemberRole(guildId, memberId, roleId, data) {
+        return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), 'put', 'json', data);
     }
 
     /**
@@ -275,14 +277,16 @@ class GuildMethods {
      * @param {String} guildId - Id of the guild
      * @param {String} memberId - Id of the guild member
      * @param {String} roleId - Id of the role
+     * @param {Object} [data] - object with reason property
+     * @param {String} [data.reason] - Audit log reason for the remove
      * @returns {Promise.<void>} Resolves the Promise on successful execution
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
      | MANAGE_ROLES       |    always |
      */
-    async removeGuildMemberRole(guildId, memberId, roleId) {
-        return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), 'delete', 'json');
+    async removeGuildMemberRole(guildId, memberId, roleId, data) {
+        return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), 'delete', 'json', data);
     }
 
     /**
