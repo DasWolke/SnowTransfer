@@ -1,3 +1,5 @@
+const EventEmitter = require('events');
+const crypto = require('crypto');
 const axios = require('axios');
 const Endpoints = require('./Endpoints');
 const version = require('../package.json').version;
@@ -7,7 +9,7 @@ const FormData = require('form-data');
  * Request Handler class
  * @private
  */
-class RequestHandler {
+class RequestHandler extends EventEmitter {
     /**
      * Create a new request handler
      * @param {Ratelimiter} ratelimiter - ratelimiter to use for ratelimiting requests
@@ -17,6 +19,8 @@ class RequestHandler {
      * @private
      */
     constructor(ratelimiter, options) {
+        super();
+        
         this.ratelimiter = ratelimiter;
         this.options = {baseHost: Endpoints.BASE_HOST, baseURL: Endpoints.BASE_URL};
         Object.assign(this.options, options);
@@ -47,9 +51,12 @@ class RequestHandler {
     request(endpoint, method, dataType = 'json', data = {}, attempts = 0) {
         return new Promise(async (res, rej) => {
             this.ratelimiter.queue(async (bkt) => {
+                const reqID = crypto.randomBytes(20).toString('hex');
                 let request;
                 let latency = Date.now();
                 try {
+                    this.emit('request', reqID, { endpoint, method, dataType, data, attempts });
+                    
                     switch (dataType) {
                         case 'json':
                             request = await this._request(endpoint, method, data, (method === 'get' || endpoint.includes('/bans') || endpoint.includes('/prune')));
@@ -63,11 +70,14 @@ class RequestHandler {
                     this.latency = Date.now() - latency;
                     let offsetDate = this._getOffsetDateFromHeader(request.headers['date']);
                     this._applyRatelimitHeaders(bkt, request.headers, offsetDate, endpoint.endsWith('/reactions/:id'));
+                    
+                    this.emit('done', reqID, request);
                     if (request.data) {
                         return res(request.data);
                     }
                     return res();
                 } catch (error) {
+                    this.emit('requestError', reqID, error);
                     if (this.raven) {
                         this.raven.captureException(error, {
                             extra: {
