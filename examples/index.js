@@ -1,13 +1,16 @@
-let SnowTransfer = require('../src/SnowTransfer');
-let config = require('./config.json');
-let client = new SnowTransfer(config.token);
+let SnowTransfer = require('../dist/src/SnowTransfer');
+
+// also works without `default`
+let client = new SnowTransfer.default('token');
 let request = async () => {
     let message = await client.channel.createMessage('your channel id here', {
+        content: 'hello',
         embed: {
             title: 'memes',
             description: 'memes'
         }
     });
+    
     console.log(message);
 };
 request().then(() => {

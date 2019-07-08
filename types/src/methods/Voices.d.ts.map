@@ -1,0 +1,1 @@
+{"version":3,"file":"Voices.d.ts","sourceRoot":"","sources":["../../../src/methods/Voices.ts"],"names":[],"mappings":"AACA,OAAO,cAAc,MAAM,mBAAmB,CAAC;AAC/C,OAAO,EAAE,YAAY,EAAE,MAAM,aAAa,CAAC;AAE3C;;GAEG;AACH,cAAM,YAAY;IAEd,OAAO,CAAC,cAAc,CAAgB;IAEtC;;;;;;;OAOG;gBACS,cAAc,EAAE,cAAc;IAI1C;;;OAGG;IACG,eAAe,IAAI,OAAO,CAAC,YAAY,EAAE,CAAC;CAGnD;AAED;;;;;;;;;;GAUG;AAEH,eAAe,YAAY,CAAC"}

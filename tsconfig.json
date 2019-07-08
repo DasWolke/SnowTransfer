@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+      "outDir": "./dist/",
+      "strictNullChecks": false,
+      "module": "commonjs",
+      "target": "es2018",
+      "declaration": true,
+      "declarationDir": "./types",
+      "strict": true,
+      "pretty": true,
+      "noUnusedParameters": true,
+      "noUnusedLocals": true,
+      "alwaysStrict": true,
+      "downlevelIteration": true,
+      "keyofStringsOnly": true,
+      "strictFunctionTypes": true,
+      "strictBindCallApply": true,
+      "resolveJsonModule": true,
+      "allowSyntheticDefaultImports": true,
+      "moduleResolution": "node",
+      "declarationMap": true,
+      "sourceMap": true,
+      "incremental": true
+  },
+  "include": [
+      "./src/"
+  ]
+}

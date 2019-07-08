@@ -1,0 +1,41 @@
+{
+    "author": "niputi",
+    "license": "MIT",
+    "name": "snowtransfer-ts",
+    "version": "0.2.4",
+    "description": "Minimalistic Rest client for the Discord Api",
+    "main": "./dist/src/SnowTransfer.js",
+    "engines": {
+        "node": ">=8.0.0"
+    },
+    "types": "./types/src/SnowTransfer.d.ts",
+    "keywords": [
+        "discord",
+        "api",
+        "rest",
+        "http",
+        "microservice",
+        "discord bot",
+        "discord bot microservice",
+        "microservice bot"
+    ],
+    "scripts": {
+        "test": ""
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Niputi/SnowTransfer-ts.git"
+    },
+    "bugs": "https://github.com/Niputi/SnowTransfer-ts/issues",
+    "dependencies": {
+        "axios": "~0.19.0",
+        "form-data": "~2.5.0"
+    },
+    "optionalDependencies": {
+        "@sentry/node": "^5.5.0"
+    },
+    "devDependencies": {
+        "@types/node": "^12.6.0",
+        "eslint": "^6.0.1"
+    }
+}
