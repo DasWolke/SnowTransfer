@@ -1,5 +1,7 @@
 const EventEmitter = require('events');
 const crypto = require('crypto');
+const http = require('http');
+const https = require('https');
 const axios = require('axios');
 const Endpoints = require('./Endpoints');
 const version = require('../package.json').version;
@@ -20,7 +22,7 @@ class RequestHandler extends EventEmitter {
      */
     constructor(ratelimiter, options) {
         super();
-        
+
         this.ratelimiter = ratelimiter;
         this.options = {baseHost: Endpoints.BASE_HOST, baseURL: Endpoints.BASE_URL};
         Object.assign(this.options, options);
@@ -29,7 +31,9 @@ class RequestHandler extends EventEmitter {
             headers: {
                 Authorization: options.token,
                 'User-Agent': `DiscordBot (https://github.com/DasWolke/SnowTransfer, ${version})`
-            }
+            },
+            httpAgent: new http.Agent({ keepAlive: true }),
+            httpsAgent: new https.Agent({ keepAlive: true })
         });
         this.raven = options.raven ? options.raven : null;
         this.latency = 500;
@@ -56,7 +60,7 @@ class RequestHandler extends EventEmitter {
                 let latency = Date.now();
                 try {
                     this.emit('request', reqID, { endpoint, method, dataType, data, attempts });
-                    
+
                     switch (dataType) {
                         case 'json':
                             request = await this._request(endpoint, method, data, (method === 'get' || endpoint.includes('/bans') || endpoint.includes('/prune')));
@@ -70,7 +74,7 @@ class RequestHandler extends EventEmitter {
                     this.latency = Date.now() - latency;
                     let offsetDate = this._getOffsetDateFromHeader(request.headers['date']);
                     this._applyRatelimitHeaders(bkt, request.headers, offsetDate, endpoint.endsWith('/reactions/:id'));
-                    
+
                     this.emit('done', reqID, request);
                     if (request.data) {
                         return res(request.data);
