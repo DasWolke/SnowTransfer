@@ -170,7 +170,7 @@ class RequestHandler extends EventEmitter {
     async _request(endpoint, method, data, useParams = false) {
         let headers = {};
         if (data.reason) {
-            headers['X-Audit-Log-Reason'] = data.reason;
+            headers['X-Audit-Log-Reason'] = encodeURIComponent(data.reason);
             delete data.reason;
         }
         if (useParams) {
