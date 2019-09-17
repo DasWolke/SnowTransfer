@@ -173,6 +173,10 @@ class RequestHandler extends EventEmitter {
             headers['X-Audit-Log-Reason'] = encodeURIComponent(data.reason);
             delete data.reason;
         }
+        if (data.queryReason) {
+            data.reason = data.queryReason;
+            delete data.queryReason;
+        }
         if (useParams) {
             return this.client({url: endpoint, method, params: data, headers});
         } else {

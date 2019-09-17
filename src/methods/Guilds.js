@@ -349,6 +349,7 @@ class GuildMethods {
      * client.guild.createGuildBan('guild Id', 'memberId', banData)
      */
     async createGuildBan(guildId, memberId, data) {
+        data.queryReason = data.reason;
         return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), 'put', 'json', data);
     }
 
