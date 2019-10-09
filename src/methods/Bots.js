@@ -10,7 +10,7 @@ class BotMethods {
      * Usually SnowTransfer creates a method handler for you, this is here for completion
      *
      * You can access the methods listed via `client.bot.method`, where `client` is an initialized SnowTransfer instance
-     * @param {RequestHandler} requestHandler request handler that calls the rest api
+     * @param {import("../RequestHandler")} requestHandler request handler that calls the rest api
      */
     constructor(requestHandler) {
         this.requestHandler = requestHandler;
@@ -18,7 +18,7 @@ class BotMethods {
 
     /**
      * Get the gateway url to connect to
-     * @returns  {Promise.<GatewayData>} [Gateway data](https://discordapp.com/developers/docs/topics/gateway#get-gateway-example-response)
+     * @returns  {Promise<GatewayData>} [Gateway data](https://discordapp.com/developers/docs/topics/gateway#get-gateway-example-response)
      * @example
      * let client = new SnowTransfer('TOKEN');
      * let result = await client.bot.getGateway();
@@ -30,7 +30,7 @@ class BotMethods {
 
     /**
      * Get the gateway url to connect to and a recommended amount of shards to use
-     * @returns {Promise.<GatewayData>} [Gateway data](https://discordapp.com/developers/docs/topics/gateway#get-gateway-example-response)
+     * @returns {Promise<GatewayData>} [Gateway data](https://discordapp.com/developers/docs/topics/gateway#get-gateway-example-response)
      * @example
      * let client = new SnowTransfer('TOKEN');
      * let result = await client.bot.getGateway();
@@ -42,9 +42,9 @@ class BotMethods {
 }
 
 /**
- * @typedef {Object} GatewayData
- * @property {String} url - url to connect to
- * @property {Number} [shards] - number of shards, recommended by discord
+ * @typedef {object} GatewayData
+ * @property {string} url - url to connect to
+ * @property {number} [shards] - number of shards, recommended by discord
  */
 
 module.exports = BotMethods;

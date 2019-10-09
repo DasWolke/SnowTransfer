@@ -3,17 +3,17 @@
 /**
  * Bucket used for saving ratelimits
  * @property {Array} fnQueue - array of functions waiting to be executed
- * @property {Number} limit - Number of functions that may be executed during the timeframe set in limitReset
- * @property {Number} remaining - Remaining amount of executions during the current timeframe
- * @property {Number} limitReset - Timeframe in milliseconds until the ratelimit resets
- * @property {Object} resetTimeout - Timeout that calls the reset function once the timeframe passed
+ * @property {number} limit - Number of functions that may be executed during the timeframe set in limitReset
+ * @property {number} remaining - Remaining amount of executions during the current timeframe
+ * @property {number} limitReset - Timeframe in milliseconds until the ratelimit resets
+ * @property {object} resetTimeout - Timeout that calls the reset function once the timeframe passed
  * @property {Ratelimiter} ratelimiter - ratelimiter used for ratelimiting requests
  * @protected
  */
 class LocalBucket {
     /**
      * Create a new bucket
-     * @param {Ratelimiter} ratelimiter - ratelimiter used for ratelimiting requests
+     * @param {import("../Ratelimiter")} ratelimiter - ratelimiter used for ratelimiting requests
      * @protected
      */
     constructor(ratelimiter) {
@@ -28,7 +28,7 @@ class LocalBucket {
     /**
      * Queue a function to be executed
      * @param {Function} fn - function to be executed
-     * @returns {Promise.<void>} - Result of the function if any
+     * @returns {Promise<void>} - Result of the function if any
      * @protected
      */
     queue(fn) {

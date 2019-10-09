@@ -27,14 +27,10 @@
   "author": "wolke <wolke@weeb.sh>",
   "license": "MIT",
   "dependencies": {
-    "axios": "~0.18.1",
+    "axios": "^0.19.0",
     "form-data": "~2.3.1"
   },
-  "optionalDependencies": {
-    "raven": "~2.2.1"
-  },
   "devDependencies": {
-    "docma": "^1.5.1",
     "eslint": "^4.4.1"
   }
 }

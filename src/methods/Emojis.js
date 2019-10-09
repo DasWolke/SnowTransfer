@@ -10,7 +10,7 @@ class EmojiMethods {
      * Usually SnowTransfer creates a method handler for you, this is here for completion
      *
      * You can access the methods listed via `client.emoji.method`, where `client` is an initialized SnowTransfer instance
-     * @param {RequestHandler} requestHandler - request handler that calls the rest api
+     * @param {import("../RequestHandler")} requestHandler - request handler that calls the rest api
      * @constructor
      */
     constructor(requestHandler) {
@@ -19,8 +19,8 @@ class EmojiMethods {
 
     /**
      * Get a list of emojis of a guild
-     * @param {String} guildId - Id of the guild
-     * @returns {Promise.<Emoji[]>} Array of [emoji objects](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
+     * @param {string} guildId - Id of the guild
+     * @returns {Promise<Emoji[]>} Array of [emoji objects](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
@@ -32,9 +32,9 @@ class EmojiMethods {
 
     /**
      * Get an emoji via guildId + emojiId
-     * @param {String} guildId - Id of the guild
-     * @param {String} emojiId - Id of the emoji
-     * @returns {Promise.<Emoji>} [Emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
+     * @param {string} guildId - Id of the guild
+     * @param {string} emojiId - Id of the emoji
+     * @returns {Promise<Emoji>} [Emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
@@ -46,11 +46,11 @@ class EmojiMethods {
 
     /**
      * Create a new Emoji
-     * @param {String} guildId - Id of the guild
-     * @param {Object} data - Emoji data, check the example
-     * @param {String} data.name - name of the emoji
-     * @param {String} data.image - base 64 avatar
-     * @returns {Promise.<Emoji>} [Emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
+     * @param {string} guildId - Id of the guild
+     * @param {object} data - Emoji data, check the example
+     * @param {string} data.name - name of the emoji
+     * @param {string} data.image - base 64 avatar
+     * @returns {Promise<Emoji>} [Emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
@@ -66,16 +66,16 @@ class EmojiMethods {
      * client.emoji.createEmoji('guild id', emojiData)
      */
     async createEmoji(guildId, data) {
-        return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), 'post', 'json', data);
+        return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), 'post', 'json', null, data);
     }
 
     /**
      * Update an existing emoji
-     * @param {String} guildId - Id of the guild
-     * @param {String} emojiId - Id of the emoji
-     * @param {Object} data - Emoji data, check the example
-     * @param {String} data.name - new name of the emoji
-     * @returns {Promise.<Emoji>} [Emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
+     * @param {string} guildId - Id of the guild
+     * @param {string} emojiId - Id of the emoji
+     * @param {object} data - Emoji data, check the example
+     * @param {string} data.name - new name of the emoji
+     * @returns {Promise<Emoji>} [Emoji object](https://discordapp.com/developers/docs/resources/emoji#emoji-object)
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
@@ -89,14 +89,14 @@ class EmojiMethods {
      * client.emoji.updateEmoji('guild id', 'emoji id', emojiData)
      */
     async updateEmoji(guildId, emojiId, data) {
-        return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), 'patch', data);
+        return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), 'patch', 'json', null, data);
     }
 
     /**
      * Delete a emoji
-     * @param {String} guildId - Id of the guild
-     * @param {String} emojiId - Id of the emoji
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @param {string} guildId - Id of the guild
+     * @param {string} emojiId - Id of the emoji
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
@@ -109,9 +109,9 @@ class EmojiMethods {
 }
 
 /**
- * @typedef {Object} Emoji
- * @property {String} id - Id of the emoji
- * @property {String} name - name of the emoji
+ * @typedef {object} Emoji
+ * @property {string} id - Id of the emoji
+ * @property {string} name - name of the emoji
  * @property {Array} [roles] - array of roles whitelisted to use the emoji (whitelisted apps only)
  * @property {User} [user] - User that created this emoji
  * @property {Boolean} require_colons - whether this emoji must be wrapped in colons

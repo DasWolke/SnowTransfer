@@ -1,4 +1,5 @@
 const Endpoints = require('../Endpoints');
+const UserCache = require("../cache/UserCache");
 
 /**
  * Methods for interacting with users
@@ -10,35 +11,36 @@ class UserMethods {
      * Usually SnowTransfer creates a method handler for you, this is here for completion
      *
      * You can access the methods listed via `client.user.method`, where `client` is an initialized SnowTransfer instance
-     * @param {RequestHandler} requestHandler
+     * @param {import("../RequestHandler")} requestHandler
      */
     constructor(requestHandler) {
         this.requestHandler = requestHandler;
+        this.cache = new UserCache(this);
     }
 
     /**
      * Get information about current user
-     * @returns {Promise.<SelfUser>} [user object](https://discordapp.com/developers/docs/resources/user#user-object)
+     * @returns {Promise<SelfUser>} [user object](https://discordapp.com/developers/docs/resources/user#user-object)
      */
     async getSelf() {
-        return this.requestHandler.request(Endpoints.USER('@me'), 'get', 'json');
+        return this.cache.wrap("@me", this.requestHandler.request(Endpoints.USER('@me'), 'get', 'json'));
     }
 
     /**
      * Get information about a user via Id
-     * @param {String} userId - Id of the user
-     * @returns {Promise.<User>} [user object](https://discordapp.com/developers/docs/resources/user#user-object)
+     * @param {string} userId - Id of the user
+     * @returns {Promise<User>} [user object](https://discordapp.com/developers/docs/resources/user#user-object)
      */
     async getUser(userId) {
-        return this.requestHandler.request(Endpoints.USER(userId), 'get', 'json');
+        return this.cache.wrap(userId, this.requestHandler.request(Endpoints.USER(userId), 'get', 'json'));
     }
 
     /**
      * Update the current user
-     * @param {Object} data
-     * @param {String} [data.username] - Username to change
-     * @param {String} [data.avatar] - Base64 encoded avatar
-     * @returns {Promise.<SelfUser>} [user object](https://discordapp.com/developers/docs/resources/user#user-object)
+     * @param {object} data
+     * @param {string} [data.username] - Username to change
+     * @param {string} [data.avatar] - Base64 encoded avatar
+     * @returns {Promise<SelfUser>} [user object](https://discordapp.com/developers/docs/resources/user#user-object)
      *
      * @example
      * // update the avatar of the user
@@ -50,12 +52,12 @@ class UserMethods {
      * client.user.updateSelf(updateData)
      */
     async updateSelf(data) {
-        return this.requestHandler.request(Endpoints.USER('@me'), 'patch', 'json', data);
+        return this.cache.wrap("@me", this.requestHandler.request(Endpoints.USER('@me'), 'patch', 'json', null, data));
     }
 
     /**
      * Get guilds of the current user
-     * @returns {Promise.<Guild[]>} Array of [partial guild objects](https://discordapp.com/developers/docs/resources/guild#guild-object)
+     * @returns {Promise<import("./Guilds").Guild[]>} Array of [partial guild objects](https://discordapp.com/developers/docs/resources/guild#guild-object)
      */
     async getGuilds() {
         return this.requestHandler.request(Endpoints.USER_GUILDS('@me'), 'get', 'json');
@@ -63,8 +65,8 @@ class UserMethods {
 
     /**
      * Leave a guild
-     * @param {String} guildId - Id of the guild
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @param {string} guildId - Id of the guild
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      */
     async leaveGuild(guildId) {
         return this.requestHandler.request(Endpoints.USER_GUILD('@me', guildId), 'delete', 'json');
@@ -74,7 +76,7 @@ class UserMethods {
      * Get direct messages of a user
      *
      * **Returns an empty array for bots**
-     * @returns {Promise.<Channel[]>} Array of [dm channels](https://discordapp.com/developers/docs/resources/channel#channel-object)
+     * @returns {Promise<import("./Channels").Channel[]>} Array of [dm channels](https://discordapp.com/developers/docs/resources/channel#channel-object)
      */
     async getDirectMessages() {
         return this.requestHandler.request(Endpoints.USER_CHANNELS('@me'), 'get', 'json');
@@ -84,8 +86,8 @@ class UserMethods {
      * Create a direct message channel with another user
      *
      * **You can not create a dm with another bot**
-     * @param {String} userId - Id of the user to create the direct message channel with
-     * @returns {Promise.<Channel>} [DM channel](https://discordapp.com/developers/docs/resources/channel#channel-object)
+     * @param {string} userId - Id of the user to create the direct message channel with
+     * @returns {Promise<import("./Channels").Channel>} [DM channel](https://discordapp.com/developers/docs/resources/channel#channel-object)
      *
      * @example
      * // Create a dm channel and send "hi" to it
@@ -94,16 +96,16 @@ class UserMethods {
      * client.channel.createMessage(channel.id, 'hi')
      */
     async createDirectMessageChannel(userId) {
-        return this.requestHandler.request(Endpoints.USER_CHANNELS('@me'), 'post', 'json', {recipient_id: userId});
+        return this.requestHandler.request(Endpoints.USER_CHANNELS('@me'), 'post', 'json', null, {recipient_id: userId});
     }
 }
 
 /**
- * @typedef {Object} User
- * @property {String} id - Id of the user
- * @property {String} username - username of the user
- * @property {String} discriminator - 4 digit long discord tag
- * @property {String} avatar - avatar hash of the user
+ * @typedef {object} User
+ * @property {string} id - Id of the user
+ * @property {string} username - username of the user
+ * @property {string} discriminator - 4 digit long discord tag
+ * @property {string} avatar - avatar hash of the user
  */
 
 /**
@@ -111,6 +113,6 @@ class UserMethods {
  * @property {Boolean} bot - if the user is a bot
  * @property {Boolean} mfa_enabled - if the user has mfa enabled
  * @property {Boolean} verified - if the user is verified
- * @property {String} email - email of the user
+ * @property {string} email - email of the user
  */
 module.exports = UserMethods;

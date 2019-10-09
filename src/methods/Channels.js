@@ -11,7 +11,7 @@ class ChannelMethods {
      * Usually SnowTransfer creates a method handler for you, this is here for completion
      *
      * You can access the methods listed via `client.channel.method`, where `client` is an initialized SnowTransfer instance
-     * @param {RequestHandler} requestHandler - request handler that calls the rest api
+     * @param {import("../RequestHandler")} requestHandler - request handler that calls the rest api
      * @param {Boolean} disableEveryone - Disable @everyone/@here on outgoing messages
      * @constructor
      */
@@ -22,8 +22,8 @@ class ChannelMethods {
 
     /**
      * Get a channel via Id
-     * @param {String} channelId - Id of the channel
-     * @returns {Promise.<Channel>} - [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
+     * @param {string} channelId - Id of the channel
+     * @returns {Promise<Channel>} - [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
      * @example
      * let client = new SnowTransfer('TOKEN')
      * let channel = await client.channel.getChannel('channel id')
@@ -34,17 +34,17 @@ class ChannelMethods {
 
     /**
      * Update a channel
-     * @param {String} channelId - Id of the channel
-     * @param {Object} data - Data to send
-     * @param {String} [data.name] - New name of the channel
-     * @param {Number} [data.position] - New position of the channel
-     * @param {String} [data.topic] - New topic of the channel
+     * @param {string} channelId - Id of the channel
+     * @param {object} data - Data to send
+     * @param {string} [data.name] - New name of the channel
+     * @param {number} [data.position] - New position of the channel
+     * @param {string} [data.topic] - New topic of the channel
      * @param {Boolean} [data.nsfw] - Update nsfw type of the channel
-     * @param {Number} [data.bitrate] - Update bitrate of the channel
-     * @param {Number} [data.user_limit] - Update the limit of users that are allowed to be in a channel
+     * @param {number} [data.bitrate] - Update bitrate of the channel
+     * @param {number} [data.user_limit] - Update the limit of users that are allowed to be in a channel
      * @param {Array} [data.permission_overwrites] - Update the permission overwrites
-     * @param {String} [data.parent_id] - Id of the parent category of the channel
-     * @returns {Promise.<Channel>} [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
+     * @param {string} [data.parent_id] - Id of the parent category of the channel
+     * @returns {Promise<Channel>} [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
      *
      * | Permissions needed | Condition |
      |--------------------|----------:|
@@ -59,7 +59,7 @@ class ChannelMethods {
      * client.channel.updateChannel('channel id', updateData)
      */
     async updateChannel(channelId, data) {
-        return this.requestHandler.request(Endpoints.CHANNEL(channelId), 'patch', 'json', data);
+        return this.requestHandler.request(Endpoints.CHANNEL(channelId), 'patch', 'json', null, data);
     }
 
     /**
@@ -70,8 +70,8 @@ class ChannelMethods {
      * **Be careful with deleting Guild Channels as this can not be undone!**
      *
      * When deleting a category, this does **not** delete the child channels of a category. They will just have their `parent_id` removed.
-     * @param {String} channelId - Id of the channel
-     * @returns {Promise.<Channel>} [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
+     * @param {string} channelId - Id of the channel
+     * @returns {Promise<Channel>} [discord channel](https://discordapp.com/developers/docs/resources/channel#channel-object) object
      *
      * | Permissions needed |                        Condition |
      |--------------------|---------------------------------:|
@@ -83,13 +83,13 @@ class ChannelMethods {
 
     /**
      * Get a list of messages from a channel
-     * @param {String} channelId - Id of the channel
-     * @param {Object} [options]
-     * @param {String} [options.around] - Get's messages around the Id of the passed snowflake
-     * @param {String} [options.before] - Get's messages before the Id of the passed snowflake
-     * @param {String} [options.after] - Get's messages after the Id of the passed snowflake
-     * @param {Number} [options.limit=50] - Number of messages to get, values between 1-100 allowed
-     * @returns {Promise.<Object[]>} Array of [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) objects
+     * @param {string} channelId - Id of the channel
+     * @param {object} [options]
+     * @param {string} [options.around] - Get's messages around the Id of the passed snowflake
+     * @param {string} [options.before] - Get's messages before the Id of the passed snowflake
+     * @param {string} [options.after] - Get's messages after the Id of the passed snowflake
+     * @param {number} [options.limit=50] - Number of messages to get, values between 1-100 allowed
+     * @returns {Promise<Object[]>} Array of [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) objects
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
@@ -117,14 +117,15 @@ class ChannelMethods {
         if (options.limit > Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS) {
             throw new Error(`The maximum amount of messages that may be requested is ${Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS}`);
         }
-        return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), 'get', 'json', options);
+        let futureKey = `get:${Endpoints.CHANNEL_MESSAGES(channelId)}:json:${options.before}:${options.around}:${options.after}`;
+        return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), 'get', 'json', futureKey, options);
     }
 
     /**
      * Get a single message via Id
-     * @param {String} channelId - Id of the channel
-     * @param {String} messageId - Id of the message
-     * @returns {Promise.<Object>} [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) object
+     * @param {string} channelId - Id of the channel
+     * @param {string} messageId - Id of the message
+     * @returns {Promise<object>} [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) object
      *
      * | Permissions needed   | condition |
      |----------------------|----------:|
@@ -144,17 +145,18 @@ class ChannelMethods {
      * Creates a new Message within a channel
      *
      * **Make sure to use a filename with a proper extension (e.g. png, jpeg, etc.) when you want to upload files**
-     * @param {String} channelId - Id of the Channel to sent a message to
-     * @param {Object|String} data - Data to send, if data is a string it will be used as the content of the message,
+     * @param {string} channelId - Id of the Channel to sent a message to
+     * @param {object} data - Data to send, if data is a string it will be used as the content of the message,
      * if data is not a string you should take a look at the properties below to know what you may send
-     * @param {?String} [data.content] - Content of the message
-     * @param {?Boolean} [data.tts=false] - if this message is text-to-speech
-     * @param {Object} [data.embed] - [Embed](https://discordapp.com/developers/docs/resources/channel#embed-object) to send
-     * @param {Object} [data.file] - File, that should be uploaded
-     * @param {String} [data.file.name] - Name of the file
+     * @param {?string} [data.content] - Content of the message
+     * @param {object} [data.embed] - [Embed](https://discordapp.com/developers/docs/resources/channel#embed-object) to send
+     * @param {?boolean} [data.tts=false] - if this message is text-to-speech
+     * @param {object} [data.file] - File, that should be uploaded
+     * @param {string} [data.file.name] - Name of the file
      * @param {File} [data.file.file] - Buffer with file contents
-     * @param {?Boolean} [options.disableEveryone] - Disable @everyone/@here on the message
-     * @returns {Promise.<Object>} [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) object
+     * @param {object} [options]
+     * @param {?boolean} [options.disableEveryone] - Disable @everyone/@here on the message
+     * @returns {Promise<object>} [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) object
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
@@ -199,21 +201,22 @@ class ChannelMethods {
         }
 
         if (data.file) {
-            return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), 'post', 'multipart', data);
+            return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), 'post', 'multipart', null, data);
         } else {
-            return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), 'post', 'json', data);
+            return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), 'post', 'json', null, data);
         }
     }
 
     /**
      * Edit a message sent by the current user
-     * @param {String} channelId - Id of the channel
-     * @param {String} messageId - Id of the message
-     * @param {Object|String} data - Data to send
-     * @param {String} [data.content] - Content of the message
-     * @param {Object} [data.embed] - Embed to send
-     * @param {?Boolean} [options.disableEveryone] - Disable @everyone/@here on the message
-     * @returns {Promise.<Object>} [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) object
+     * @param {string} channelId - Id of the channel
+     * @param {string} messageId - Id of the message
+     * @param {object} data - Data to send
+     * @param {string} [data.content] - Content of the message
+     * @param {object} [data.embed] - Embed to send
+     * @param {object} [options]
+     * @param {?boolean} [options.disableEveryone] - Disable @everyone/@here on the message
+     * @returns {Promise<object>} [discord message](https://discordapp.com/developers/docs/resources/channel#message-object) object
      * @example
      * // Simple ping response
      * let client = new SnowTransfer('TOKEN')
@@ -234,14 +237,14 @@ class ChannelMethods {
             data.content = data.content.replace(/@everyone/g, "@\u200beveryone").replace(/@here/g, "@\u200bhere");
         }
 
-        return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), 'patch', 'json', data);
+        return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), 'patch', 'json', null, data);
     }
 
     /**
      * Delete a message
-     * @param {String} channelId - Id of the channel
-     * @param {String} messageId - Id of the message
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @param {string} channelId - Id of the channel
+     * @param {string} messageId - Id of the message
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      *
      * | Permissions needed |                                 condition|
      |--------------------|---------------------------------------------:|
@@ -257,9 +260,9 @@ class ChannelMethods {
 
     /**
      * Bulk delete messages, messages may not be older than 2 weeks
-     * @param {String} channelId - Id of the channel
+     * @param {string} channelId - Id of the channel
      * @param {String[]} messages - array of message ids to delete
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
@@ -269,23 +272,23 @@ class ChannelMethods {
         if (messages.length < Constants.BULK_DELETE_MESSAGES_MIN || messages.length > Constants.BULK_DELETE_MESSAGES_MAX) {
             throw new Error(`Amount of messages to be deleted has to be between ${Constants.BULK_DELETE_MESSAGES_MIN} and ${Constants.BULK_DELETE_MESSAGES_MAX}`);
         }
-        // (Current date - (discord epoch + 2 weeks)) * weird constant that everybody seems to use
-        let oldestSnowflake = (Date.now() - 1421280000000) * 4194304;
-        let forbiddenMessage = messages.find(m => m < oldestSnowflake);
+        // (Current date - (discord epoch + 2 weeks)) * (2**22) weird constant that everybody seems to use
+        let oldestSnowflake = (Date.now() - 1421280000000) * 2**22;
+        let forbiddenMessage = messages.find(m => (+m) < oldestSnowflake);
         if (forbiddenMessage) {
             throw new Error(`The message ${forbiddenMessage} is older than 2 weeks and may not be deleted using the bulk delete endpoint`);
         }
-        return this.requestHandler.request(Endpoints.CHANNEL_BULK_DELETE(channelId), 'post', 'json', {messages});
+        return this.requestHandler.request(Endpoints.CHANNEL_BULK_DELETE(channelId), 'post', 'json', null, {messages});
     }
 
     /**
      * Adds a reaction to a message
-     * @param {String} channelId - Id of the channel
-     * @param {String} messageId - Id of the message
-     * @param {String} emoji - uri encoded reaction emoji to add,
+     * @param {string} channelId - Id of the channel
+     * @param {string} messageId - Id of the message
+     * @param {string} emoji - uri encoded reaction emoji to add,
      * you may either use a discord emoji in the format `:emoji_name:emoji_id` or a unicode emoji,
      * which can be found [here](http://www.unicode.org/emoji/charts/full-emoji-list.html)
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      *
      * | Permissions needed   | Condition                                           |
      |----------------------|----------------------------------------------------:|
@@ -306,10 +309,10 @@ class ChannelMethods {
 
     /**
      * Delete a reaction added by the current user from a message
-     * @param {String} channelId - Id of the channel
-     * @param {String} messageId - Id of the message
-     * @param {String} emoji - reaction emoji
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @param {string} channelId - Id of the channel
+     * @param {string} messageId - Id of the message
+     * @param {string} emoji - reaction emoji
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      * @example
      * // This example uses a discord emoji
      * let client = new SnowTransfer('TOKEN');
@@ -325,11 +328,11 @@ class ChannelMethods {
 
     /**
      * Delete a reaction from a message
-     * @param {String} channelId - Id of the channel
-     * @param {String} messageId - Id of the message
-     * @param {String} emoji - reaction emoji
-     * @param {String} userId - Id of the user
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @param {string} channelId - Id of the channel
+     * @param {string} messageId - Id of the message
+     * @param {string} emoji - reaction emoji
+     * @param {string} userId - Id of the user
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      *
      * | Permission        | Condition    |
      |-----------------    |-------:   |
@@ -349,10 +352,10 @@ class ChannelMethods {
 
     /**
      * Get a list of users that reacted with a certain emoji on a certain message
-     * @param {String} channelId - Id of the channel
-     * @param {String} messageId - Id of the message
-     * @param {String} emoji - reaction emoji
-     * @returns {Promise.<User[]>} Array of [user objects](https://discordapp.com/developers/docs/resources/user#user-object)
+     * @param {string} channelId - Id of the channel
+     * @param {string} messageId - Id of the message
+     * @param {string} emoji - reaction emoji
+     * @returns {Promise<import("./Users").User[]>} Array of [user objects](https://discordapp.com/developers/docs/resources/user#user-object)
      * @example
      * // This example uses a discord emoji
      * let client = new SnowTransfer('TOKEN');
@@ -364,9 +367,9 @@ class ChannelMethods {
 
     /**
      * Delete all reactions from a message
-     * @param {String} channelId - Id of the channel
-     * @param {String} messageId - Id of the message
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @param {string} channelId - Id of the channel
+     * @param {string} messageId - Id of the message
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
@@ -378,24 +381,24 @@ class ChannelMethods {
 
     /**
      * Modify the permission overwrites of a channel
-     * @param {String} channelId - Id of the channel
-     * @param {String} permissionId - Id of the permission overwrite
+     * @param {string} channelId - Id of the channel
+     * @param {string} permissionId - Id of the permission overwrite
      * @param {PermissionOverwrite} data - modified [permission overwrite](https://discordapp.com/developers/docs/resources/channel#edit-channel-permissions-json-params) object
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
      | MANAGE_ROLES       |    always |
      */
     async editChannelPermission(channelId, permissionId, data) {
-        return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), 'put', 'json', data);
+        return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), 'put', 'json', null, data);
     }
 
     /**
      * Delete a permission overwrite from a channel
-     * @param {String} channelId - Id of the channel
-     * @param {String} permissionId - Id of the permission overwrite
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @param {string} channelId - Id of the channel
+     * @param {string} permissionId - Id of the permission overwrite
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
@@ -407,8 +410,8 @@ class ChannelMethods {
 
     /**
      * Get a list of invites for a channel
-     * @param {String} channelId - Id of the channel
-     * @returns {Promise.<Invite[]>} Array of [invite objects](https://discordapp.com/developers/docs/resources/invite#invite-object) (with metadata)
+     * @param {string} channelId - Id of the channel
+     * @returns {Promise<import("./Invites").Invite[]>} Array of [invite objects](https://discordapp.com/developers/docs/resources/invite#invite-object) (with metadata)
      *
      *| Permissions needed | condition |
      |--------------------|----------:|
@@ -422,28 +425,28 @@ class ChannelMethods {
      * Create an invite for a channel
      *
      * If no data argument is passed, the invite will be created with the defaults listed below
-     * @param {String} channelId - Id of the channel
-     * @param {Object} [data={}] - invite data (optional)
-     * @param {Number} [data.max_age=86400] - max age of the invite in seconds
-     * @param {Number} [data.max_uses=0] - max uses of the invite
+     * @param {string} channelId - Id of the channel
+     * @param {object} [data={}] - invite data (optional)
+     * @param {number} [data.max_age=86400] - max age of the invite in seconds
+     * @param {number} [data.max_uses=0] - max uses of the invite
      * @param {Boolean} [data.temporary=false] - if this invite only allows temporary membership
      * @param {Boolean} [data.unique=false] - does not try to re-use similar invites when true (useful for creating many one-time invites)
-     * @returns {Promise.<Invite>} [Invite object](https://discordapp.com/developers/docs/resources/invite#invite-object) (with metadata)
+     * @returns {Promise<import("./Invites").Invite>} [Invite object](https://discordapp.com/developers/docs/resources/invite#invite-object) (with metadata)
      *
      * | Permissions needed    | condition |
      |-----------------------|----------:|
      | CREATE_INSTANT_INVITE |    always |
      */
     async createChannelInvite(channelId, data = {}) {
-        return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), 'post', 'json', data);
+        return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), 'post', 'json', null, data);
     }
 
     /**
      * Send an indicator that the current user is typing within a channel.
      *
      * **You should generally avoid this method unless used for longer computations (>1s)**
-     * @param {String} channelId - Id of the channel
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @param {string} channelId - Id of the channel
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      */
     async startChannelTyping(channelId) {
         return this.requestHandler.request(Endpoints.CHANNEL_TYPING(channelId), 'post', 'json');
@@ -451,8 +454,8 @@ class ChannelMethods {
 
     /**
      * Get a list of pinned messages for a channel
-     * @param {String} channelId - Id of the channel
-     * @returns {Promise.<Object[]>} Array of [message objects](https://discordapp.com/developers/docs/resources/channel#message-object)
+     * @param {string} channelId - Id of the channel
+     * @returns {Promise<Object[]>} Array of [message objects](https://discordapp.com/developers/docs/resources/channel#message-object)
      */
     async getChannelPinnedMessages(channelId) {
         return this.requestHandler.request(Endpoints.CHANNEL_PINS(channelId), 'get', 'json');
@@ -460,9 +463,9 @@ class ChannelMethods {
 
     /**
      * Pin a message within a channel
-     * @param {String} channelId - Id of the channel
-     * @param {String} messageId - Id of the message
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @param {string} channelId - Id of the channel
+     * @param {string} messageId - Id of the message
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
@@ -474,9 +477,9 @@ class ChannelMethods {
 
     /**
      * Remove a pinned message from a channel
-     * @param {String} channelId - Id of the channel
-     * @param {String} messageId - Id of the message
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @param {string} channelId - Id of the channel
+     * @param {string} messageId - Id of the message
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      *
      * | Permissions needed | condition |
      |--------------------|----------:|
@@ -488,26 +491,26 @@ class ChannelMethods {
 
     /**
      * Add a user to a group dm
-     * @param {String} channelId - Id of the channel
-     * @param {String} userId - Id of the user to be removed
-     * @param {Object} data - Data to send to this endpoint
-     * @param {String} data.access_token - access token of the user that granted the app the gdm.join scope
-     * @param {String} [data.nick] - nickname of the user being added
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @param {string} channelId - Id of the channel
+     * @param {string} userId - Id of the user to be removed
+     * @param {object} data - Data to send to this endpoint
+     * @param {string} data.access_token - access token of the user that granted the app the gdm.join scope
+     * @param {string} [data.nick] - nickname of the user being added
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      *
      * | OAUTH2 Scopes |
      |---------------|
      | gdm.join      |
      */
     async addDmChannelRecipient(channelId, userId, data) {
-        return this.requestHandler.request(Endpoints.CHANNEL_RECIPIENT(channelId, userId), 'put', 'json', data);
+        return this.requestHandler.request(Endpoints.CHANNEL_RECIPIENT(channelId, userId), 'put', 'json', null, data);
     }
 
     /**
      * Remove a recipient from a group dm
-     * @param {String} channelId - Id of the channel
-     * @param {String} userId - Id of the user to be removed
-     * @returns {Promise.<void>} Resolves the Promise on successful execution
+     * @param {string} channelId - Id of the channel
+     * @param {string} userId - Id of the user to be removed
+     * @returns {Promise<void>} Resolves the Promise on successful execution
      */
     async removeDmChannelRecipient(channelId, userId) {
         return this.requestHandler.request(Endpoints.CHANNEL_RECIPIENT(channelId, userId), 'delete', 'json');
@@ -518,30 +521,30 @@ class ChannelMethods {
 // To anyone wanting to write a library: JUST COPY THIS SHIT, filling this out manually wasn't fun :<
 // https://www.youtube.com/watch?v=LIlZCmETvsY have a weird video to distract yourself from the problems that will come upon ya
 /**
- * @typedef {Object} Channel
- * @property {String} Id - Id of the channel
- * @property {Number} type - [type](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types) of channel
- * @property {String} [guild_id] - Id of the {Guild} of the channel
- * @property {Number} [position] - sorting position of the channel
+ * @typedef {object} Channel
+ * @property {string} Id - Id of the channel
+ * @property {number} type - [type](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types) of channel
+ * @property {string} [guild_id] - Id of the {Guild} of the channel
+ * @property {number} [position] - sorting position of the channel
  * @property {PermissionOverwrite[]} [permission_overwrites] - array of permission overwrites for this channel
- * @property {String} [name] - name of the channel
- * @property {String} [topic] - topic of the channel
+ * @property {string} [name] - name of the channel
+ * @property {string} [topic] - topic of the channel
  * @property {Boolean} [nsfw] - if the channel is nsfw (guild only)
- * @property {String} [last_message_id] - the Id of the last message sent in this channel
- * @property {Number} [bitrate] - bitrate of the channel (voice only)
- * @property {Number} [user_limit] - limit of users in a channel (voice only)
+ * @property {string} [last_message_id] - the Id of the last message sent in this channel
+ * @property {number} [bitrate] - bitrate of the channel (voice only)
+ * @property {number} [user_limit] - limit of users in a channel (voice only)
  * @property {User[]} [recipients] - recipients of a dm (dm only)
- * @property {String} [icon] - icon hash (dm only)
- * @property {String} [owner_id] - Id of the DM creator (dm only)
- * @property {String} [application_id] - application Id of the creator of the group dm if a bot created it (group dm only)
- * @property {String} [parent_id] - Id of the parent category for a channel
+ * @property {string} [icon] - icon hash (dm only)
+ * @property {string} [owner_id] - Id of the DM creator (dm only)
+ * @property {string} [application_id] - application Id of the creator of the group dm if a bot created it (group dm only)
+ * @property {string} [parent_id] - Id of the parent category for a channel
  */
 
 /**
- * @typedef {Object} PermissionOverwrite
- * @property {Number} allow - bitwise value of allowed permissions
- * @property {Number} deny - bitwise value of disallowed permissions
- * @property {String} type - type of the overwrite, either member or role
+ * @typedef {object} PermissionOverwrite
+ * @property {number} allow - bitwise value of allowed permissions
+ * @property {number} deny - bitwise value of disallowed permissions
+ * @property {string} type - type of the overwrite, either member or role
  */
 
 module.exports = ChannelMethods;

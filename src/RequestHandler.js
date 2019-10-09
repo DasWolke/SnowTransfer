@@ -2,7 +2,7 @@ const EventEmitter = require('events');
 const crypto = require('crypto');
 const http = require('http');
 const https = require('https');
-const axios = require('axios');
+const axios = require('axios').default;
 const Endpoints = require('./Endpoints');
 const version = require('../package.json').version;
 const FormData = require('form-data');
@@ -14,9 +14,10 @@ const FormData = require('form-data');
 class RequestHandler extends EventEmitter {
     /**
      * Create a new request handler
-     * @param {Ratelimiter} ratelimiter - ratelimiter to use for ratelimiting requests
-     * @param {Object} options - options
-     * @param {String} options.token - token to use for calling the rest api
+     * @param {import("./Ratelimiter")} ratelimiter - ratelimiter to use for ratelimiting requests
+     * @param {object} options - options
+     * @param {string} options.token - token to use for calling the rest api
+     * @param {string} options.baseHost
      * @constructor
      * @private
      */
@@ -30,46 +31,66 @@ class RequestHandler extends EventEmitter {
             baseURL: this.options.baseHost + Endpoints.BASE_URL,
             headers: {
                 Authorization: options.token,
-                'User-Agent': `DiscordBot (https://github.com/DasWolke/SnowTransfer, ${version})`
+                'User-Agent': `DiscordBot (https://github.com/cloudrac3r/SnowTransfer, ${version})`
             },
             httpAgent: new http.Agent({ keepAlive: true }),
             httpsAgent: new https.Agent({ keepAlive: true })
         });
-        this.raven = options.raven ? options.raven : null;
         this.latency = 500;
         this.remaining = {};
         this.reset = {};
         this.limit = {};
+        this.inprogress = new Map()
     }
 
     /**
      * Request a route from the discord api
-     * @param {String} endpoint - endpoint to request
-     * @param {String} method - http method to use
-     * @param {String} [dataType=json] - type of the data being sent
-     * @param {Object} [data] - data to send, if any
-     * @param {Number} [attempts=0] - Number of attempts of the current request
-     * @returns {Promise.<Object>} - Result of the request
+     * @param {string} endpoint - endpoint to request
+     * @param {import("axios").Method} method - http method to use
+     * @param {string} futureKey
+     * @param {string} [dataType=json] - type of the data being sent
+     * @param {object} [data] - data to send, if any
+     * @param {number} [attempts=0] - Number of attempts of the current request
+     * @returns {Promise<object>} - Result of the request
+     * @fires RequestHandler.request#request
      * @protected
      */
-    request(endpoint, method, dataType = 'json', data = {}, attempts = 0) {
-        return new Promise(async (res, rej) => {
+    request(endpoint, method, dataType = 'json', futureKey = undefined, data = {}, attempts = 0) {
+        if (futureKey === undefined) {
+            futureKey = `${method}:${endpoint}:${dataType}`;
+        }
+        if (futureKey !== null) {
+        }
+        var promise = new Promise(async (res, rej) => {
             this.ratelimiter.queue(async (bkt) => {
                 const reqID = crypto.randomBytes(20).toString('hex');
-                let request;
                 let latency = Date.now();
                 try {
+                    /**
+                     * @event RequestHandler#request
+                     * @type {string}
+                     */
                     this.emit('request', reqID, { endpoint, method, dataType, data, attempts });
 
-                    switch (dataType) {
-                        case 'json':
+                    let request;
+                    if (futureKey && this.inprogress.has(futureKey)) {
+                        return res(this.inprogress.get(futureKey))
+                    } else {
+                        if (futureKey) {
+                            this.inprogress.set(futureKey, new Promise(resolve => {
+                                let oldRes = res
+                                res = data => {
+                                    this.inprogress.delete(futureKey)
+                                    oldRes(data)
+                                    resolve(data)
+                                }
+                            }));
+                        }
+                        if (dataType == "json") {
                             request = await this._request(endpoint, method, data, (method === 'get' || endpoint.includes('/bans') || endpoint.includes('/prune')));
-                            break;
-                        case 'multipart':
+                        } else if (dataType == "multipart") {
                             request = await this._multiPartRequest(endpoint, method, data);
-                            break;
-                        default:
-                            break;
+                        }
                     }
                     this.latency = Date.now() - latency;
                     let offsetDate = this._getOffsetDateFromHeader(request.headers['date']);
@@ -78,21 +99,11 @@ class RequestHandler extends EventEmitter {
                     this.emit('done', reqID, request);
                     if (request.data) {
                         return res(request.data);
+                    } else {
+                        return res();
                     }
-                    return res();
                 } catch (error) {
                     this.emit('requestError', reqID, error);
-                    if (this.raven) {
-                        this.raven.captureException(error, {
-                            extra: {
-                                route: endpoint,
-                                method,
-                                status: error.response ? error.response.status : null,
-                                statusText: error.response ? error.response.statusText : null,
-                                response: error.response ? error.response.data : null
-                            }
-                        });
-                    }
                     if (attempts === 3) {
                         return rej({error: 'Request failed after 3 attempts', request: error});
                     }
@@ -111,12 +122,12 @@ class RequestHandler extends EventEmitter {
                 }
             }, endpoint, method);
         });
-
+        return promise
     }
 
     /**
      * Calculate the time difference between the local server and discord
-     * @param {String} dateHeader - Date header value returned by discord
+     * @param {string} dateHeader - Date header value returned by discord
      * @returns {number} - Offset in milliseconds
      * @private
      */
@@ -128,9 +139,9 @@ class RequestHandler extends EventEmitter {
 
     /**
      * Apply the received ratelimit headers to the ratelimit bucket
-     * @param {LocalBucket} bkt - Ratelimit bucket to apply the headers to
-     * @param {Object} headers - Http headers received from discord
-     * @param {Number} offsetDate - Unix timestamp of the current date + offset to discord time
+     * @param {import("./ratelimitBuckets/LocalBucket")} bkt - Ratelimit bucket to apply the headers to
+     * @param {object} headers - Http headers received from discord
+     * @param {number} offsetDate - Unix timestamp of the current date + offset to discord time
      * @param {Boolean} reactions - Whether to use reaction ratelimits (1/250ms)
      * @private
      */
@@ -160,11 +171,11 @@ class RequestHandler extends EventEmitter {
 
     /**
      * Execute a normal json request
-     * @param {String} endpoint - Endpoint to use
-     * @param {String} method - Http Method to use
-     * @param {Object} data - Data to send
+     * @param {string} endpoint - Endpoint to use
+     * @param {import("axios").Method} method
+     * @param {object} data - Data to send
      * @param {Boolean} useParams - Whether to send the data in the body or use query params
-     * @returns {Promise.<Object>} - Result of the request
+     * @returns {Promise<object>} - Result of the request
      * @private
      */
     async _request(endpoint, method, data, useParams = false) {
@@ -186,13 +197,13 @@ class RequestHandler extends EventEmitter {
 
     /**
      * Execute a multipart/form-data request
-     * @param {String} endpoint - Endpoint to use
-     * @param {String} method - Http Method to use
-     * @param {Object} data - data to send
-     * @param {Object} [data.file] - file to attach
-     * @param {String} [data.file.name] - name of the file
+     * @param {string} endpoint - Endpoint to use
+     * @param {import("axios").Method} method - Http Method to use
+     * @param {object} data - data to send
+     * @param {object} [data.file] - file to attach
+     * @param {string} [data.file.name] - name of the file
      * @param {Buffer} [data.file.file] - Buffer with the file content
-     * @returns {Promise.<Object>} - Result of the request
+     * @returns {Promise<object>} - Result of the request
      * @private
      */
     async _multiPartRequest(endpoint, method, data) {
@@ -212,7 +223,7 @@ class RequestHandler extends EventEmitter {
             url: endpoint,
             method,
             data: formData,
-            headers: {'Content-Type': `multipart/form-data; boundary=${formData._boundary}`}
+            headers: {'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`}
         });
     }
 }
