@@ -11,14 +11,12 @@
   "rules": {
     "indent": [
       "error",
-      4,
-      {
-        "SwitchCase": 1
-      }
+      "tab",
+      { "flatTernaryExpressions": true }
     ],
     "quotes": [
       "error",
-      "single"
+      "double"
     ],
     "semi": [
       "error",

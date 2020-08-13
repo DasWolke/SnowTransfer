@@ -18,7 +18,7 @@ class VoiceMethods {
 
     /**
      * Get currently available voice regions that can be used when creating servers
-     * @returns {Promise<VoiceRegion[]>} Array of [voice region](https://discordapp.com/developers/docs/resources/voice#voice-region-object) objects
+     * @returns {Promise<VoiceRegion[]>} Array of [voice region](https://discord.com/developers/docs/resources/voice#voice-region-object) objects
      */
     async getVoiceRegions() {
         return this.requestHandler.request(Endpoints.VOICE_REGIONS, 'get', 'json');

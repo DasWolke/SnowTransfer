@@ -1,2 +1,2 @@
-const SnowTransfer = require('./src/SnowTransfer');
-module.exports = SnowTransfer
+const SnowTransfer = require("./src/SnowTransfer");
+module.exports = SnowTransfer;

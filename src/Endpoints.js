@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * Mostly taken from https://github.com/abalabahaha/eris/blob/master/lib/rest/Endpoints.js
@@ -7,11 +7,11 @@
  * @private
  */
 
-const Constants = require('./Constants');
+const Constants = require("./Constants");
 
-module.exports.BASE_URL = '/api/v' + Constants.REST_API_VERSION;
-module.exports.BASE_HOST = 'https://discordapp.com';
-module.exports.CDN_URL = 'https://cdn.discordapp.com';
+module.exports.BASE_URL = "/api/v" + Constants.REST_API_VERSION;
+module.exports.BASE_HOST = "https://discord.com";
+module.exports.CDN_URL = "https://cdn.discordapp.com";
 
 module.exports.CHANNEL = (chanID) => `/channels/${chanID}`;
 module.exports.CHANNEL_BULK_DELETE = (chanID) => `/channels/${chanID}/messages/bulk-delete`;
@@ -28,9 +28,9 @@ module.exports.CHANNEL_PINS = (chanID) => `/channels/${chanID}/pins`;
 module.exports.CHANNEL_RECIPIENT = (groupID, userID) => `/channels/${groupID}/recipients/${userID}`;
 module.exports.CHANNEL_TYPING = (chanID) => `/channels/${chanID}/typing`;
 module.exports.CHANNEL_WEBHOOKS = (chanID) => `/channels/${chanID}/webhooks`;
-module.exports.CHANNELS = '/channels';
-module.exports.GATEWAY = '/gateway';
-module.exports.GATEWAY_BOT = '/gateway/bot';
+module.exports.CHANNELS = "/channels";
+module.exports.GATEWAY = "/gateway";
+module.exports.GATEWAY_BOT = "/gateway/bot";
 module.exports.GUILD = (guildID) => `/guilds/${guildID}`;
 module.exports.GUILD_AUDIT_LOGS = (guildID) => `/guilds/${guildID}/audit-logs`;
 module.exports.GUILD_BAN = (guildID, memberID) => `/guilds/${guildID}/bans/${memberID}`;
@@ -51,15 +51,15 @@ module.exports.GUILD_ROLE = (guildID, roleID) => `/guilds/${guildID}/roles/${rol
 module.exports.GUILD_ROLES = (guildID) => `/guilds/${guildID}/roles`;
 module.exports.GUILD_VOICE_REGIONS = (guildID) => `/guilds/${guildID}/regions`;
 module.exports.GUILD_WEBHOOKS = (guildID) => `/guilds/${guildID}/webhooks`;
-module.exports.GUILDS = '/guilds';
+module.exports.GUILDS = "/guilds";
 module.exports.INVITE = (inviteID) => `/invite/${inviteID}`;
 module.exports.OAUTH2_APPLICATION = (appID) => `/oauth2/applications/${appID}`;
 module.exports.USER = (userID) => `/users/${userID}`;
 module.exports.USER_CHANNELS = (userID) => `/users/${userID}/channels`;
 module.exports.USER_GUILD = (userID, guildID) => `/users/${userID}/guilds/${guildID}`;
 module.exports.USER_GUILDS = (userID) => `/users/${userID}/guilds`;
-module.exports.USERS = '/users';
-module.exports.VOICE_REGIONS = '/voice/regions';
+module.exports.USERS = "/users";
+module.exports.VOICE_REGIONS = "/voice/regions";
 module.exports.WEBHOOK = (hookID) => `/webhooks/${hookID}`;
 module.exports.WEBHOOK_SLACK = (hookID) => `/webhooks/${hookID}/slack`;
 module.exports.WEBHOOK_TOKEN = (hookID, token) => `/webhooks/${hookID}/${token}`;
