@@ -163,7 +163,13 @@ class WebhookMethods {
 
 		// Sanitize the message
 		if (data.content && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) {
-			data.content = data.content.replace(/@everyone/g, "@\u200beveryone").replace(/@here/g, "@\u200bhere");
+			data.content = data.content.replace(/@([^<>@ ]*)/gsmu, (match, target) => {
+				if (target.match(/^[&!]?\d+$/)) {
+					return `@${target}`;
+				} else {
+					return `@\u200b${target}`;
+				}
+			});
 		}
 
 		if (data.file) {
@@ -187,7 +193,13 @@ class WebhookMethods {
 	async executeWebhookSlack(webhookId, token, data, options = {}) {
 		// Sanitize the message
 		if (data.text && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) {
-			data.text = data.text.replace(/@everyone/g, "@\u200beveryone").replace(/@here/g, "@\u200bhere");
+			data.text = data.text.replace(/@([^<>@ ]*)/gsmu, (match, target) => {
+				if (target.match(/^[&!]?\d+$/)) {
+					return `@${target}`;
+				} else {
+					return `@\u200b${target}`;
+				}
+			});
 		}
 
 		// @ts-ignore

@@ -202,7 +202,13 @@ class ChannelMethods {
 
 		// Sanitize the message
 		if (data.content && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) {
-			data.content = data.content.replace(/@everyone/g, "@\u200beveryone").replace(/@here/g, "@\u200bhere");
+			data.content = data.content.replace(/@([^<>@ ]*)/gsmu, (match, target) => {
+				if (target.match(/^[&!]?\d+$/)) {
+					return `@${target}`;
+				} else {
+					return `@\u200b${target}`;
+				}
+			});
 		}
 
 		if (data.file) {
@@ -241,7 +247,13 @@ class ChannelMethods {
 
 		// Sanitize the message
 		if (data.content && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) {
-			data.content = data.content.replace(/@everyone/g, "@\u200beveryone").replace(/@here/g, "@\u200bhere");
+			data.content = data.content.replace(/@([^<>@ ]*)/gsmu, (match, target) => {
+				if (target.match(/^[&!]?\d+$/)) {
+					return `@${target}`;
+				} else {
+					return `@\u200b${target}`;
+				}
+			});
 		}
 
 		// @ts-ignore
