@@ -93,7 +93,7 @@ class WebhookMethods {
 	/**
 	 * Update a webhook
 	 * @param {string} webhookId - Id of the webhook
-	 * @param {string} [token] - Webhook token
+	 * @param {string} token - Webhook token
 	 * @param {object} data - Updated Webhook properties
 	 * @param {string} [data.name] - New default name of the webhook
 	 * @param {string} [data.avatar] - Updated base 64 image for the default avatar
@@ -155,7 +155,7 @@ class WebhookMethods {
 	 */
 	async executeWebhook(webhookId, token, data, options = {}) {
 		if (typeof data !== "string" && !data.content && !data.embeds && !data.file) {
-			throw new Error("Missing content or embed");
+			throw new Error("Missing content or embeds");
 		}
 		if (typeof data === "string") {
 			data = {content: data};
