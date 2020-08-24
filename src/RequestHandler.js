@@ -59,6 +59,7 @@ class RequestHandler extends EventEmitter {
 		if (futureKey === undefined) {
 			futureKey = `${method}:${endpoint}:${dataType}`;
 		}
+		if (typeof data === "number") data = String(data);
 		// eslint-disable-next-line no-async-promise-executor
 		var promise = new Promise(async (res, rej) => {
 			// @ts-ignore
