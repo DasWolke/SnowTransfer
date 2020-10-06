@@ -23,9 +23,8 @@ class InviteMethods {
 	 * @returns {Promise<Invite>} [Invite Object](https://discord.com/developers/docs/resources/invite#invite-object)
 	 */
 	async getInvite(inviteId, withCounts = false) {
-		let futureKey = `get:${Endpoints.INVITE(inviteId)}:json:${withCounts}`;
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.INVITE(inviteId), "get", "json", futureKey, {with_counts: withCounts});
+		return this.requestHandler.request(Endpoints.INVITE(inviteId), "get", "json", {with_counts: withCounts});
 	}
 
 	/**

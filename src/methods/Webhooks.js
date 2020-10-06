@@ -40,7 +40,7 @@ class WebhookMethods {
 	 */
 	async createWebhook(channelId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.CHANNEL_WEBHOOKS(channelId), "post", "json", null, data);
+		return this.requestHandler.request(Endpoints.CHANNEL_WEBHOOKS(channelId), "post", "json", data);
 	}
 
 	/**
@@ -107,10 +107,10 @@ class WebhookMethods {
 	async updateWebhook(webhookId, token, data) {
 		if (token) {
 			// @ts-ignore
-			return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), "patch", "json", null, data);
+			return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), "patch", "json", data);
 		}
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), "patch", "json", null, data);
+		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), "patch", "json", data);
 	}
 
 	/**
@@ -174,10 +174,10 @@ class WebhookMethods {
 
 		if (data.file) {
 			// @ts-ignore
-			return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), "post", "multipart", null, data);
+			return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), "post", "multipart", data);
 		} else {
 			// @ts-ignore
-			return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), "post", "json", null, data);
+			return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), "post", "json", data);
 		}
 	}
 

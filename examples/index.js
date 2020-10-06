@@ -1,17 +1,17 @@
-let SnowTransfer = require('../src/SnowTransfer');
-let config = require('./config.json');
-let client = new SnowTransfer(config.token);
-let request = async () => {
-    let message = await client.channel.createMessage('your channel id here', {
-        embed: {
-            title: 'memes',
-            description: 'memes'
-        }
-    });
-    console.log(message);
+const SnowTransfer = require("../src/SnowTransfer");
+const config = require("./config.json");
+const client = new SnowTransfer(config.token);
+const request = async () => {
+	const message = await client.channel.createMessage("your channel id here", {
+		embed: {
+			title: "memes",
+			description: "memes"
+		}
+	});
+	console.log(message);
 };
 request().then(() => {
-    console.log('your memes worked');
+	console.log("your memes worked");
 }).catch(e => {
-    console.error(e);
+	console.error(e);
 });

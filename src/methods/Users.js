@@ -55,7 +55,7 @@ class UserMethods {
 	 */
 	async updateSelf(data) {
 		// @ts-ignore
-		return this.cache.wrap("@me", this.requestHandler.request(Endpoints.USER("@me"), "patch", "json", null, data));
+		return this.cache.wrap("@me", this.requestHandler.request(Endpoints.USER("@me"), "patch", "json", data));
 	}
 
 	/**
@@ -103,7 +103,7 @@ class UserMethods {
 	 */
 	async createDirectMessageChannel(userId) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.USER_CHANNELS("@me"), "post", "json", null, {recipient_id: userId});
+		return this.requestHandler.request(Endpoints.USER_CHANNELS("@me"), "post", "json", {recipient_id: userId});
 	}
 }
 

@@ -61,7 +61,7 @@ class ChannelMethods {
 	 */
 	async updateChannel(channelId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.CHANNEL(channelId), "patch", "json", null, data);
+		return this.requestHandler.request(Endpoints.CHANNEL(channelId), "patch", "json", data);
 	}
 
 	/**
@@ -120,9 +120,8 @@ class ChannelMethods {
 		if (options.limit > Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS) {
 			throw new Error(`The maximum amount of messages that may be requested is ${Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS}`);
 		}
-		let futureKey = `get:${Endpoints.CHANNEL_MESSAGES(channelId)}:json:${options.before}:${options.around}:${options.after}`;
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "get", "json", futureKey, options);
+		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "get", "json", options);
 	}
 
 	/**
@@ -213,10 +212,10 @@ class ChannelMethods {
 
 		if (data.file) {
 			// @ts-ignore
-			return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "post", "multipart", null, data);
+			return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "post", "multipart", data);
 		} else {
 			// @ts-ignore
-			return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "post", "json", null, data);
+			return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "post", "json", data);
 		}
 	}
 
@@ -257,7 +256,7 @@ class ChannelMethods {
 		}
 
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "json", null, data);
+		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "json", data);
 	}
 
 	/**
@@ -300,7 +299,7 @@ class ChannelMethods {
 			throw new Error(`The message ${forbiddenMessage} is older than 2 weeks and may not be deleted using the bulk delete endpoint`);
 		}
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.CHANNEL_BULK_DELETE(channelId), "post", "json", null, {messages});
+		return this.requestHandler.request(Endpoints.CHANNEL_BULK_DELETE(channelId), "post", "json", {messages});
 	}
 
 	/**
@@ -419,7 +418,7 @@ class ChannelMethods {
 	 */
 	async editChannelPermission(channelId, permissionId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), "put", "json", null, data);
+		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), "put", "json", data);
 	}
 
 	/**
@@ -469,7 +468,7 @@ class ChannelMethods {
 	 */
 	async createChannelInvite(channelId, data = {}) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), "post", "json", null, data);
+		return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), "post", "json", data);
 	}
 
 	/**
@@ -539,7 +538,7 @@ class ChannelMethods {
 	 */
 	async addDmChannelRecipient(channelId, userId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.CHANNEL_RECIPIENT(channelId, userId), "put", "json", null, data);
+		return this.requestHandler.request(Endpoints.CHANNEL_RECIPIENT(channelId, userId), "put", "json", data);
 	}
 
 	/**

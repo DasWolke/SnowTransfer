@@ -39,7 +39,7 @@ class GuildMethods {
 	 */
 	async createGuild(data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILDS, "post", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILDS, "post", "json", data);
 	}
 
 	/**
@@ -83,7 +83,7 @@ class GuildMethods {
 	 */
 	async updateGuild(guildId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD(guildId), "patch", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD(guildId), "patch", "json", data);
 	}
 
 	/**
@@ -127,7 +127,7 @@ class GuildMethods {
 	 */
 	async createGuildChannel(guildId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), "post", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), "post", "json", data);
 	}
 
 	/**
@@ -140,7 +140,7 @@ class GuildMethods {
 	 */
 	async updateChannelPositions(guildId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), "patch", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), "patch", "json", data);
 	}
 
 	/**
@@ -163,9 +163,8 @@ class GuildMethods {
 	 * @returns {Promise<GuildMember[]>} - list of [guild members](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure)
 	 */
 	async getGuildMembers(guildId, data = {}) {
-		let futureKey = `get:${Endpoints.GUILD_MEMBERS(guildId)}:json:${data.limit}:${data.after}`;
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_MEMBERS(guildId), "get", "json", futureKey, data);
+		return this.requestHandler.request(Endpoints.GUILD_MEMBERS(guildId), "get", "json", data);
 	}
 
 	/**
@@ -204,7 +203,7 @@ class GuildMethods {
 	 */
 	async addGuildMember(guildId, memberId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "put", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "put", "json", data);
 	}
 
 	/**
@@ -241,7 +240,7 @@ class GuildMethods {
 	 */
 	async updateGuildMember(guildId, memberId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "patch", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "patch", "json", data);
 	}
 
 	/**
@@ -265,7 +264,7 @@ class GuildMethods {
 	 */
 	async updateSelf(guildId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER_NICK(guildId, "@me"), "patch", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER_NICK(guildId, "@me"), "patch", "json", data);
 	}
 
 	/**
@@ -283,7 +282,7 @@ class GuildMethods {
 	 */
 	async addGuildMemberRole(guildId, memberId, roleId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), "put", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), "put", "json", data);
 	}
 
 	/**
@@ -301,7 +300,7 @@ class GuildMethods {
 	 */
 	async removeGuildMemberRole(guildId, memberId, roleId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), "delete", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), "delete", "json", data);
 	}
 
 	/**
@@ -326,7 +325,7 @@ class GuildMethods {
 	 */
 	async removeGuildMember(guildId, memberId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "delete", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "delete", "json", data);
 	}
 
 	/**
@@ -370,7 +369,7 @@ class GuildMethods {
 		newData.queryReason = data.reason;
 		newData["delete-message-days"] = data.delete_message_days;
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), "put", "json", null, newData);
+		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), "put", "json", newData);
 	}
 
 	/**
@@ -387,7 +386,7 @@ class GuildMethods {
 	 */
 	async removeGuildBan(guildId, memberId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), "delete", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), "delete", "json", data);
 	}
 
 	/**
@@ -430,7 +429,7 @@ class GuildMethods {
 	 */
 	async createGuildRole(guildId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), "post", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), "post", "json", data);
 	}
 
 	/**
@@ -447,7 +446,7 @@ class GuildMethods {
 	 */
 	async updateGuildRolePositions(guildId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), "put", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), "put", "json", data);
 	}
 
 	/**
@@ -468,7 +467,7 @@ class GuildMethods {
 	 */
 	async updateGuildRole(guildId, roleId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_ROLE(guildId, roleId), "patch", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_ROLE(guildId, roleId), "patch", "json", data);
 	}
 
 	/**
@@ -498,9 +497,8 @@ class GuildMethods {
 	 | KICK_MEMBERS       |    always |
 	 */
 	async getGuildPruneCount(guildId, data) {
-		let futureKey = `get:${Endpoints.GUILD_PRUNE(guildId)}:json:${data.days}`;
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_PRUNE(guildId), "get", "json", futureKey, data);
+		return this.requestHandler.request(Endpoints.GUILD_PRUNE(guildId), "get", "json", data);
 	}
 
 	/**
@@ -516,7 +514,7 @@ class GuildMethods {
 	 */
 	async startGuildPrune(guildId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_PRUNE(guildId), "post", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_PRUNE(guildId), "post", "json", data);
 	}
 
 	/**
@@ -571,7 +569,7 @@ class GuildMethods {
 	 */
 	async createGuildIntegration(guildId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_INTEGRATIONS(guildId), "post", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_INTEGRATIONS(guildId), "post", "json", data);
 	}
 
 	/**
@@ -590,7 +588,7 @@ class GuildMethods {
 	 */
 	async updateGuildIntegration(guildId, integrationId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_INTEGRATION(guildId, integrationId), "patch", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_INTEGRATION(guildId, integrationId), "patch", "json", data);
 	}
 
 	/**
@@ -651,7 +649,7 @@ class GuildMethods {
 	 */
 	async updateGuildEmbed(guildId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_EMBED(guildId), "patch", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_EMBED(guildId), "patch", "json", data);
 	}
 
 }

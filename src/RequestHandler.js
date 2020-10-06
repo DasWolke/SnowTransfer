@@ -15,9 +15,7 @@ class RequestHandler extends EventEmitter {
 	/**
 	 * Create a new request handler
 	 * @param {import("./Ratelimiter")} ratelimiter - ratelimiter to use for ratelimiting requests
-	 * @param {object} options - options
-	 * @param {string} options.token - token to use for calling the rest api
-	 * @param {string} options.baseHost
+	 * @param {{ token: string, baseHost: string }} options - options
 	 * @constructor
 	 * @private
 	 */
@@ -40,28 +38,22 @@ class RequestHandler extends EventEmitter {
 		this.remaining = {};
 		this.reset = {};
 		this.limit = {};
-		this.inprogress = new Map();
 	}
 
 	/**
 	 * Request a route from the discord api
 	 * @param {string} endpoint - endpoint to request
 	 * @param {import("axios").Method} method - http method to use
-	 * @param {string} futureKey
 	 * @param {string} [dataType=json] - type of the data being sent
 	 * @param {object} [data] - data to send, if any
-	 * @param {number} [attempts=0] - Number of attempts of the current request
-	 * @returns {Promise<object>} - Result of the request
+	 * @returns {Promise<any>} - Result of the request
 	 * @fires RequestHandler.request#request
 	 * @protected
 	 */
-	request(endpoint, method, dataType = "json", futureKey = undefined, data = {}, attempts = 0) {
-		if (futureKey === undefined) {
-			futureKey = `${method}:${endpoint}:${dataType}`;
-		}
+	request(endpoint, method, dataType = "json", data = {}) {
 		if (typeof data === "number") data = String(data);
 		// eslint-disable-next-line no-async-promise-executor
-		var promise = new Promise(async (res, rej) => {
+		const promise = new Promise(async (res, rej) => {
 			// @ts-ignore
 			this.ratelimiter.queue(async (bkt) => {
 				const reqID = crypto.randomBytes(20).toString("hex");
@@ -71,27 +63,13 @@ class RequestHandler extends EventEmitter {
 					 * @event RequestHandler#request
 					 * @type {string}
 					 */
-					this.emit("request", reqID, { endpoint, method, dataType, data, attempts });
+					this.emit("request", reqID, { endpoint, method, dataType, data });
 
 					let request;
-					if (futureKey && this.inprogress.has(futureKey)) {
-						return res(this.inprogress.get(futureKey));
-					} else {
-						if (futureKey) {
-							this.inprogress.set(futureKey, new Promise(resolve => {
-								let oldRes = res;
-								res = data => {
-									this.inprogress.delete(futureKey);
-									oldRes(data);
-									resolve(data);
-								};
-							}));
-						}
-						if (dataType == "json") {
-							request = await this._request(endpoint, method, data, (method === "get" || endpoint.includes("/bans") || endpoint.includes("/prune")));
-						} else if (dataType == "multipart") {
-							request = await this._multiPartRequest(endpoint, method, data);
-						}
+					if (dataType == "json") {
+						request = await this._request(endpoint, method, data, (method === "get" || endpoint.includes("/bans") || endpoint.includes("/prune")));
+					} else if (dataType == "multipart") {
+						request = await this._multiPartRequest(endpoint, method, data);
 					}
 					this.latency = Date.now() - latency;
 					let offsetDate = this._getOffsetDateFromHeader(request.headers["date"]);
@@ -105,18 +83,15 @@ class RequestHandler extends EventEmitter {
 					}
 				} catch (error) {
 					this.emit("requestError", reqID, error);
-					if (attempts === 3) {
-						return rej({error: "Request failed after 3 attempts", request: error});
-					}
 					if (error.response) {
 						let offsetDate = this._getOffsetDateFromHeader(error.response.headers["date"]);
 						if (error.response.status === 429) {
 							//TODO WARN ABOUT THIS :< either bug or meme
 							this._applyRatelimitHeaders(bkt, error.response.headers, offsetDate, endpoint.endsWith("/reactions/:id"));
-							return this.request(endpoint, method, dataType, data, attempts ? ++attempts : 1);
+							return this.request(endpoint, method, dataType, data);
 						}
 						if (error.response.status === 502) {
-							return this.request(endpoint, method, dataType, data, attempts ? ++attempts : 1);
+							return this.request(endpoint, method, dataType, data);
 						}
 					}
 					return rej(error);

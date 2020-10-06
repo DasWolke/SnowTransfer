@@ -29,7 +29,7 @@ class AuditLogMethods {
 	 */
 	async getAuditLog(guildId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_AUDIT_LOGS(guildId), "get", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_AUDIT_LOGS(guildId), "get", "json", data);
 	}
 }
 

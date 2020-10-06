@@ -69,7 +69,7 @@ class EmojiMethods {
 	 */
 	async createEmoji(guildId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), "post", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), "post", "json", data);
 	}
 
 	/**
@@ -93,7 +93,7 @@ class EmojiMethods {
 	 */
 	async updateEmoji(guildId, emojiId, data) {
 		// @ts-ignore
-		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), "patch", "json", null, data);
+		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), "patch", "json", data);
 	}
 
 	/**
