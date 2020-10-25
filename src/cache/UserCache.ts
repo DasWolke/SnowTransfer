@@ -8,7 +8,7 @@ class UserCache extends DewCache {
 		this.user = user;
 	}
 
-	public fetchUser(userID): Promise<import("@amanda/discordtypings").UserData> {
+	public fetchUser(userID: string): Promise<import("@amanda/discordtypings").UserData> {
 		if (this.has(userID)) {
 			return Promise.resolve(this.get(userID));
 		} else {

@@ -36,7 +36,7 @@ class RequestHandler extends events_1.EventEmitter {
         const promise = new Promise(async (res, rej) => {
             this.ratelimiter.queue(async (bkt) => {
                 const reqID = crypto_1.default.randomBytes(20).toString("hex");
-                let latency = Date.now();
+                const latency = Date.now();
                 try {
                     this.emit("request", reqID, { endpoint, method, dataType, data });
                     let request;
@@ -47,7 +47,7 @@ class RequestHandler extends events_1.EventEmitter {
                         request = await this._multiPartRequest(endpoint, method, data);
                     }
                     this.latency = Date.now() - latency;
-                    let offsetDate = this._getOffsetDateFromHeader(request.headers["date"]);
+                    const offsetDate = this._getOffsetDateFromHeader(request.headers["date"]);
                     this._applyRatelimitHeaders(bkt, request.headers, offsetDate, endpoint.endsWith("/reactions/:id"));
                     this.emit("done", reqID, request);
                     if (request.data) {
@@ -60,7 +60,7 @@ class RequestHandler extends events_1.EventEmitter {
                 catch (error) {
                     this.emit("requestError", reqID, error);
                     if (error.response) {
-                        let offsetDate = this._getOffsetDateFromHeader(error.response.headers["date"]);
+                        const offsetDate = this._getOffsetDateFromHeader(error.response.headers["date"]);
                         if (error.response.status === 429) {
                             this._applyRatelimitHeaders(bkt, error.response.headers, offsetDate, endpoint.endsWith("/reactions/:id"));
                             return this.request(endpoint, method, dataType, data);
@@ -76,8 +76,8 @@ class RequestHandler extends events_1.EventEmitter {
         return promise;
     }
     _getOffsetDateFromHeader(dateHeader) {
-        let discordDate = Date.parse(dateHeader);
-        let offset = Date.now() - discordDate;
+        const discordDate = Date.parse(dateHeader);
+        const offset = Date.now() - discordDate;
         return Date.now() + offset;
     }
     _applyRatelimitHeaders(bkt, headers, offsetDate, reactions = false) {
@@ -86,7 +86,7 @@ class RequestHandler extends events_1.EventEmitter {
             bkt.ratelimiter.globalReset = parseInt(headers["retry_after"]);
         }
         if (headers["x-ratelimit-reset"]) {
-            let reset = (headers["x-ratelimit-reset"] * 1000) - offsetDate;
+            const reset = (headers["x-ratelimit-reset"] * 1000) - offsetDate;
             if (reactions) {
                 bkt.reset = Math.max(reset, 250);
             }
@@ -105,7 +105,7 @@ class RequestHandler extends events_1.EventEmitter {
         }
     }
     async _request(endpoint, method, data, useParams = false) {
-        let headers = {};
+        const headers = {};
         if (typeof data != "string" && data.reason) {
             headers["X-Audit-Log-Reason"] = encodeURIComponent(data.reason);
             delete data.reason;
@@ -122,7 +122,7 @@ class RequestHandler extends events_1.EventEmitter {
         }
     }
     async _multiPartRequest(endpoint, method, data) {
-        let formData = new form_data_1.default();
+        const formData = new form_data_1.default();
         if (data.file.file) {
             if (data.file.name) {
                 formData.append("file", data.file.file, { filename: data.file.name });

@@ -19,9 +19,9 @@
 		"sourceMap": false,
 		"strictFunctionTypes": true,
 		"strictBindCallApply": true,
-		"target": "esnext",
+		"strictNullChecks": true,
+		"target": "ES2019",
 		"types": ["node"]
 	},
-	"exclude": ["./typings"],
 	"include": ["./src"]
 }

@@ -7,7 +7,7 @@ declare class LocalBucket {
     limit: number;
     remaining: number;
     reset: number;
-    resetTimeout: NodeJS.Timeout;
+    resetTimeout: NodeJS.Timeout | null;
     ratelimiter: import("../Ratelimiter");
     constructor(ratelimiter: import("../Ratelimiter"));
     queue(fn: (...args: Array<any>) => any): Promise<any>;

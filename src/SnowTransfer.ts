@@ -1,14 +1,14 @@
-import Ratelimiter from "./Ratelimiter";;
-import RequestHandler from "./RequestHandler";;
-import ChannelMethods from "./methods/Channels";;
-import UserMethods from "./methods/Users";;
-import EmojiMethods from "./methods/Emojis";;
-import WebhookMethods from "./methods/Webhooks";;
-import GuildMethods from "./methods/Guilds";;
-import InviteMethods from "./methods/Invites";;
-import VoiceMethods from "./methods/Voices";;
-import BotMethods from "./methods/Bots";;
-import AuditLogMethods from "./methods/AuditLog";;
+import Ratelimiter from "./Ratelimiter";
+import RequestHandler from "./RequestHandler";
+import ChannelMethods from "./methods/Channels";
+import UserMethods from "./methods/Users";
+import EmojiMethods from "./methods/Emojis";
+import WebhookMethods from "./methods/Webhooks";
+import GuildMethods from "./methods/Guilds";
+import InviteMethods from "./methods/Invites";
+import VoiceMethods from "./methods/Voices";
+import BotMethods from "./methods/Bots";
+import AuditLogMethods from "./methods/AuditLog";
 import Endpoints from "./Endpoints";
 
 import { version } from "../package.json";

@@ -31,7 +31,7 @@ class ChannelMethods {
             delete options.before;
             delete options.around;
         }
-        if (options.limit > Constants_1.default.GET_CHANNEL_MESSAGES_MAX_RESULTS) {
+        if (options.limit && options.limit > Constants_1.default.GET_CHANNEL_MESSAGES_MAX_RESULTS) {
             throw new Error(`The maximum amount of messages that may be requested is ${Constants_1.default.GET_CHANNEL_MESSAGES_MAX_RESULTS}`);
         }
         return this.requestHandler.request(Endpoints_1.default.CHANNEL_MESSAGES(channelId), "get", "json", options);
@@ -89,8 +89,8 @@ class ChannelMethods {
         if (messages.length < Constants_1.default.BULK_DELETE_MESSAGES_MIN || messages.length > Constants_1.default.BULK_DELETE_MESSAGES_MAX) {
             throw new Error(`Amount of messages to be deleted has to be between ${Constants_1.default.BULK_DELETE_MESSAGES_MIN} and ${Constants_1.default.BULK_DELETE_MESSAGES_MAX}`);
         }
-        let oldestSnowflake = (Date.now() - 1421280000000) * 2 ** 22;
-        let forbiddenMessage = messages.find(m => (+m) < oldestSnowflake);
+        const oldestSnowflake = (Date.now() - 1421280000000) * 2 ** 22;
+        const forbiddenMessage = messages.find(m => (+m) < oldestSnowflake);
         if (forbiddenMessage) {
             throw new Error(`The message ${forbiddenMessage} is older than 2 weeks and may not be deleted using the bulk delete endpoint`);
         }

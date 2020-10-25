@@ -105,7 +105,7 @@ class ChannelMethods {
 			delete options.before;
 			delete options.around;
 		}
-		if (options.limit > Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS) {
+		if (options.limit && options.limit > Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS) {
 			throw new Error(`The maximum amount of messages that may be requested is ${Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS}`);
 		}
 		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "get", "json", options);
@@ -168,7 +168,7 @@ class ChannelMethods {
 	 * let fileData = fs.readFileSync('nice_picture.png') // You should probably use fs.readFile, since it's asynchronous, synchronous methods may lag your bot.
 	 * client.channel.createMessage('channel id', {content: 'This is a nice picture', file: {name: 'Optional Filename.png', file: fileData}})
 	 */
-	public async createMessage(channelId: string, data: string | CreateMessageData, options: { disableEveryone?: boolean } = { disableEveryone: this.disableEveryone }): Promise<object> {
+	public async createMessage(channelId: string, data: string | CreateMessageData, options: { disableEveryone?: boolean } = { disableEveryone: this.disableEveryone }): Promise<import("@amanda/discordtypings").MessageData> {
 		if (typeof data !== "string" && !data.content && !data.embed && !data.file) {
 			throw new Error("Missing content or embed");
 		}
@@ -264,8 +264,8 @@ class ChannelMethods {
 			throw new Error(`Amount of messages to be deleted has to be between ${Constants.BULK_DELETE_MESSAGES_MIN} and ${Constants.BULK_DELETE_MESSAGES_MAX}`);
 		}
 		// (Current date - (discord epoch + 2 weeks)) * (2**22) weird constant that everybody seems to use
-		let oldestSnowflake = (Date.now() - 1421280000000) * 2**22;
-		let forbiddenMessage = messages.find(m => (+m) < oldestSnowflake);
+		const oldestSnowflake = (Date.now() - 1421280000000) * 2**22;
+		const forbiddenMessage = messages.find(m => (+m) < oldestSnowflake);
 		if (forbiddenMessage) {
 			throw new Error(`The message ${forbiddenMessage} is older than 2 weeks and may not be deleted using the bulk delete endpoint`);
 		}

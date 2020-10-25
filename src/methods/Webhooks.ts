@@ -95,7 +95,7 @@ class WebhookMethods {
 	 * |--------------------|---------------|
 	 * | MANAGE_WEBHOOKS    | without token |
 	 */
-	public async updateWebhook(webhookId: string, token: string, data: { name?: string; avatar?: string; channel_id?: string; }): Promise<object> {
+	public async updateWebhook(webhookId: string, token: string, data: { name?: string; avatar?: string; channel_id?: string; }): Promise<any> {
 		if (token) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), "patch", "json", data);
 		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), "patch", "json", data);
 	}

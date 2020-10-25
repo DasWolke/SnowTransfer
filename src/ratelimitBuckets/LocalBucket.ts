@@ -23,7 +23,7 @@ class LocalBucket {
 	/**
 	 * Timeout that calls the reset function once the timeframe passed
 	 */
-	public resetTimeout: NodeJS.Timeout;
+	public resetTimeout: NodeJS.Timeout | null;
 	/**
 	 * ratelimiter used for ratelimiting requests
 	 */
@@ -49,13 +49,12 @@ class LocalBucket {
 	 */
 	public queue(fn: (...args: Array<any>) => any): Promise<any> {
 		return new Promise((res, rej) => {
-			let bkt = this;
-			let wrapFn = () => {
+			const wrapFn = () => {
 				// @ts-ignore I am confused behind this logic but okay.
 				if (typeof fn.then === "function") {
-					return fn(bkt).then(res).catch(rej);
+					return fn(this).then(res).catch(rej);
 				}
-				return res(fn(bkt));
+				return res(fn(this));
 			};
 			this.fnQueue.push({
 				fn, callback: wrapFn
@@ -81,7 +80,7 @@ class LocalBucket {
 			}
 		}
 		if (this.fnQueue.length > 0 && this.remaining !== 0) {
-			let queuedFunc = this.fnQueue.splice(0, 1)[0];
+			const queuedFunc = this.fnQueue.splice(0, 1)[0];
 			queuedFunc.callback();
 			this.checkQueue();
 		}
@@ -92,7 +91,7 @@ class LocalBucket {
 	 */
 	protected resetRemaining() {
 		this.remaining = this.limit;
-		clearTimeout(this.resetTimeout);
+		if (this.resetTimeout) clearTimeout(this.resetTimeout);
 		this.resetTimeout = null;
 		this.checkQueue();
 	}

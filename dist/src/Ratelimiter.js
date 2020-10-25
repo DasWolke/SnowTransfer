@@ -19,7 +19,7 @@ class Ratelimiter {
         return route;
     }
     queue(fn, url, method) {
-        let routeKey = this.routify(url, method);
+        const routeKey = this.routify(url, method);
         if (!this.buckets[routeKey]) {
             this.buckets[routeKey] = new LocalBucket_1.default(this);
         }

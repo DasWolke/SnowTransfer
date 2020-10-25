@@ -14,7 +14,7 @@ declare class WebhookMethods {
         name?: string;
         avatar?: string;
         channel_id?: string;
-    }): Promise<object>;
+    }): Promise<any>;
     deleteWebhook(webhookId: string, token: string): Promise<void>;
     executeWebhook(webhookId: string, token: string, data?: WebhookCreateMessageData, options?: {
         disableEveryone?: boolean;

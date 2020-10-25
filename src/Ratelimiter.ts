@@ -39,7 +39,7 @@ class Ratelimiter {
 	 * @param method Http method used by the request
 	 */
 	public queue(fn: (...args: Array<any>) => any, url: string, method: string) {
-		let routeKey = this.routify(url, method);
+		const routeKey = this.routify(url, method);
 		if (!this.buckets[routeKey]) {
 			this.buckets[routeKey] = new LocalBucket(this);
 		}

@@ -35,6 +35,10 @@
     "form-data": "~3.0.0"
   },
   "devDependencies": {
-    "eslint": "^7.7.0"
+    "@typescript-eslint/eslint-plugin": "^4.5.0",
+    "@typescript-eslint/parser": "^4.5.0",
+    "docma": "3.2.2",
+    "eslint": "^7.12.0",
+    "typescript": "~4.0.3"
   }
 }

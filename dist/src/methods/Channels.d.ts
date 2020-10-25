@@ -10,7 +10,7 @@ declare class ChannelMethods {
     getChannelMessage(channelId: string, messageId: string): Promise<import("@amanda/discordtypings").MessageData>;
     createMessage(channelId: string, data: string | CreateMessageData, options?: {
         disableEveryone?: boolean;
-    }): Promise<object>;
+    }): Promise<import("@amanda/discordtypings").MessageData>;
     editMessage(channelId: string, messageId: string, data: string | EditMessageData, options?: {
         disableEveryone?: boolean;
     }): Promise<import("@amanda/discordtypings").MessageData>;

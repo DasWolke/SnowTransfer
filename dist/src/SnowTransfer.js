@@ -3,27 +3,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const Ratelimiter_1 = __importDefault(require("./Ratelimiter"));
-;
 const RequestHandler_1 = __importDefault(require("./RequestHandler"));
-;
 const Channels_1 = __importDefault(require("./methods/Channels"));
-;
 const Users_1 = __importDefault(require("./methods/Users"));
-;
 const Emojis_1 = __importDefault(require("./methods/Emojis"));
-;
 const Webhooks_1 = __importDefault(require("./methods/Webhooks"));
-;
 const Guilds_1 = __importDefault(require("./methods/Guilds"));
-;
 const Invites_1 = __importDefault(require("./methods/Invites"));
-;
 const Voices_1 = __importDefault(require("./methods/Voices"));
-;
 const Bots_1 = __importDefault(require("./methods/Bots"));
-;
 const AuditLog_1 = __importDefault(require("./methods/AuditLog"));
-;
 const Endpoints_1 = __importDefault(require("./Endpoints"));
 const package_json_1 = require("../package.json");
 class SnowTransfer {

@@ -309,7 +309,7 @@ class GuildMethods {
 	 * client.guild.createGuildBan('guild Id', 'memberId', banData)
 	 */
 	public async createGuildBan(guildId: string, memberId: string, data?: { reason?: string; delete_message_days?: number; }): Promise<void> {
-		let newData
+		let newData;
 		if (data) {
 			if (data.reason) Object.assign(newData, { queryReason: data.reason });
 			if (data.delete_message_days) Object.assign(newData, { "delete-message-days": data.delete_message_days });

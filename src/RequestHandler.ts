@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable no-async-promise-executor */
+
 import { EventEmitter } from "events";
 import crypto from "crypto";
 import http from "http";
@@ -60,7 +63,7 @@ class RequestHandler extends EventEmitter {
 		const promise = new Promise(async (res, rej) => {
 			this.ratelimiter.queue(async (bkt) => {
 				const reqID = crypto.randomBytes(20).toString("hex");
-				let latency = Date.now();
+				const latency = Date.now();
 				try {
 					/**
 					 * @event RequestHandler#request
@@ -75,7 +78,7 @@ class RequestHandler extends EventEmitter {
 						request = await this._multiPartRequest(endpoint, method, data);
 					}
 					this.latency = Date.now() - latency;
-					let offsetDate = this._getOffsetDateFromHeader(request.headers["date"]);
+					const offsetDate = this._getOffsetDateFromHeader(request.headers["date"]);
 					this._applyRatelimitHeaders(bkt, request.headers, offsetDate, endpoint.endsWith("/reactions/:id"));
 
 					this.emit("done", reqID, request);
@@ -87,7 +90,7 @@ class RequestHandler extends EventEmitter {
 				} catch (error) {
 					this.emit("requestError", reqID, error);
 					if (error.response) {
-						let offsetDate = this._getOffsetDateFromHeader(error.response.headers["date"]);
+						const offsetDate = this._getOffsetDateFromHeader(error.response.headers["date"]);
 						if (error.response.status === 429) {
 							//TODO WARN ABOUT THIS :< either bug or meme
 							this._applyRatelimitHeaders(bkt, error.response.headers, offsetDate, endpoint.endsWith("/reactions/:id"));
@@ -110,8 +113,8 @@ class RequestHandler extends EventEmitter {
 	 * @returns Offset in milliseconds
 	 */
 	private _getOffsetDateFromHeader(dateHeader: string): number {
-		let discordDate = Date.parse(dateHeader);
-		let offset = Date.now() - discordDate;
+		const discordDate = Date.parse(dateHeader);
+		const offset = Date.now() - discordDate;
 		return Date.now() + offset;
 	}
 
@@ -122,13 +125,13 @@ class RequestHandler extends EventEmitter {
 	 * @param offsetDate Unix timestamp of the current date + offset to discord time
 	 * @param reactions Whether to use reaction ratelimits (1/250ms)
 	 */
-	private _applyRatelimitHeaders(bkt: import("./ratelimitBuckets/LocalBucket"), headers: any, offsetDate: number, reactions: boolean = false) {
+	private _applyRatelimitHeaders(bkt: import("./ratelimitBuckets/LocalBucket"), headers: any, offsetDate: number, reactions = false) {
 		if (headers["x-ratelimit-global"]) {
 			bkt.ratelimiter.global = true;
 			bkt.ratelimiter.globalReset = parseInt(headers["retry_after"]);
 		}
 		if (headers["x-ratelimit-reset"]) {
-			let reset = (headers["x-ratelimit-reset"] * 1000) - offsetDate;
+			const reset = (headers["x-ratelimit-reset"] * 1000) - offsetDate;
 			if (reactions) {
 				bkt.reset = Math.max(reset, 250);
 			} else {
@@ -152,8 +155,8 @@ class RequestHandler extends EventEmitter {
 	 * @param useParams Whether to send the data in the body or use query params
 	 * @returns Result of the request
 	 */
-	private async _request(endpoint: string, method: import("axios").Method, data?: any, useParams: boolean = false): Promise<any> {
-		let headers = {};
+	private async _request(endpoint: string, method: import("axios").Method, data?: any, useParams = false): Promise<any> {
+		const headers = {};
 		if (typeof data != "string" && data.reason) {
 			headers["X-Audit-Log-Reason"] = encodeURIComponent(data.reason);
 			delete data.reason;
@@ -177,7 +180,7 @@ class RequestHandler extends EventEmitter {
 	 * @returns Result of the request
 	 */
 	private async _multiPartRequest(endpoint: string, method: import("axios").Method, data: any): Promise<any> {
-		let formData = new FormData();
+		const formData = new FormData();
 		if (data.file.file) {
 			if (data.file.name) {
 				formData.append("file", data.file.file, { filename: data.file.name });
