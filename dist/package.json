@@ -1,0 +1,40 @@
+{
+    "name": "snowtransfer",
+    "version": "0.3.0",
+    "description": "Minimalistic Rest client for the Discord Api",
+    "main": "index.js",
+    "types": "./typings/index.d.ts",
+    "engines": {
+        "node": ">=8.0.0"
+    },
+    "keywords": [
+        "discord",
+        "api",
+        "rest",
+        "http",
+        "microservice",
+        "discord bot",
+        "discord bot microservice",
+        "microservice bot"
+    ],
+    "scripts": {
+        "build:docs": "node_modules/.bin/docma -c docma.config.json",
+        "build:src": "tsc -p ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/DasWolke/SnowTransfer.git"
+    },
+    "bugs": "https://github.com/DasWolke/SnowTransfer/issues",
+    "author": "wolke <wolke@weeb.sh>",
+    "license": "MIT",
+    "dependencies": {
+        "@amanda/discordtypings": "github:AmandaDiscord/DiscordTypings",
+        "@types/node": "^14.14.2",
+        "axios": "^0.19.2",
+        "form-data": "~3.0.0"
+    },
+    "devDependencies": {
+        "eslint": "^7.7.0"
+    }
+}
