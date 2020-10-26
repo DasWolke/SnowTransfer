@@ -209,11 +209,11 @@ class ChannelMethods {
 	 * client.channel.editMessage('channel id', message.id, `pong ${Date.now() - time}ms`)
 	 */
 	public async editMessage(channelId: string, messageId: string, data: string | EditMessageData, options: { disableEveryone?: boolean } = { disableEveryone: this.disableEveryone }): Promise<import("@amanda/discordtypings").MessageData> {
-		if (typeof data !== "string" && !data.content && !data.embed) {
+		if (typeof data !== "string" && data.content === undefined && data.embed === undefined) {
 			throw new Error("Missing content or embed");
 		}
 		if (typeof data === "string") {
-			data = {content: data};
+			data = { content: data };
 		}
 
 		// Sanitize the message

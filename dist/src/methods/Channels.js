@@ -64,7 +64,7 @@ class ChannelMethods {
         }
     }
     async editMessage(channelId, messageId, data, options = { disableEveryone: this.disableEveryone }) {
-        if (typeof data !== "string" && !data.content && !data.embed) {
+        if (typeof data !== "string" && data.content === undefined && data.embed === undefined) {
             throw new Error("Missing content or embed");
         }
         if (typeof data === "string") {

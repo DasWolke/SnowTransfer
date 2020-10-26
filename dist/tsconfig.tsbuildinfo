@@ -487,7 +487,7 @@
         "affectsGlobalScope": false
       },
       "../src/methods/channels.ts": {
-        "version": "6c4c664e7f4a893b89073ff93f964eef67f008c698e2cd74d8e216f896c63aa1",
+        "version": "02e3938a83c271c56dc0af603ad7c4e752e3ab9cf54a786e29fb698c9db606b4",
         "signature": "cc794e0315a87de7e0b2325d6883d489a21f5bcb1ad906ea8e452d95b25b4ef7",
         "affectsGlobalScope": false
       },
