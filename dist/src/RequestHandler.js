@@ -51,8 +51,14 @@ class RequestHandler extends events_1.EventEmitter {
                     this._applyRatelimitHeaders(bkt, request.headers, offsetDate, endpoint.endsWith("/reactions/:id"));
                     this.emit("done", reqID, request);
                     if (request.body) {
-                        const bod = await request.json();
-                        return res(bod);
+                        let b;
+                        try {
+                            b = JSON.parse(request.body.toString());
+                        }
+                        catch {
+                            res();
+                        }
+                        return res(b);
                     }
                     else {
                         return res();

@@ -85,8 +85,13 @@ class RequestHandler extends EventEmitter {
 
 					this.emit("done", reqID, request);
 					if (request.body) {
-						const bod = await request.json();
-						return res(bod);
+						let b: any;
+						try {
+							b = JSON.parse(request.body.toString());
+						} catch {
+							res();
+						}
+						return res(b);
 					} else {
 						return res();
 					}
