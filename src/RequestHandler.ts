@@ -3,25 +3,25 @@
 
 import { EventEmitter } from "events";
 import crypto from "crypto";
-import http from "http";
-import https from "https";
-import axios from "axios";
+import c from "centra";
 import Endpoints from "./Endpoints";
 import FormData from "form-data";
 
 import { version } from "../package.json";
+
+type HTTPMethod = "get" | "post" | "patch" | "head" | "put" | "delete" | "connect" | "options" | "trace";
 
 /**
  * Request Handler class
  */
 class RequestHandler extends EventEmitter {
 	public ratelimiter: import("./Ratelimiter");
-	public options: { baseHost: string; baseURL: string; };
-	public client: import("axios").AxiosInstance;
+	public options: { baseHost: string; baseURL: string; headers: { Authorization: string; "User-Agent": string; } };
 	public latency: number;
 	public remaining: {};
 	public reset: {};
 	public limit: {};
+	public apiURL: string;
 
 	/**
 	 * Create a new request handler
@@ -32,17 +32,17 @@ class RequestHandler extends EventEmitter {
 		super();
 
 		this.ratelimiter = ratelimiter;
-		this.options = {baseHost: Endpoints.BASE_HOST, baseURL: Endpoints.BASE_URL};
-		Object.assign(this.options, options);
-		this.client = axios.create({
-			baseURL: this.options.baseHost + Endpoints.BASE_URL,
+		this.options = {
+			baseHost: Endpoints.BASE_HOST,
+			baseURL: Endpoints.BASE_URL,
 			headers: {
 				Authorization: options.token,
 				"User-Agent": `DiscordBot (https://github.com/DasWolke/SnowTransfer, ${version})`
-			},
-			httpAgent: new http.Agent({ keepAlive: true }),
-			httpsAgent: new https.Agent({ keepAlive: true })
-		});
+			}
+		};
+		Object.assign(this.options, options);
+
+		this.apiURL = this.options.baseHost + Endpoints.BASE_URL;
 		this.latency = 500;
 		this.remaining = {};
 		this.reset = {};
@@ -58,9 +58,9 @@ class RequestHandler extends EventEmitter {
 	 * @returns Result of the request
 	 * @fires RequestHandler.request#request
 	 */
-	public request(endpoint: string, method: import("axios").Method, dataType: "json" | "multipart" = "json", data: any | undefined = {}): Promise<any> {
+	public request(endpoint: string, method: HTTPMethod, dataType: "json" | "multipart" = "json", data: any | undefined = {}): Promise<any> {
 		if (typeof data === "number") data = String(data);
-		const promise = new Promise(async (res, rej) => {
+		return new Promise(async (res, rej) => {
 			this.ratelimiter.queue(async (bkt) => {
 				const reqID = crypto.randomBytes(20).toString("hex");
 				const latency = Date.now();
@@ -71,19 +71,22 @@ class RequestHandler extends EventEmitter {
 					 */
 					this.emit("request", reqID, { endpoint, method, dataType, data });
 
-					let request: any;
+					let request: import("centra").Response;
 					if (dataType == "json") {
 						request = await this._request(endpoint, method, data, (method === "get" || endpoint.includes("/bans") || endpoint.includes("/prune")));
 					} else if (dataType == "multipart") {
 						request = await this._multiPartRequest(endpoint, method, data);
+					} else {
+						throw new Error("Forbidden dataType. Use json or multipart");
 					}
 					this.latency = Date.now() - latency;
-					const offsetDate = this._getOffsetDateFromHeader(request.headers["date"]);
+					const offsetDate = this._getOffsetDateFromHeader(request.headers["date"] as string);
 					this._applyRatelimitHeaders(bkt, request.headers, offsetDate, endpoint.endsWith("/reactions/:id"));
 
 					this.emit("done", reqID, request);
-					if (request.data) {
-						return res(request.data);
+					if (request.body) {
+						const bod = await request.json();
+						return res(bod);
 					} else {
 						return res();
 					}
@@ -104,7 +107,6 @@ class RequestHandler extends EventEmitter {
 				}
 			}, endpoint, method);
 		});
-		return promise;
 	}
 
 	/**
@@ -155,7 +157,7 @@ class RequestHandler extends EventEmitter {
 	 * @param useParams Whether to send the data in the body or use query params
 	 * @returns Result of the request
 	 */
-	private async _request(endpoint: string, method: import("axios").Method, data?: any, useParams = false): Promise<any> {
+	private async _request(endpoint: string, method: HTTPMethod, data?: any, useParams = false): Promise<import("centra").Response> {
 		const headers = {};
 		if (typeof data != "string" && data.reason) {
 			headers["X-Audit-Log-Reason"] = encodeURIComponent(data.reason);
@@ -165,10 +167,13 @@ class RequestHandler extends EventEmitter {
 			data.reason = data.queryReason;
 			delete data.queryReason;
 		}
+		const req = c(this.apiURL, method).path(endpoint).header(this.options.headers);
 		if (useParams) {
-			return this.client({url: endpoint, method, params: data, headers});
+			return req.query(data).send();
 		} else {
-			return this.client({url: endpoint, method, data, headers});
+			if (data && typeof data === "object") req.body(data, "json");
+			else if (data) req.body(data);
+			return req.send();
 		}
 	}
 
@@ -179,7 +184,7 @@ class RequestHandler extends EventEmitter {
 	 * @param data data to send
 	 * @returns Result of the request
 	 */
-	private async _multiPartRequest(endpoint: string, method: import("axios").Method, data: any): Promise<any> {
+	private async _multiPartRequest(endpoint: string, method: HTTPMethod, data: any): Promise<import("centra").Response> {
 		const formData = new FormData();
 		if (data.file.file) {
 			if (data.file.name) {
@@ -191,13 +196,10 @@ class RequestHandler extends EventEmitter {
 			delete data.file.file;
 		}
 		formData.append("payload_json", JSON.stringify(data));
-		// :< axios is mean sometimes
-		return this.client({
-			url: endpoint,
-			method,
-			data: formData,
-			headers: {"Content-Type": `multipart/form-data; boundary=${formData.getBoundary()}`}
-		});
+		// duplicate headers in options as to not mutate the state.
+		const newHeaders = Object.assign(Object.create(null), this.options.headers);
+		Object.assign(newHeaders, { "Content-Type": `multipart/form-data; boundary=${formData.getBoundary()}` });
+		return c(this.apiURL, method).path(endpoint).header(newHeaders).body(formData, "form").send();
 	}
 }
 

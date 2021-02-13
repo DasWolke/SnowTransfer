@@ -4,9 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const events_1 = require("events");
 const crypto_1 = __importDefault(require("crypto"));
-const http_1 = __importDefault(require("http"));
-const https_1 = __importDefault(require("https"));
-const axios_1 = __importDefault(require("axios"));
+const centra_1 = __importDefault(require("centra"));
 const Endpoints_1 = __importDefault(require("./Endpoints"));
 const form_data_1 = __importDefault(require("form-data"));
 const package_json_1 = require("../package.json");
@@ -14,17 +12,16 @@ class RequestHandler extends events_1.EventEmitter {
     constructor(ratelimiter, options) {
         super();
         this.ratelimiter = ratelimiter;
-        this.options = { baseHost: Endpoints_1.default.BASE_HOST, baseURL: Endpoints_1.default.BASE_URL };
-        Object.assign(this.options, options);
-        this.client = axios_1.default.create({
-            baseURL: this.options.baseHost + Endpoints_1.default.BASE_URL,
+        this.options = {
+            baseHost: Endpoints_1.default.BASE_HOST,
+            baseURL: Endpoints_1.default.BASE_URL,
             headers: {
                 Authorization: options.token,
                 "User-Agent": `DiscordBot (https://github.com/DasWolke/SnowTransfer, ${package_json_1.version})`
-            },
-            httpAgent: new http_1.default.Agent({ keepAlive: true }),
-            httpsAgent: new https_1.default.Agent({ keepAlive: true })
-        });
+            }
+        };
+        Object.assign(this.options, options);
+        this.apiURL = this.options.baseHost + Endpoints_1.default.BASE_URL;
         this.latency = 500;
         this.remaining = {};
         this.reset = {};
@@ -33,7 +30,7 @@ class RequestHandler extends events_1.EventEmitter {
     request(endpoint, method, dataType = "json", data = {}) {
         if (typeof data === "number")
             data = String(data);
-        const promise = new Promise(async (res, rej) => {
+        return new Promise(async (res, rej) => {
             this.ratelimiter.queue(async (bkt) => {
                 const reqID = crypto_1.default.randomBytes(20).toString("hex");
                 const latency = Date.now();
@@ -46,12 +43,16 @@ class RequestHandler extends events_1.EventEmitter {
                     else if (dataType == "multipart") {
                         request = await this._multiPartRequest(endpoint, method, data);
                     }
+                    else {
+                        throw new Error("Forbidden dataType. Use json or multipart");
+                    }
                     this.latency = Date.now() - latency;
                     const offsetDate = this._getOffsetDateFromHeader(request.headers["date"]);
                     this._applyRatelimitHeaders(bkt, request.headers, offsetDate, endpoint.endsWith("/reactions/:id"));
                     this.emit("done", reqID, request);
-                    if (request.data) {
-                        return res(request.data);
+                    if (request.body) {
+                        const bod = await request.json();
+                        return res(bod);
                     }
                     else {
                         return res();
@@ -73,7 +74,6 @@ class RequestHandler extends events_1.EventEmitter {
                 }
             }, endpoint, method);
         });
-        return promise;
     }
     _getOffsetDateFromHeader(dateHeader) {
         const discordDate = Date.parse(dateHeader);
@@ -114,11 +114,16 @@ class RequestHandler extends events_1.EventEmitter {
             data.reason = data.queryReason;
             delete data.queryReason;
         }
+        const req = centra_1.default(this.apiURL, method).path(endpoint).header(this.options.headers);
         if (useParams) {
-            return this.client({ url: endpoint, method, params: data, headers });
+            return req.query(data).send();
         }
         else {
-            return this.client({ url: endpoint, method, data, headers });
+            if (data && typeof data === "object")
+                req.body(data, "json");
+            else if (data)
+                req.body(data);
+            return req.send();
         }
     }
     async _multiPartRequest(endpoint, method, data) {
@@ -133,12 +138,9 @@ class RequestHandler extends events_1.EventEmitter {
             delete data.file.file;
         }
         formData.append("payload_json", JSON.stringify(data));
-        return this.client({
-            url: endpoint,
-            method,
-            data: formData,
-            headers: { "Content-Type": `multipart/form-data; boundary=${formData.getBoundary()}` }
-        });
+        const newHeaders = Object.assign(Object.create(null), this.options.headers);
+        Object.assign(newHeaders, { "Content-Type": `multipart/form-data; boundary=${formData.getBoundary()}` });
+        return centra_1.default(this.apiURL, method).path(endpoint).header(newHeaders).body(formData, "form").send();
     }
 }
 module.exports = RequestHandler;

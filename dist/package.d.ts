@@ -8,7 +8,6 @@ export declare namespace engines {
 }
 export declare const keywords: string[];
 export declare const scripts: {
-    "build:docs": string;
     "build:src": string;
 };
 export declare const repository: {
@@ -21,9 +20,13 @@ export declare const license: string;
 export declare const dependencies: {
     "@amanda/discordtypings": string;
     "@types/node": string;
-    "axios": string;
+    "centra": string;
     "form-data": string;
 };
-export declare namespace devDependencies {
-    export const eslint: string;
-}
+export declare const devDependencies: {
+    "@typescript-eslint/eslint-plugin": string;
+    "@typescript-eslint/parser": string;
+    "@types/centra": string;
+    "eslint": string;
+    "typescript": string;
+};
