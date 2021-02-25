@@ -133,20 +133,14 @@ class RequestHandler extends events_1.EventEmitter {
         }
     }
     async _multiPartRequest(endpoint, method, data) {
-        const formData = new form_data_1.default();
-        if (data.file.file) {
-            if (data.file.name) {
-                formData.append("file", data.file.file, { filename: data.file.name });
-            }
-            else {
-                formData.append("file", data.file.file);
-            }
+        const form = new form_data_1.default();
+        if (data.file && data.file.file) {
+            form.append("file", data.file.file, { filename: data.file.name });
             delete data.file.file;
         }
-        formData.append("payload_json", JSON.stringify(data));
-        const newHeaders = Object.assign(Object.create(null), this.options.headers);
-        Object.assign(newHeaders, { "Content-Type": `multipart/form-data; boundary=${formData.getBoundary()}` });
-        return centra_1.default(this.apiURL, method).path(endpoint).header(newHeaders).body(formData, "form").send();
+        form.append("payload_json", JSON.stringify(data));
+        const newHeaders = Object.assign({}, this.options.headers, form.getHeaders());
+        return centra_1.default(this.apiURL, method).path(endpoint).header(newHeaders).body(form.getBuffer().toString()).send();
     }
 }
 module.exports = RequestHandler;

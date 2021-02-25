@@ -366,7 +366,7 @@
         "signature": "d3de73864c240290bd494ac8aac3784c5193e9a07ff399c766ae90a95a7e42e3"
       },
       "../src/requesthandler.ts": {
-        "version": "0133dc83817e4dc40a5b75e1a2ba9d79ffa4cddafaec75d6bea0f052f8b4604e",
+        "version": "bec0a01e6e637b89edb4d0422ec6e956c2ea81f6da45c7c95b53a6dbdb353ed2",
         "signature": "5ed7740ccf087df8af98e248ded70144a60c92d696597ec802209404e85a5688"
       },
       "../node_modules/@amanda/discordtypings/index.d.ts": {
@@ -420,6 +420,10 @@
       "../src/snowtransfer.ts": {
         "version": "6b0ef4f092778925d23de8a5384eb5781d1d84151cd703082b26d8d26452fcb0",
         "signature": "d38813af40cf6ade237b269b2c03b694a5bffd6b9580bb756a675c38a7644cab"
+      },
+      "../src/test.js": {
+        "version": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "signature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
       }
     },
     "options": {
@@ -1047,6 +1051,7 @@
       "../node_modules/@types/node/index.d.ts",
       "../node_modules/@types/centra/index.d.ts",
       "../node_modules/form-data/index.d.ts",
+      "../package.json",
       "../node_modules/@amanda/discordtypings/index.d.ts",
       "../src/methods/channels.ts",
       "../src/cache/dewcache.ts",
@@ -1060,8 +1065,8 @@
       "../src/methods/bots.ts",
       "../src/methods/auditlog.ts",
       "../src/snowtransfer.ts",
-      "../package.json",
-      "../src/requesthandler.ts"
+      "../src/requesthandler.ts",
+      "../src/test.js"
     ]
   },
   "version": "3.7.4"

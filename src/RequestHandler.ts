@@ -190,21 +190,16 @@ class RequestHandler extends EventEmitter {
 	 * @returns Result of the request
 	 */
 	private async _multiPartRequest(endpoint: string, method: HTTPMethod, data: any): Promise<import("centra").Response> {
-		const formData = new FormData();
-		if (data.file.file) {
-			if (data.file.name) {
-				formData.append("file", data.file.file, { filename: data.file.name });
-			} else {
-				formData.append("file", data.file.file);
-			}
-
+		const form = new FormData();
+		if (data.file && data.file.file) {
+			form.append("file", data.file.file, { filename: data.file.name });
 			delete data.file.file;
 		}
-		formData.append("payload_json", JSON.stringify(data));
-		// duplicate headers in options as to not mutate the state.
-		const newHeaders = Object.assign(Object.create(null), this.options.headers);
-		Object.assign(newHeaders, { "Content-Type": `multipart/form-data; boundary=${formData.getBoundary()}` });
-		return c(this.apiURL, method).path(endpoint).header(newHeaders).body(formData, "form").send();
+		form.append("payload_json", JSON.stringify(data));
+		// duplicate headers in options as to not risk mutating the state.
+		const newHeaders = Object.assign({}, this.options.headers, form.getHeaders());
+
+		return c(this.apiURL, method).path(endpoint).header(newHeaders).body(form.getBuffer().toString()).send();
 	}
 }
 
