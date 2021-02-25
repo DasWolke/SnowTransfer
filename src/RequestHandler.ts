@@ -199,7 +199,7 @@ class RequestHandler extends EventEmitter {
 		// duplicate headers in options as to not risk mutating the state.
 		const newHeaders = Object.assign({}, this.options.headers, form.getHeaders());
 
-		return c(this.apiURL, method).path(endpoint).header(newHeaders).body(form.getBuffer().toString()).send();
+		return c(this.apiURL, method).path(endpoint).header(newHeaders).body(form.getBuffer()).send();
 	}
 }
 

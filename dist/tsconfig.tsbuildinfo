@@ -366,7 +366,7 @@
         "signature": "d3de73864c240290bd494ac8aac3784c5193e9a07ff399c766ae90a95a7e42e3"
       },
       "../src/requesthandler.ts": {
-        "version": "bec0a01e6e637b89edb4d0422ec6e956c2ea81f6da45c7c95b53a6dbdb353ed2",
+        "version": "7686670659b840761a3fb445b23041892be382e9a5d2c1af1b7b9c3de90afc78",
         "signature": "5ed7740ccf087df8af98e248ded70144a60c92d696597ec802209404e85a5688"
       },
       "../node_modules/@amanda/discordtypings/index.d.ts": {
@@ -1065,8 +1065,8 @@
       "../src/methods/bots.ts",
       "../src/methods/auditlog.ts",
       "../src/snowtransfer.ts",
-      "../src/requesthandler.ts",
-      "../src/test.js"
+      "../src/test.js",
+      "../src/requesthandler.ts"
     ]
   },
   "version": "3.7.4"

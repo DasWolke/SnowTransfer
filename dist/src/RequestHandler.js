@@ -140,7 +140,7 @@ class RequestHandler extends events_1.EventEmitter {
         }
         form.append("payload_json", JSON.stringify(data));
         const newHeaders = Object.assign({}, this.options.headers, form.getHeaders());
-        return centra_1.default(this.apiURL, method).path(endpoint).header(newHeaders).body(form.getBuffer().toString()).send();
+        return centra_1.default(this.apiURL, method).path(endpoint).header(newHeaders).body(form.getBuffer()).send();
     }
 }
 module.exports = RequestHandler;
