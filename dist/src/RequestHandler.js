@@ -48,7 +48,8 @@ class RequestHandler extends events_1.EventEmitter {
                     }
                     this.latency = Date.now() - latency;
                     const offsetDate = this._getOffsetDateFromHeader(request.headers["date"]);
-                    this._applyRatelimitHeaders(bkt, request.headers, offsetDate, endpoint.endsWith("/reactions/:id"));
+                    const match = endpoint.match(/\/reactions\//);
+                    this._applyRatelimitHeaders(bkt, request.headers, offsetDate, !!match);
                     this.emit("done", reqID, request);
                     if (request.body) {
                         let b;
@@ -56,12 +57,12 @@ class RequestHandler extends events_1.EventEmitter {
                             b = JSON.parse(request.body.toString());
                         }
                         catch {
-                            res();
+                            res(undefined);
                         }
                         return res(b);
                     }
                     else {
-                        return res();
+                        return res(undefined);
                     }
                 }
                 catch (error) {
@@ -69,7 +70,8 @@ class RequestHandler extends events_1.EventEmitter {
                     if (error.response) {
                         const offsetDate = this._getOffsetDateFromHeader(error.response.headers["date"]);
                         if (error.response.status === 429) {
-                            this._applyRatelimitHeaders(bkt, error.response.headers, offsetDate, endpoint.endsWith("/reactions/:id"));
+                            const match = endpoint.match(/\/reactions\//);
+                            this._applyRatelimitHeaders(bkt, error.response.headers, offsetDate, !!match);
                             return this.request(endpoint, method, dataType, data);
                         }
                         if (error.response.status === 502) {

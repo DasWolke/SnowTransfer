@@ -81,7 +81,8 @@ class RequestHandler extends EventEmitter {
 					}
 					this.latency = Date.now() - latency;
 					const offsetDate = this._getOffsetDateFromHeader(request.headers["date"] as string);
-					this._applyRatelimitHeaders(bkt, request.headers, offsetDate, endpoint.endsWith("/reactions/:id"));
+					const match = endpoint.match(/\/reactions\//);
+					this._applyRatelimitHeaders(bkt, request.headers, offsetDate, !!match);
 
 					this.emit("done", reqID, request);
 					if (request.body) {
@@ -89,11 +90,11 @@ class RequestHandler extends EventEmitter {
 						try {
 							b = JSON.parse(request.body.toString());
 						} catch {
-							res();
+							res(undefined);
 						}
 						return res(b);
 					} else {
-						return res();
+						return res(undefined);
 					}
 				} catch (error) {
 					this.emit("requestError", reqID, error);
@@ -101,7 +102,8 @@ class RequestHandler extends EventEmitter {
 						const offsetDate = this._getOffsetDateFromHeader(error.response.headers["date"]);
 						if (error.response.status === 429) {
 							//TODO WARN ABOUT THIS :< either bug or meme
-							this._applyRatelimitHeaders(bkt, error.response.headers, offsetDate, endpoint.endsWith("/reactions/:id"));
+							const match = endpoint.match(/\/reactions\//);
+							this._applyRatelimitHeaders(bkt, error.response.headers, offsetDate, !!match);
 							return this.request(endpoint, method, dataType, data);
 						}
 						if (error.response.status === 502) {
