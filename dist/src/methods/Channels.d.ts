@@ -21,10 +21,10 @@ declare class ChannelMethods {
     deleteReaction(channelId: string, messageId: string, emoji: string, userId: string): Promise<void>;
     getReactions(channelId: string, messageId: string, emoji: string): Promise<Array<import("@amanda/discordtypings").UserData>>;
     deleteAllReactions(channelId: string, messageId: string): Promise<void>;
-    editChannelPermission(channelId: string, permissionId: string, data: any): Promise<void>;
+    editChannelPermission(channelId: string, permissionId: string, data: Partial<import("@amanda/discordtypings").PermissionOverwriteData>): Promise<void>;
     deleteChannelPermission(channelId: string, permissionId: string): Promise<void>;
-    getChannelInvites(channelId: string): Promise<Array<any>>;
-    createChannelInvite(channelId: string, data?: CreateInviteData): Promise<any>;
+    getChannelInvites(channelId: string): Promise<Array<import("@amanda/discordtypings").InviteData>>;
+    createChannelInvite(channelId: string, data?: CreateInviteData): Promise<import("@amanda/discordtypings").InviteData>;
     startChannelTyping(channelId: string): Promise<void>;
     getChannelPinnedMessages(channelId: string): Promise<Array<import("@amanda/discordtypings").MessageData>>;
     addChannelPinnedMessage(channelId: string, messageId: string): Promise<void>;
@@ -34,6 +34,11 @@ declare class ChannelMethods {
         nick?: string;
     }): Promise<void>;
     removeDmChannelRecipient(channelId: string, userId: string): Promise<void>;
+    getChannelThreadMembers(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadMemberData>>;
+    getChannelActiveThreads(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadChannelData>>;
+    getChannelArchivedPrivateThreads(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadChannelData>>;
+    getChannelArchivedPrivateThreadsUser(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadChannelData>>;
+    getChannelArchivedPublicThreads(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadChannelData>>;
 }
 interface EditChannelData {
     name?: string;
@@ -44,6 +49,10 @@ interface EditChannelData {
     user_limit?: number;
     permission_overwrites?: Array<import("@amanda/discordtypings").PermissionOverwriteData>;
     parent_id?: string;
+    archived?: boolean;
+    auto_archive_duration?: number;
+    locked?: boolean;
+    rate_limit_per_user?: number;
 }
 interface GetMessageOptions {
     around?: string;

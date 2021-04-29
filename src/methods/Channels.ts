@@ -264,8 +264,8 @@ class ChannelMethods {
 			throw new Error(`Amount of messages to be deleted has to be between ${Constants.BULK_DELETE_MESSAGES_MIN} and ${Constants.BULK_DELETE_MESSAGES_MAX}`);
 		}
 		// (Current date - (discord epoch + 2 weeks)) * (2**22) weird constant that everybody seems to use
-		const oldestSnowflake = (Date.now() - 1421280000000) * 2**22;
-		const forbiddenMessage = messages.find(m => (+m) < oldestSnowflake);
+		const oldestSnowflake = BigInt((Date.now() - 1421280000000) * 2**22);
+		const forbiddenMessage = messages.find(m => BigInt(m) < oldestSnowflake);
 		if (forbiddenMessage) {
 			throw new Error(`The message ${forbiddenMessage} is older than 2 weeks and may not be deleted using the bulk delete endpoint`);
 		}
@@ -388,7 +388,7 @@ class ChannelMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_ROLES       | always    |
 	 */
-	public async editChannelPermission(channelId: string, permissionId: string, data: any): Promise<void> {
+	public async editChannelPermission(channelId: string, permissionId: string, data: Partial<import("@amanda/discordtypings").PermissionOverwriteData>): Promise<void> {
 		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), "put", "json", data);
 	}
 
@@ -415,7 +415,7 @@ class ChannelMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_CHANNELS    | always    |
 	 */
-	public async getChannelInvites(channelId: string): Promise<Array<any>> {
+	public async getChannelInvites(channelId: string): Promise<Array<import("@amanda/discordtypings").InviteData>> {
 		return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), "get", "json");
 	}
 
@@ -431,7 +431,7 @@ class ChannelMethods {
 	 * |-----------------------|-----------|
 	 * | CREATE_INSTANT_INVITE | always    |
 	 */
-	public async createChannelInvite(channelId: string, data: CreateInviteData = { max_age: 86400, max_uses: 0, temporary: false, unique: false }): Promise<any> {
+	public async createChannelInvite(channelId: string, data: CreateInviteData = { max_age: 86400, max_uses: 0, temporary: false, unique: false }): Promise<import("@amanda/discordtypings").InviteData> {
 		return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), "post", "json", data);
 	}
 
@@ -509,6 +509,26 @@ class ChannelMethods {
 	public async removeDmChannelRecipient(channelId: string, userId: string): Promise<void> {
 		return this.requestHandler.request(Endpoints.CHANNEL_RECIPIENT(channelId, userId), "delete", "json");
 	}
+
+	public async getChannelThreadMembers(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadMemberData>> {
+		return this.requestHandler.request(Endpoints.CHANNEL_THREAD_MEMBERS(channelId), "get", "json");
+	}
+
+	public async getChannelActiveThreads(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadChannelData>> {
+		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ACTIVE(channelId), "get", "json");
+	}
+
+	public async getChannelArchivedPrivateThreads(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadChannelData>> {
+		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE(channelId), "get", "json");
+	}
+
+	public async getChannelArchivedPrivateThreadsUser(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadChannelData>> {
+		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE_USER(channelId), "get", "json");
+	}
+
+	public async getChannelArchivedPublicThreads(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadChannelData>> {
+		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PUBLIC(channelId), "get", "json");
+	}
 }
 
 interface EditChannelData {
@@ -544,6 +564,22 @@ interface EditChannelData {
 	 * Id of the parent category of the channel
 	 */
 	parent_id?: string;
+	/**
+	 * Update whether or not a thread is archived
+	 */
+	archived?: boolean;
+	/**
+	 * Update how long it takes for a thread to become stale and archived automatically
+	 */
+	auto_archive_duration?: number;
+	/**
+	 * Update whether or not a thread is locked
+	 */
+	locked?: boolean;
+	/**
+	 * Update if slowmode is enabled and how long slow mode should last
+	 */
+	rate_limit_per_user?: number;
 }
 
 interface GetMessageOptions {
@@ -625,26 +661,9 @@ interface CreateInviteData {
 
 export = ChannelMethods;
 
-// Thanks, Wolke :)
 
-// To anyone wanting to write a library: JUST COPY THIS SHIT, filling this out manually wasn't fun :<
+// Wolke >>
 // https://www.youtube.com/watch?v=LIlZCmETvsY have a weird video to distract yourself from the problems that will come upon ya
-/**
- * @typedef {object} Channel
- * @property {string} Id - Id of the channel
- * @property {number} type - [type](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) of channel
- * @property {string} [guild_id] - Id of the {Guild} of the channel
- * @property {number} [position] - sorting position of the channel
- * @property {PermissionOverwrite[]} [permission_overwrites] - array of permission overwrites for this channel
- * @property {string} [name] - name of the channel
- * @property {string} [topic] - topic of the channel
- * @property {Boolean} [nsfw] - if the channel is nsfw (guild only)
- * @property {string} [last_message_id] - the Id of the last message sent in this channel
- * @property {number} [bitrate] - bitrate of the channel (voice only)
- * @property {number} [user_limit] - limit of users in a channel (voice only)
- * @property {import("./Users").User[]} [recipients] - recipients of a dm (dm only)
- * @property {string} [icon] - icon hash (dm only)
- * @property {string} [owner_id] - Id of the DM creator (dm only)
- * @property {string} [application_id] - application Id of the creator of the group dm if a bot created it (group dm only)
- * @property {string} [parent_id] - Id of the parent category for a channel
- */
+
+// PapiOphidian >>
+// Thanks, Wolke :)

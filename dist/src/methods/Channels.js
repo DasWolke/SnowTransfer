@@ -89,8 +89,8 @@ class ChannelMethods {
         if (messages.length < Constants_1.default.BULK_DELETE_MESSAGES_MIN || messages.length > Constants_1.default.BULK_DELETE_MESSAGES_MAX) {
             throw new Error(`Amount of messages to be deleted has to be between ${Constants_1.default.BULK_DELETE_MESSAGES_MIN} and ${Constants_1.default.BULK_DELETE_MESSAGES_MAX}`);
         }
-        const oldestSnowflake = (Date.now() - 1421280000000) * 2 ** 22;
-        const forbiddenMessage = messages.find(m => (+m) < oldestSnowflake);
+        const oldestSnowflake = BigInt((Date.now() - 1421280000000) * 2 ** 22);
+        const forbiddenMessage = messages.find(m => BigInt(m) < oldestSnowflake);
         if (forbiddenMessage) {
             throw new Error(`The message ${forbiddenMessage} is older than 2 weeks and may not be deleted using the bulk delete endpoint`);
         }
@@ -140,6 +140,21 @@ class ChannelMethods {
     }
     async removeDmChannelRecipient(channelId, userId) {
         return this.requestHandler.request(Endpoints_1.default.CHANNEL_RECIPIENT(channelId, userId), "delete", "json");
+    }
+    async getChannelThreadMembers(channelId) {
+        return this.requestHandler.request(Endpoints_1.default.CHANNEL_THREAD_MEMBERS(channelId), "get", "json");
+    }
+    async getChannelActiveThreads(channelId) {
+        return this.requestHandler.request(Endpoints_1.default.CHANNEL_THREADS_ACTIVE(channelId), "get", "json");
+    }
+    async getChannelArchivedPrivateThreads(channelId) {
+        return this.requestHandler.request(Endpoints_1.default.CHANNEL_THREADS_ARCHIVED_PRIVATE(channelId), "get", "json");
+    }
+    async getChannelArchivedPrivateThreadsUser(channelId) {
+        return this.requestHandler.request(Endpoints_1.default.CHANNEL_THREADS_ARCHIVED_PRIVATE_USER(channelId), "get", "json");
+    }
+    async getChannelArchivedPublicThreads(channelId) {
+        return this.requestHandler.request(Endpoints_1.default.CHANNEL_THREADS_ARCHIVED_PUBLIC(channelId), "get", "json");
     }
 }
 module.exports = ChannelMethods;

@@ -19,14 +19,14 @@ export declare const author: string;
 export declare const license: string;
 export declare const dependencies: {
     "@amanda/discordtypings": string;
-    "@types/node": string;
     "centra": string;
     "form-data": string;
 };
 export declare const devDependencies: {
+    "@types/centra": string;
+    "@types/node": string;
     "@typescript-eslint/eslint-plugin": string;
     "@typescript-eslint/parser": string;
-    "@types/centra": string;
     "eslint": string;
     "typescript": string;
 };

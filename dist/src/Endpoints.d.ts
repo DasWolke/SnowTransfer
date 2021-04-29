@@ -15,6 +15,11 @@ declare const _default: {
     CHANNEL_PIN: (chanID: string, msgID: string) => string;
     CHANNEL_PINS: (chanID: string) => string;
     CHANNEL_RECIPIENT: (groupID: string, userID: string) => string;
+    CHANNEL_THREAD_MEMBERS: (chanID: any) => string;
+    CHANNEL_THREADS_ACTIVE: (chanID: string) => string;
+    CHANNEL_THREADS_ARCHIVED_PRIVATE: (chanID: string) => string;
+    CHANNEL_THREADS_ARCHIVED_PRIVATE_USER: (chanID: string) => string;
+    CHANNEL_THREADS_ARCHIVED_PUBLIC: (chanID: string) => string;
     CHANNEL_TYPING: (chanID: string) => string;
     CHANNEL_WEBHOOKS: (chanID: string) => string;
     CHANNELS: string;

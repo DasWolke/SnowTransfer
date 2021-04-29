@@ -150,12 +150,12 @@
         "signature": "0c9ea8c2028047f39a3f66752682604f543c08be8806258c3d95c93e75a43255"
       },
       "../src/constants.ts": {
-        "version": "66c4df37440799fe7cbba78fa805b2d0cac6bd48dfe4098603b028942a525cd0",
+        "version": "0dfc092dd811f7833f75ad7d91c68972c49b443c4bbe37acc658214fb8af2ed3",
         "signature": "ae1e85845ebedad133838d14dc0fbbb20c5212c64feb2f352089bed90bb1b679"
       },
       "../src/endpoints.ts": {
-        "version": "5962a980c70994b72c1bc85cbd45c74ca8d9931b2a4e673d8a8c1609487ae579",
-        "signature": "7a2053af928ee06f1295486b081b4cf116a9893ce61e68c4a8e00e5125fb3ccb"
+        "version": "e684e3dbef64e98f1620650f4a1ff74061a937997894093bdf5c0294ca7e0552",
+        "signature": "5df843b0178ef95ce5660fec2af883131098bc49b20d6564e8fc2e8643639c71"
       },
       "../src/ratelimitbuckets/localbucket.ts": {
         "version": "ab753bc066a2e6c09e43c69121f71a144c4f91bc323f8fc4c3f88209cc9d801c",
@@ -165,9 +165,13 @@
         "version": "ed79835f455b70dceb58f0c6c93b5f154579704e9a8c3e745e043c06a611d748",
         "signature": "459af9f34c2c17a99283fa02c5d10cac1b5ac60ebcf93c382eb02f7d0ac2a164"
       },
+      "../node_modules/@types/node/assert/strict.d.ts": {
+        "version": "c7bdc99177a2a94d25fb13722adaaf5b3291bf70b4d1b27584ba189dd3889ba3",
+        "signature": "c7bdc99177a2a94d25fb13722adaaf5b3291bf70b4d1b27584ba189dd3889ba3"
+      },
       "../node_modules/@types/node/globals.d.ts": {
-        "version": "25b4a0c4fab47c373ee49df4c239826ee3430019fc0c1b5e59edc3e398b7468d",
-        "signature": "25b4a0c4fab47c373ee49df4c239826ee3430019fc0c1b5e59edc3e398b7468d"
+        "version": "5402314c88d0127f63f94a0272f79e04ea0fc010ff6da6613807504c4163a1ad",
+        "signature": "5402314c88d0127f63f94a0272f79e04ea0fc010ff6da6613807504c4163a1ad"
       },
       "../node_modules/@types/node/async_hooks.d.ts": {
         "version": "d20f08527645f62facb2d66c2b7bd31ea964b59c897d00bddb1efe8c13890b72",
@@ -194,40 +198,44 @@
         "signature": "0e9c55f894ca2d9cf63b5b0d43a8cec1772dd560233fd16275bc7a485eb82f83"
       },
       "../node_modules/@types/node/crypto.d.ts": {
-        "version": "d53b352a01645c470a0d8c31bf290ba791fc28ade0ce187a4a50f5c2f826f75e",
-        "signature": "d53b352a01645c470a0d8c31bf290ba791fc28ade0ce187a4a50f5c2f826f75e"
+        "version": "4105385afd60b90ebac359d02a186250885839122850d776c0ad0e327c1afb65",
+        "signature": "4105385afd60b90ebac359d02a186250885839122850d776c0ad0e327c1afb65"
       },
       "../node_modules/@types/node/dgram.d.ts": {
         "version": "5f0a09de75bd965c21dc6d73671ba88830272f9ed62897bb0aa9754b369b1eed",
         "signature": "5f0a09de75bd965c21dc6d73671ba88830272f9ed62897bb0aa9754b369b1eed"
       },
       "../node_modules/@types/node/dns.d.ts": {
-        "version": "2b34e7fcba9e1f24e7f54ba5c8be5a8895b0b8b444ccf6548e04acdee0899317",
-        "signature": "2b34e7fcba9e1f24e7f54ba5c8be5a8895b0b8b444ccf6548e04acdee0899317"
+        "version": "12b2ab05a3ededc0e8938f2e16e4e2e30fc82b6d97b414067c26253f26fce69a",
+        "signature": "12b2ab05a3ededc0e8938f2e16e4e2e30fc82b6d97b414067c26253f26fce69a"
+      },
+      "../node_modules/@types/node/dns/promises.d.ts": {
+        "version": "e4ab7077b5adff3156d258a284986dc85e0bcf0fff1670df5c7f83efc25d4cc6",
+        "signature": "e4ab7077b5adff3156d258a284986dc85e0bcf0fff1670df5c7f83efc25d4cc6"
       },
       "../node_modules/@types/node/domain.d.ts": {
         "version": "06d2be99c3dd2ff52114d02ee443ba486ab482423df1941d3c97d6a92e924d70",
         "signature": "06d2be99c3dd2ff52114d02ee443ba486ab482423df1941d3c97d6a92e924d70"
       },
       "../node_modules/@types/node/events.d.ts": {
-        "version": "bfd4f140c07091b5e8a963c89e6fa3f44b6cfcbc11471b465cf63e2d020ad0eb",
-        "signature": "bfd4f140c07091b5e8a963c89e6fa3f44b6cfcbc11471b465cf63e2d020ad0eb"
+        "version": "eb15e56611c2a853526a2e202234dd1676bd37cc2fcdbd9843470f7dafb37f15",
+        "signature": "eb15e56611c2a853526a2e202234dd1676bd37cc2fcdbd9843470f7dafb37f15"
       },
       "../node_modules/@types/node/fs.d.ts": {
-        "version": "a106a0bea088b70879ac88ff606dc253c0cc474ea05ad3a282b8bfb1091ae576",
-        "signature": "a106a0bea088b70879ac88ff606dc253c0cc474ea05ad3a282b8bfb1091ae576"
+        "version": "2e0b4284620082f63b144da8096b207e9e9590c0e599834332b90624db0cc4a8",
+        "signature": "2e0b4284620082f63b144da8096b207e9e9590c0e599834332b90624db0cc4a8"
       },
       "../node_modules/@types/node/fs/promises.d.ts": {
         "version": "c98ce957db9eebd75f53edda3f6893e05ab2d2283b5667b18e31bcdb6427ed10",
         "signature": "c98ce957db9eebd75f53edda3f6893e05ab2d2283b5667b18e31bcdb6427ed10"
       },
       "../node_modules/@types/node/http.d.ts": {
-        "version": "1f08bd8305d4a789a68f71ab622156dfff993aa51a2aa58b9ccf166cc6f9fcf7",
-        "signature": "1f08bd8305d4a789a68f71ab622156dfff993aa51a2aa58b9ccf166cc6f9fcf7"
+        "version": "37eed30fc8318b8ac76eac6f41d0758a9d0bffd8f3ff353e3ad0f8717dd08d92",
+        "signature": "37eed30fc8318b8ac76eac6f41d0758a9d0bffd8f3ff353e3ad0f8717dd08d92"
       },
       "../node_modules/@types/node/http2.d.ts": {
-        "version": "9aff68f1b847b846d3d50a58c9f8f99389bedd0258d1b1c201f11b97ecfd36f8",
-        "signature": "9aff68f1b847b846d3d50a58c9f8f99389bedd0258d1b1c201f11b97ecfd36f8"
+        "version": "2f69728fd1ca1f381879bbf20a42ae47a8f7286e000afd138c6cf870d90d882f",
+        "signature": "2f69728fd1ca1f381879bbf20a42ae47a8f7286e000afd138c6cf870d90d882f"
       },
       "../node_modules/@types/node/https.d.ts": {
         "version": "1978992206803f5761e99e893d93b25abc818c5fe619674fdf2ae02b29f641ba",
@@ -242,8 +250,8 @@
         "signature": "8e7d6dae9e19bbe47600dcfd4418db85b30ae7351474ea0aad5e628f9845d340"
       },
       "../node_modules/@types/node/net.d.ts": {
-        "version": "f20ea392f7f27feb7a90e5a24319a4e365b07bf83c39a547711fe7ff9df68657",
-        "signature": "f20ea392f7f27feb7a90e5a24319a4e365b07bf83c39a547711fe7ff9df68657"
+        "version": "2c381d36201776828c67a307ad5fd8cbcf9ecaffb1fc7f77f7ce433d1a632b7f",
+        "signature": "2c381d36201776828c67a307ad5fd8cbcf9ecaffb1fc7f77f7ce433d1a632b7f"
       },
       "../node_modules/@types/node/os.d.ts": {
         "version": "32542c4660ecda892a333a533feedba31738ee538ef6a78eb73af647137bc3fc",
@@ -258,8 +266,8 @@
         "signature": "ffcb4ebde21f83370ed402583888b28651d2eb7f05bfec9482eb46d82adedd7f"
       },
       "../node_modules/@types/node/process.d.ts": {
-        "version": "06c004006016a51c4d1855527a523562c329dc44c473931c65f10373281f730e",
-        "signature": "06c004006016a51c4d1855527a523562c329dc44c473931c65f10373281f730e"
+        "version": "fcb95c45150c717706119f12f2a3639d51baa041cd5bb441eb8501e04b52c501",
+        "signature": "fcb95c45150c717706119f12f2a3639d51baa041cd5bb441eb8501e04b52c501"
       },
       "../node_modules/@types/node/punycode.d.ts": {
         "version": "a7b43c69f9602d198825e403ee34e5d64f83c48b391b2897e8c0e6f72bca35f8",
@@ -278,16 +286,24 @@
         "signature": "8c3137ba3583ec18484429ec1c8eff89efdc42730542f157b38b102fdccc0c71"
       },
       "../node_modules/@types/node/stream.d.ts": {
-        "version": "d84300d886b45a198c346158e4ff7ae361cc7bc1c3deab44afb3db7de56b5d25",
-        "signature": "d84300d886b45a198c346158e4ff7ae361cc7bc1c3deab44afb3db7de56b5d25"
+        "version": "2b6906b19436e07d874a51a5829d94ab690337c4ee652735ab422a8f102168be",
+        "signature": "2b6906b19436e07d874a51a5829d94ab690337c4ee652735ab422a8f102168be"
+      },
+      "../node_modules/@types/node/stream/promises.d.ts": {
+        "version": "1b98a8704d0c68520ccb02ac44782b7ffdaab40d23d2fa00e13923b528587f8b",
+        "signature": "1b98a8704d0c68520ccb02ac44782b7ffdaab40d23d2fa00e13923b528587f8b"
       },
       "../node_modules/@types/node/string_decoder.d.ts": {
         "version": "94ca7beec4e274d32362b54e0133152f7b4be9487db7b005070c03880b6363aa",
         "signature": "94ca7beec4e274d32362b54e0133152f7b4be9487db7b005070c03880b6363aa"
       },
       "../node_modules/@types/node/timers.d.ts": {
-        "version": "2d713cbcbd5bcc38d91546eaeea7bb1c8686dc4a2995a28556d957b1b9de11d9",
-        "signature": "2d713cbcbd5bcc38d91546eaeea7bb1c8686dc4a2995a28556d957b1b9de11d9"
+        "version": "911175d5a29fce5f6f471bcab94524474a1f99eec9cb86fe96505a40ce75f972",
+        "signature": "911175d5a29fce5f6f471bcab94524474a1f99eec9cb86fe96505a40ce75f972"
+      },
+      "../node_modules/@types/node/timers/promises.d.ts": {
+        "version": "8b4f4519834b57645d2483af74d6f5d1675260a5b0e9aa6026f3e021edd2c5e9",
+        "signature": "8b4f4519834b57645d2483af74d6f5d1675260a5b0e9aa6026f3e021edd2c5e9"
       },
       "../node_modules/@types/node/tls.d.ts": {
         "version": "bbf21f210782db4193359010a4710786add43e3b50aa42fc0d371f45b4e4d8d3",
@@ -318,8 +334,8 @@
         "signature": "141a943e5690105898a67537a470f70b56d0e183441b56051d929e902376b7b2"
       },
       "../node_modules/@types/node/worker_threads.d.ts": {
-        "version": "ddc086b1adac44e2fccf55422da1e90fa970e659d77f99712422a421564b4877",
-        "signature": "ddc086b1adac44e2fccf55422da1e90fa970e659d77f99712422a421564b4877"
+        "version": "0124e458b12ba82b08c87220a1c9d4fb7701dcda8f11e28f7d7266281501bcba",
+        "signature": "0124e458b12ba82b08c87220a1c9d4fb7701dcda8f11e28f7d7266281501bcba"
       },
       "../node_modules/@types/node/zlib.d.ts": {
         "version": "515ef1d99036ff0dafa5bf738e02222edea94e0d97a0aa0ff277ac5e96b57977",
@@ -334,8 +350,8 @@
         "signature": "780058f4a804c8bdcdd2f60e7af64b2bc57d149c1586ee3db732a84d659a50bf"
       },
       "../node_modules/@types/node/ts3.6/base.d.ts": {
-        "version": "ae68a04912ee5a0f589276f9ec60b095f8c40d48128a4575b3fdd7d93806931c",
-        "signature": "ae68a04912ee5a0f589276f9ec60b095f8c40d48128a4575b3fdd7d93806931c"
+        "version": "210ef68f34baca2a4499c07a51f05d51b4f0ef01d64efea3017cb3bc31c37e33",
+        "signature": "210ef68f34baca2a4499c07a51f05d51b4f0ef01d64efea3017cb3bc31c37e33"
       },
       "../node_modules/@types/node/assert.d.ts": {
         "version": "19d580a3b42ad5caeaee266ae958260e23f2df0549ee201c886c8bd7a4f01d4e",
@@ -346,8 +362,8 @@
         "signature": "e61a21e9418f279bc480394a94d1581b2dee73747adcbdef999b6737e34d721b"
       },
       "../node_modules/@types/node/index.d.ts": {
-        "version": "9c4c395e927045b324877acdc4bfb95f128f36bc9f073266a2f0342495075a4f",
-        "signature": "9c4c395e927045b324877acdc4bfb95f128f36bc9f073266a2f0342495075a4f"
+        "version": "6c9c7e459e013ddf52c70b90f88bbdd925e483ef984d80f9bffb501029974e82",
+        "signature": "6c9c7e459e013ddf52c70b90f88bbdd925e483ef984d80f9bffb501029974e82"
       },
       "../node_modules/@types/centra/index.d.ts": {
         "version": "3e5883cbd1b75ae02ec22e0a74b35c1c069eecf6a34814292024f431d3a38cb3",
@@ -358,20 +374,20 @@
         "signature": "736097ddbb2903bef918bb3b5811ef1c9c5656f2a73bd39b22a91b9cc2525e50"
       },
       "../package.json": {
-        "version": "f2df707d107471f657c85ab1145624c04fd2e351133783ff68964cd26d1d1890",
-        "signature": "d3de73864c240290bd494ac8aac3784c5193e9a07ff399c766ae90a95a7e42e3"
+        "version": "c8c53aa3f71ab25a6280b2a017ebbca1452af9426119239634000e2a71435e44",
+        "signature": "3da1e0602ad4c4ced3fe1887b4ec1f94bd5f0fc6ae01524262b7deb8dc35eae9"
       },
       "../src/requesthandler.ts": {
         "version": "69ec29565cd9dddbb869631f4edb25a6cfd0e8071a9443d9633a7ade95cb9006",
         "signature": "5ed7740ccf087df8af98e248ded70144a60c92d696597ec802209404e85a5688"
       },
       "../node_modules/@amanda/discordtypings/index.d.ts": {
-        "version": "37079469082d3c44c7c5bb09e92392392b0dfa1c4fc005c5457df376ec58f3fb",
-        "signature": "37079469082d3c44c7c5bb09e92392392b0dfa1c4fc005c5457df376ec58f3fb"
+        "version": "278c6d9c0249fceba4f3e127952f64eaad4e942a18ce8734a131a16039d4d958",
+        "signature": "278c6d9c0249fceba4f3e127952f64eaad4e942a18ce8734a131a16039d4d958"
       },
       "../src/methods/channels.ts": {
-        "version": "02e3938a83c271c56dc0af603ad7c4e752e3ab9cf54a786e29fb698c9db606b4",
-        "signature": "cc794e0315a87de7e0b2325d6883d489a21f5bcb1ad906ea8e452d95b25b4ef7"
+        "version": "ca3497686c96bc7a318ce478b4453c3360e13cb3fc0ce3e2ba577e37a739e965",
+        "signature": "a176432ea57802e075dd9c22f0141fcaff60acfe672d290aec66d87be0e16611"
       },
       "../src/cache/dewcache.ts": {
         "version": "e1c012ae0cff5a5cf0b45d4d97479a5bcc1107151a4e3fbcb2c28312e1d94101",
@@ -459,6 +475,9 @@
       "../src/ratelimiter.ts": [
         "../src/ratelimitbuckets/localbucket.ts"
       ],
+      "../node_modules/@types/node/assert/strict.d.ts": [
+        "../node_modules/@types/node/assert.d.ts"
+      ],
       "../node_modules/@types/node/async_hooks.d.ts": [
         "../node_modules/@types/node/async_hooks.d.ts"
       ],
@@ -498,6 +517,11 @@
         "../node_modules/@types/node/events.d.ts"
       ],
       "../node_modules/@types/node/dns.d.ts": [
+        "../node_modules/@types/node/dns.d.ts",
+        "../node_modules/@types/node/dns/promises.d.ts"
+      ],
+      "../node_modules/@types/node/dns/promises.d.ts": [
+        "../node_modules/@types/node/dns/promises.d.ts",
         "../node_modules/@types/node/dns.d.ts"
       ],
       "../node_modules/@types/node/domain.d.ts": [
@@ -585,12 +609,21 @@
       ],
       "../node_modules/@types/node/stream.d.ts": [
         "../node_modules/@types/node/stream.d.ts",
-        "../node_modules/@types/node/events.d.ts"
+        "../node_modules/@types/node/events.d.ts",
+        "../node_modules/@types/node/stream/promises.d.ts"
+      ],
+      "../node_modules/@types/node/stream/promises.d.ts": [
+        "../node_modules/@types/node/stream/promises.d.ts",
+        "../node_modules/@types/node/stream.d.ts"
       ],
       "../node_modules/@types/node/string_decoder.d.ts": [
         "../node_modules/@types/node/string_decoder.d.ts"
       ],
       "../node_modules/@types/node/timers.d.ts": [
+        "../node_modules/@types/node/timers.d.ts"
+      ],
+      "../node_modules/@types/node/timers/promises.d.ts": [
+        "../node_modules/@types/node/timers/promises.d.ts",
         "../node_modules/@types/node/timers.d.ts"
       ],
       "../node_modules/@types/node/tls.d.ts": [
@@ -634,6 +667,7 @@
         "../node_modules/@types/node/wasi.d.ts"
       ],
       "../node_modules/@types/node/ts3.6/base.d.ts": [
+        "../node_modules/@types/node/assert/strict.d.ts",
         "../node_modules/@types/node/globals.d.ts",
         "../node_modules/@types/node/async_hooks.d.ts",
         "../node_modules/@types/node/buffer.d.ts",
@@ -644,6 +678,7 @@
         "../node_modules/@types/node/crypto.d.ts",
         "../node_modules/@types/node/dgram.d.ts",
         "../node_modules/@types/node/dns.d.ts",
+        "../node_modules/@types/node/dns/promises.d.ts",
         "../node_modules/@types/node/domain.d.ts",
         "../node_modules/@types/node/events.d.ts",
         "../node_modules/@types/node/fs.d.ts",
@@ -663,8 +698,10 @@
         "../node_modules/@types/node/readline.d.ts",
         "../node_modules/@types/node/repl.d.ts",
         "../node_modules/@types/node/stream.d.ts",
+        "../node_modules/@types/node/stream/promises.d.ts",
         "../node_modules/@types/node/string_decoder.d.ts",
         "../node_modules/@types/node/timers.d.ts",
+        "../node_modules/@types/node/timers/promises.d.ts",
         "../node_modules/@types/node/tls.d.ts",
         "../node_modules/@types/node/trace_events.d.ts",
         "../node_modules/@types/node/tty.d.ts",
@@ -779,6 +816,9 @@
       "../src/ratelimiter.ts": [
         "../src/ratelimitbuckets/localbucket.ts"
       ],
+      "../node_modules/@types/node/assert/strict.d.ts": [
+        "../node_modules/@types/node/assert.d.ts"
+      ],
       "../node_modules/@types/node/async_hooks.d.ts": [
         "../node_modules/@types/node/async_hooks.d.ts"
       ],
@@ -818,6 +858,11 @@
         "../node_modules/@types/node/events.d.ts"
       ],
       "../node_modules/@types/node/dns.d.ts": [
+        "../node_modules/@types/node/dns.d.ts",
+        "../node_modules/@types/node/dns/promises.d.ts"
+      ],
+      "../node_modules/@types/node/dns/promises.d.ts": [
+        "../node_modules/@types/node/dns/promises.d.ts",
         "../node_modules/@types/node/dns.d.ts"
       ],
       "../node_modules/@types/node/domain.d.ts": [
@@ -905,12 +950,21 @@
       ],
       "../node_modules/@types/node/stream.d.ts": [
         "../node_modules/@types/node/stream.d.ts",
-        "../node_modules/@types/node/events.d.ts"
+        "../node_modules/@types/node/events.d.ts",
+        "../node_modules/@types/node/stream/promises.d.ts"
+      ],
+      "../node_modules/@types/node/stream/promises.d.ts": [
+        "../node_modules/@types/node/stream/promises.d.ts",
+        "../node_modules/@types/node/stream.d.ts"
       ],
       "../node_modules/@types/node/string_decoder.d.ts": [
         "../node_modules/@types/node/string_decoder.d.ts"
       ],
       "../node_modules/@types/node/timers.d.ts": [
+        "../node_modules/@types/node/timers.d.ts"
+      ],
+      "../node_modules/@types/node/timers/promises.d.ts": [
+        "../node_modules/@types/node/timers/promises.d.ts",
         "../node_modules/@types/node/timers.d.ts"
       ],
       "../node_modules/@types/node/tls.d.ts": [
@@ -954,6 +1008,7 @@
         "../node_modules/@types/node/wasi.d.ts"
       ],
       "../node_modules/@types/node/ts3.6/base.d.ts": [
+        "../node_modules/@types/node/assert/strict.d.ts",
         "../node_modules/@types/node/globals.d.ts",
         "../node_modules/@types/node/async_hooks.d.ts",
         "../node_modules/@types/node/buffer.d.ts",
@@ -964,6 +1019,7 @@
         "../node_modules/@types/node/crypto.d.ts",
         "../node_modules/@types/node/dgram.d.ts",
         "../node_modules/@types/node/dns.d.ts",
+        "../node_modules/@types/node/dns/promises.d.ts",
         "../node_modules/@types/node/domain.d.ts",
         "../node_modules/@types/node/events.d.ts",
         "../node_modules/@types/node/fs.d.ts",
@@ -983,8 +1039,10 @@
         "../node_modules/@types/node/readline.d.ts",
         "../node_modules/@types/node/repl.d.ts",
         "../node_modules/@types/node/stream.d.ts",
+        "../node_modules/@types/node/stream/promises.d.ts",
         "../node_modules/@types/node/string_decoder.d.ts",
         "../node_modules/@types/node/timers.d.ts",
+        "../node_modules/@types/node/timers/promises.d.ts",
         "../node_modules/@types/node/tls.d.ts",
         "../node_modules/@types/node/trace_events.d.ts",
         "../node_modules/@types/node/tty.d.ts",
@@ -1116,6 +1174,7 @@
       "../src/endpoints.ts",
       "../src/ratelimitbuckets/localbucket.ts",
       "../src/ratelimiter.ts",
+      "../node_modules/@types/node/assert/strict.d.ts",
       "../node_modules/@types/node/globals.d.ts",
       "../node_modules/@types/node/async_hooks.d.ts",
       "../node_modules/@types/node/buffer.d.ts",
@@ -1126,6 +1185,7 @@
       "../node_modules/@types/node/crypto.d.ts",
       "../node_modules/@types/node/dgram.d.ts",
       "../node_modules/@types/node/dns.d.ts",
+      "../node_modules/@types/node/dns/promises.d.ts",
       "../node_modules/@types/node/domain.d.ts",
       "../node_modules/@types/node/events.d.ts",
       "../node_modules/@types/node/fs.d.ts",
@@ -1145,8 +1205,10 @@
       "../node_modules/@types/node/readline.d.ts",
       "../node_modules/@types/node/repl.d.ts",
       "../node_modules/@types/node/stream.d.ts",
+      "../node_modules/@types/node/stream/promises.d.ts",
       "../node_modules/@types/node/string_decoder.d.ts",
       "../node_modules/@types/node/timers.d.ts",
+      "../node_modules/@types/node/timers/promises.d.ts",
       "../node_modules/@types/node/tls.d.ts",
       "../node_modules/@types/node/trace_events.d.ts",
       "../node_modules/@types/node/tty.d.ts",
@@ -1165,8 +1227,8 @@
       "../node_modules/@types/centra/index.d.ts",
       "../node_modules/form-data/index.d.ts",
       "../package.json",
+      "../src/requesthandler.ts",
       "../node_modules/@amanda/discordtypings/index.d.ts",
-      "../src/methods/channels.ts",
       "../src/cache/dewcache.ts",
       "../src/cache/usercache.ts",
       "../src/methods/users.ts",
@@ -1177,8 +1239,8 @@
       "../src/methods/voices.ts",
       "../src/methods/bots.ts",
       "../src/methods/auditlog.ts",
-      "../src/snowtransfer.ts",
-      "../src/requesthandler.ts"
+      "../src/methods/channels.ts",
+      "../src/snowtransfer.ts"
     ]
   },
   "version": "3.7.4"
