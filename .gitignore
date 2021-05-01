@@ -6,4 +6,4 @@ snowtransfer.iml
 .DS_STORE
 SnowTransfer
 package-lock.json
-src
+dist

@@ -1,7 +1,0 @@
-"use strict";
-module.exports = {
-    REST_API_VERSION: 9,
-    GET_CHANNEL_MESSAGES_MAX_RESULTS: 100,
-    BULK_DELETE_MESSAGES_MIN: 2,
-    BULK_DELETE_MESSAGES_MAX: 100
-};
