@@ -71,7 +71,7 @@ class LocalBucket {
 			this.reset = 100;
 		}
 		if (this.ratelimiter.global) {
-			this.resetTimeout = setTimeout(() => this.resetRemaining(), this.ratelimiter.globalReset);
+			this.resetTimeout = setTimeout(() => this.resetRemaining(), this.ratelimiter.globalReset * 1000);
 			return;
 		}
 		if (this.remaining === 0) {

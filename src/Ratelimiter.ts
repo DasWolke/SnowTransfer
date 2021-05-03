@@ -23,7 +23,7 @@ class Ratelimiter {
 	 * @returns reduced url: /channels/266277541646434305/messages/:id/
 	 */
 	protected routify(url: string, method: string): string {
-		let route = url.replace(/\/([a-z-]+)\/(?:[0-9]{17,19})/g, function (match, p) {
+		let route = url.replace(/\/([a-z-]+)\/(?:\d+)/g, function (match, p) {
 			return p === "channels" || p === "guilds" || p === "webhooks" ? match : `/${p}/:id`;
 		}).replace(/\/reactions\/[^/]+/g, "/reactions/:id").replace(/^\/webhooks\/(\d+)\/[A-Za-z0-9-_]{64,}/, "/webhooks/$1/:token");
 		if (method.toUpperCase() === "DELETE" && route.endsWith("/messages/:id")) { // Delete Messsage endpoint has its own ratelimit

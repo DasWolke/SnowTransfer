@@ -137,7 +137,7 @@ class RequestHandler extends EventEmitter {
 	private _applyRatelimitHeaders(bkt: import("./ratelimitBuckets/LocalBucket"), headers: any, offsetDate: number, reactions = false) {
 		if (headers["x-ratelimit-global"]) {
 			bkt.ratelimiter.global = true;
-			bkt.ratelimiter.globalReset = parseInt(headers["retry_after"]);
+			bkt.ratelimiter.globalReset = Number(headers["retry_after"]);
 		}
 		if (headers["x-ratelimit-reset"]) {
 			const reset = (headers["x-ratelimit-reset"] * 1000) - offsetDate;

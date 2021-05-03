@@ -304,7 +304,7 @@ class GuildMethods {
 	 * let client = new SnowTransfer('TOKEN')
 	 * let banData = {
 	 *   reason: 'Memes were not good enough',
-	 *   "delete-message-days":2
+	 *   "delete_message_days":2
 	 * }
 	 * client.guild.createGuildBan('guild Id', 'memberId', banData)
 	 */
@@ -312,7 +312,7 @@ class GuildMethods {
 		let newData;
 		if (data) {
 			if (data.reason) Object.assign(newData, { queryReason: data.reason });
-			if (data.delete_message_days) Object.assign(newData, { "delete-message-days": data.delete_message_days });
+			if (data.delete_message_days) Object.assign(newData, { "delete_message_days": data.delete_message_days });
 		}
 		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), "put", "json", newData);
 	}

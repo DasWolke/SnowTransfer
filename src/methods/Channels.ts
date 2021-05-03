@@ -170,7 +170,7 @@ class ChannelMethods {
 	 */
 	public async createMessage(channelId: string, data: string | CreateMessageData, options: { disableEveryone?: boolean } = { disableEveryone: this.disableEveryone }): Promise<import("@amanda/discordtypings").MessageData> {
 		if (typeof data !== "string" && !data.content && !data.embed && !data.file) {
-			throw new Error("Missing content or embed");
+			throw new Error("Missing content or embed or file");
 		}
 		if (typeof data === "string") {
 			data = { content: data };
@@ -343,7 +343,8 @@ class ChannelMethods {
 	 * let client = new SnowTransfer('TOKEN');
 	 * client.channel.deleteReaction('channel Id', 'message Id', encodeURIComponent('😀'), 'user Id');
 	 */
-	public async deleteReaction(channelId: string, messageId: string, emoji: string, userId: string): Promise<void> {
+	public async deleteReaction(channelId: string, messageId: string, emoji: string, userId?: string): Promise<void> {
+		if (!userId) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji), "delete", "json");
 		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, userId), "delete", "json");
 	}
 
@@ -611,6 +612,10 @@ interface CreateMessageData {
 	 */
 	content?: string | null;
 	/**
+	 * "a nonce that can be used for optimistic message sending"
+	 */
+	nonce?: string | number;
+	/**
 	 * if this message is text-to-speech
 	 */
 	tts?: boolean | null;
@@ -627,6 +632,18 @@ interface CreateMessageData {
 		 */
 		file: Buffer;
 	};
+	allowed_mentions?: {
+		parse?: Array<"roles" | "users" | "everyone">;
+		roles?: Array<string>;
+		users?: Array<string>;
+		replied_user?: boolean;
+	};
+	message_reference?: {
+		message_id?: string;
+		channel_id?: string;
+		guild_id?: string;
+		fail_if_not_exists?: boolean;
+	};
 }
 
 interface EditMessageData {
@@ -638,6 +655,12 @@ interface EditMessageData {
 	 * [Embed](https://discord.com/developers/docs/resources/channel#embed-object) to send
 	 */
 	embed?: import("@amanda/discordtypings").EmbedData;
+	allowed_mentions?: {
+		parse?: Array<"roles" | "users" | "everyone">;
+		roles?: Array<string>;
+		users?: Array<string>;
+		replied_user?: boolean;
+	};
 }
 
 interface CreateInviteData {
