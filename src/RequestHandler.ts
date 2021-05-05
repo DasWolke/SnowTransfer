@@ -8,8 +8,70 @@ import Endpoints from "./Endpoints";
 import FormData from "form-data";
 
 import { version } from "../package.json";
+import Constants from "./Constants";
 
 type HTTPMethod = "get" | "post" | "patch" | "head" | "put" | "delete" | "connect" | "options" | "trace";
+
+class DiscordAPIError extends Error {
+	public method: HTTPMethod;
+	public path: string;
+	public code: number;
+	public httpStatus: number;
+
+	public constructor(path: string, error: any, method: HTTPMethod, status: number) {
+		super();
+		const flattened = DiscordAPIError.flattenErrors(error.errors || error).join("\n");
+		this.name = "DiscordAPIError";
+		this.message = error.message && flattened ? `${error.message}\n${flattened}` : error.message || flattened;
+		this.method = method;
+		this.path = path;
+		this.code = error.code;
+		this.httpStatus = status;
+	}
+
+	static flattenErrors(obj: Record<string, any>, key = "") {
+		let messages: Array<string> = [];
+
+		for (const [k, v] of Object.entries(obj)) {
+			if (k === "message") continue;
+			const newKey = key ? (isNaN(Number(k)) ? `${key}.${k}` : `${key}[${k}]`) : k;
+
+			if (v._errors) {
+				messages.push(`${newKey}: ${v._errors.map(e => e.message).join(" ")}`);
+			} else if (v.code || v.message) {
+				messages.push(`${v.code ? `${v.code}: ` : ""}${v.message}`.trim());
+			} else if (typeof v === "string") {
+				messages.push(v);
+			} else {
+				messages = messages.concat(this.flattenErrors(v, newKey));
+			}
+		}
+
+		return messages;
+	}
+}
+
+interface HandlerEvents {
+	request: [string, { endpoint: string, method: HTTPMethod, dataType: "json" | "multipart", data: any }];
+	done: [string, c.Response];
+	requestError: [string, Error];
+}
+
+interface RequestHandler {
+	addListener<E extends keyof HandlerEvents>(event: E, listener: (...args: HandlerEvents[E]) => any): this;
+	emit<E extends keyof HandlerEvents>(event: E, ...args: HandlerEvents[E]): boolean;
+	eventNames(): Array<keyof HandlerEvents>;
+	listenerCount(event: keyof HandlerEvents): number;
+	listeners(event: keyof HandlerEvents): Array<(...args: Array<any>) => any>;
+	off<E extends keyof HandlerEvents>(event: E, listener: (...args: HandlerEvents[E]) => any): this;
+	on<E extends keyof HandlerEvents>(event: E, listener: (...args: HandlerEvents[E]) => any): this;
+	once<E extends keyof HandlerEvents>(event: E, listener: (...args: HandlerEvents[E]) => any): this;
+	prependListener<E extends keyof HandlerEvents>(event: E, listener: (...args: HandlerEvents[E]) => any): this;
+	prependOnceListener<E extends keyof HandlerEvents>(event: E, listener: (...args: HandlerEvents[E]) => any): this;
+	rawListeners(event: keyof HandlerEvents): Array<(...args: Array<any>) => any>;
+	removeAllListeners(event?: keyof HandlerEvents): this;
+	removeListener<E extends keyof HandlerEvents>(event: E, listener: (...args: HandlerEvents[E]) => any): this;
+}
 
 /**
  * Request Handler class
@@ -22,6 +84,7 @@ class RequestHandler extends EventEmitter {
 	public reset: {};
 	public limit: {};
 	public apiURL: string;
+	public static DiscordAPIErrror = DiscordAPIError;
 
 	/**
 	 * Create a new request handler
@@ -56,7 +119,6 @@ class RequestHandler extends EventEmitter {
 	 * @param dataType type of the data being sent
 	 * @param data data to send, if any
 	 * @returns Result of the request
-	 * @fires RequestHandler.request#request
 	 */
 	public request(endpoint: string, method: HTTPMethod, dataType: "json" | "multipart" = "json", data: any | undefined = {}): Promise<any> {
 		if (typeof data === "number") data = String(data);
@@ -65,10 +127,6 @@ class RequestHandler extends EventEmitter {
 				const reqID = crypto.randomBytes(20).toString("hex");
 				const latency = Date.now();
 				try {
-					/**
-					 * @event RequestHandler#request
-					 * @type {string}
-					 */
 					this.emit("request", reqID, { endpoint, method, dataType, data });
 
 					let request: import("centra").Response;
@@ -79,10 +137,17 @@ class RequestHandler extends EventEmitter {
 					} else {
 						throw new Error("Forbidden dataType. Use json or multipart");
 					}
-					this.latency = Date.now() - latency;
-					const offsetDate = this._getOffsetDateFromHeader(request.headers["date"] as string);
-					const match = endpoint.match(/\/reactions\//);
-					this._applyRatelimitHeaders(bkt, request.headers, offsetDate, !!match);
+
+					if (request.statusCode && !Constants.OK_STATUS_CODES.includes(request.statusCode) && ![429, 502].includes(request.statusCode)) throw new DiscordAPIError(endpoint, request.headers["content-type"] === "application/json" ? await request.json() : request.body, method, request.statusCode);
+
+					if (request.headers["date"]) {
+						this.latency = Date.now() - latency;
+						const offsetDate = this._getOffsetDateFromHeader(request.headers["date"]);
+						const match = endpoint.match(/\/reactions\//);
+						this._applyRatelimitHeaders(bkt, request.headers, offsetDate, !!match);
+					}
+
+					if (request.statusCode && [429, 502].includes(request.statusCode)) return this.request(endpoint, method, dataType, data);
 
 					this.emit("done", reqID, request);
 					if (request.body) {
@@ -98,18 +163,6 @@ class RequestHandler extends EventEmitter {
 					}
 				} catch (error) {
 					this.emit("requestError", reqID, error);
-					if (error.response) {
-						const offsetDate = this._getOffsetDateFromHeader(error.response.headers["date"]);
-						if (error.response.status === 429) {
-							//TODO WARN ABOUT THIS :< either bug or meme
-							const match = endpoint.match(/\/reactions\//);
-							this._applyRatelimitHeaders(bkt, error.response.headers, offsetDate, !!match);
-							return this.request(endpoint, method, dataType, data);
-						}
-						if (error.response.status === 502) {
-							return this.request(endpoint, method, dataType, data);
-						}
-					}
 					return rej(error);
 				}
 			}, endpoint, method);
