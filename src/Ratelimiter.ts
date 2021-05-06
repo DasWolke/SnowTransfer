@@ -22,7 +22,7 @@ class Ratelimiter {
 	 * @param method method of the request, usual http methods like get, etc.
 	 * @returns reduced url: /channels/266277541646434305/messages/:id/
 	 */
-	protected routify(url: string, method: string): string {
+	public routify(url: string, method: string): string {
 		let route = url.replace(/\/([a-z-]+)\/(?:\d+)/g, function (match, p) {
 			return p === "channels" || p === "guilds" || p === "webhooks" ? match : `/${p}/:id`;
 		}).replace(/\/reactions\/[^/]+/g, "/reactions/:id").replace(/^\/webhooks\/(\d+)\/[A-Za-z0-9-_]{64,}/, "/webhooks/$1/:token");
@@ -38,7 +38,7 @@ class Ratelimiter {
 	 * @param url Endpoint of the request
 	 * @param method Http method used by the request
 	 */
-	public queue(fn: (...args: Array<any>) => any, url: string, method: string) {
+	public queue(fn: (bucket: import("./ratelimitBuckets/LocalBucket")) => any, url: string, method: string) {
 		const routeKey = this.routify(url, method);
 		if (!this.buckets[routeKey]) {
 			this.buckets[routeKey] = new LocalBucket(this);

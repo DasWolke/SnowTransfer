@@ -55,6 +55,7 @@ interface HandlerEvents {
 	request: [string, { endpoint: string, method: HTTPMethod, dataType: "json" | "multipart", data: any }];
 	done: [string, c.Response];
 	requestError: [string, Error];
+	rateLimit: [{ timeout: number; limit: number; method: HTTPMethod; path: string; route: string; }];
 }
 
 interface RequestHandler {
@@ -118,9 +119,10 @@ class RequestHandler extends EventEmitter {
 	 * @param method http method to use
 	 * @param dataType type of the data being sent
 	 * @param data data to send, if any
+	 * @param amount amount of requests previously executed
 	 * @returns Result of the request
 	 */
-	public request(endpoint: string, method: HTTPMethod, dataType: "json" | "multipart" = "json", data: any | undefined = {}): Promise<any> {
+	public request(endpoint: string, method: HTTPMethod, dataType: "json" | "multipart" = "json", data: any | undefined = {}, amount = 0): Promise<any> {
 		if (typeof data === "number") data = String(data);
 		return new Promise(async (res, rej) => {
 			this.ratelimiter.queue(async (bkt) => {
@@ -131,13 +133,14 @@ class RequestHandler extends EventEmitter {
 
 					let request: import("centra").Response;
 					if (dataType == "json") {
-						request = await this._request(endpoint, method, data, (method === "get" || endpoint.includes("/bans") || endpoint.includes("/prune")));
+						request = await this._request(endpoint, method, data, (method === "get" || endpoint.includes("/bans") || endpoint.includes("/prune")), amount);
 					} else if (dataType == "multipart") {
-						request = await this._multiPartRequest(endpoint, method, data);
+						request = await this._multiPartRequest(endpoint, method, data, amount);
 					} else {
 						throw new Error("Forbidden dataType. Use json or multipart");
 					}
 
+					// 429 and 502 are recoverable and will be re-tried automatically with 3 attempts max.
 					if (request.statusCode && !Constants.OK_STATUS_CODES.includes(request.statusCode) && ![429, 502].includes(request.statusCode)) throw new DiscordAPIError(endpoint, request.headers["content-type"] === "application/json" ? await request.json() : request.body, method, request.statusCode);
 
 					if (request.headers["date"]) {
@@ -147,7 +150,10 @@ class RequestHandler extends EventEmitter {
 						this._applyRatelimitHeaders(bkt, request.headers, offsetDate, !!match);
 					}
 
-					if (request.statusCode && [429, 502].includes(request.statusCode)) return this.request(endpoint, method, dataType, data);
+					if (request.statusCode && [429, 502].includes(request.statusCode)) {
+						if (request.statusCode === 429) this.emit("rateLimit", { timeout: bkt.reset, limit: bkt.limit, method: method, path: endpoint, route: this.ratelimiter.routify(endpoint, method) });
+						return this.request(endpoint, method, dataType, data, amount++);
+					}
 
 					this.emit("done", reqID, request);
 					if (request.body) {
@@ -215,9 +221,11 @@ class RequestHandler extends EventEmitter {
 	 * @param endpoint Endpoint to use
 	 * @param data Data to send
 	 * @param useParams Whether to send the data in the body or use query params
+	 * @param amount amount of requests previously executed
 	 * @returns Result of the request
 	 */
-	private async _request(endpoint: string, method: HTTPMethod, data?: any, useParams = false): Promise<import("centra").Response> {
+	private async _request(endpoint: string, method: HTTPMethod, data?: any, useParams = false, amount = 0): Promise<import("centra").Response> {
+		if (amount >= 3) throw new Error("Max amount of rety attempts reached");
 		const headers = {};
 		if (typeof data != "string" && data.reason) {
 			headers["X-Audit-Log-Reason"] = encodeURIComponent(data.reason);
@@ -244,7 +252,8 @@ class RequestHandler extends EventEmitter {
 	 * @param data data to send
 	 * @returns Result of the request
 	 */
-	private async _multiPartRequest(endpoint: string, method: HTTPMethod, data: any): Promise<import("centra").Response> {
+	private async _multiPartRequest(endpoint: string, method: HTTPMethod, data: any, amount = 0): Promise<import("centra").Response> {
+		if (amount >= 3) throw new Error("Max amount of rety attempts reached");
 		const form = new FormData();
 		if (data.file && data.file.file) {
 			form.append("file", data.file.file, { filename: data.file.name });

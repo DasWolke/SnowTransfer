@@ -44,10 +44,10 @@ class LocalBucket {
 
 	/**
 	 * Queue a function to be executed
-	 * @param {(...args: any[]) => any} fn - function to be executed
+	 * @param fn - function to be executed
 	 * @returns Result of the function if any
 	 */
-	public queue(fn: (...args: Array<any>) => any): Promise<any> {
+	public queue(fn: (bucket: LocalBucket) => any): Promise<any> {
 		return new Promise((res, rej) => {
 			const wrapFn = () => {
 				// @ts-ignore I am confused behind this logic but okay.
