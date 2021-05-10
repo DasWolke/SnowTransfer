@@ -81,9 +81,6 @@ class RequestHandler extends EventEmitter {
 	public ratelimiter: import("./Ratelimiter");
 	public options: { baseHost: string; baseURL: string; headers: { Authorization: string; "User-Agent": string; } };
 	public latency: number;
-	public remaining: {};
-	public reset: {};
-	public limit: {};
 	public apiURL: string;
 	public static DiscordAPIErrror = DiscordAPIError;
 
@@ -108,9 +105,6 @@ class RequestHandler extends EventEmitter {
 
 		this.apiURL = this.options.baseHost + Endpoints.BASE_URL;
 		this.latency = 500;
-		this.remaining = {};
-		this.reset = {};
-		this.limit = {};
 	}
 
 	/**
@@ -196,7 +190,7 @@ class RequestHandler extends EventEmitter {
 	private _applyRatelimitHeaders(bkt: import("./ratelimitBuckets/LocalBucket"), headers: any, offsetDate: number, reactions = false) {
 		if (headers["x-ratelimit-global"]) {
 			bkt.ratelimiter.global = true;
-			bkt.ratelimiter.globalReset = Number(headers["retry_after"]);
+			bkt.ratelimiter.globalResetAt = Date.now() + (parseFloat(headers["retry_after"]) * 1000);
 		}
 		if (headers["x-ratelimit-reset"]) {
 			const reset = (headers["x-ratelimit-reset"] * 1000) - offsetDate;
@@ -208,6 +202,7 @@ class RequestHandler extends EventEmitter {
 		}
 		if (headers["x-ratelimit-remaining"]) {
 			bkt.remaining = parseInt(headers["x-ratelimit-remaining"]);
+			if (bkt.remaining === 0) bkt.resetAt = Date.now() + bkt.reset;
 		} else {
 			bkt.remaining = 1;
 		}

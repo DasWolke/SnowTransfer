@@ -7,12 +7,42 @@ import LocalBucket from "./ratelimitBuckets/LocalBucket";
 class Ratelimiter {
 	public buckets: { [routeKey: string]: LocalBucket };
 	public global: boolean;
-	public globalReset: number;
+	public globalResetAt: number;
+
+	/**
+	 * This is an "interval" to constantly check Buckets which should be reset or unreferenced from the RateLimiter to be swept by the garbage collector.
+	 * This 1 timeout is more performant as compared to potentially many more ticking timers to reset individual bucket remaining values.
+	 *
+	 * YOU SHOULD NEVER OVERRIDE THIS UNLESS YOU KNOW WHAT YOU'RE DOING. REQUESTS MAY POSSIBLY NEVER EXECUTE WITHOUT THIS AND/OR MEMORY MAY SLOWLY CLIMB OVER TIME.
+	 */
+	protected _timeout: NodeJS.Timeout;
+	protected _timeoutFN: () => void;
+	protected _timeoutDuration: number;
 
 	public constructor() {
 		this.buckets = {};
 		this.global = false;
-		this.globalReset = 0;
+		this.globalResetAt = 0;
+
+		// eslint-disable-next-line @typescript-eslint/no-this-alias
+		const limiter = this;
+		this._timeoutFN = function() {
+			for (const routeKey of Object.keys(limiter.buckets)) {
+				const bkt = limiter.buckets[routeKey];
+				if (bkt.resetAt && bkt.resetAt < Date.now()) {
+					if (bkt.fnQueue.length) bkt.resetRemaining();
+					else delete limiter.buckets[routeKey];
+				} else if (!bkt.resetAt && limiter.global && limiter.globalResetAt < Date.now()) {
+					if (bkt.fnQueue.length) bkt.checkQueue();
+					else delete limiter.buckets[routeKey];
+				}
+			}
+		};
+		this._timeoutDuration = 1000;
+		this._timeout = setTimeout(() => {
+			this._timeoutFN();
+			this._timeout = setTimeout(() => this._timeoutFN(), this._timeoutDuration);
+		}, this._timeoutDuration);
 	}
 
 	/**
