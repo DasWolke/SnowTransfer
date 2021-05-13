@@ -1,8 +1,6 @@
 import Endpoints from "../Endpoints";
 import UserCache from "../cache/UserCache";
 
-import DT from "@amanda/discordtypings";
-
 /**
  * Methods for interacting with users
  */
@@ -27,7 +25,7 @@ class UserMethods {
 	 * Get information about current user
 	 * @returns [user object](https://discord.com/developers/docs/resources/user#user-object)
 	 */
-	public async getSelf(): Promise<SelfUser> {
+	public async getSelf(): Promise<Required<import("@amanda/discordtypings").UserData>> {
 		return this.cache.wrap("@me", this.requestHandler.request(Endpoints.USER("@me"), "get", "json"));
 	}
 
@@ -36,7 +34,7 @@ class UserMethods {
 	 * @param userId Id of the user
 	 * @returns [user object](https://discord.com/developers/docs/resources/user#user-object)
 	 */
-	public async getUser(userId: string): Promise<DT.UserData> {
+	public async getUser(userId: string): Promise<import("@amanda/discordtypings").UserData> {
 		return this.cache.wrap(userId, this.requestHandler.request(Endpoints.USER(userId), "get", "json"));
 	}
 
@@ -53,7 +51,7 @@ class UserMethods {
 	 * }
 	 * client.user.updateSelf(updateData)
 	 */
-	public async updateSelf(data: { username?: string; avatar?: string; }): Promise<SelfUser> {
+	public async updateSelf(data: { username?: string; avatar?: string; }): Promise<Required<import("@amanda/discordtypings").UserData>> {
 		return this.cache.wrap("@me", this.requestHandler.request(Endpoints.USER("@me"), "patch", "json", data));
 	}
 
@@ -61,7 +59,7 @@ class UserMethods {
 	 * Get guilds of the current user
 	 * @returns Array of [partial guild objects](https://discord.com/developers/docs/resources/guild#guild-object)
 	 */
-	public async getGuilds(): Promise<Array<DT.GuildData>> {
+	public async getGuilds(): Promise<Array<import("@amanda/discordtypings").GuildData>> {
 		return this.requestHandler.request(Endpoints.USER_GUILDS("@me"), "get", "json");
 	}
 
@@ -80,7 +78,7 @@ class UserMethods {
 	 * **Returns an empty array for bots**
 	 * @returns Array of [dm channels](https://discord.com/developers/docs/resources/channel#channel-object)
 	 */
-	public async getDirectMessages(): Promise<Array<DT.DMChannelData>> {
+	public async getDirectMessages(): Promise<Array<import("@amanda/discordtypings").DMChannelData>> {
 		return this.requestHandler.request(Endpoints.USER_CHANNELS("@me"), "get", "json");
 	}
 
@@ -97,15 +95,9 @@ class UserMethods {
 	 * let channel = await client.user.createDirectMessageChannel('other user id')
 	 * client.channel.createMessage(channel.id, 'hi')
 	 */
-	public async createDirectMessageChannel(userId: string): Promise<DT.DMChannelData> {
-		return this.requestHandler.request(Endpoints.USER_CHANNELS("@me"), "post", "json", {recipient_id: userId});
+	public async createDirectMessageChannel(userId: string): Promise<import("@amanda/discordtypings").DMChannelData> {
+		return this.requestHandler.request(Endpoints.USER_CHANNELS("@me"), "post", "json", { recipient_id: userId });
 	}
-}
-
-interface SelfUser extends DT.UserData {
-	mfa_enabled: boolean;
-	verified: boolean;
-	email: string;
 }
 
 export = UserMethods;

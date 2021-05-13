@@ -5,6 +5,7 @@ import UserMethods from "./methods/Users";
 import EmojiMethods from "./methods/Emojis";
 import WebhookMethods from "./methods/Webhooks";
 import GuildMethods from "./methods/Guilds";
+import InteractionMethods from "./methods/Interactions";
 import InviteMethods from "./methods/Invites";
 import VoiceMethods from "./methods/Voices";
 import BotMethods from "./methods/Bots";
@@ -22,6 +23,7 @@ class SnowTransfer {
 	public emoji: EmojiMethods;
 	public webhook: WebhookMethods;
 	public guild: GuildMethods;
+	public interaction: InteractionMethods;
 	public invite: InviteMethods;
 	public voice: VoiceMethods;
 	public bot: BotMethods;
@@ -53,6 +55,7 @@ class SnowTransfer {
 		this.emoji = new EmojiMethods(this.requestHandler);
 		this.webhook = new WebhookMethods(this.requestHandler, this.options.disableEveryone);
 		this.guild = new GuildMethods(this.requestHandler);
+		this.interaction = new InteractionMethods(this.requestHandler, this.webhook);
 		this.invite = new InviteMethods(this.requestHandler);
 		this.voice = new VoiceMethods(this.requestHandler);
 		this.bot = new BotMethods(this.requestHandler);

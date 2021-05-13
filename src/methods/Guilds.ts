@@ -43,8 +43,12 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @returns [Guild object](https://discord.com/developers/docs/resources/guild#guild-object)
 	 */
-	public async getGuild(guildId: string): Promise<import("@amanda/discordtypings").GuildData> {
-		return this.requestHandler.request(Endpoints.GUILD(guildId), "get", "json");
+	public async getGuild(guildId: string, options?: { with_counts?: boolean }): Promise<import("@amanda/discordtypings").GuildData> {
+		return this.requestHandler.request(Endpoints.GUILD(guildId), "get", "json", options);
+	}
+
+	public async getGuildPreview(guildId: string): Promise<import("@amanda/discordtypings").GuildPreviewData> {
+		return this.requestHandler.request(Endpoints.GUILD_PREVIEW(guildId), "get", "json");
 	}
 
 	/**
@@ -110,7 +114,7 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @returns Resolves the Promise on successful execution
 	 */
-	public async updateChannelPositions(guildId: string, data: Array<{ id: string; position: number; }>): Promise<void> {
+	public async updateChannelPositions(guildId: string, data: Array<{ id: string; position?: number | null; lock_permissions?: boolean | null; parent_id?: string | null; }>): Promise<void> {
 		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), "patch", "json", data);
 	}
 
@@ -132,6 +136,16 @@ class GuildMethods {
 	 */
 	public async getGuildMembers(guildId: string, data: GetGuildMembersData = {}): Promise<Array<import("@amanda/discordtypings").MemberData>> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBERS(guildId), "get", "json", data);
+	}
+
+	/**
+	 * Get a list of guild members that match a query
+	 * @param guildId Id of the guild
+	 * @param options query data
+	 * @returns list of [guild members](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure)
+	 */
+	public async searchGuildMembers(guildId: string, options: { query?: string; limit?: number }): Promise<Array<import("@amanda/discordtypings").MemberData>> {
+		return this.requestHandler.request(Endpoints.GUILD_MEMBERS_SEARCH(guildId), "get", "json", options);
 	}
 
 	/**
@@ -378,7 +392,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_ROLES       | always    |
 	 */
-	public async updateGuildRolePositions(guildId: string, data: Array<{ id: string; position: number; }>): Promise<Array<import("@amanda/discordtypings").RoleData>> {
+	public async updateGuildRolePositions(guildId: string, data: Array<{ id: string; position?: number | null; }>): Promise<Array<import("@amanda/discordtypings").RoleData>> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), "put", "json", data);
 	}
 
@@ -421,7 +435,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | KICK_MEMBERS       | always    |
 	 */
-	public async getGuildPruneCount(guildId: string, data: { days: number }): Promise<{ pruned: number }> {
+	public async getGuildPruneCount(guildId: string, data: { days?: number; include_roles?: string; }): Promise<{ pruned: number }> {
 		return this.requestHandler.request(Endpoints.GUILD_PRUNE(guildId), "get", "json", data);
 	}
 
@@ -435,7 +449,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | KICK_MEMBERS       | always    |
 	 */
-	public async startGuildPrune(guildId: string, data: { days: number }): Promise<{ pruned: number; }> {
+	public async startGuildPrune(guildId: string, data: { days?: number; compute_prune_count?: boolean; include_roles?: Array<string>; reason?: string; }): Promise<{ pruned: number; }> {
 		return this.requestHandler.request(Endpoints.GUILD_PRUNE(guildId), "post", "json", data);
 	}
 
@@ -517,43 +531,104 @@ class GuildMethods {
 	}
 
 	/**
-	 * Synchronize a guild integration
+	 * Gets a guild widget object
 	 * @param guildId Id of the guild
-	 * @param integrationId Id of the integration
+	 * @returns [Guild Widget](https://discord.com/developers/docs/resources/guild#guild-widget-object)
+	 */
+	public async getGuildWidget(guildId: string): Promise<import("@amanda/discordtypings").GuildWidgetData> {
+		return this.requestHandler.request(Endpoints.GUILD_WIDGET(guildId), "get", "json");
+	}
+
+	/**
+	 * Get a guild widget settings object
+	 * @param guildId Id of the guild
+	 * @returns [Guild Widget](https://discord.com/developers/docs/resources/guild#guild-widget-object)
+	 *
+	 * | Permissions needed | Condition |
+	 * |--------------------|-----------|
+	 * | MANAGE_GUILD       | always    |
+	 */
+	public async getGuildWidgetSettings(guildId: string): Promise<{ enabled: boolean; channel_id: string; }> {
+		return this.requestHandler.request(Endpoints.GUILD_WIDGET_SETTINGS(guildId), "get", "json");
+	}
+
+	/**
+	 * Update a guild widget settings object
+	 * @param guildId Id of the guild
+	 * @param data basic data of widget settings
+	 * @returns [Guild Widget](https://discord.com/developers/docs/resources/guild#guild-widget-object)
+	 *
+	 * | Permissions needed | Condition |
+	 * |--------------------|-----------|
+	 * | MANAGE_GUILD       | always    |
+	 */
+	public async updateGuildWidgetSettings(guildId: string, data: { enabled?: boolean; channel_id?: string; }): Promise<{ enabled: boolean; channel_id: string; }> {
+		return this.requestHandler.request(Endpoints.GUILD_WIDGET_SETTINGS(guildId), "patch", "json", data);
+	}
+
+	/**
+	 * Get a guild's vanity URL code
+	 * @param guildId Id of the guild
+	 * @returns partial [invite object](https://discord.com/developers/docs/resources/guild#get-guild-vanity-url-example-partial-invite-object)
+	 *
+	 * | Permissions needed | Condition |
+	 * |--------------------|-----------|
+	 * | MANAGE_GUILD       | always    |
+	 */
+	public async getGuildVanityURL(guildId: string): Promise<{ code: string | null; uses: number; }> {
+		return this.requestHandler.request(Endpoints.GUILD_VANITY(guildId), "get", "json");
+	}
+
+	/**
+	 * Get a guild's welcome screen object
+	 * @param guildId Id of the guild
+	 * @returns [Guild Welcome Screen](https://discord.com/developers/docs/resources/guild#welcome-screen-object)
+	 */
+	public async getGuildWelcomeScreen(guildId: string): Promise<import("@amanda/discordtypings").WelcomeScreenData> {
+		return this.requestHandler.request(Endpoints.GUILD_WELCOME_SCREEN(guildId), "get", "json");
+	}
+
+	/**
+	 * Update a guild welcome screen object
+	 * @param guildId Id of guild
+	 * @param data Welcome screen data
+	 * @returns [Guild Welcome Screen](https://discord.com/developers/docs/resources/guild#welcome-screen-object)
+	 *
+	 * | Permissions needed | Condition |
+	 * |--------------------|-----------|
+	 * | MANAGE_GUILD       | always    |
+	 */
+	public async editGuildWelcomeScreen(guildId: string, data: Partial<import("@amanda/discordtypings").WelcomeScreenData> & { enabled?: boolean }) {
+		return this.requestHandler.request(Endpoints.GUILD_WELCOME_SCREEN(guildId), "patch", "json", data);
+	}
+
+	/**
+	 * Updates the current user's voice state in a stage channel
+	 * @param guildId Id of the guild
+	 * @param data Data of the voice state
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_GUILD       | always    |
+	 * | Permissions needed | Condition                           |
+	 * |--------------------|-------------------------------------|
+	 * | MUTE_MEMBERS       | when trying to un-suppress yourself |
+	 * | REQUEST_TO_SPEAK   | when trying to request to speak     |
 	 */
-	public async syncGuildIntegration(guildId: string, integrationId: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD_INTEGRATION(guildId, integrationId), "delete", "json");
+	public updateCurrentUserVoiceState(guildId: string, data: { channel_id: string; suppress?: boolean; request_to_speak_timestamp: string | null; }): Promise<void> {
+		return this.requestHandler.request(Endpoints.GUILD_VOICE_STATE_USER(guildId, "@me"), "patch", "json", data);
 	}
 
 	/**
-	 * Get the guild embed object
+	 * Updates a user's voice state in a stage channel
 	 * @param guildId Id of the guild
-	 * @returns [Guild Embed](https://discord.com/developers/docs/resources/guild#guild-embed-object)
+	 * @param data Data of the voice state
+	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_GUILD       | always    |
+	 * | Permissions needed | Condition                           |
+	 * |--------------------|-------------------------------------|
+	 * | MUTE_MEMBERS       | when trying to suppress/un-suppress |
 	 */
-	public async getGuildEmbed(guildId: string): Promise<any> {
-		return this.requestHandler.request(Endpoints.GUILD_EMBED(guildId), "get", "json");
-	}
-
-	/**
-	 * Update a guild embed object
-	 * @param guildId Id of the guild
-	 * @returns [Guild Embed](https://discord.com/developers/docs/resources/guild#guild-embed-object)
-	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_GUILD       | always    |
-	 */
-	public async updateGuildEmbed(guildId: string, data: { enabled: boolean; channel_id: string; }): Promise<any> {
-		return this.requestHandler.request(Endpoints.GUILD_EMBED(guildId), "patch", "json", data);
+	public updateUserVoiceState(guildId: string, userId: string, data: { channel_id: string; suppress?: boolean }): Promise<void> {
+		return this.requestHandler.request(Endpoints.GUILD_VOICE_STATE_USER(guildId, userId), "patch", "json", data);
 	}
 }
 
@@ -565,29 +640,32 @@ interface CreateGuildData {
 	 */
 	name: string;
 	/**
-	 * [voice region](https://discord.com/developers/docs/resources/voice#voice-region-voice-region-structure)
-	 */
-	region?: string;
-	/**
 	 * base64 encoded jpeg icon to use for the guild
 	 */
 	icon?: string;
 	/**
 	 * guild [verification level](https://discord.com/developers/docs/resources/guild#guild-object-verification-level)
 	 */
-	verification_level?: number;
+	verification_level?: 0 | 1 | 2 | 3 | 4;
 	/**
 	 * default message [notification setting](https://discord.com/developers/docs/resources/guild#default-message-notification-level)
 	 */
-	default_message_notifications?: number;
+	default_message_notifications?: 0 | 1;
 	/**
 	 * array of [channels](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
 	 */
-	channels?: Array<import("@amanda/discordtypings").ChannelData>;
+	channels?: Array<Partial<Exclude<import("@amanda/discordtypings").GuildChannelData, "id">>>;
 	/**
 	 * array of [roles](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
 	 */
-	roles?: Array<import("@amanda/discordtypings").RoleData>;
+	roles?: Array<Partial<Exclude<import("@amanda/discordtypings").RoleData, "id">>>;
+	afk_channel_id?: string;
+	/**
+	 * afk timeout in seconds
+	 */
+	afk_timeout?: number;
+	system_channel_id?: string;
+	system_channel_flags?: number;
 }
 
 interface UpdateGuildData {
@@ -595,10 +673,6 @@ interface UpdateGuildData {
 	 * name of the guild
 	 */
 	name?: string;
-	/**
-	 * guild [voice region](https://discord.com/developers/docs/resources/voice#voice-region-voice-region-structure) Id
-	 */
-	region?: string;
 	/**
 	 * guild [verification level](https://discord.com/developers/docs/resources/guild#guild-object-verification-level)
 	 */
@@ -638,6 +712,7 @@ interface CreateGuildChannelData {
 	 * [type](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) of the channel
 	 */
 	type?: number;
+	topic?: string;
 	/**
 	 * bitrate of the channel (voice only)
 	 */
@@ -646,10 +721,14 @@ interface CreateGuildChannelData {
 	 * user limit of a channel (voice only)
 	 */
 	user_limit?: number;
+	rate_limit_per_user?: number;
+	position?: number;
 	/**
 	 * permissions overwrites for the channel
 	 */
 	permission_overwrites?: Array<any>;
+	parent_id?: string;
+	nsfw?: boolean;
 }
 
 interface AddGuildMemberData {
@@ -695,59 +774,6 @@ interface RoleOptions {
 	hoist?: boolean;
 	mentionable?: boolean;
 }
-
-/**
- * @typedef {object} Guild
- * @property {string} id - guild Id
- * @property {string} name - guild name
- * @property {string} icon - icon hash
- * @property {string} splash - splash image hash
- * @property {string} owner_id - Id of the owner
- * @property {string} region - Id of the voice region
- * @property {string} afk_channel_id - Id of the afk channel
- * @property {number} afk_timeout - afk timeout in seconds
- * @property {Boolean} embed_enabled - if the guild is embeddable
- * @property {string} embed_channel_id - Id of embedded channel
- * @property {number} verification level - [verification level](https://discord.com/developers/docs/resources/guild#guild-object-verification-level) of the guild
- * @property {number} default_message_notifications - default
- * [notification level](https://discord.com/developers/docs/resources/guild#guild-object-default-message-notification-level) of the guild
- * @property {number} explicit_content_filter - default [filter level](https://discord.com/developers/docs/resources/guild#guild-object-explicit-content-filter-level)
- * @property {Role[]} roles - Array of roles
- * @property {import("./Emojis").Emoji[]} emojis - Array of emojis
- * @property {String[]} features - Array of enabled guild features
- * @property {number} mfa_level - required [mfa level](https://discord.com/developers/docs/resources/guild#guild-object-mfa-level) for the guild
- * @property {string} [application_id] - application Id of the guild creator, if the guild was created by a bot
- * @property {Boolean} widget_enabled - if the server widget is enabled
- * @property {string} widget_channel_id - channel Id of the server widget
- */
-
-/**
- * @typedef {object} Role
- * @property {string} id - role Id
- * @property {string} name - role name
- * @property {number} color - integer representation of hexadecimal color code
- * @property {Boolean} hoist - if this role is hoisted
- * @property {number} position - position of the role
- * @property {number} permissions - permission bit set
- * @property {Boolean} managed - if this role is managed by an integration
- * @property {Boolean} mentionable - if this role can be mentioned
- */
-
-/**
- * @typedef {object} GuildMember
- * @property {import("./Users").User} user - user belonging to the member
- * @property {?String} nick - nickname if the member has one
- * @property {String[]} roles - array of role ids
- * @property {string} joined_at - timestamp when the user joined the guild
- * @property {Boolean} deaf - if the user is deafened
- * @property {Boolean} mute - if the user is muted
- */
-
-/**
- * @typedef {object} Ban
- * @property {?String} reason - reason of the ban
- * @property {import("./Users").User} user - user that was banned
- */
 
 // those moves https://youtu.be/oCrwzN6eb4Q?t=51s nice
 export = GuildMethods;

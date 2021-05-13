@@ -24,8 +24,8 @@ class InviteMethods {
 	 * @param withCounts When set to true you get an invite object with additional `approximate_presence_count` and `approximate_member_count` fields
 	 * @returns [Invite Object](https://discord.com/developers/docs/resources/invite#invite-object)
 	 */
-	public async getInvite(inviteId: string, withCounts: boolean | undefined = false): Promise<any> {
-		return this.requestHandler.request(Endpoints.INVITE(inviteId), "get", "json", {with_counts: withCounts});
+	public async getInvite(inviteId: string, options?: { with_counts?: boolean; with_expiration?: boolean; }): Promise<import("@amanda/discordtypings").InviteData> {
+		return this.requestHandler.request(Endpoints.INVITE(inviteId), "get", "json", options);
 	}
 
 	/**
@@ -33,28 +33,14 @@ class InviteMethods {
 	 * @param inviteId
 	 * @returns [Invite Object](https://discord.com/developers/docs/resources/invite#invite-object)
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_CHANNELS    | always    |
+	 * | Permissions needed | Condition                                     |
+	 * |--------------------|-----------------------------------------------|
+	 * | MANAGE_CHANNELS    | for invite that belongs to a specific channel |
+	 * | MANAGE_GUILD       | delete any invite guild wide                  |
 	 */
-	public async deleteInvite(inviteId: string): Promise<any> {
+	public async deleteInvite(inviteId: string): Promise<import("@amanda/discordtypings").InviteData>  {
 		return this.requestHandler.request(Endpoints.INVITE(inviteId), "delete", "json");
 	}
 }
-
-/**
- * @typedef {object} Invite
- * @property {string} code - unique id code of the invite
- * @property {import("./Guilds").Guild} guild - partial guild object of the invite
- * @property {import("./Channels").Channel} channel - partial channel object of the invite
- * @property {import("./Users").User} [inviter] - creator of the invite
- * @property {number} [uses] - how often the invite was used
- * @property {number} [max_uses] - how often the invite can be used
- * @property {number} [max_age] - duration in seconds until the invite expires
- * @property {Boolean} [temporary] - if this invite only grants temporary membership
- * @property {Date} [created_at] - when the invite was created
- * @property {Boolean} [revoked] - if this invite has been revoked
- */
-
 
 export = InviteMethods;

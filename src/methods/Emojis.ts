@@ -89,7 +89,7 @@ class EmojiMethods {
 	 * }
 	 * client.emoji.updateEmoji('guild id', 'emoji id', emojiData)
 	 */
-	public async updateEmoji(guildId: string, emojiId: string, data: { name: string }): Promise<import("@amanda/discordtypings").EmojiData> {
+	public async updateEmoji(guildId: string, emojiId: string, data: { name?: string; roles?: Array<string> | null; }): Promise<import("@amanda/discordtypings").EmojiData> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), "patch", "json", data);
 	}
 
@@ -118,15 +118,5 @@ interface CreateEmojiData {
 	 */
 	image: string;
 }
-
-/**
- * @typedef {object} Emoji
- * @property {string} id - Id of the emoji
- * @property {string} name - name of the emoji
- * @property {Array} [roles] - array of roles whitelisted to use the emoji (whitelisted apps only)
- * @property {import("./Users").User} [user] - User that created this emoji
- * @property {Boolean} require_colons - whether this emoji must be wrapped in colons
- * @property {Boolean} managed - whether this emoji is managed
- */
 
 export = EmojiMethods;
