@@ -10,7 +10,7 @@ class Ratelimiter {
 	public globalResetAt: number;
 
 	/**
-	 * This is an "interval" to constantly check Buckets which should be reset or unreferenced from the RateLimiter to be swept by the garbage collector.
+	 * This is an interval to constantly check Buckets which should be reset or unreferenced from the RateLimiter to be swept by the garbage collector.
 	 * This 1 timeout is more performant as compared to potentially many more ticking timers to reset individual bucket remaining values.
 	 *
 	 * YOU SHOULD NEVER OVERRIDE THIS UNLESS YOU KNOW WHAT YOU'RE DOING. REQUESTS MAY POSSIBLY NEVER EXECUTE WITHOUT THIS AND/OR MEMORY MAY SLOWLY CLIMB OVER TIME.
@@ -39,10 +39,9 @@ class Ratelimiter {
 			}
 		};
 		this._timeoutDuration = 1000;
-		this._timeout = setTimeout(() => {
-			this._timeoutFN();
-			this._timeout = setTimeout(() => this._timeoutFN(), this._timeoutDuration);
-		}, this._timeoutDuration);
+		this._timeout = setInterval(() => {
+			limiter._timeoutFN();
+		}, limiter._timeoutDuration);
 	}
 
 	/**
