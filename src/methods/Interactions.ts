@@ -22,47 +22,47 @@ class InteractionMethods {
 		this.webhooks = webhooks;
 	}
 
-	public getApplicationCommands(appID: string) {
+	public getApplicationCommands(appID: string): Promise<Array<import("@amanda/discordtypings").ApplicationCommand>> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appID), "get", "json");
 	}
 
-	public getApplicationCommand(appID: string, cmdID: string) {
+	public getApplicationCommand(appID: string, cmdID: string): Promise<import("@amanda/discordtypings").ApplicationCommand> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMAND(appID, cmdID), "get", "json");
 	}
 
-	public createApplicationCommand(appID: string, data: CommandData) {
+	public createApplicationCommand(appID: string, data: CommandData): Promise<import("@amanda/discordtypings").ApplicationCommand> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appID), "post", "json", data);
 	}
 
-	public editApplicationCommand(appID: string, cmdID: string, data: Partial<CommandData>) {
+	public editApplicationCommand(appID: string, cmdID: string, data: Partial<CommandData>): Promise<import("@amanda/discordtypings").ApplicationCommand> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMAND(appID, cmdID), "patch", "json", data);
 	}
 
-	public bulkOverwriteApplicationCommands(appID, data: Array<CommandData>) {
+	public bulkOverwriteApplicationCommands(appID, data: Array<CommandData>): Promise<Array<import("@amanda/discordtypings").ApplicationCommand>> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appID), "put", "json", data);
 	}
 
-	public deleteApplicationCommand(appID: string, cmdID: string) {
+	public deleteApplicationCommand(appID: string, cmdID: string): Promise<void> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMAND(appID, cmdID), "delete", "json");
 	}
 
-	public getGuildApplicationCommands(appID: string, guildID: string) {
+	public getGuildApplicationCommands(appID: string, guildID: string): Promise<Array<import("@amanda/discordtypings").ApplicationCommand>> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appID, guildID), "get", "json");
 	}
 
-	public getGuildApplicationCommand(appID: string, guildID: string, cmdID: string) {
+	public getGuildApplicationCommand(appID: string, guildID: string, cmdID: string): Promise<import("@amanda/discordtypings").ApplicationCommand> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND(appID, guildID, cmdID), "get", "json");
 	}
 
-	public createGuildApplicationCommand(appID: string, guildID: string, data: CommandData) {
+	public createGuildApplicationCommand(appID: string, guildID: string, data: CommandData): Promise<import("@amanda/discordtypings").ApplicationCommand> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appID, guildID), "post", "json", data);
 	}
 
-	public editGuildApplicationCommand(appID: string, guildID: string, cmdID: string, data: Partial<CommandData>) {
+	public editGuildApplicationCommand(appID: string, guildID: string, cmdID: string, data: Partial<CommandData>): Promise<import("@amanda/discordtypings").ApplicationCommand> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND(appID, guildID, cmdID), "patch", "json", data);
 	}
 
-	public bulkOverwriteGuildApplicationCommand(appID: string, guildID: string, data: Array<CommandData>) {
+	public bulkOverwriteGuildApplicationCommand(appID: string, guildID: string, data: Array<CommandData>): Promise<Array<import("@amanda/discordtypings").ApplicationCommand>> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appID, guildID), "put", "json", data);
 	}
 
@@ -74,8 +74,8 @@ class InteractionMethods {
 		return this.webhooks.getWebhookMessage(appID, token, "@original");
 	}
 
-	public createInteractionResponse(appID: string, token: string, data: import("@amanda/discordtypings").InteractionResponseData): Promise<void> {
-		return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(appID, token), "post", "json", data);
+	public createInteractionResponse(interactionID: string, token: string, data: import("@amanda/discordtypings").InteractionResponseData): Promise<void> {
+		return this.requestHandler.request(Endpoints.INTERACTION_CALLBACK(interactionID, token), "post", "json", data);
 	}
 
 	public editOriginalInteractionResponse(appID: string, token: string, data: Parameters<WebhookMethods["editWebhookMessage"]>[3]): Promise<import("@amanda/discordtypings").MessageData> {

@@ -1,6 +1,6 @@
 {
   "name": "snowtransfer",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "Minimalistic Rest client for the Discord Api",
   "main": "./dist/src/SnowTransfer.js",
   "types": "./dist/src/SnowTransfer.d.ts",
