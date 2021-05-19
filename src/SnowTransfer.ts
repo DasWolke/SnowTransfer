@@ -10,6 +10,7 @@ import InviteMethods from "./methods/Invites";
 import VoiceMethods from "./methods/Voices";
 import BotMethods from "./methods/Bots";
 import AuditLogMethods from "./methods/AuditLog";
+import StageInstanceMethods from "./methods/StageInstance";
 import Endpoints from "./Endpoints";
 
 import { version } from "../package.json";
@@ -28,6 +29,7 @@ class SnowTransfer {
 	public voice: VoiceMethods;
 	public bot: BotMethods;
 	public auditLog: AuditLogMethods;
+	public stageInstance: StageInstanceMethods;
 	public ratelimiter: Ratelimiter;
 
 	/**
@@ -60,6 +62,7 @@ class SnowTransfer {
 		this.voice = new VoiceMethods(this.requestHandler);
 		this.bot = new BotMethods(this.requestHandler);
 		this.auditLog = new AuditLogMethods(this.requestHandler);
+		this.stageInstance = new StageInstanceMethods(this.requestHandler);
 	}
 }
 

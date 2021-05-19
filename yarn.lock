@@ -3,7 +3,7 @@
 
 
 "@amanda/discordtypings@github:AmandaDiscord/DiscordTypings":
-  "resolved" "git+ssh://git@github.com/AmandaDiscord/DiscordTypings.git#c6a32feb0c0c3de8dd190a31582e7cc6e6d6f1ea"
+  "resolved" "git+ssh://git@github.com/AmandaDiscord/DiscordTypings.git#f70a22b010cc43099d63ac79020ce5044998a7c1"
   "version" "0.0.1"
 
 "@babel/code-frame@7.12.11":

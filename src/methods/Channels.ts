@@ -192,11 +192,30 @@ class ChannelMethods {
 	}
 
 	/**
-	 * Edit a message sent by the current user
+	 * Crosspost a message in a news channel to all following channels
+	 * @param channelId Id of the news channel
+	 * @param messageId Id of the message
+	 * @returns [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
+	 *
+	 * | Permissions needed | Condition                                      |
+	 * |--------------------|------------------------------------------------|
+	 * | SEND_MESSAGES      | if the message was sent by the current user    |
+	 * | MANAGE_MESSAGES    | if the message wasn't sent by the current user |
+	 */
+	public async crosspostMessage(channelId: string, messageId: string): Promise<import("@amanda/discordtypings").MessageData> {
+		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_CROSSPOST(channelId, messageId), "post", "json");
+	}
+
+	/**
+	 * Edit a message sent by the current user or edit the message flags of another user's message
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
 	 * @param data Data to send
 	 * @returns [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
+	 *
+	 * | Permissions needed | Condition                                        |
+	 * |--------------------|--------------------------------------------------|
+	 * | MANAGE_MESSAGES    | When editing someone else's message to set flags |
 	 *
 	 * @example
 	 * // Simple ping response
@@ -218,7 +237,11 @@ class ChannelMethods {
 			data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
 		}
 
-		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "json", data);
+		if (data.file) {
+			return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "multipart", data);
+		} else {
+			return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "json", data);
+		}
 	}
 
 	/**
@@ -770,12 +793,24 @@ interface EditMessageData {
 	 * [Embed](https://discord.com/developers/docs/resources/channel#embed-object) to send
 	 */
 	embed?: import("@amanda/discordtypings").EmbedData;
+	flags?: number;
+	file?: {
+		/**
+		 * Name of the file
+		 */
+		name?: string;
+		/**
+		 * Buffer with file contents
+		 */
+		file: Buffer;
+	};
 	allowed_mentions?: {
 		parse?: Array<"roles" | "users" | "everyone">;
 		roles?: Array<string>;
 		users?: Array<string>;
 		replied_user?: boolean;
 	};
+	attachments?: Array<import("@amanda/discordtypings").AttachmentData>
 }
 
 interface CreateInviteData {
