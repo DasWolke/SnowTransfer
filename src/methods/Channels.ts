@@ -770,18 +770,28 @@ interface CreateMessageData {
 		 */
 		file: Buffer;
 	};
+	/**
+	 * [Allowed mentions](https://discord.com/developers/docs/resources/channel#allowed-mentions-object) for the message
+	 */
 	allowed_mentions?: {
 		parse?: Array<"roles" | "users" | "everyone">;
 		roles?: Array<string>;
 		users?: Array<string>;
 		replied_user?: boolean;
 	};
+	/**
+	 * [Reply](https://discord.com/developers/docs/resources/channel#message-reference-object-message-reference-structure) to a message
+	 */
 	message_reference?: {
 		message_id?: string;
 		channel_id?: string;
 		guild_id?: string;
 		fail_if_not_exists?: boolean;
 	};
+	/**
+	 * [Buttons](https://discord.com/developers/docs/interactions/message-components#component-object) to add to the message
+	 */
+	components?: Array<import("@amanda/discordtypings").MessageComponentData>;
 }
 
 interface EditMessageData {
@@ -793,7 +803,13 @@ interface EditMessageData {
 	 * [Embed](https://discord.com/developers/docs/resources/channel#embed-object) to send
 	 */
 	embed?: import("@amanda/discordtypings").EmbedData;
+	/**
+	 * 1 << 2 to set a message SUPPRESS_EMBEDS
+	 */
 	flags?: number;
+	/**
+	 * File that should be updated
+	 */
 	file?: {
 		/**
 		 * Name of the file
@@ -804,13 +820,23 @@ interface EditMessageData {
 		 */
 		file: Buffer;
 	};
+	/**
+	 * [Allowed mentions](https://discord.com/developers/docs/resources/channel#allowed-mentions-object) for the message
+	 */
 	allowed_mentions?: {
 		parse?: Array<"roles" | "users" | "everyone">;
 		roles?: Array<string>;
 		users?: Array<string>;
 		replied_user?: boolean;
 	};
-	attachments?: Array<import("@amanda/discordtypings").AttachmentData>
+	/**
+	 * [Attached files](https://discord.com/developers/docs/resources/channel#attachment-object) to keep
+	 */
+	attachments?: Array<import("@amanda/discordtypings").AttachmentData>;
+	/**
+	 * [Buttons](https://discord.com/developers/docs/interactions/message-components#component-object) to add to the message
+	 */
+	components?: Array<import("@amanda/discordtypings").MessageComponentData>;
 }
 
 interface CreateInviteData {

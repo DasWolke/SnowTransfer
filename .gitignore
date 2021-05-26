@@ -6,4 +6,5 @@ snowtransfer.iml
 .DS_STORE
 SnowTransfer
 package-lock.json
+yarn.lock
 /dist
