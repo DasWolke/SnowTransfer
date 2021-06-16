@@ -1,5 +1,8 @@
 import Endpoints from "../Endpoints";
 
+/**
+ * Methods for interacting with Guild Audit Logs
+ */
 class AuditLogMethods {
 	public requestHandler: import("../RequestHandler");
 

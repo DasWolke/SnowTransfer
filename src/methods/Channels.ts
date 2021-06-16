@@ -169,11 +169,11 @@ class ChannelMethods {
 	 * let client = new SnowTransfer('TOKEN')
 	 * // fileData will be a buffer with the data of the png image.
 	 * let fileData = fs.readFileSync('nice_picture.png') // You should probably use fs.readFile, since it's asynchronous, synchronous methods may lag your bot.
-	 * client.channel.createMessage('channel id', {content: 'This is a nice picture', file: {name: 'Optional Filename.png', file: fileData}})
+	 * client.channel.createMessage('channel id', {content: 'This is a nice picture', files: [{name: 'Optional Filename.png', file: fileData}]})
 	 */
 	public async createMessage(channelId: string, data: string | CreateMessageData, options: { disableEveryone?: boolean } = { disableEveryone: this.disableEveryone }): Promise<import("@amanda/discordtypings").MessageData> {
-		if (typeof data !== "string" && !data.content && !data.embed && !data.file) {
-			throw new Error("Missing content or embed or file");
+		if (typeof data !== "string" && !data.content && !data.embeds && !data.files) {
+			throw new Error("Missing content or embeds or files");
 		}
 		if (typeof data === "string") {
 			data = { content: data };
@@ -184,7 +184,7 @@ class ChannelMethods {
 			data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
 		}
 
-		if (data.file) {
+		if (data.files) {
 			return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "post", "multipart", data);
 		} else {
 			return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "post", "json", data);
@@ -225,8 +225,8 @@ class ChannelMethods {
 	 * client.channel.editMessage('channel id', message.id, `pong ${Date.now() - time}ms`)
 	 */
 	public async editMessage(channelId: string, messageId: string, data: string | EditMessageData, options: { disableEveryone?: boolean } = { disableEveryone: this.disableEveryone }): Promise<import("@amanda/discordtypings").MessageData> {
-		if (typeof data !== "string" && data.content === undefined && data.embed === undefined) {
-			throw new Error("Missing content or embed");
+		if (typeof data !== "string" && data.content === undefined && data.embeds === undefined && data.files === undefined) {
+			throw new Error("Missing content or embeds or files");
 		}
 		if (typeof data === "string") {
 			data = { content: data };
@@ -237,7 +237,7 @@ class ChannelMethods {
 			data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
 		}
 
-		if (data.file) {
+		if (data.files) {
 			return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "multipart", data);
 		} else {
 			return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "json", data);
@@ -742,9 +742,9 @@ interface GetMessageOptions {
 
 interface CreateMessageData {
 	/**
-	 * [Embed](https://discord.com/developers/docs/resources/channel#embed-object) to send
+	 * Array of [Embeds](https://discord.com/developers/docs/resources/channel#embed-object) to send
 	 */
-	embed?: import("@amanda/discordtypings").EmbedData;
+	embeds?: Array<import("@amanda/discordtypings").EmbedData>;
 	/**
 	 * Content of the message
 	 */
@@ -758,18 +758,18 @@ interface CreateMessageData {
 	 */
 	tts?: boolean | null;
 	/**
-	 * File that should be uploaded
+	 * Files that should be uploaded
 	 */
-	file?: {
+	files?: Array<{
 		/**
 		 * Name of the file
 		 */
-		name?: string;
+		name: string;
 		/**
 		 * Buffer with file contents
 		 */
 		file: Buffer;
-	};
+	}>;
 	/**
 	 * [Allowed mentions](https://discord.com/developers/docs/resources/channel#allowed-mentions-object) for the message
 	 */
@@ -800,26 +800,26 @@ interface EditMessageData {
 	 */
 	content?: string | null;
 	/**
-	 * [Embed](https://discord.com/developers/docs/resources/channel#embed-object) to send
+	 * Array of [Embeds](https://discord.com/developers/docs/resources/channel#embed-object) to send
 	 */
-	embed?: import("@amanda/discordtypings").EmbedData;
+	embeds?: Array<import("@amanda/discordtypings").EmbedData>;
 	/**
 	 * 1 << 2 to set a message SUPPRESS_EMBEDS
 	 */
 	flags?: number;
 	/**
-	 * File that should be updated
+	 * Files that should be updated
 	 */
-	file?: {
+	files?: Array<{
 		/**
 		 * Name of the file
 		 */
-		name?: string;
+		name: string;
 		/**
 		 * Buffer with file contents
 		 */
 		file: Buffer;
-	};
+	}>;
 	/**
 	 * [Allowed mentions](https://discord.com/developers/docs/resources/channel#allowed-mentions-object) for the message
 	 */

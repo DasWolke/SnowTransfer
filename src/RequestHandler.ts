@@ -29,7 +29,7 @@ class DiscordAPIError extends Error {
 		this.httpStatus = status;
 	}
 
-	static flattenErrors(obj: Record<string, any>, key = "") {
+	public static flattenErrors(obj: Record<string, any>, key = "") {
 		let messages: Array<string> = [];
 
 		for (const [k, v] of Object.entries(obj)) {
@@ -250,15 +250,17 @@ class RequestHandler extends EventEmitter {
 	private async _multiPartRequest(endpoint: string, method: HTTPMethod, data: any, amount = 0): Promise<import("centra").Response> {
 		if (amount >= 3) throw new Error("Max amount of rety attempts reached");
 		const form = new FormData();
-		if (data.file && data.file.file) {
-			form.append("file", data.file.file, { filename: data.file.name });
-			delete data.file.file;
+		if (data.files && Array.isArray(data.files) && data.files.every(f => !!f.name && !!f.file)) {
+			for (const file of data.files) {
+				form.append(file.name, file.file, file.name);
+				delete file.file;
+			}
 		}
 		form.append("payload_json", JSON.stringify(data));
 		// duplicate headers in options as to not risk mutating the state.
 		const newHeaders = Object.assign({}, this.options.headers, form.getHeaders());
 
-		return c(this.apiURL, method).path(endpoint).header(newHeaders).body(form.getBuffer()).send();
+		return c(this.apiURL, method).path(endpoint).header(newHeaders).body(form.getBuffer()).timeout(15000).send();
 	}
 }
 

@@ -1,7 +1,7 @@
 import Endpoints from "../Endpoints";
 
 /**
- * Methods for handling webhook interactiong
+ * Methods for handling webhook interactions
  */
 class WebhookMethods {
 	public requestHandler: import("../RequestHandler");
@@ -151,8 +151,8 @@ class WebhookMethods {
 	 * client.webhook.executeWebhook('webhook Id', 'webhook token', {content: 'Hi from my webhook'})
 	 */
 	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options: { wait?: boolean; disableEveryone?: boolean } = { wait: false, disableEveryone: this.disableEveryone }): Promise<void> {
-		if (typeof data !== "string" && !data?.content && !data?.embeds && !data?.file) {
-			throw new Error("Missing content or embeds");
+		if (typeof data !== "string" && !data?.content && !data?.embeds && !data?.files) {
+			throw new Error("Missing content or embeds or files");
 		}
 		if (typeof data === "string") {
 			data = { content: data };
@@ -163,7 +163,7 @@ class WebhookMethods {
 			data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
 		}
 
-		if (data.file) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token) + options?.wait ? "?wait=true" : "", "post", "multipart", data);
+		if (data.files) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token) + options?.wait ? "?wait=true" : "", "post", "multipart", data);
 		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token) + options?.wait ? "?wait=true" : "", "post", "json", data);
 	}
 
@@ -216,7 +216,7 @@ class WebhookMethods {
 	 * @returns [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
 	 */
 	public async editWebhookMessage(webhookId: string, token: string, messageId: string, data: WebhookEditMessageData): Promise<import("@amanda/discordtypings").MessageData> {
-		if (data.file) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), "patch", "multipart", data);
+		if (data.files) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), "patch", "multipart", data);
 		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), "patch", "json", data);
 	}
 
@@ -282,18 +282,18 @@ interface WebhookCreateMessageData {
 	 */
 	tts?: boolean | null;
 	/**
-	 * File that should be uploaded
+	 * Files that should be uploaded
 	 */
-	file?: {
+	files?: Array<{
 		/**
 		 * Name of the file
 		 */
-		name?: string;
+		name: string;
 		/**
 		 * Buffer with file contents
 		 */
 		file: Buffer;
-	};
+	}>;
 	/**
 	 * Array of [embed objects](https://discord.com/developers/docs/resources/channel#embed-object)
 	 */
@@ -302,6 +302,10 @@ interface WebhookCreateMessageData {
 	 * [alowed mentions object](https://discord.com/developers/docs/resources/channel#allowed-mentions-object)
 	 */
 	allowed_mentions?: import("@amanda/discordtypings").AllowedMentionsData;
+	/**
+	 * [Buttons](https://discord.com/developers/docs/interactions/message-components#component-object) to add to the message
+	 */
+	components?: Array<import("@amanda/discordtypings").MessageComponentData>;
 }
 
 interface WebhookEditMessageData {
@@ -313,21 +317,28 @@ interface WebhookEditMessageData {
 	 * Array of [embed objects](https://discord.com/developers/docs/resources/channel#embed-object)
 	 */
 	embeds?: Array<import("@amanda/discordtypings").EmbedData> | null;
-	file?: {
+	/**
+	 * Files that should be updated
+	 */
+	files?: Array<{
 		/**
 		 * Name of the file
 		 */
-		name?: string;
+		name: string;
 		/**
 		 * Buffer with file contents
 		 */
 		file: Buffer;
-	} | null;
+	}>;
 	/**
 	 * [alowed mentions object](https://discord.com/developers/docs/resources/channel#allowed-mentions-object)
 	 */
 	allowed_mentions?: import("@amanda/discordtypings").AllowedMentionsData | null;
 	attachments?: Array<import("@amanda/discordtypings").AttachmentData> | null;
+	/**
+	 * [Buttons](https://discord.com/developers/docs/interactions/message-components#component-object) to add to the message
+	 */
+	components?: Array<import("@amanda/discordtypings").MessageComponentData>;
 }
 
 export = WebhookMethods;

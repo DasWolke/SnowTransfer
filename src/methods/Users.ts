@@ -1,12 +1,10 @@
 import Endpoints from "../Endpoints";
-import UserCache from "../cache/UserCache";
 
 /**
  * Methods for interacting with users
  */
 class UserMethods {
 	public requestHandler: import("../RequestHandler");
-	public cache: UserCache;
 
 	/**
 	 * Create a new User Method handler
@@ -18,7 +16,6 @@ class UserMethods {
 	 */
 	public constructor(requestHandler: import("../RequestHandler")) {
 		this.requestHandler = requestHandler;
-		this.cache = new UserCache(this);
 	}
 
 	/**
@@ -26,7 +23,7 @@ class UserMethods {
 	 * @returns [user object](https://discord.com/developers/docs/resources/user#user-object)
 	 */
 	public async getSelf(): Promise<Required<import("@amanda/discordtypings").UserData>> {
-		return this.cache.wrap("@me", this.requestHandler.request(Endpoints.USER("@me"), "get", "json"));
+		return this.requestHandler.request(Endpoints.USER("@me"), "get", "json");
 	}
 
 	/**
@@ -35,7 +32,7 @@ class UserMethods {
 	 * @returns [user object](https://discord.com/developers/docs/resources/user#user-object)
 	 */
 	public async getUser(userId: string): Promise<import("@amanda/discordtypings").UserData> {
-		return this.cache.wrap(userId, this.requestHandler.request(Endpoints.USER(userId), "get", "json"));
+		return this.requestHandler.request(Endpoints.USER(userId), "get", "json");
 	}
 
 	/**
@@ -52,7 +49,7 @@ class UserMethods {
 	 * client.user.updateSelf(updateData)
 	 */
 	public async updateSelf(data: { username?: string; avatar?: string; }): Promise<Required<import("@amanda/discordtypings").UserData>> {
-		return this.cache.wrap("@me", this.requestHandler.request(Endpoints.USER("@me"), "patch", "json", data));
+		return this.requestHandler.request(Endpoints.USER("@me"), "patch", "json", data);
 	}
 
 	/**
