@@ -162,7 +162,7 @@ class ChannelMethods {
 	 *       {name: 'Brr', value: 'Insert snowflake emoji here'}
 	 *     ]
 	 * }
-	 * client.channel.createMessage('channel id', {embed: embedData})
+	 * client.channel.createMessage('channel id', {embeds: [embedData]})
 	 *
 	 * @example
 	 * // Send a file with a comment

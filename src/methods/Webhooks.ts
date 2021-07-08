@@ -143,14 +143,16 @@ class WebhookMethods {
 	 * @param webhookId Id of the webhook
 	 * @param token webhook token
 	 * @param data Webhook data to send
-	 * @returns Resolves the Promise on successful execution
+	 * @returns Resolves the Promise on successful execution unless wait is set to true, which returns a [message]() object
 	 *
 	 * @example
 	 * // Send a message saying "Hi from my webhook" with a previously created webhook
 	 * let client = new SnowTransfer('TOKEN');
 	 * client.webhook.executeWebhook('webhook Id', 'webhook token', {content: 'Hi from my webhook'})
 	 */
-	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options: { wait?: boolean; disableEveryone?: boolean } = { wait: false, disableEveryone: this.disableEveryone }): Promise<void> {
+	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options?: { wait?: boolean; disableEveryone?: boolean }): Promise<void>;
+	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options: { wait: true; disableEveryone?: boolean }): Promise<import("@amanda/discordtypings").MessageData>;
+	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options: { wait?: boolean; disableEveryone?: boolean } = { wait: false, disableEveryone: this.disableEveryone }): Promise<void | import("@amanda/discordtypings").MessageData> {
 		if (typeof data !== "string" && !data?.content && !data?.embeds && !data?.files) {
 			throw new Error("Missing content or embeds or files");
 		}

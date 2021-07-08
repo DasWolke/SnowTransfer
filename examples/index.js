@@ -3,10 +3,10 @@ const config = require("./config.json");
 const client = new SnowTransfer(config.token);
 const request = async () => {
 	const message = await client.channel.createMessage("your channel id here", {
-		embed: {
+		embeds: [{
 			title: "memes",
 			description: "memes"
-		}
+		}]
 	});
 	console.log(message);
 };

@@ -34,13 +34,11 @@
   },
   "devDependencies": {
     "@types/centra": "^2.2.0",
-    "@types/node": "^15.0.1",
-    "@typescript-eslint/eslint-plugin": "^4.22.0",
-    "@typescript-eslint/parser": "^4.22.0",
-    "eslint": "^7.25.0",
-    "typescript": "~4.2.4"
+    "@types/node": "^16.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.2",
+    "@typescript-eslint/parser": "^4.28.2",
+    "eslint": "^7.30.0",
+    "typescript": "^4.3.5"
   },
-  "files": [
-    "dist"
-  ]
+  "files": ["dist"]
 }
