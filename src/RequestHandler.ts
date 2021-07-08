@@ -132,13 +132,16 @@ class RequestHandler extends EventEmitter {
 					} else if (dataType == "multipart") {
 						request = await this._multiPartRequest(endpoint, method, data, amount);
 					} else {
-						throw new Error("Forbidden dataType. Use json or multipart");
+						const e = new Error("Forbidden dataType. Use json or multipart");
+						e.stack = stack;
+						throw e;
 					}
 
 					// 429 and 502 are recoverable and will be re-tried automatically with 3 attempts max.
 					if (request.statusCode && !Constants.OK_STATUS_CODES.includes(request.statusCode) && ![429, 502].includes(request.statusCode)) {
 						const e = new DiscordAPIError(endpoint, request.headers["content-type"] === "application/json" ? await request.json() : request.body, method, request.statusCode);
 						e.stack = stack;
+						throw e;
 					}
 
 					if (request.headers["date"]) {
@@ -166,6 +169,7 @@ class RequestHandler extends EventEmitter {
 						return res(undefined);
 					}
 				} catch (error) {
+					if (error && error.stack) error.stack = stack;
 					this.emit("requestError", reqID, error);
 					return rej(error);
 				}
