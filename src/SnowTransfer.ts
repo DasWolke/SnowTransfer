@@ -14,7 +14,7 @@ import AuditLogMethods from "./methods/AuditLog";
 import StageInstanceMethods from "./methods/StageInstance";
 import Endpoints from "./Endpoints";
 
-import { version } from "../package.json";
+const { version } = require("../package.json");
 
 class SnowTransfer {
 	public options: { baseHost: string; disableEveryone: boolean; sentryOptions: { extra: { snowtransferVersion: string; }; }; useRedis: boolean; };

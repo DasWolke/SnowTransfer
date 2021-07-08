@@ -7,7 +7,7 @@ import c from "centra";
 import Endpoints from "./Endpoints";
 import FormData from "form-data";
 
-import { version } from "../package.json";
+const { version } = require("../package.json");
 import Constants from "./Constants";
 
 type HTTPMethod = "get" | "post" | "patch" | "head" | "put" | "delete" | "connect" | "options" | "trace";
