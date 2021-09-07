@@ -27,7 +27,7 @@
   "author": "wolke <wolke@weeb.sh>",
   "license": "MIT",
   "dependencies": {
-    "axios": "~0.18.1",
+    "axios": "~0.21.2",
     "form-data": "~2.3.1"
   },
   "optionalDependencies": {
