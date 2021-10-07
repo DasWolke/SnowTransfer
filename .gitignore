@@ -5,3 +5,6 @@ snowtransfer.iml
 .idea
 .DS_STORE
 SnowTransfer
+package-lock.json
+yarn.lock
+/dist
