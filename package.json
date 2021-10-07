@@ -1,10 +1,11 @@
 {
   "name": "snowtransfer",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "description": "Minimalistic Rest client for the Discord Api",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=12.0.0"
   },
   "keywords": [
     "discord",
@@ -17,7 +18,8 @@
     "microservice bot"
   ],
   "scripts": {
-    "build:docs": "node_modules/.bin/docma -c docma.config.json"
+    "build:src": "tsc -p .",
+    "build:docs": "typedoc --name SnowTransfer --excludeExternals --sort static-first --sort alphabetical"
   },
   "repository": {
     "type": "git",
@@ -27,14 +29,20 @@
   "author": "wolke <wolke@weeb.sh>",
   "license": "MIT",
   "dependencies": {
-    "axios": "~0.16.2",
-    "form-data": "~2.3.1"
-  },
-  "optionalDependencies": {
-    "raven": "~2.2.1"
+    "@amanda/discordtypings": "github:AmandaDiscord/DiscordTypings",
+    "centra": "^2.5.0",
+    "form-data": "~4.0.0"
   },
   "devDependencies": {
-    "docma": "^1.5.1",
-    "eslint": "^4.4.1"
-  }
+    "@types/centra": "^2.2.0",
+    "@types/node": "^16.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
+    "eslint": "^7.32.0",
+    "typedoc": "^0.22.5",
+    "typedoc-plugin-mdn-links": "^1.0.4",
+    "typedoc-plugin-missing-exports": "^0.22.3",
+    "typescript": "^4.4.3"
+  },
+  "files": ["dist", "README.md", "LICENSE.md"]
 }
