@@ -28,7 +28,7 @@ class AuditLogMethods {
 	 * |--------------------|-----------|
 	 * | VIEW_AUDIT_LOG     | always    |
 	 */
-	public async getAuditLog(guildId: string, data?: GetAuditLogOptions): Promise<import("@amanda/discordtypings").AuditLogObject> {
+	public async getAuditLog(guildId: string, data?: GetAuditLogOptions): Promise<import("discord-typings").AuditLogObject> {
 		return this.requestHandler.request(Endpoints.GUILD_AUDIT_LOGS(guildId), "get", "json", data);
 	}
 }
@@ -41,7 +41,7 @@ interface GetAuditLogOptions {
 	/**
 	 * [Type](https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events) of the audit log event
 	 */
-	action_type?: import("@amanda/discordtypings").AuditLogEventType;
+	action_type?: import("discord-typings").AuditLogEventType;
 	/**
 	 * Filter the audit log before a certain entry id
 	 */

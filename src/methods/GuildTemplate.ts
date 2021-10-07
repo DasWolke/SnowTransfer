@@ -18,11 +18,11 @@ class GuildTemplateMethods {
 		this.requestHandler = requestHandler;
 	}
 
-	public getGuildTemplate(code: string): Promise<import("@amanda/discordtypings").GuildTemplateData> {
+	public getGuildTemplate(code: string): Promise<import("discord-typings").GuildTemplateData> {
 		return this.requestHandler.request(Endpoints.TEMPLATE(code), "get", "json");
 	}
 
-	public createGuildFromGuildTemplate(code: string, options: { name: string; icon?: string | null }): Promise<import("@amanda/discordtypings").GuildData> {
+	public createGuildFromGuildTemplate(code: string, options: { name: string; icon?: string | null }): Promise<import("discord-typings").GuildData> {
 		return this.requestHandler.request(Endpoints.TEMPLATE(code), "post", "json", options);
 	}
 
@@ -31,7 +31,7 @@ class GuildTemplateMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_GUILD       | always    |
 	 */
-	public getGuildTemplates(guildId: string): Promise<Array<import("@amanda/discordtypings").GuildTemplateData>> {
+	public getGuildTemplates(guildId: string): Promise<Array<import("discord-typings").GuildTemplateData>> {
 		return this.requestHandler.request(Endpoints.GUILD_TEMPLATES(guildId), "get", "json");
 	}
 
@@ -40,7 +40,7 @@ class GuildTemplateMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_GUILD       | always    |
 	 */
-	public createGuildTemplate(guildId: string, data: { name: string; description?: string | null }): Promise<import("@amanda/discordtypings").GuildTemplateData> {
+	public createGuildTemplate(guildId: string, data: { name: string; description?: string | null }): Promise<import("discord-typings").GuildTemplateData> {
 		return this.requestHandler.request(Endpoints.GUILD_TEMPLATES(guildId), "post", "json", data);
 	}
 
@@ -49,7 +49,7 @@ class GuildTemplateMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_GUILD       | always    |
 	 */
-	public syncGuildTemplate(guildId: string, code: string): Promise<import("@amanda/discordtypings").GuildTemplateData> {
+	public syncGuildTemplate(guildId: string, code: string): Promise<import("discord-typings").GuildTemplateData> {
 		return this.requestHandler.request(Endpoints.GUILD_TEMPLATE(guildId, code), "put", "json");
 	}
 
@@ -58,7 +58,7 @@ class GuildTemplateMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_GUILD       | always    |
 	 */
-	public modifyGuildTemplate(guildId: string, code: string, data: { name?: string; description?: string | null }): Promise<import("@amanda/discordtypings").GuildTemplateData> {
+	public modifyGuildTemplate(guildId: string, code: string, data: { name?: string; description?: string | null }): Promise<import("discord-typings").GuildTemplateData> {
 		return this.requestHandler.request(Endpoints.GUILD_TEMPLATE(guildId, code), "patch", "json", data);
 	}
 
@@ -67,7 +67,7 @@ class GuildTemplateMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_GUILD       | always    |
 	 */
-	public deleteGuildTemplate(guildId: string, code: string): Promise<import("@amanda/discordtypings").GuildTemplateData> {
+	public deleteGuildTemplate(guildId: string, code: string): Promise<import("discord-typings").GuildTemplateData> {
 		return this.requestHandler.request(Endpoints.GUILD_TEMPLATE(guildId, code), "delete", "json");
 	}
 }
