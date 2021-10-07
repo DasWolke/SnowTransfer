@@ -29,7 +29,7 @@
   "author": "wolke <wolke@weeb.sh>",
   "license": "MIT",
   "dependencies": {
-    "@amanda/discordtypings": "github:AmandaDiscord/DiscordTypings",
+    "discord-typings": "9.0.x",
     "centra": "^2.5.0",
     "form-data": "~4.0.0"
   },
