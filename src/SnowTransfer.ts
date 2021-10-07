@@ -2,7 +2,7 @@ import Ratelimiter from "./Ratelimiter";
 import RequestHandler from "./RequestHandler";
 import ChannelMethods from "./methods/Channels";
 import UserMethods from "./methods/Users";
-import EmojiMethods from "./methods/Emojis";
+import GuildAssetsMethods from "./methods/GuildAssets";
 import WebhookMethods from "./methods/Webhooks";
 import GuildMethods from "./methods/Guilds";
 import GuildTemplateMethods from "./methods/GuildTemplate";
@@ -22,7 +22,7 @@ class SnowTransfer {
 	public channel: ChannelMethods;
 	public requestHandler: RequestHandler;
 	public user: UserMethods;
-	public emoji: EmojiMethods;
+	public guildAssets: GuildAssetsMethods;
 	public webhook: WebhookMethods;
 	public guild: GuildMethods;
 	public guildTemplate: GuildTemplateMethods;
@@ -56,7 +56,7 @@ class SnowTransfer {
 		});
 		this.channel = new ChannelMethods(this.requestHandler, this.options.disableEveryone);
 		this.user = new UserMethods(this.requestHandler);
-		this.emoji = new EmojiMethods(this.requestHandler);
+		this.guildAssets = new GuildAssetsMethods(this.requestHandler);
 		this.webhook = new WebhookMethods(this.requestHandler, this.options.disableEveryone);
 		this.guild = new GuildMethods(this.requestHandler);
 		this.guildTemplate = new GuildTemplateMethods(this.requestHandler);

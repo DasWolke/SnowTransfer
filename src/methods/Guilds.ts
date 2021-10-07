@@ -12,7 +12,7 @@ class GuildMethods {
 	 * Usually SnowTransfer creates a method handler for you, this is here for completion
 	 *
 	 * You can access the methods listed via `client.guild.method`, where `client` is an initialized SnowTransfer instance
-	 * @param requestHandler - request handler that calls the rest api
+	 * @param requestHandler request handler that calls the rest api
 	 */
 	public constructor(requestHandler: import("../RequestHandler")) {
 		this.requestHandler = requestHandler;
@@ -117,6 +117,15 @@ class GuildMethods {
 	 */
 	public async updateChannelPositions(guildId: string, data: Array<{ id: string; position?: number | null; lock_permissions?: boolean | null; parent_id?: string | null; }>): Promise<void> {
 		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), "patch", "json", data);
+	}
+
+	/**
+	 * Returns all active threads in the guild, including public and private threads. Threads are ordered by their `id`, in descending order
+	 * @param guildId Id of the guild
+	 * @returns All active threads and members the current user has access to.
+	 */
+	public async listActiveThreads(guildId: string): Promise<{ threads: Array<import("@amanda/discordtypings").ThreadChannelData>; members: Array<import("@amanda/discordtypings").ThreadMemberData>; }> {
+		return this.requestHandler.request(Endpoints.GUILD_THREADS_ACTIVE(guildId), "get", "json");
 	}
 
 	/**
@@ -324,12 +333,7 @@ class GuildMethods {
 	 * client.guild.createGuildBan('guild Id', 'memberId', banData)
 	 */
 	public async createGuildBan(guildId: string, memberId: string, data?: { reason?: string; delete_message_days?: number; }): Promise<void> {
-		let newData;
-		if (data) {
-			if (data.reason) Object.assign(newData, { queryReason: data.reason });
-			if (data.delete_message_days) Object.assign(newData, { "delete_message_days": data.delete_message_days });
-		}
-		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), "put", "json", newData);
+		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), "put", "json", data);
 	}
 
 	/**
@@ -350,7 +354,7 @@ class GuildMethods {
 	/**
 	 * Get a list of roles for a guild
 	 * @param guildId Id of the guild
-	 * @returns array of [roles](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
+	 * @returns array of [roles](https://discord.com/developers/docs/topics/permissions#role-object)
 	 *
 	 * | Permissions needed | Condition |
 	 * |--------------------|-----------|
@@ -384,17 +388,17 @@ class GuildMethods {
 	}
 
 	/**
-	 * Batch modify the positions of roles
+	 * Modify the positions of a role or multiple roles
 	 * @param guildId Id of the guild
-	 * @param data Array of objects with id and position properties
-	 * @returns array of [roles](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
+	 * @param data Role data to update
+	 * @returns array of [roles](https://discord.com/developers/docs/topics/permissions#role-object)
 	 *
 	 * | Permissions needed | Condition |
 	 * |--------------------|-----------|
 	 * | MANAGE_ROLES       | always    |
 	 */
-	public async updateGuildRolePositions(guildId: string, data: Array<{ id: string; position?: number | null; }>): Promise<Array<import("@amanda/discordtypings").RoleData>> {
-		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), "put", "json", data);
+	public async updateGuildRolePositions(guildId: string, data: { id: string; position?: number | null; reason?: string; } | Array<{ id: string; position?: number | null; reason?: string; }>): Promise<Array<import("@amanda/discordtypings").RoleData>> {
+		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), Array.isArray(data) ? "put" : "patch", "json", data);
 	}
 
 	/**
@@ -402,7 +406,7 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @param roleId Id of the role
 	 * @param data updated properties of the role
-	 * @returns [Updated Role](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
+	 * @returns [Updated Role](https://discord.com/developers/docs/topics/permissions#role-object)
 	 *
 	 * | Permissions needed | Condition |
 	 * |--------------------|-----------|
@@ -677,15 +681,16 @@ interface UpdateGuildData {
 	/**
 	 * guild [verification level](https://discord.com/developers/docs/resources/guild#guild-object-verification-level)
 	 */
-	verification_level?: number;
+	verification_level?: number | null;
 	/**
 	 * message [notification setting](https://discord.com/developers/docs/resources/guild#default-message-notification-level)
 	 */
-	default_message_notifications?: number;
+	default_message_notifications?: number | null;
+	explicit_content_filter?: number | null;
 	/**
 	 * Id of the afk channel
 	 */
-	afk_channel_id?: string;
+	afk_channel_id?: string | null;
 	/**
 	 * afk timeout in seconds
 	 */
@@ -693,15 +698,28 @@ interface UpdateGuildData {
 	/**
 	 * base64 jpeg image of the guild icon
 	 */
-	icon?: string;
+	icon?: string | null;
 	/**
 	 * Id of the owner user
 	 */
 	owner_id?: string;
 	/**
-	 * base64 jpeg image for the guild splash (vip/partner only)
+	 * base64 jpeg image for the guild splash
 	 */
-	splash?: string;
+	splash?: string | null;
+	/**
+	 * reason for updating the guild
+	 */
+	reason?: string;
+	discovery_splash?: string | null;
+	banner?: string | null;
+	system_channel_id?: string | null;
+	system_channel_flags?: number;
+	rules_channel_id?: string | null;
+	public_updates_channel_id?: string | null;
+	preferred_locale?: string | null;
+	features?: Array<import("@amanda/discordtypings").GuildFeature>;
+	description?: string | null;
 }
 
 interface CreateGuildChannelData {
@@ -730,6 +748,7 @@ interface CreateGuildChannelData {
 	permission_overwrites?: Array<any>;
 	parent_id?: string;
 	nsfw?: boolean;
+	reason?: string;
 }
 
 interface AddGuildMemberData {
@@ -773,6 +792,8 @@ interface RoleOptions {
 	permissions?: number;
 	color?: number;
 	hoist?: boolean;
+	icon?: string | null;
+	unicode_emoji?: string | null;
 	mentionable?: boolean;
 }
 

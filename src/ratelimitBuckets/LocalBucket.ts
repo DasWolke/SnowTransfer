@@ -57,7 +57,7 @@ class LocalBucket {
 
 	/**
 	 * Queue a function to be executed
-	 * @param fn - function to be executed
+	 * @param fn function to be executed
 	 * @returns Result of the function if any
 	 */
 	public queue(fn: (bucket: LocalBucket) => any | Promise<any>): Promise<any> {

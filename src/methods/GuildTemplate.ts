@@ -12,7 +12,7 @@ class GuildTemplateMethods {
 	 * Usually SnowTransfer creates a method handler for you, this is here for completion
 	 *
 	 * You can access the methods listed via `client.guildTemplate.method`, where `client` is an initialized SnowTransfer instance
-	 * @param requestHandler - request handler that calls the rest api
+	 * @param requestHandler request handler that calls the rest api
 	 */
 	public constructor(requestHandler: import("../RequestHandler")) {
 		this.requestHandler = requestHandler;
@@ -31,8 +31,8 @@ class GuildTemplateMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_GUILD       | always    |
 	 */
-	public getGuildTemplates(guildID: string): Promise<Array<import("@amanda/discordtypings").GuildTemplateData>> {
-		return this.requestHandler.request(Endpoints.GUILD_TEMPLATES(guildID), "get", "json");
+	public getGuildTemplates(guildId: string): Promise<Array<import("@amanda/discordtypings").GuildTemplateData>> {
+		return this.requestHandler.request(Endpoints.GUILD_TEMPLATES(guildId), "get", "json");
 	}
 
 	/**
@@ -40,8 +40,8 @@ class GuildTemplateMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_GUILD       | always    |
 	 */
-	public createGuildTemplate(guildID: string, data: { name: string; description?: string | null }): Promise<import("@amanda/discordtypings").GuildTemplateData> {
-		return this.requestHandler.request(Endpoints.GUILD_TEMPLATES(guildID), "post", "json", data);
+	public createGuildTemplate(guildId: string, data: { name: string; description?: string | null }): Promise<import("@amanda/discordtypings").GuildTemplateData> {
+		return this.requestHandler.request(Endpoints.GUILD_TEMPLATES(guildId), "post", "json", data);
 	}
 
 	/**
@@ -49,8 +49,8 @@ class GuildTemplateMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_GUILD       | always    |
 	 */
-	public syncGuildTemplate(guildID: string, code: string): Promise<import("@amanda/discordtypings").GuildTemplateData> {
-		return this.requestHandler.request(Endpoints.GUILD_TEMPLATE(guildID, code), "put", "json");
+	public syncGuildTemplate(guildId: string, code: string): Promise<import("@amanda/discordtypings").GuildTemplateData> {
+		return this.requestHandler.request(Endpoints.GUILD_TEMPLATE(guildId, code), "put", "json");
 	}
 
 	/**
@@ -58,8 +58,8 @@ class GuildTemplateMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_GUILD       | always    |
 	 */
-	public modifyGuildTemplate(guildID: string, code: string, data: { name?: string; description?: string | null }): Promise<import("@amanda/discordtypings").GuildTemplateData> {
-		return this.requestHandler.request(Endpoints.GUILD_TEMPLATE(guildID, code), "patch", "json", data);
+	public modifyGuildTemplate(guildId: string, code: string, data: { name?: string; description?: string | null }): Promise<import("@amanda/discordtypings").GuildTemplateData> {
+		return this.requestHandler.request(Endpoints.GUILD_TEMPLATE(guildId, code), "patch", "json", data);
 	}
 
 	/**
@@ -67,8 +67,8 @@ class GuildTemplateMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_GUILD       | always    |
 	 */
-	public deleteGuildTemplate(guildID: string, code: string): Promise<import("@amanda/discordtypings").GuildTemplateData> {
-		return this.requestHandler.request(Endpoints.GUILD_TEMPLATE(guildID, code), "delete", "json");
+	public deleteGuildTemplate(guildId: string, code: string): Promise<import("@amanda/discordtypings").GuildTemplateData> {
+		return this.requestHandler.request(Endpoints.GUILD_TEMPLATE(guildId, code), "delete", "json");
 	}
 }
 

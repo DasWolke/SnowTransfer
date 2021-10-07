@@ -27,6 +27,10 @@ class ChannelMethods {
 	 * @param channelId Id of the channel
 	 * @returns [discord channel](https://discord.com/developers/docs/resources/channel#channel-object) object
 	 *
+	 * | Permissions needed | Condition |
+	 * |--------------------|-----------|
+	 * | VIEW_CHANNEL       | always    |
+	 *
 	 * @example
 	 * let client = new SnowTransfer('TOKEN')
 	 * let channel = await client.channel.getChannel('channel id')
@@ -43,8 +47,8 @@ class ChannelMethods {
 	 *
 	 * | Permissions needed | Condition                                                                                                       |
 	 * |--------------------|-----------------------------------------------------------------------------------------------------------------|
+	 * | VIEW_CHANNEL       | always                                                                                                          |
 	 * | MANAGE_CHANNELS    | always                                                                                                          |
-	 * | READ_MESSAGES      | When editing a Thread to set archived to false                                                                  |
 	 * | MANAGE_THREADS     | When editing a Thread to change the name, archived, auto_archive_duration, rate_limit_per_user or locked fields |
 	 *
 	 * @example
@@ -68,16 +72,18 @@ class ChannelMethods {
 	 * **Be careful with deleting Guild Channels as this can not be undone!**
 	 *
 	 * When deleting a category, this does **not** delete the child channels of a category. They will just have their `parent_id` removed.
-	 * @param channelId - Id of the channel
+	 * @param channelId Id of the channel
+	 * @param reason Reason for deleting the channel
 	 * @returns [discord channel](https://discord.com/developers/docs/resources/channel#channel-object) object
 	 *
-	 * | Permissions needed | Condition                        |
-	 * |--------------------|----------------------------------|
-	 * | MANAGE_CHANNELS    | When deleting a Guild Channel    |
-	 * | MANAGE_THREADS     | When channelId is a Thread's ID  |
+	 * | Permissions needed | Condition                       |
+	 * |--------------------|---------------------------------|
+	 * | VIEW_CHANNEL       | always                          |
+	 * | MANAGE_CHANNELS    | When deleting a Guild Channel   |
+	 * | MANAGE_THREADS     | When channelId is a Thread's Id |
 	 */
-	public async deleteChannel(channelId: string): Promise<import("@amanda/discordtypings").ChannelData> {
-		return this.requestHandler.request(Endpoints.CHANNEL(channelId), "delete", "json");
+	public async deleteChannel(channelId: string, reason?: string): Promise<import("@amanda/discordtypings").ChannelData> {
+		return this.requestHandler.request(Endpoints.CHANNEL(channelId), "delete", "json", reason ? { reason } : undefined);
 	}
 
 	/**
@@ -85,9 +91,10 @@ class ChannelMethods {
 	 * @param channelId Id of the channel
 	 * @returns Array of [discord message](https://discord.com/developers/docs/resources/channel#message-object) objects
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | READ_MESSAGES      | always    |
+	 * | Permissions needed   | Condition |
+	 * |----------------------|-----------|
+	 * | VIEW_CHANNEL         | always    |
+	 * | READ_MESSAGE_HISTORY | always    |
 	 *
 	 * @example
 	 * // Fetch the last 20 messages from a channel
@@ -122,6 +129,7 @@ class ChannelMethods {
 	 *
 	 * | Permissions needed   | Condition |
 	 * |----------------------|-----------|
+	 * | VIEW_CHANNEL         | always    |
 	 * | READ_MESSAGE_HISTORY | always    |
 	 *
 	 * @example
@@ -142,9 +150,11 @@ class ChannelMethods {
 	 * if data is not a string you should take a look at the properties below to know what you may send
 	 * @returns [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | SEND_MESSAGES      | always    |
+	 * | Permissions needed       | Condition                                                               |
+	 * |--------------------------|-------------------------------------------------------------------------|
+	 * | VIEW_CHANNEL             | always                                                                  |
+	 * | SEND_MESSAGES            | if the message was sent by the current user and not in a thread channel |
+	 * | SEND_MESSAGES_IN_THREADS | if the message was sent by the current user and is in a thread channel  |
 	 *
 	 * @example
 	 * // Make a bot say "hi" within a channel
@@ -197,10 +207,12 @@ class ChannelMethods {
 	 * @param messageId Id of the message
 	 * @returns [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
 	 *
-	 * | Permissions needed | Condition                                      |
-	 * |--------------------|------------------------------------------------|
-	 * | SEND_MESSAGES      | if the message was sent by the current user    |
-	 * | MANAGE_MESSAGES    | if the message wasn't sent by the current user |
+	 * | Permissions needed       | Condition                                                               |
+	 * |--------------------------|-------------------------------------------------------------------------|
+	 * | VIEW_CHANNEL             | always                                                                  |
+	 * | SEND_MESSAGES            | if the message was sent by the current user and not in a thread channel |
+	 * | SEND_MESSAGES_IN_THREADS | if the message was sent by the current user and is in a thread channel  |
+	 * | MANAGE_MESSAGES          | if the message wasn't sent by the current user                          |
 	 */
 	public async crosspostMessage(channelId: string, messageId: string): Promise<import("@amanda/discordtypings").MessageData> {
 		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_CROSSPOST(channelId, messageId), "post", "json");
@@ -215,6 +227,7 @@ class ChannelMethods {
 	 *
 	 * | Permissions needed | Condition                                        |
 	 * |--------------------|--------------------------------------------------|
+	 * | VIEW_CHANNEL       | always                                           |
 	 * | MANAGE_MESSAGES    | When editing someone else's message to set flags |
 	 *
 	 * @example
@@ -248,10 +261,12 @@ class ChannelMethods {
 	 * Delete a message
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
+	 * @param reason Reason for deleting the message
 	 * @returns Resolves the Promise on successful execution
 	 *
 	 * | Permissions needed | Condition                                    |
 	 * |--------------------|----------------------------------------------|
+	 * | VIEW_CHANNEL       | always                                       |
 	 * | MANAGE_MESSAGES    | When the bot isn't the author of the message |
 	 *
 	 * @example
@@ -259,31 +274,35 @@ class ChannelMethods {
 	 * let client = new SnowTransfer('TOKEN')
 	 * client.channel.deleteMessage('channel id', 'message id')
 	 */
-	public async deleteMessage(channelId: string, messageId: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "delete", "json");
+	public async deleteMessage(channelId: string, messageId: string, reason?: string): Promise<void> {
+		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "delete", "json", reason ? { reason } : undefined);
 	}
 
 	/**
 	 * Bulk delete messages, messages may not be older than 2 weeks
 	 * @param channelId Id of the channel
 	 * @param messages array of message ids to delete
+	 * @param reason Reason for deleting the messages
 	 * @returns Resolves the Promise on successful execution
 	 *
 	 * | Permissions needed | Condition |
 	 * |--------------------|-----------|
+	 * | VIEW_CHANNEL       | always    |
 	 * | MANAGE_MESSAGES    | always    |
 	 */
-	public async bulkDeleteMessages(channelId: string, messages: Array<string>): Promise<void> {
+	public async bulkDeleteMessages(channelId: string, messages: Array<string>, reason?: string): Promise<void> {
 		if (messages.length < Constants.BULK_DELETE_MESSAGES_MIN || messages.length > Constants.BULK_DELETE_MESSAGES_MAX) {
 			throw new Error(`Amount of messages to be deleted has to be between ${Constants.BULK_DELETE_MESSAGES_MIN} and ${Constants.BULK_DELETE_MESSAGES_MAX}`);
 		}
 		// (Current date - (discord epoch + 2 weeks)) * (2**22) weird constant that everybody seems to use
-		const oldestSnowflake = BigInt(Date.now() - 1421280000000) * BigInt(2**22);
+		const oldestSnowflake = BigInt(Date.now() - 1421280000000) * (BigInt(2) ** BigInt(22));
 		const forbiddenMessage = messages.find(m => BigInt(m) < oldestSnowflake);
 		if (forbiddenMessage) {
 			throw new Error(`The message ${forbiddenMessage} is older than 2 weeks and may not be deleted using the bulk delete endpoint`);
 		}
-		return this.requestHandler.request(Endpoints.CHANNEL_BULK_DELETE(channelId), "post", "json", {messages});
+		const data = { messages };
+		if (reason) Object.assign(data, { reason });
+		return this.requestHandler.request(Endpoints.CHANNEL_BULK_DELETE(channelId), "post", "json", data);
 	}
 
 	/**
@@ -297,6 +316,7 @@ class ChannelMethods {
 	 *
 	 * | Permissions needed   | Condition                                          |
 	 * |----------------------|----------------------------------------------------|
+	 * | VIEW_CHANNEL         | always                                             |
 	 * | READ_MESSAGE_HISTORY | always                                             |
 	 * | ADD_REACTIONS        | When no other user has reacted with the emoji used |
 	 *
@@ -321,6 +341,11 @@ class ChannelMethods {
 	 * @param emoji reaction emoji
 	 * @returns Resolves the Promise on successful execution
 	 *
+	 * | Permission           | Condition |
+	 * |----------------------|-----------|
+	 * | VIEW_CHANNEL         | always    |
+	 * | READ_MESSAGE_HISTORY | always    |
+	 *
 	 * @example
 	 * // This example uses a discord emoji
 	 * let client = new SnowTransfer('TOKEN');
@@ -343,9 +368,11 @@ class ChannelMethods {
 	 * @param userId Id of the user
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permission        | Condition |
-	 * |-------------------|-----------|
-	 * | MANAGE_MESSAGES   | always    |
+	 * | Permission           | Condition |
+	 * |----------------------|-----------|
+	 * | MANAGE_MESSAGES      | always    |
+	 * | VIEW_CHANNEL         | always    |
+	 * | READ_MESSAGE_HISTORY | always    |
 	 *
 	 * @example
 	 * // This example uses a discord emoji
@@ -355,6 +382,7 @@ class ChannelMethods {
 	 * @example
 	 * // using a utf-8 emoji
 	 * let client = new SnowTransfer('TOKEN');
+	 * // If a user Id is not supplied, the emoji from that message will be removed for all users
 	 * client.channel.deleteReaction('channel Id', 'message Id', encodeURIComponent('😀'), 'user Id');
 	 */
 	public async deleteReaction(channelId: string, messageId: string, emoji: string, userId?: string): Promise<void> {
@@ -368,6 +396,11 @@ class ChannelMethods {
 	 * @param messageId Id of the message
 	 * @param emoji reaction emoji
 	 * @returns Array of [user objects](https://discord.com/developers/docs/resources/user#user-object)
+	 *
+	 * | Permissions needed   | Condition |
+	 * |----------------------|-----------|
+	 * | VIEW_CHANNEL         | always    |
+	 * | READ_MESSAGE_HISTORY | always    |
 	 *
 	 * @example
 	 * // This example uses a discord emoji
@@ -384,9 +417,11 @@ class ChannelMethods {
 	 * @param messageId Id of the message
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_MESSAGES    | always    |
+	 * | Permissions needed   | Condition |
+	 * |----------------------|-----------|
+	 * | VIEW_CHANNEL         | always    |
+	 * | READ_MESSAGE_HISTORY | always    |
+	 * | MANAGE_MESSAGES      | always    |
 	 */
 	public async deleteAllReactions(channelId: string, messageId: string): Promise<void> {
 		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTIONS(channelId, messageId), "delete", "json");
@@ -399,11 +434,14 @@ class ChannelMethods {
 	 * @param data modified [permission overwrite](https://discord.com/developers/docs/resources/channel#edit-channel-permissions-json-params) object
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_ROLES       | always    |
+	 * | Permissions needed | Condition                  |
+	 * |--------------------|----------------------------|
+	 * | MANAGE_CHANNELS    | if channel is not a thread |
+	 * | MANAGE_THREADS     | if channel is a thread     |
+	 * | MANAGE_ROLES       | always                     |
+	 * | VIEW_CHANNEL       | always                     |
 	 */
-	public async editChannelPermission(channelId: string, permissionId: string, data: Partial<import("@amanda/discordtypings").PermissionOverwriteData>): Promise<void> {
+	public async editChannelPermission(channelId: string, permissionId: string, data: Partial<import("@amanda/discordtypings").PermissionOverwriteData> & { reason?: string }): Promise<void> {
 		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), "put", "json", data);
 	}
 
@@ -411,14 +449,18 @@ class ChannelMethods {
 	 * Delete a permission overwrite from a channel
 	 * @param channelId Id of the channel
 	 * @param permissionId Id of the permission overwrite
+	 * @param reason Reason for deleting the permission
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_ROLES       | always    |
+	 * | Permissions needed | Condition                  |
+	 * |--------------------|----------------------------|
+	 * | MANAGE_CHANNELS    | if channel is not a thread |
+	 * | MANAGE_THREADS     | if channel is a thread     |
+	 * | MANAGE_ROLES       | always                     |
+	 * | VIEW_CHANNEL       | always                     |
 	 */
-	public async deleteChannelPermission(channelId: string, permissionId: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), "delete", "json");
+	public async deleteChannelPermission(channelId: string, permissionId: string, reason?: string): Promise<void> {
+		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), "delete", "json", reason ? { reason } : undefined);
 	}
 
 	/**
@@ -428,6 +470,7 @@ class ChannelMethods {
 	 *
 	 * | Permissions needed | Condition |
 	 * |--------------------|-----------|
+	 * | VIEW_CHANNEL       | always    |
 	 * | MANAGE_CHANNELS    | always    |
 	 */
 	public async getChannelInvites(channelId: string): Promise<Array<import("@amanda/discordtypings").InviteData>> {
@@ -438,12 +481,13 @@ class ChannelMethods {
 	 * Create an invite for a channel
 	 *
 	 * If no data argument is passed, the invite will be created with the defaults listed below
-	 * @param channelId - Id of the channel
+	 * @param channelId Id of the channel
 	 * @param data invite data (optional)
 	 * @returns [Invite object](https://discord.com/developers/docs/resources/invite#invite-object) (with metadata)
 	 *
 	 * | Permissions needed    | Condition |
 	 * |-----------------------|-----------|
+	 * | VIEW_CHANNEL          | always    |
 	 * | CREATE_INSTANT_INVITE | always    |
 	 */
 	public async createChannelInvite(channelId: string, data: CreateInviteData = { max_age: 86400, max_uses: 0, temporary: false, unique: false }): Promise<import("@amanda/discordtypings").InviteData> {
@@ -456,6 +500,12 @@ class ChannelMethods {
 	 * **You should generally avoid this method unless used for longer computations (>1s)**
 	 * @param channelId Id of the channel
 	 * @returns Resolves the Promise on successful execution
+	 *
+	 * | Permissions needed       | Condition                    |
+	 * |--------------------------|------------------------------|
+	 * | VIEW_CHANNEL             | always                       |
+	 * | SEND_MESSAGES            | if channel is not a thread   |
+	 * | SEND_MESSAGES_IN_THREADS | if channel is a thread       |
 	 */
 	public async startChannelTyping(channelId: string): Promise<void> {
 		return this.requestHandler.request(Endpoints.CHANNEL_TYPING(channelId), "post", "json");
@@ -465,6 +515,11 @@ class ChannelMethods {
 	 * Get a list of pinned messages for a channel
 	 * @param channelId Id of the channel
 	 * @returns Array of [message objects](https://discord.com/developers/docs/resources/channel#message-object)
+	 *
+	 * | Permissions needed   | Condition                      |
+	 * |----------------------|--------------------------------|
+	 * | VIEW_CHANNEL         | if channel is not a DM channel |
+	 * | READ_MESSAGE_HISTORY | if channel is not a DM channel |
 	 */
 	public async getChannelPinnedMessages(channelId: string): Promise<Array<import("@amanda/discordtypings").MessageData>> {
 		return this.requestHandler.request(Endpoints.CHANNEL_PINS(channelId), "get", "json");
@@ -474,55 +529,34 @@ class ChannelMethods {
 	 * Pin a message within a channel
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
+	 * @param reason Reason for pinning the message
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_MESSAGES    | always    |
+	 * | Permissions needed   | Condition                      |
+	 * |----------------------|--------------------------------|
+	 * | VIEW_CHANNEL         | if channel is not a DM channel |
+	 * | READ_MESSAGE_HISTORY | if channel is not a DM channel |
+	 * | MANAGE_MESSAGES      | if channel is not a DM channel |
 	 */
-	public async addChannelPinnedMessage(channelId: string, messageId: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), "put", "json");
+	public async addChannelPinnedMessage(channelId: string, messageId: string, reason?: string): Promise<void> {
+		return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), "put", "json", reason ? { reason } : undefined);
 	}
 
 	/**
 	 * Remove a pinned message from a channel
-	 * @param channelId - Id of the channel
-	 * @param messageId - Id of the message
+	 * @param channelId Id of the channel
+	 * @param messageId Id of the message
+	 * @param reason Reason for removing the pinned message
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_MESSAGES    | always    |
+	 * | Permissions needed   | Condition                      |
+	 * |----------------------|--------------------------------|
+	 * | VIEW_CHANNEL         | if channel is not a DM channel |
+	 * | READ_MESSAGE_HISTORY | if channel is not a DM channel |
+	 * | MANAGE_MESSAGES      | if channel is not a DM channel |
 	 */
-	public async removeChannelPinnedMessage(channelId: string, messageId: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), "delete", "json");
-	}
-
-	/**
-	 * Add a user to a group dm
-	 * @param channelId Id of the channel
-	 * @param userId Id of the user to be removed
-	 * @param data Data to send to this endpoint
-	 * @param data.access_token access token of the user that granted the app the gdm.join scope
-	 * @param data.nick nickname of the user being added
-	 * @returns Resolves the Promise on successful execution
-	 *
-	 * | OAUTH2 Scopes |
-	 * |---------------|
-	 * | gdm.join      |
-	 */
-	public async addDmChannelRecipient(channelId: string, userId: string, data: { access_token: string; nick?: string; }): Promise<void> {
-		return this.requestHandler.request(Endpoints.CHANNEL_RECIPIENT(channelId, userId), "put", "json", data);
-	}
-
-	/**
-	 * Remove a recipient from a group dm
-	 * @param channelId Id of the channel
-	 * @param userId Id of the user to be removed
-	 * @returns Resolves the Promise on successful execution
-	 */
-	public async removeDmChannelRecipient(channelId: string, userId: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.CHANNEL_RECIPIENT(channelId, userId), "delete", "json");
+	public async removeChannelPinnedMessage(channelId: string, messageId: string, reason?: string): Promise<void> {
+		return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), "delete", "json", reason ? { reason } : undefined);
 	}
 
 	/**
@@ -531,25 +565,40 @@ class ChannelMethods {
 	 * @param messageId Id of the message
 	 * @param options Thread meta data
 	 * @returns [thread channel](https://discord.com/developers/docs/resources/channel#channel-object) object
+	 *
+	 * | Permissions needed    | Condition |
+	 * |-----------------------|-----------|
+	 * | VIEW_CHANNEL          | always    |
+	 * | CREATE_PUBLIC_THREADS | always    |
 	 */
-	public async createPublicThread(channelId: string, messageId: string, options: { name: string; auto_archive_duration: 60 | 1440 | 4320 | 10080 }): Promise<import("@amanda/discordtypings").ThreadChannelData> {
-		return this.requestHandler.request(Endpoints.CHANNEL_PUBLIC_THREAD(channelId, messageId), "post", "json", options);
+	public async createThreadWithMessage(channelId: string, messageId: string, options: { name: string; auto_archive_duration: 60 | 1440 | 4320 | 10080; reason?: string; }): Promise<import("@amanda/discordtypings").ThreadChannelData> {
+		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_THREADS(channelId, messageId), "post", "json", options);
 	}
 
 	/**
-	 * Creates a private thread under a channel
+	 * Creates a thread under a channel without a message
 	 * @param channelId Id of the channel
 	 * @param options Thread meta data
 	 * @returns [thread channel](https://discord.com/developers/docs/resources/channel#channel-object) object
+	 *
+	 * | Permissions needed     | Condition                    |
+	 * |------------------------|------------------------------|
+	 * | VIEW_CHANNEL           | always                       |
+	 * | CREATE_PUBLIC_THREADS  | if creating a public thread  |
+	 * | CREATE_PRIVATE_THREADS | if creating a private thread |
 	 */
-	public async createPrivateThread(channelId: string, options: { name: string; auto_archive_duration: 60 | 1440 | 4320 | 10080 }): Promise<import("@amanda/discordtypings").ThreadChannelData> {
-		return this.requestHandler.request(Endpoints.CHANNEL_PRIVATE_THREAD(channelId), "post", "json", options);
+	public async createThreadWithoutMessage(channelId: string, options: { name: string; auto_archive_duration: 60 | 1440 | 4320 | 10080; type: 10 | 11 | 12; invitable?: boolean; reason?: string; }): Promise<import("@amanda/discordtypings").ThreadChannelData> {
+		return this.requestHandler.request(Endpoints.CHANNEL_THREADS(channelId), "post", "json", options);
 	}
 
 	/**
 	 * Join a thread
 	 * @param channelId Id of the channel
 	 * @returns Resolves the Promise on successful execution
+	 *
+	 * | Permissions needed | Condition |
+	 * |--------------------|-----------|
+	 * | VIEW_CHANNEL       | always    |
 	 */
 	public async joinThread(channelId: string): Promise<void> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREAD_MEMBER(channelId, "@me"), "put", "json");
@@ -561,9 +610,10 @@ class ChannelMethods {
 	 * @param userId Id of the user to add
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | SEND_MESSAGES      | always    |
+	 * | Permissions needed          | Condition |
+	 * |-----------------------------|-----------|
+	 * | CurrentUser added to Thread | always    |
+	 * | SEND_MESSAGES_IN_THREADS    | always    |
 	 */
 	public async addThreadMember(channelId: string, userId: string): Promise<void> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREAD_MEMBER(channelId, userId), "put", "json");
@@ -597,26 +647,13 @@ class ChannelMethods {
 	 * @param channelId Id of the Thread
 	 * @returns Array of [thread member objects](https://discord.com/developers/docs/resources/channel#thread-member-object)
 	 *
-	 * | Permissions needed                | Condition |
-	 * |-----------------------------------|-----------|
-	 * | GUILD_MEMBERS gateway intent      | always    |
+	 * | Permissions needed           | Condition |
+	 * |------------------------------|-----------|
+	 * | VIEW_CHANNEL                 | always    |
+	 * | GUILD_MEMBERS gateway intent | always    |
 	 */
 	public async getChannelThreadMembers(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadMemberData>> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREAD_MEMBERS(channelId), "get", "json");
-	}
-
-	/**
-	 * Gets all threads that are active within a GuildChannel (inclusive of public and private threads)
-	 * @param channelId Id of the Channel
-	 * @returns Array of [channel objects with message_count, member_count, thread_metadata and optional member fields](https://discord.com/developers/docs/resources/channel#channel-object)
-	 *
-	 * | Permissions needed                | Condition                                  |
-	 * |-----------------------------------|--------------------------------------------|
-	 * | CurrentUser added to Thread       | if CurrentUser doesn't have MANAGE_THREADS |
-	 * | MANAGE_THREADS                    | if CurrentUser isn't added to Thread       |
-	 */
-	public async getChannelActiveThreads(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadChannelData>> {
-		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ACTIVE(channelId), "get", "json");
 	}
 
 	/**
@@ -624,10 +661,11 @@ class ChannelMethods {
 	 * @param channelId Id of the Channel
 	 * @returns Array of [channel objects with message_count, member_count, thread_metadata and optional member fields](https://discord.com/developers/docs/resources/channel#channel-object)
 	 *
-	 * | Permissions needed                | Condition                                  |
-	 * |-----------------------------------|--------------------------------------------|
-	 * | CurrentUser added to Thread       | if CurrentUser doesn't have MANAGE_THREADS |
-	 * | MANAGE_THREADS                    | if CurrentUser isn't added to Thread       |
+	 * | Permissions needed          | Condition                                  |
+	 * |-----------------------------|--------------------------------------------|
+	 * | VIEW_CHANNEL                | always                                     |
+	 * | CurrentUser added to Thread | if CurrentUser doesn't have MANAGE_THREADS |
+	 * | MANAGE_THREADS              | if CurrentUser isn't added to Thread       |
 	 */
 	public async getChannelArchivedPrivateThreads(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadChannelData>> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE(channelId), "get", "json");
@@ -640,6 +678,7 @@ class ChannelMethods {
 	 *
 	 * | Permissions needed                | Condition                                  |
 	 * |-----------------------------------|--------------------------------------------|
+	 * | VIEW_CHANNEL                      | always                                     |
 	 * | CurrentUser added to Thread       | if CurrentUser doesn't have MANAGE_THREADS |
 	 * | MANAGE_THREADS                    | if CurrentUser isn't added to Thread       |
 	 */
@@ -652,10 +691,11 @@ class ChannelMethods {
 	 * @param channelId Id of the Channel
 	 * @returns Array of [channel objects with message_count, member_count, thread_metadata and optional member fields](https://discord.com/developers/docs/resources/channel#channel-object)
 	 *
-	 * | Permissions needed                | Condition                                  |
-	 * |-----------------------------------|--------------------------------------------|
-	 * | CurrentUser added to Thread       | if CurrentUser doesn't have MANAGE_THREADS |
-	 * | MANAGE_THREADS                    | if CurrentUser isn't added to Thread       |
+	 * | Permissions needed          | Condition                                  |
+	 * |-----------------------------|--------------------------------------------|
+	 * | VIEW_CHANNEL                | always                                     |
+	 * | CurrentUser added to Thread | if CurrentUser doesn't have MANAGE_THREADS |
+	 * | MANAGE_THREADS              | if CurrentUser isn't added to Thread       |
 	 */
 	public async getChannelArchivedPublicThreads(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadChannelData>> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PUBLIC(channelId), "get", "json");
@@ -719,6 +759,10 @@ interface EditChannelData {
 	 * Update if slowmode is enabled and how long slow mode should last
 	 */
 	rate_limit_per_user?: number;
+	/**
+	 * Reason for updating the channel
+	 */
+	reason?: string;
 }
 
 interface GetMessageOptions {
@@ -856,6 +900,10 @@ interface CreateInviteData {
 	 * does not try to re-use similar invites when true (useful for creating many one-time invites)
 	 */
 	unique?: boolean;
+	/**
+	 * Reason for creating the invite
+	 */
+	reason?: string;
 }
 
 export = ChannelMethods;

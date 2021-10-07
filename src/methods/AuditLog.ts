@@ -22,11 +22,11 @@ class AuditLogMethods {
 	 * Get the audit logs of the specified guild id
 	 * @param guildId id of a guild
 	 * @param data optional audit log filter values
-	 * @returns An object with audit log data
+	 * @returns An object with [audit log data](https://discord.com/developers/docs/resources/audit-log#audit-log-object)
 	 *
-	 * | Permissions needed |
-	 * |--------------------|
-	 * | VIEW_AUDIT_LOG     |
+	 * | Permissions needed | Condition |
+	 * |--------------------|-----------|
+	 * | VIEW_AUDIT_LOG     | always    |
 	 */
 	public async getAuditLog(guildId: string, data?: GetAuditLogOptions): Promise<import("@amanda/discordtypings").AuditLogObject> {
 		return this.requestHandler.request(Endpoints.GUILD_AUDIT_LOGS(guildId), "get", "json", data);

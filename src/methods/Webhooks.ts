@@ -23,7 +23,7 @@ class WebhookMethods {
 
 	/**
 	 * Create a new Webhook
-	 * @param channelId - Id of the channel
+	 * @param channelId Id of the channel
 	 * @param data Object with webhook properties
 	 * @returns [Webhook Object](https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
 	 *
@@ -45,7 +45,7 @@ class WebhookMethods {
 
 	/**
 	 * Get webhooks created within a channel
-	 * @param channelId - Id of the channel
+	 * @param channelId Id of the channel
 	 * @returns Array of [Webhook Objects](https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
 	 *
 	 * | Permissions needed | Condition |

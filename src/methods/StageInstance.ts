@@ -35,7 +35,7 @@ class StageInstanceMethods {
 
 	/**
 	 * Gets the stage instance assocuated to a stage channel if it exists
-	 * @param channelID Id of the stage channel
+	 * @param channelId Id of the stage channel
 	 * @returns a [stage instance](https://discord.com/developers/docs/resources/stage-instance#auto-closing-stage-instance-structure) object
 	 */
 	public async getStageInstance(channelId: string): Promise<import("@amanda/discordtypings").StageInstanceData> {
