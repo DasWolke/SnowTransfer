@@ -23,7 +23,7 @@ class GuildAssetsMethods {
 	 * @param guildId Id of the guild
 	 * @returns Array of [emoji objects](https://discord.com/developers/docs/resources/emoji#emoji-object)
 	 */
-	public async getEmojis(guildId: string): Promise<Array<import("@amanda/discordtypings").EmojiData>> {
+	public async getEmojis(guildId: string): Promise<Array<import("discord-typings").EmojiData>> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), "get", "json");
 	}
 
@@ -33,7 +33,7 @@ class GuildAssetsMethods {
 	 * @param emojiId Id of the emoji
 	 * @returns [Emoji object](https://discord.com/developers/docs/resources/emoji#emoji-object)
 	 */
-	public async getEmoji(guildId: string, emojiId: string): Promise<import("@amanda/discordtypings").EmojiData> {
+	public async getEmoji(guildId: string, emojiId: string): Promise<import("discord-typings").EmojiData> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), "get", "json");
 	}
 
@@ -57,7 +57,7 @@ class GuildAssetsMethods {
 	 * }
 	 * client.guildAssets.createEmoji('guild id', emojiData)
 	 */
-	public async createEmoji(guildId: string, data: CreateEmojiData): Promise<import("@amanda/discordtypings").EmojiData> {
+	public async createEmoji(guildId: string, data: CreateEmojiData): Promise<import("discord-typings").EmojiData> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), "post", "json", data);
 	}
 
@@ -80,7 +80,7 @@ class GuildAssetsMethods {
 	 * }
 	 * client.guildAssets.updateEmoji('guild id', 'emoji id', emojiData)
 	 */
-	public async updateEmoji(guildId: string, emojiId: string, data: { name?: string; roles?: Array<string> | null; reason?: string }): Promise<import("@amanda/discordtypings").EmojiData> {
+	public async updateEmoji(guildId: string, emojiId: string, data: { name?: string; roles?: Array<string> | null; reason?: string }): Promise<import("discord-typings").EmojiData> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), "patch", "json", data);
 	}
 
@@ -104,7 +104,7 @@ class GuildAssetsMethods {
 	 * @param stickerId Id of the sticker
 	 * @returns [Sticker object](https://discord.com/developers/docs/resources/sticker#sticker-object)
 	 */
-	public async getSticker(stickerId: string): Promise<import("@amanda/discordtypings").StickerData> {
+	public async getSticker(stickerId: string): Promise<import("discord-typings").StickerData> {
 		return this.requestHandler.request(Endpoints.STICKER(stickerId), "get", "json");
 	}
 
@@ -117,7 +117,7 @@ class GuildAssetsMethods {
 	 * |----------------------------|---------------------------------------------|
 	 * | MANAGE_EMOJIS_AND_STICKERS | if the CurrentUser desires the `user` field |
 	 */
-	public async getGuildStickers(guildId: string): Promise<Array<import("@amanda/discordtypings").StickerData>> {
+	public async getGuildStickers(guildId: string): Promise<Array<import("discord-typings").StickerData>> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), "get", "json");
 	}
 
@@ -131,7 +131,7 @@ class GuildAssetsMethods {
 	 * |----------------------------|---------------------------------------------|
 	 * | MANAGE_EMOJIS_AND_STICKERS | if the CurrentUser desires the `user` field |
 	 */
-	public async getGuildSticker(guildId: string, stickerId: string): Promise<import("@amanda/discordtypings").StickerData> {
+	public async getGuildSticker(guildId: string, stickerId: string): Promise<import("discord-typings").StickerData> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), "get", "json");
 	}
 
@@ -146,7 +146,7 @@ class GuildAssetsMethods {
 	 * | MANAGE_EMOJIS_AND_STICKERS  | always                                          |
 	 * | Guild VERIFIED or PARTNERED | If CurrentUser tries to create a LOTTIE sticker |
 	 */
-	public createGuildSticker(guildId: string, data: CreateStickerData): Promise<import("@amanda/discordtypings").StickerData> {
+	public createGuildSticker(guildId: string, data: CreateStickerData): Promise<import("discord-typings").StickerData> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), "post", "multipart", data);
 	}
 
@@ -161,7 +161,7 @@ class GuildAssetsMethods {
 	 * |----------------------------|-----------|
 	 * | MANAGE_EMOJIS_AND_STICKERS | always    |
 	 */
-	public updateGuildSticker(guildId: string, stickerId: string, data: { name?: string; description?: string | null; tags?: string; reason?: string; }): Promise<import("@amanda/discordtypings").StickerData> {
+	public updateGuildSticker(guildId: string, stickerId: string, data: { name?: string; description?: string | null; tags?: string; reason?: string; }): Promise<import("discord-typings").StickerData> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), "patch", "json", data);
 	}
 

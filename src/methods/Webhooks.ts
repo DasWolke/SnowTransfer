@@ -39,7 +39,7 @@ class WebhookMethods {
 	 * }
 	 * client.webhook.createWebhook('channel Id', webhookData);
 	 */
-	public async createWebhook(channelId: string, data: { name: string; avatar?: string; }): Promise<import("@amanda/discordtypings").WebhookData> {
+	public async createWebhook(channelId: string, data: { name: string; avatar?: string; }): Promise<import("discord-typings").WebhookData> {
 		return this.requestHandler.request(Endpoints.CHANNEL_WEBHOOKS(channelId), "post", "json", data);
 	}
 
@@ -57,7 +57,7 @@ class WebhookMethods {
 	 * let client = new SnowTransfer('TOKEN');
 	 * client.webhook.getWebhooksChannel('channel Id').then(console.log);
 	 */
-	public async getWebhooksChannel(channelId: string): Promise<Array<import("@amanda/discordtypings").WebhookData>> {
+	public async getWebhooksChannel(channelId: string): Promise<Array<import("discord-typings").WebhookData>> {
 		return this.requestHandler.request(Endpoints.CHANNEL_WEBHOOKS(channelId), "get", "json");
 	}
 
@@ -75,7 +75,7 @@ class WebhookMethods {
 	 * let client = new SnowTransfer('TOKEN');
 	 * client.webhook.getWebhooksGuild('guild Id').then(console.log);
 	 */
-	public async getWebhooksGuild(guildId: string): Promise<Array<import("@amanda/discordtypings").WebhookData>> {
+	public async getWebhooksGuild(guildId: string): Promise<Array<import("discord-typings").WebhookData>> {
 		return this.requestHandler.request(Endpoints.GUILD_WEBHOOKS(guildId), "get", "json");
 	}
 
@@ -94,7 +94,7 @@ class WebhookMethods {
 	 * let client = new SnowTransfer('TOKEN');
 	 * client.webhook.getWebhook('webhook Id', 'webhook token').then(console.log);
 	 */
-	public async getWebhook(webhookId: string, token?: string): Promise<import("@amanda/discordtypings").WebhookData> {
+	public async getWebhook(webhookId: string, token?: string): Promise<import("discord-typings").WebhookData> {
 		if (token) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), "get", "json");
 		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), "get", "json");
 	}
@@ -118,7 +118,7 @@ class WebhookMethods {
 	 * }
 	 * client.webhook.updateWebhook('webhook Id', 'webhook token', webhookData);
 	 */
-	public async updateWebhook(webhookId: string, token: string | undefined, data: { name?: string; avatar?: string; channel_id?: string; }): Promise<import("@amanda/discordtypings").WebhookData> {
+	public async updateWebhook(webhookId: string, token: string | undefined, data: { name?: string; avatar?: string; channel_id?: string; }): Promise<import("discord-typings").WebhookData> {
 		if (token) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), "patch", "json", data);
 		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), "patch", "json", data);
 	}
@@ -151,8 +151,8 @@ class WebhookMethods {
 	 * client.webhook.executeWebhook('webhook Id', 'webhook token', {content: 'Hi from my webhook'})
 	 */
 	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options?: { wait?: boolean; disableEveryone?: boolean }): Promise<void>;
-	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options: { wait: true; disableEveryone?: boolean }): Promise<import("@amanda/discordtypings").MessageData>;
-	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options: { wait?: boolean; disableEveryone?: boolean } = { wait: false, disableEveryone: this.disableEveryone }): Promise<void | import("@amanda/discordtypings").MessageData> {
+	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options: { wait: true; disableEveryone?: boolean }): Promise<import("discord-typings").MessageData>;
+	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options: { wait?: boolean; disableEveryone?: boolean } = { wait: false, disableEveryone: this.disableEveryone }): Promise<void | import("discord-typings").MessageData> {
 		if (typeof data !== "string" && !data?.content && !data?.embeds && !data?.files) {
 			throw new Error("Missing content or embeds or files");
 		}
@@ -205,7 +205,7 @@ class WebhookMethods {
 	 * @param messageId Id of the message
 	 * @returns [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
 	 */
-	public async getWebhookMessage(webhookId: string, token: string, messageId: string): Promise<import("@amanda/discordtypings").MessageData> {
+	public async getWebhookMessage(webhookId: string, token: string, messageId: string): Promise<import("discord-typings").MessageData> {
 		return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), "get", "json");
 	}
 
@@ -217,7 +217,7 @@ class WebhookMethods {
 	 * @param data Data to send
 	 * @returns [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
 	 */
-	public async editWebhookMessage(webhookId: string, token: string, messageId: string, data: WebhookEditMessageData): Promise<import("@amanda/discordtypings").MessageData> {
+	public async editWebhookMessage(webhookId: string, token: string, messageId: string, data: WebhookEditMessageData): Promise<import("discord-typings").MessageData> {
 		if (data.files) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), "patch", "multipart", data);
 		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), "patch", "json", data);
 	}
@@ -299,15 +299,15 @@ interface WebhookCreateMessageData {
 	/**
 	 * Array of [embed objects](https://discord.com/developers/docs/resources/channel#embed-object)
 	 */
-	embeds?: Array<import("@amanda/discordtypings").EmbedData>;
+	embeds?: Array<import("discord-typings").EmbedData>;
 	/**
 	 * [alowed mentions object](https://discord.com/developers/docs/resources/channel#allowed-mentions-object)
 	 */
-	allowed_mentions?: import("@amanda/discordtypings").AllowedMentionsData;
+	allowed_mentions?: import("discord-typings").AllowedMentionsData;
 	/**
 	 * [Buttons](https://discord.com/developers/docs/interactions/message-components#component-object) to add to the message
 	 */
-	components?: Array<import("@amanda/discordtypings").MessageComponentData>;
+	components?: Array<import("discord-typings").MessageComponentData>;
 }
 
 interface WebhookEditMessageData {
@@ -318,7 +318,7 @@ interface WebhookEditMessageData {
 	/**
 	 * Array of [embed objects](https://discord.com/developers/docs/resources/channel#embed-object)
 	 */
-	embeds?: Array<import("@amanda/discordtypings").EmbedData> | null;
+	embeds?: Array<import("discord-typings").EmbedData> | null;
 	/**
 	 * Files that should be updated
 	 */
@@ -335,12 +335,12 @@ interface WebhookEditMessageData {
 	/**
 	 * [alowed mentions object](https://discord.com/developers/docs/resources/channel#allowed-mentions-object)
 	 */
-	allowed_mentions?: import("@amanda/discordtypings").AllowedMentionsData | null;
-	attachments?: Array<import("@amanda/discordtypings").AttachmentData> | null;
+	allowed_mentions?: import("discord-typings").AllowedMentionsData | null;
+	attachments?: Array<import("discord-typings").AttachmentData> | null;
 	/**
 	 * [Buttons](https://discord.com/developers/docs/interactions/message-components#component-object) to add to the message
 	 */
-	components?: Array<import("@amanda/discordtypings").MessageComponentData>;
+	components?: Array<import("discord-typings").MessageComponentData>;
 }
 
 export = WebhookMethods;

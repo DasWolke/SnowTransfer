@@ -35,7 +35,7 @@ class ChannelMethods {
 	 * let client = new SnowTransfer('TOKEN')
 	 * let channel = await client.channel.getChannel('channel id')
 	 */
-	public async getChannel(channelId: string): Promise<import("@amanda/discordtypings").ChannelData> {
+	public async getChannel(channelId: string): Promise<import("discord-typings").ChannelData> {
 		return this.requestHandler.request(Endpoints.CHANNEL(channelId), "get", "json");
 	}
 
@@ -60,7 +60,7 @@ class ChannelMethods {
 	 * }
 	 * client.channel.updateChannel('channel id', updateData)
 	 */
-	public async updateChannel(channelId: string, data: EditChannelData): Promise<import("@amanda/discordtypings").ChannelData> {
+	public async updateChannel(channelId: string, data: EditChannelData): Promise<import("discord-typings").ChannelData> {
 		return this.requestHandler.request(Endpoints.CHANNEL(channelId), "patch", "json", data);
 	}
 
@@ -82,7 +82,7 @@ class ChannelMethods {
 	 * | MANAGE_CHANNELS    | When deleting a Guild Channel   |
 	 * | MANAGE_THREADS     | When channelId is a Thread's Id |
 	 */
-	public async deleteChannel(channelId: string, reason?: string): Promise<import("@amanda/discordtypings").ChannelData> {
+	public async deleteChannel(channelId: string, reason?: string): Promise<import("discord-typings").ChannelData> {
 		return this.requestHandler.request(Endpoints.CHANNEL(channelId), "delete", "json", reason ? { reason } : undefined);
 	}
 
@@ -104,7 +104,7 @@ class ChannelMethods {
 	 * }
 	 * let messages = await client.channel.getChannelMessages('channel id', options);
 	 */
-	public async getChannelMessages(channelId: string, options: GetMessageOptions = { limit: 50 }): Promise<Array<import("@amanda/discordtypings").MessageData>> {
+	public async getChannelMessages(channelId: string, options: GetMessageOptions = { limit: 50 }): Promise<Array<import("discord-typings").MessageData>> {
 		if (options.around) {
 			delete options.before;
 			delete options.after;
@@ -137,7 +137,7 @@ class ChannelMethods {
 	 * let client = new SnowTransfer('TOKEN')
 	 * let message = await client.channel.getChannelMessage('channel id', 'message id')
 	 */
-	public async getChannelMessage(channelId: string, messageId: string): Promise<import("@amanda/discordtypings").MessageData> {
+	public async getChannelMessage(channelId: string, messageId: string): Promise<import("discord-typings").MessageData> {
 		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "get", "json");
 	}
 
@@ -181,7 +181,7 @@ class ChannelMethods {
 	 * let fileData = fs.readFileSync('nice_picture.png') // You should probably use fs.readFile, since it's asynchronous, synchronous methods may lag your bot.
 	 * client.channel.createMessage('channel id', {content: 'This is a nice picture', files: [{name: 'Optional Filename.png', file: fileData}]})
 	 */
-	public async createMessage(channelId: string, data: string | CreateMessageData, options: { disableEveryone?: boolean } = { disableEveryone: this.disableEveryone }): Promise<import("@amanda/discordtypings").MessageData> {
+	public async createMessage(channelId: string, data: string | CreateMessageData, options: { disableEveryone?: boolean } = { disableEveryone: this.disableEveryone }): Promise<import("discord-typings").MessageData> {
 		if (typeof data !== "string" && !data.content && !data.embeds && !data.files) {
 			throw new Error("Missing content or embeds or files");
 		}
@@ -214,7 +214,7 @@ class ChannelMethods {
 	 * | SEND_MESSAGES_IN_THREADS | if the message was sent by the current user and is in a thread channel  |
 	 * | MANAGE_MESSAGES          | if the message wasn't sent by the current user                          |
 	 */
-	public async crosspostMessage(channelId: string, messageId: string): Promise<import("@amanda/discordtypings").MessageData> {
+	public async crosspostMessage(channelId: string, messageId: string): Promise<import("discord-typings").MessageData> {
 		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_CROSSPOST(channelId, messageId), "post", "json");
 	}
 
@@ -237,7 +237,7 @@ class ChannelMethods {
 	 * let message = await client.channel.createMessage('channel id', 'pong')
 	 * client.channel.editMessage('channel id', message.id, `pong ${Date.now() - time}ms`)
 	 */
-	public async editMessage(channelId: string, messageId: string, data: string | EditMessageData, options: { disableEveryone?: boolean } = { disableEveryone: this.disableEveryone }): Promise<import("@amanda/discordtypings").MessageData> {
+	public async editMessage(channelId: string, messageId: string, data: string | EditMessageData, options: { disableEveryone?: boolean } = { disableEveryone: this.disableEveryone }): Promise<import("discord-typings").MessageData> {
 		if (typeof data !== "string" && data.content === undefined && data.embeds === undefined && data.files === undefined) {
 			throw new Error("Missing content or embeds or files");
 		}
@@ -407,7 +407,7 @@ class ChannelMethods {
 	 * let client = new SnowTransfer('TOKEN');
 	 * let reactions = await client.channel.getReactions('channel Id', 'message Id', encodeURIComponent(':awooo:322522663304036352'));
 	 */
-	public async getReactions(channelId: string, messageId: string, emoji: string): Promise<Array<import("@amanda/discordtypings").UserData>> {
+	public async getReactions(channelId: string, messageId: string, emoji: string): Promise<Array<import("discord-typings").UserData>> {
 		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji), "get", "json");
 	}
 
@@ -441,7 +441,7 @@ class ChannelMethods {
 	 * | MANAGE_ROLES       | always                     |
 	 * | VIEW_CHANNEL       | always                     |
 	 */
-	public async editChannelPermission(channelId: string, permissionId: string, data: Partial<import("@amanda/discordtypings").PermissionOverwriteData> & { reason?: string }): Promise<void> {
+	public async editChannelPermission(channelId: string, permissionId: string, data: Partial<import("discord-typings").PermissionOverwriteData> & { reason?: string }): Promise<void> {
 		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), "put", "json", data);
 	}
 
@@ -473,7 +473,7 @@ class ChannelMethods {
 	 * | VIEW_CHANNEL       | always    |
 	 * | MANAGE_CHANNELS    | always    |
 	 */
-	public async getChannelInvites(channelId: string): Promise<Array<import("@amanda/discordtypings").InviteData>> {
+	public async getChannelInvites(channelId: string): Promise<Array<import("discord-typings").InviteData>> {
 		return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), "get", "json");
 	}
 
@@ -490,7 +490,7 @@ class ChannelMethods {
 	 * | VIEW_CHANNEL          | always    |
 	 * | CREATE_INSTANT_INVITE | always    |
 	 */
-	public async createChannelInvite(channelId: string, data: CreateInviteData = { max_age: 86400, max_uses: 0, temporary: false, unique: false }): Promise<import("@amanda/discordtypings").InviteData> {
+	public async createChannelInvite(channelId: string, data: CreateInviteData = { max_age: 86400, max_uses: 0, temporary: false, unique: false }): Promise<import("discord-typings").InviteData> {
 		return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), "post", "json", data);
 	}
 
@@ -521,7 +521,7 @@ class ChannelMethods {
 	 * | VIEW_CHANNEL         | if channel is not a DM channel |
 	 * | READ_MESSAGE_HISTORY | if channel is not a DM channel |
 	 */
-	public async getChannelPinnedMessages(channelId: string): Promise<Array<import("@amanda/discordtypings").MessageData>> {
+	public async getChannelPinnedMessages(channelId: string): Promise<Array<import("discord-typings").MessageData>> {
 		return this.requestHandler.request(Endpoints.CHANNEL_PINS(channelId), "get", "json");
 	}
 
@@ -571,7 +571,7 @@ class ChannelMethods {
 	 * | VIEW_CHANNEL          | always    |
 	 * | CREATE_PUBLIC_THREADS | always    |
 	 */
-	public async createThreadWithMessage(channelId: string, messageId: string, options: { name: string; auto_archive_duration: 60 | 1440 | 4320 | 10080; reason?: string; }): Promise<import("@amanda/discordtypings").ThreadChannelData> {
+	public async createThreadWithMessage(channelId: string, messageId: string, options: { name: string; auto_archive_duration: 60 | 1440 | 4320 | 10080; reason?: string; }): Promise<import("discord-typings").ThreadChannelData> {
 		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_THREADS(channelId, messageId), "post", "json", options);
 	}
 
@@ -587,7 +587,7 @@ class ChannelMethods {
 	 * | CREATE_PUBLIC_THREADS  | if creating a public thread  |
 	 * | CREATE_PRIVATE_THREADS | if creating a private thread |
 	 */
-	public async createThreadWithoutMessage(channelId: string, options: { name: string; auto_archive_duration: 60 | 1440 | 4320 | 10080; type: 10 | 11 | 12; invitable?: boolean; reason?: string; }): Promise<import("@amanda/discordtypings").ThreadChannelData> {
+	public async createThreadWithoutMessage(channelId: string, options: { name: string; auto_archive_duration: 60 | 1440 | 4320 | 10080; type: 10 | 11 | 12; invitable?: boolean; reason?: string; }): Promise<import("discord-typings").ThreadChannelData> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREADS(channelId), "post", "json", options);
 	}
 
@@ -652,7 +652,7 @@ class ChannelMethods {
 	 * | VIEW_CHANNEL                 | always    |
 	 * | GUILD_MEMBERS gateway intent | always    |
 	 */
-	public async getChannelThreadMembers(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadMemberData>> {
+	public async getChannelThreadMembers(channelId: string): Promise<Array<import("discord-typings").ThreadMemberData>> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREAD_MEMBERS(channelId), "get", "json");
 	}
 
@@ -667,7 +667,7 @@ class ChannelMethods {
 	 * | CurrentUser added to Thread | if CurrentUser doesn't have MANAGE_THREADS |
 	 * | MANAGE_THREADS              | if CurrentUser isn't added to Thread       |
 	 */
-	public async getChannelArchivedPrivateThreads(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadChannelData>> {
+	public async getChannelArchivedPrivateThreads(channelId: string): Promise<Array<import("discord-typings").ThreadChannelData>> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE(channelId), "get", "json");
 	}
 
@@ -682,7 +682,7 @@ class ChannelMethods {
 	 * | CurrentUser added to Thread       | if CurrentUser doesn't have MANAGE_THREADS |
 	 * | MANAGE_THREADS                    | if CurrentUser isn't added to Thread       |
 	 */
-	public async getChannelArchivedPrivateThreadsUser(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadChannelData>> {
+	public async getChannelArchivedPrivateThreadsUser(channelId: string): Promise<Array<import("discord-typings").ThreadChannelData>> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE_USER(channelId), "get", "json");
 	}
 
@@ -697,7 +697,7 @@ class ChannelMethods {
 	 * | CurrentUser added to Thread | if CurrentUser doesn't have MANAGE_THREADS |
 	 * | MANAGE_THREADS              | if CurrentUser isn't added to Thread       |
 	 */
-	public async getChannelArchivedPublicThreads(channelId: string): Promise<Array<import("@amanda/discordtypings").ThreadChannelData>> {
+	public async getChannelArchivedPublicThreads(channelId: string): Promise<Array<import("discord-typings").ThreadChannelData>> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PUBLIC(channelId), "get", "json");
 	}
 }
@@ -738,7 +738,7 @@ interface EditChannelData {
 	/**
 	 * Update the permission overwrites
 	 */
-	permission_overwrites?: Array<import("@amanda/discordtypings").PermissionOverwriteData>;
+	permission_overwrites?: Array<import("discord-typings").PermissionOverwriteData>;
 	/**
 	 * Id of the parent category of the channel
 	 */
@@ -788,7 +788,7 @@ interface CreateMessageData {
 	/**
 	 * Array of [Embeds](https://discord.com/developers/docs/resources/channel#embed-object) to send
 	 */
-	embeds?: Array<import("@amanda/discordtypings").EmbedData>;
+	embeds?: Array<import("discord-typings").EmbedData>;
 	/**
 	 * Content of the message
 	 */
@@ -835,7 +835,7 @@ interface CreateMessageData {
 	/**
 	 * [Buttons](https://discord.com/developers/docs/interactions/message-components#component-object) to add to the message
 	 */
-	components?: Array<import("@amanda/discordtypings").MessageComponentData>;
+	components?: Array<import("discord-typings").MessageComponentData>;
 }
 
 interface EditMessageData {
@@ -846,7 +846,7 @@ interface EditMessageData {
 	/**
 	 * Array of [Embeds](https://discord.com/developers/docs/resources/channel#embed-object) to send
 	 */
-	embeds?: Array<import("@amanda/discordtypings").EmbedData>;
+	embeds?: Array<import("discord-typings").EmbedData>;
 	/**
 	 * 1 << 2 to set a message SUPPRESS_EMBEDS
 	 */
@@ -876,11 +876,11 @@ interface EditMessageData {
 	/**
 	 * [Attached files](https://discord.com/developers/docs/resources/channel#attachment-object) to keep
 	 */
-	attachments?: Array<import("@amanda/discordtypings").AttachmentData>;
+	attachments?: Array<import("discord-typings").AttachmentData>;
 	/**
 	 * [Buttons](https://discord.com/developers/docs/interactions/message-components#component-object) to add to the message
 	 */
-	components?: Array<import("@amanda/discordtypings").MessageComponentData>;
+	components?: Array<import("discord-typings").MessageComponentData>;
 }
 
 interface CreateInviteData {

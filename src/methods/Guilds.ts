@@ -32,7 +32,7 @@ class GuildMethods {
 	 * }
 	 * client.guild.createGuild(guildData)
 	 */
-	public async createGuild(data: CreateGuildData): Promise<import("@amanda/discordtypings").GuildData> {
+	public async createGuild(data: CreateGuildData): Promise<import("discord-typings").GuildData> {
 		return this.requestHandler.request(Endpoints.GUILDS, "post", "json", data);
 	}
 
@@ -43,11 +43,11 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @returns [Guild object](https://discord.com/developers/docs/resources/guild#guild-object)
 	 */
-	public async getGuild(guildId: string, options?: { with_counts?: boolean }): Promise<import("@amanda/discordtypings").GuildData> {
+	public async getGuild(guildId: string, options?: { with_counts?: boolean }): Promise<import("discord-typings").GuildData> {
 		return this.requestHandler.request(Endpoints.GUILD(guildId), "get", "json", options);
 	}
 
-	public async getGuildPreview(guildId: string): Promise<import("@amanda/discordtypings").GuildPreviewData> {
+	public async getGuildPreview(guildId: string): Promise<import("discord-typings").GuildPreviewData> {
 		return this.requestHandler.request(Endpoints.GUILD_PREVIEW(guildId), "get", "json");
 	}
 
@@ -69,7 +69,7 @@ class GuildMethods {
 	 * }
 	 * client.guild.updateGuild('guild Id', guildData)
 	 */
-	public async updateGuild(guildId: string, data: UpdateGuildData): Promise<import("@amanda/discordtypings").GuildData> {
+	public async updateGuild(guildId: string, data: UpdateGuildData): Promise<import("discord-typings").GuildData> {
 		return this.requestHandler.request(Endpoints.GUILD(guildId), "patch", "json", data);
 	}
 
@@ -91,7 +91,7 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @returns list of [channels](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
 	 */
-	public async getGuildChannels(guildId: string): Promise<Array<import("@amanda/discordtypings").GuildChannelData>> {
+	public async getGuildChannels(guildId: string): Promise<Array<import("discord-typings").GuildChannelData>> {
 		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), "get", "json");
 	}
 
@@ -106,7 +106,7 @@ class GuildMethods {
 	 * | MANAGE_CHANNELS    | always                                        |
 	 * | ADMINISTRATOR      | setting MANAGE_ROLES in permission_overwrites |
 	 */
-	public async createGuildChannel(guildId: string, data: CreateGuildChannelData): Promise<import("@amanda/discordtypings").GuildChannelData> {
+	public async createGuildChannel(guildId: string, data: CreateGuildChannelData): Promise<import("discord-typings").GuildChannelData> {
 		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), "post", "json", data);
 	}
 
@@ -124,7 +124,7 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @returns All active threads and members the current user has access to.
 	 */
-	public async listActiveThreads(guildId: string): Promise<{ threads: Array<import("@amanda/discordtypings").ThreadChannelData>; members: Array<import("@amanda/discordtypings").ThreadMemberData>; }> {
+	public async listActiveThreads(guildId: string): Promise<{ threads: Array<import("discord-typings").ThreadChannelData>; members: Array<import("discord-typings").ThreadMemberData>; }> {
 		return this.requestHandler.request(Endpoints.GUILD_THREADS_ACTIVE(guildId), "get", "json");
 	}
 
@@ -134,7 +134,7 @@ class GuildMethods {
 	 * @param memberId Id of the guild member
 	 * @returns [guild member](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure)
 	 */
-	public async getGuildMember(guildId: string, memberId: string): Promise<import("@amanda/discordtypings").MemberData> {
+	public async getGuildMember(guildId: string, memberId: string): Promise<import("discord-typings").MemberData> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "get", "json");
 	}
 
@@ -144,7 +144,7 @@ class GuildMethods {
 	 * @param data query data
 	 * @returns list of [guild members](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure)
 	 */
-	public async getGuildMembers(guildId: string, data: GetGuildMembersData = {}): Promise<Array<import("@amanda/discordtypings").MemberData>> {
+	public async getGuildMembers(guildId: string, data: GetGuildMembersData = {}): Promise<Array<import("discord-typings").MemberData>> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBERS(guildId), "get", "json", data);
 	}
 
@@ -154,7 +154,7 @@ class GuildMethods {
 	 * @param options query data
 	 * @returns list of [guild members](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure)
 	 */
-	public async searchGuildMembers(guildId: string, options: { query?: string; limit?: number }): Promise<Array<import("@amanda/discordtypings").MemberData>> {
+	public async searchGuildMembers(guildId: string, options: { query?: string; limit?: number }): Promise<Array<import("discord-typings").MemberData>> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBERS_SEARCH(guildId), "get", "json", options);
 	}
 
@@ -187,7 +187,7 @@ class GuildMethods {
 	 * }
 	 * client.guild.addGuildMember('guildId', 'memberId', memberData)
 	 */
-	public async addGuildMember(guildId: string, memberId: string, data: AddGuildMemberData): Promise<import("@amanda/discordtypings").MemberData> {
+	public async addGuildMember(guildId: string, memberId: string, data: AddGuildMemberData): Promise<import("discord-typings").MemberData> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "put", "json", data);
 	}
 
@@ -360,7 +360,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_ROLES       | always    |
 	 */
-	public async getGuildRoles(guildId: string): Promise<Array<import("@amanda/discordtypings").RoleData>> {
+	public async getGuildRoles(guildId: string): Promise<Array<import("discord-typings").RoleData>> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), "get", "json");
 	}
 
@@ -383,7 +383,7 @@ class GuildMethods {
 	 * }
 	 * client.guild.createGuildRole('guild Id', roleData)
 	 */
-	public async createGuildRole(guildId: string, data?: RoleOptions): Promise<import("@amanda/discordtypings").RoleData> {
+	public async createGuildRole(guildId: string, data?: RoleOptions): Promise<import("discord-typings").RoleData> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), "post", "json", data);
 	}
 
@@ -397,7 +397,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_ROLES       | always    |
 	 */
-	public async updateGuildRolePositions(guildId: string, data: { id: string; position?: number | null; reason?: string; } | Array<{ id: string; position?: number | null; reason?: string; }>): Promise<Array<import("@amanda/discordtypings").RoleData>> {
+	public async updateGuildRolePositions(guildId: string, data: { id: string; position?: number | null; reason?: string; } | Array<{ id: string; position?: number | null; reason?: string; }>): Promise<Array<import("discord-typings").RoleData>> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), Array.isArray(data) ? "put" : "patch", "json", data);
 	}
 
@@ -412,7 +412,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_ROLES       | always    |
 	 */
-	public async updateGuildRole(guildId: string, roleId: string, data: RoleOptions): Promise<import("@amanda/discordtypings").RoleData> {
+	public async updateGuildRole(guildId: string, roleId: string, data: RoleOptions): Promise<import("discord-typings").RoleData> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLE(guildId, roleId), "patch", "json", data);
 	}
 
@@ -540,7 +540,7 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @returns [Guild Widget](https://discord.com/developers/docs/resources/guild#guild-widget-object)
 	 */
-	public async getGuildWidget(guildId: string): Promise<import("@amanda/discordtypings").GuildWidgetData> {
+	public async getGuildWidget(guildId: string): Promise<import("discord-typings").GuildWidgetData> {
 		return this.requestHandler.request(Endpoints.GUILD_WIDGET(guildId), "get", "json");
 	}
 
@@ -589,7 +589,7 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @returns [Guild Welcome Screen](https://discord.com/developers/docs/resources/guild#welcome-screen-object)
 	 */
-	public async getGuildWelcomeScreen(guildId: string): Promise<import("@amanda/discordtypings").WelcomeScreenData> {
+	public async getGuildWelcomeScreen(guildId: string): Promise<import("discord-typings").WelcomeScreenData> {
 		return this.requestHandler.request(Endpoints.GUILD_WELCOME_SCREEN(guildId), "get", "json");
 	}
 
@@ -603,7 +603,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_GUILD       | always    |
 	 */
-	public async editGuildWelcomeScreen(guildId: string, data: Partial<import("@amanda/discordtypings").WelcomeScreenData> & { enabled?: boolean }) {
+	public async editGuildWelcomeScreen(guildId: string, data: Partial<import("discord-typings").WelcomeScreenData> & { enabled?: boolean }) {
 		return this.requestHandler.request(Endpoints.GUILD_WELCOME_SCREEN(guildId), "patch", "json", data);
 	}
 
@@ -659,11 +659,11 @@ interface CreateGuildData {
 	/**
 	 * array of [channels](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
 	 */
-	channels?: Array<Partial<Exclude<import("@amanda/discordtypings").GuildChannelData, "id">>>;
+	channels?: Array<Partial<Exclude<import("discord-typings").GuildChannelData, "id">>>;
 	/**
 	 * array of [roles](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
 	 */
-	roles?: Array<Partial<Exclude<import("@amanda/discordtypings").RoleData, "id">>>;
+	roles?: Array<Partial<Exclude<import("discord-typings").RoleData, "id">>>;
 	afk_channel_id?: string;
 	/**
 	 * afk timeout in seconds
@@ -718,7 +718,7 @@ interface UpdateGuildData {
 	rules_channel_id?: string | null;
 	public_updates_channel_id?: string | null;
 	preferred_locale?: string | null;
-	features?: Array<import("@amanda/discordtypings").GuildFeature>;
+	features?: Array<import("discord-typings").GuildFeature>;
 	description?: string | null;
 }
 
