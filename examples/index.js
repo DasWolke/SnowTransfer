@@ -1,4 +1,4 @@
-const SnowTransfer = require("../src/SnowTransfer");
+const { SnowTransfer } = require("../");
 const config = require("./config.json");
 const client = new SnowTransfer(config.token);
 const request = async () => {
