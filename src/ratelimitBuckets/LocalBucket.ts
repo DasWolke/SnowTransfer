@@ -21,7 +21,7 @@ class LocalBucket {
 	 */
 	public reset: number;
 	/**
-	 * Timeout that calls the reset function once the timeframe passed
+	 * The Date time in which the bucket will reset
 	 */
 	public resetAt: number | null;
 	/**
