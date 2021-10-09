@@ -122,7 +122,6 @@ class RequestHandler extends EventEmitter {
 		return new Promise(async (res, rej) => {
 			this.ratelimiter.queue(async (bkt) => {
 				const reqID = crypto.randomBytes(20).toString("hex");
-				const latency = Date.now();
 				try {
 					this.emit("request", reqID, { endpoint, method, dataType, data });
 
@@ -144,15 +143,11 @@ class RequestHandler extends EventEmitter {
 						throw e;
 					}
 
-					if (request.headers["date"]) {
-						this.latency = Date.now() - latency;
-						const offsetDate = this._getOffsetDateFromHeader(request.headers["date"]);
-						const match = endpoint.match(/\/reactions\//);
-						this._applyRatelimitHeaders(bkt, request.headers, offsetDate, !!match);
-					}
-
 					if (request.statusCode && [429, 502].includes(request.statusCode)) {
-						if (request.statusCode === 429) this.emit("rateLimit", { timeout: bkt.reset, limit: bkt.limit, method: method, path: endpoint, route: this.ratelimiter.routify(endpoint, method) });
+						if (request.statusCode === 429) {
+							this._applyRatelimitHeaders(bkt, request.headers);
+							this.emit("rateLimit", { timeout: bkt.reset, limit: bkt.limit, method: method, path: endpoint, route: this.ratelimiter.routify(endpoint, method) });
+						}
 						return this.request(endpoint, method, dataType, data, amount++);
 					}
 
@@ -178,35 +173,14 @@ class RequestHandler extends EventEmitter {
 	}
 
 	/**
-	 * Calculate the time difference between the local server and discord
-	 * @param dateHeader Date header value returned by discord
-	 * @returns Offset in milliseconds
-	 */
-	private _getOffsetDateFromHeader(dateHeader: string): number {
-		const discordDate = Date.parse(dateHeader);
-		const offset = Date.now() - discordDate;
-		return Date.now() + offset;
-	}
-
-	/**
 	 * Apply the received ratelimit headers to the ratelimit bucket
 	 * @param bkt Ratelimit bucket to apply the headers to
 	 * @param headers Http headers received from discord
-	 * @param offsetDate Unix timestamp of the current date + offset to discord time
-	 * @param reactions Whether to use reaction ratelimits (1/250ms)
 	 */
-	private _applyRatelimitHeaders(bkt: import("./ratelimitBuckets/LocalBucket"), headers: any, offsetDate: number, reactions = false) {
+	private _applyRatelimitHeaders(bkt: import("./ratelimitBuckets/LocalBucket"), headers: any) {
 		if (headers["x-ratelimit-global"]) {
 			bkt.ratelimiter.global = true;
-			bkt.ratelimiter.globalResetAt = Date.now() + (parseFloat(headers["retry_after"]) * 1000);
-		}
-		if (headers["x-ratelimit-reset"]) {
-			const reset = (headers["x-ratelimit-reset"] * 1000) - offsetDate;
-			if (reactions) {
-				bkt.reset = Math.max(reset, 250);
-			} else {
-				bkt.reset = reset;
-			}
+			bkt.ratelimiter.globalResetAt = Date.now() + (parseFloat(headers["retry-after"]) * 1000);
 		}
 		if (headers["x-ratelimit-remaining"]) {
 			bkt.remaining = parseInt(headers["x-ratelimit-remaining"]);
@@ -216,6 +190,9 @@ class RequestHandler extends EventEmitter {
 		}
 		if (headers["x-ratelimit-limit"]) {
 			bkt.limit = parseInt(headers["x-ratelimit-limit"]);
+		}
+		if (headers["retry-after"] && !headers["x-ratelimit-global"]) { // The ms precision is not strictly necessary. It always rounds up, which is safe.
+			bkt.resetAt = Date.now() + (parseInt(headers["retry-after"]) * 1000); // retry-after is in seconds.
 		}
 	}
 
