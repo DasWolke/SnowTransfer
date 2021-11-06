@@ -138,7 +138,7 @@ class RequestHandler extends EventEmitter {
 
 					// 429 and 502 are recoverable and will be re-tried automatically with 3 attempts max.
 					if (request.statusCode && !Constants.OK_STATUS_CODES.includes(request.statusCode) && ![429, 502].includes(request.statusCode)) {
-						const e = new DiscordAPIError(endpoint, request.headers["content-type"] === "application/json" ? await request.json() : request.body, method, request.statusCode);
+						const e = new DiscordAPIError(endpoint, request.headers["content-type"]?.startsWith("application/json") ? await request.json() : request.body.toString(), method, request.statusCode);
 						e.stack = stack;
 						throw e;
 					}
