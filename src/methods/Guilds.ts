@@ -43,7 +43,7 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @returns [Guild object](https://discord.com/developers/docs/resources/guild#guild-object)
 	 */
-	public async getGuild(guildId: string, options?: { with_counts?: boolean }): Promise<import("discord-typings").GuildData> {
+	public async getGuild(guildId: string, options?: { with_counts?: boolean; }): Promise<import("discord-typings").GuildData> {
 		return this.requestHandler.request(Endpoints.GUILD(guildId), "get", "json", options);
 	}
 
@@ -154,7 +154,7 @@ class GuildMethods {
 	 * @param options query data
 	 * @returns list of [guild members](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure)
 	 */
-	public async searchGuildMembers(guildId: string, options: { query?: string; limit?: number }): Promise<Array<import("discord-typings").MemberData>> {
+	public async searchGuildMembers(guildId: string, options: { query?: string; limit?: number; }): Promise<Array<import("discord-typings").MemberData>> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBERS_SEARCH(guildId), "get", "json", options);
 	}
 
@@ -256,7 +256,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_ROLES       | always    |
 	 */
-	public async addGuildMemberRole(guildId: string, memberId: string, roleId: string, data?: { reason?: string }): Promise<void> {
+	public async addGuildMemberRole(guildId: string, memberId: string, roleId: string, data?: { reason?: string; }): Promise<void> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), "put", "json", data);
 	}
 
@@ -272,7 +272,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_ROLES       | always    |
 	 */
-	public async removeGuildMemberRole(guildId: string, memberId: string, roleId: string, data?: { reason?: string }): Promise<void> {
+	public async removeGuildMemberRole(guildId: string, memberId: string, roleId: string, data?: { reason?: string; }): Promise<void> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), "delete", "json", data);
 	}
 
@@ -295,7 +295,7 @@ class GuildMethods {
 	 * }
 	 * client.guild.removeGuildMember('guild Id', 'memberId', kickData)
 	 */
-	public async removeGuildMember(guildId: string, memberId: string, data?: { reason?: string }): Promise<void> {
+	public async removeGuildMember(guildId: string, memberId: string, data?: { reason?: string; }): Promise<void> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "delete", "json", data);
 	}
 
@@ -440,7 +440,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | KICK_MEMBERS       | always    |
 	 */
-	public async getGuildPruneCount(guildId: string, data: { days?: number; include_roles?: string; }): Promise<{ pruned: number }> {
+	public async getGuildPruneCount(guildId: string, data: { days?: number; include_roles?: string; }): Promise<{ pruned: number; }> {
 		return this.requestHandler.request(Endpoints.GUILD_PRUNE(guildId), "get", "json", data);
 	}
 
@@ -603,7 +603,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_GUILD       | always    |
 	 */
-	public async editGuildWelcomeScreen(guildId: string, data: Partial<import("discord-typings").WelcomeScreenData> & { enabled?: boolean }) {
+	public async editGuildWelcomeScreen(guildId: string, data: Partial<import("discord-typings").WelcomeScreenData> & { enabled?: boolean; }) {
 		return this.requestHandler.request(Endpoints.GUILD_WELCOME_SCREEN(guildId), "patch", "json", data);
 	}
 
@@ -632,7 +632,7 @@ class GuildMethods {
 	 * |--------------------|-------------------------------------|
 	 * | MUTE_MEMBERS       | when trying to suppress/un-suppress |
 	 */
-	public updateUserVoiceState(guildId: string, userId: string, data: { channel_id: string; suppress?: boolean }): Promise<void> {
+	public updateUserVoiceState(guildId: string, userId: string, data: { channel_id: string; suppress?: boolean; }): Promise<void> {
 		return this.requestHandler.request(Endpoints.GUILD_VOICE_STATE_USER(guildId, userId), "patch", "json", data);
 	}
 }

@@ -5,7 +5,7 @@ import LocalBucket from "./ratelimitBuckets/LocalBucket";
  * @protected
  */
 class Ratelimiter {
-	public buckets: { [routeKey: string]: LocalBucket };
+	public buckets: { [routeKey: string]: LocalBucket; };
 	public global: boolean;
 	public globalResetAt: number;
 

@@ -52,7 +52,7 @@ class DiscordAPIError extends Error {
 }
 
 interface HandlerEvents {
-	request: [string, { endpoint: string, method: HTTPMethod, dataType: "json" | "multipart", data: any }];
+	request: [string, { endpoint: string, method: HTTPMethod, dataType: "json" | "multipart", data: any; }];
 	done: [string, c.Response];
 	requestError: [string, Error];
 	rateLimit: [{ timeout: number; limit: number; method: HTTPMethod; path: string; route: string; }];
@@ -232,9 +232,11 @@ class RequestHandler extends EventEmitter {
 		if (amount >= 3) throw new Error("Max amount of rety attempts reached");
 		const form = new FormData();
 		if (data.files && Array.isArray(data.files) && data.files.every(f => !!f.name && !!f.file)) {
+			let index = 0;
 			for (const file of data.files) {
-				form.append(file.name, file.file, file.name);
+				form.append(`files[${index}]`, file.file, { filename: file.name });
 				delete file.file;
+				index++;
 			}
 		}
 		form.append("payload_json", JSON.stringify(data));

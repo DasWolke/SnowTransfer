@@ -181,7 +181,7 @@ class ChannelMethods {
 	 * let fileData = fs.readFileSync('nice_picture.png') // You should probably use fs.readFile, since it's asynchronous, synchronous methods may lag your bot.
 	 * client.channel.createMessage('channel id', {content: 'This is a nice picture', files: [{name: 'Optional Filename.png', file: fileData}]})
 	 */
-	public async createMessage(channelId: string, data: string | CreateMessageData, options: { disableEveryone?: boolean } = { disableEveryone: this.disableEveryone }): Promise<import("discord-typings").MessageData> {
+	public async createMessage(channelId: string, data: string | CreateMessageData, options: { disableEveryone?: boolean; } = { disableEveryone: this.disableEveryone }): Promise<import("discord-typings").MessageData> {
 		if (typeof data !== "string" && !data.content && !data.embeds && !data.files) {
 			throw new Error("Missing content or embeds or files");
 		}
@@ -194,11 +194,8 @@ class ChannelMethods {
 			data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
 		}
 
-		if (data.files) {
-			return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "post", "multipart", data);
-		} else {
-			return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "post", "json", data);
-		}
+		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "post", "multipart", data);
+		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "post", "json", data);
 	}
 
 	/**
@@ -237,7 +234,7 @@ class ChannelMethods {
 	 * let message = await client.channel.createMessage('channel id', 'pong')
 	 * client.channel.editMessage('channel id', message.id, `pong ${Date.now() - time}ms`)
 	 */
-	public async editMessage(channelId: string, messageId: string, data: string | EditMessageData, options: { disableEveryone?: boolean } = { disableEveryone: this.disableEveryone }): Promise<import("discord-typings").MessageData> {
+	public async editMessage(channelId: string, messageId: string, data: string | EditMessageData, options: { disableEveryone?: boolean; } = { disableEveryone: this.disableEveryone }): Promise<import("discord-typings").MessageData> {
 		if (typeof data !== "string" && data.content === undefined && data.embeds === undefined && data.files === undefined) {
 			throw new Error("Missing content or embeds or files");
 		}
@@ -250,11 +247,8 @@ class ChannelMethods {
 			data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
 		}
 
-		if (data.files) {
-			return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "multipart", data);
-		} else {
-			return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "json", data);
-		}
+		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "multipart", data);
+		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "json", data);
 	}
 
 	/**
@@ -441,7 +435,7 @@ class ChannelMethods {
 	 * | MANAGE_ROLES       | always                     |
 	 * | VIEW_CHANNEL       | always                     |
 	 */
-	public async editChannelPermission(channelId: string, permissionId: string, data: Partial<import("discord-typings").PermissionOverwriteData> & { reason?: string }): Promise<void> {
+	public async editChannelPermission(channelId: string, permissionId: string, data: Partial<import("discord-typings").PermissionOverwriteData> & { reason?: string; }): Promise<void> {
 		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), "put", "json", data);
 	}
 
@@ -836,6 +830,8 @@ interface CreateMessageData {
 	 * [Buttons](https://discord.com/developers/docs/interactions/message-components#component-object) to add to the message
 	 */
 	components?: Array<import("discord-typings").MessageComponentData>;
+	sticker_ids?: Array<string>;
+	attachments?: Array<Exclude<import("discord-typings").AttachmentData, "ephemeral" | "proxy_url" | "url" | "size">>;
 }
 
 interface EditMessageData {
@@ -874,9 +870,9 @@ interface EditMessageData {
 		replied_user?: boolean;
 	};
 	/**
-	 * [Attached files](https://discord.com/developers/docs/resources/channel#attachment-object) to keep
+	 * [Attached files](https://discord.com/developers/docs/resources/channel#attachment-object) to remove or edit descriptions for
 	 */
-	attachments?: Array<import("discord-typings").AttachmentData>;
+	attachments?: Array<Exclude<import("discord-typings").AttachmentData, "ephemeral" | "proxy_url" | "url" | "size">>;
 	/**
 	 * [Buttons](https://discord.com/developers/docs/interactions/message-components#component-object) to add to the message
 	 */

@@ -39,7 +39,7 @@ class SnowTransfer {
 	 * @param token Discord Bot token to use
 	 * @param options options
 	 */
-	public constructor(token: string, options?: { baseHost?: string; disableEveryone?: boolean }) {
+	public constructor(token: string, options?: { baseHost?: string; disableEveryone?: boolean; }) {
 		if (!token || token === "") {
 			throw new Error("Missing token");
 		}
