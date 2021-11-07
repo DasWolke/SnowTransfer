@@ -7,7 +7,7 @@ class LocalBucket {
 	/**
 	 * array of functions waiting to be executed
 	 */
-	public fnQueue: Array<{ fn: (...args: Array<any>) => any; callback: () => any }>;
+	public fnQueue: Array<{ fn: (...args: Array<any>) => any; callback: () => any; }>;
 	/**
 	 * Number of functions that may be executed during the timeframe set in limitReset
 	 */

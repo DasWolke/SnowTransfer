@@ -80,7 +80,7 @@ class GuildAssetsMethods {
 	 * }
 	 * client.guildAssets.updateEmoji('guild id', 'emoji id', emojiData)
 	 */
-	public async updateEmoji(guildId: string, emojiId: string, data: { name?: string; roles?: Array<string> | null; reason?: string }): Promise<import("discord-typings").EmojiData> {
+	public async updateEmoji(guildId: string, emojiId: string, data: { name?: string; roles?: Array<string> | null; reason?: string; }): Promise<import("discord-typings").EmojiData> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), "patch", "json", data);
 	}
 

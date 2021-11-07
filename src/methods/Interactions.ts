@@ -198,9 +198,9 @@ class InteractionMethods {
 	 * @param data Message data
 	 * @returns A [message](https://discord.com/developers/docs/resources/channel#message-object) object
 	 */
-	public createFollowupMessage(appId: string, token: string, data: Parameters<WebhookMethods["executeWebhook"]>[2] & { flags?: number }): Promise<import("discord-typings").MessageData> {
-		// @ts-ignore
-		return this.webhooks.executeWebhook(appId, token, data);
+	public createFollowupMessage(appId: string, token: string, data: Parameters<WebhookMethods["executeWebhook"]>[2] & { flags?: number; }): Promise<import("discord-typings").MessageData> {
+		// wait is always true for interactions
+		return this.webhooks.executeWebhook(appId, token, data) as unknown as Promise<import("discord-typings").MessageData>;
 	}
 
 	/**
