@@ -7,8 +7,8 @@ script:
 - npm run build:docs
 deploy:
 - provider: pages
-  skip_cleanup: true
-  github_token: $github_token
+  cleanup: false
+  token: $GITHUB_TOKEN
   local_dir: SnowTransfer
   on:
     branch: dev
