@@ -341,22 +341,22 @@ class GuildMethods {
 	 * 
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
-	 * @param data object with a reason and a communication-disabled-until property
+	 * @param data object with a reason and a communication_disabled_until property
 	 * @returns Resolves the Promise on successful execution
 	 * | Permissions deeded | Condition |
 	 * |--------------------|-----------|
-	 * | TIMEOUT_MEMBERS    | always    |
+	 * | MODERATE_MEMBERS   | always    |
 	 * 
 	 * @example
 	 * // Timeout a user with a reason and disable their communication for 1 week
 	 * let client = new SnowTransfer('TOKEN')
 	 * let timeoutData = {
-	 *  reason: 'They were bad',
-	 * 	"communication_disabled_until": new Date(Date.now() + 604800000).toISOString()
+	 *  reason: 'Bad words',
+	 * 	"communication_disabled_until": new Date(Date.now() + 604800000).toISOString() 
 	 * }
 	 * client.guild.createGuildTimeout('guild Id', 'memberId', timeoutData)
 	 */
-	 public async createGuildTimeout(guildId: string, memberId: string, data: { reason?: string, communication_disabled_until: string}): Promise<void>{
+	 public async createGuildTimeout(guildId: string, memberId: string, data: { reason?: string, communication_disabled_until?: string}): Promise<void>{
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), 'patch', 'json', data);
 	}
 
