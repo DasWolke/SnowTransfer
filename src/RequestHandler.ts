@@ -211,7 +211,7 @@ class RequestHandler extends EventEmitter {
 			headers["X-Audit-Log-Reason"] = encodeURIComponent(data.reason);
 			delete data.reason;
 		}
-		const req = c(this.apiURL, method).path(endpoint).header(this.options.headers);
+		const req = c(this.apiURL, method).path(endpoint).header({ ...this.options.headers, ...headers });
 		if (useParams) {
 			return req.query(data).send();
 		} else {
