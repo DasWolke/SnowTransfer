@@ -221,8 +221,8 @@ class WebhookMethods {
 		let threadID: string | undefined = undefined;
 		if (data.thread_id) threadID = data.thread_id;
 		delete data.thread_id;
-		if (data.files) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId) + threadID ? `?thread_id=${threadID}` : "", "patch", "multipart", data);
-		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId) + threadID ? `?thread_id=${threadID}` : "", "patch", "json", data);
+		if (data.files) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId) + (threadID ? `?thread_id=${threadID}` : ""), "patch", "multipart", data);
+		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId) + (threadID ? `?thread_id=${threadID}` : ""), "patch", "json", data);
 	}
 
 	/**
