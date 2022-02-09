@@ -356,8 +356,8 @@ class GuildMethods {
 	 * }
 	 * client.guild.createGuildTimeout('guild Id', 'memberId', timeoutData)
 	 */
-	 public async createGuildTimeout(guildId: string, memberId: string, data: { reason?: string, communication_disabled_until?: string}): Promise<void>{
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), 'patch', 'json', data);
+	public async createGuildTimeout(guildId: string, memberId: string, data: { reason?: string, communication_disabled_until?: string}): Promise<void>{
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "patch", "json", data);
 	}
 
 	/**
