@@ -1,4 +1,5 @@
 import Endpoints from "../Endpoints";
+import Constants from "../Constants";
 
 /**
  * Methods for interacting with Guild Scheduled Events
@@ -27,22 +28,22 @@ class GuildScheduledEventMethods {
 	}
 
 	public async getGuildScheduledEvent(guildId: string, eventId: string, options: { with_user_count?: boolean; } = { with_user_count: false }): Promise<import("discord-typings").GuildScheduleEventData> {
-		return this.requestHandler.request(Endpoints.SCHEDULE_EVENT(guildId, eventId) + (options?.with_user_count ? "?with_user_count=true" : ""), "get", "json");
+		return this.requestHandler.request(Endpoints.SCHEDULED_EVENT(guildId, eventId) + (options?.with_user_count ? "?with_user_count=true" : ""), "get", "json");
 	}
 
 	public async editGuildScheduledEvent(guildId: string, eventId: string, data: EditGuildScheduleEvent): Promise<import("discord-typings").GuildScheduleEventData> {
-		return this.requestHandler.request(Endpoints.SCHEDULE_EVENT(guildId, eventId), "patch", "json", data);
+		return this.requestHandler.request(Endpoints.SCHEDULED_EVENT(guildId, eventId), "patch", "json", data);
 	}
 
 	public async deleteGuildScheduledEvent(guildId: string, eventId: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.SCHEDULE_EVENT(guildId, eventId), "delete", "json");
+		return this.requestHandler.request(Endpoints.SCHEDULED_EVENT(guildId, eventId), "delete", "json");
 	}
 
 	public async getGuildScheduledEventUsers(guildId: string, eventId: string, options: GetGuildScheduledEventUsers = { limit: 50 }): Promise<Array<GuildScheduledEventUsersData>> {
 		if (options.limit && options.limit > Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MAX_RESULTS) {
 			throw new Error(`The maximum amount of users that may be requested is ${Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MAX_RESULTS}`);
 		}
-		const qs: string = Object.keys(params).map(key => `${key}=${params[key]}`).join("&");
+		const qs: string = Object.keys(options).map(key => `${key}=${options[key]}`).join("&");
 		return this.requestHandler.request(Endpoints.SCHEDULE_EVENT_USERS(guildId, eventId) + (qs ? `?${qs}` : ""), "get", "json");
 	}
 }
