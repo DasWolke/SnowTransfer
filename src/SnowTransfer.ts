@@ -5,6 +5,7 @@ import UserMethods from "./methods/Users";
 import GuildAssetsMethods from "./methods/GuildAssets";
 import WebhookMethods from "./methods/Webhooks";
 import GuildMethods from "./methods/Guilds";
+import GuildScheduledEventMethods from "./methods/GuildScheduledEvent";
 import GuildTemplateMethods from "./methods/GuildTemplate";
 import InteractionMethods from "./methods/Interactions";
 import InviteMethods from "./methods/Invites";
@@ -59,6 +60,7 @@ class SnowTransfer {
 		this.guildAssets = new GuildAssetsMethods(this.requestHandler);
 		this.webhook = new WebhookMethods(this.requestHandler, this.options.disableEveryone);
 		this.guild = new GuildMethods(this.requestHandler);
+		this.guildscheduledevent = new GuildScheduledEventMethods(this.requestHandler);
 		this.guildTemplate = new GuildTemplateMethods(this.requestHandler);
 		this.interaction = new InteractionMethods(this.requestHandler, this.webhook);
 		this.invite = new InviteMethods(this.requestHandler);
