@@ -29,7 +29,7 @@ class StageInstanceMethods {
 	 * | MUTE_MEMBERS       | always    |
 	 * | MOVE_MEMBERS       | always    |
 	 */
-	public async createStageInstance(data: { channel_id: string; topic: string; }): Promise<import("discord-typings").StageInstanceData> {
+	public async createStageInstance(data: { channel_id: string; topic: string; }): Promise<import("discord-typings").StageInstance> {
 		return this.requestHandler.request(Endpoints.STAGE_INSTANCES, "post", "json", data);
 	}
 
@@ -38,7 +38,7 @@ class StageInstanceMethods {
 	 * @param channelId Id of the stage channel
 	 * @returns a [stage instance](https://discord.com/developers/docs/resources/stage-instance#auto-closing-stage-instance-structure) object
 	 */
-	public async getStageInstance(channelId: string): Promise<import("discord-typings").StageInstanceData> {
+	public async getStageInstance(channelId: string): Promise<import("discord-typings").StageInstance> {
 		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), "get", "json");
 	}
 
@@ -54,7 +54,7 @@ class StageInstanceMethods {
 	 * | MUTE_MEMBERS       | always    |
 	 * | MOVE_MEMBERS       | always    |
 	 */
-	public async editStageInstance(channelId: string, data: { topic: string}): Promise<import("discord-typings").StageInstanceData> {
+	public async editStageInstance(channelId: string, data: { topic: string}): Promise<import("discord-typings").StageInstance> {
 		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), "patch", "json", data);
 	}
 
@@ -69,7 +69,7 @@ class StageInstanceMethods {
 	 * | MUTE_MEMBERS       | always    |
 	 * | MOVE_MEMBERS       | always    |
 	 */
-	public async deleteStageInstance(channelId: string): Promise<import("discord-typings").StageInstanceData> {
+	public async deleteStageInstance(channelId: string): Promise<import("discord-typings").StageInstance> {
 		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), "delete", "json");
 	}
 }

@@ -26,13 +26,13 @@ class GuildMethods {
 	 *
 	 * @example
 	 * // Creates a simple guild with the name "Demo Guild"
-	 * let client = new SnowTransfer('TOKEN')
-	 * let guildData = {
-	 *   name: 'Demo Guild'
+	 * const client = new SnowTransfer('TOKEN')
+	 * const guildData = {
+	 * 	name: 'Demo Guild'
 	 * }
 	 * client.guild.createGuild(guildData)
 	 */
-	public async createGuild(data: CreateGuildData): Promise<import("discord-typings").GuildData> {
+	public async createGuild(data: CreateGuildData): Promise<import("discord-typings").Guild> {
 		return this.requestHandler.request(Endpoints.GUILDS, "post", "json", data);
 	}
 
@@ -43,11 +43,11 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @returns [Guild object](https://discord.com/developers/docs/resources/guild#guild-object)
 	 */
-	public async getGuild(guildId: string, options?: { with_counts?: boolean; }): Promise<import("discord-typings").GuildData> {
+	public async getGuild(guildId: string, options?: { with_counts?: boolean; }): Promise<import("discord-typings").Guild> {
 		return this.requestHandler.request(Endpoints.GUILD(guildId), "get", "json", options);
 	}
 
-	public async getGuildPreview(guildId: string): Promise<import("discord-typings").GuildPreviewData> {
+	public async getGuildPreview(guildId: string): Promise<import("discord-typings").GuildPreview> {
 		return this.requestHandler.request(Endpoints.GUILD_PREVIEW(guildId), "get", "json");
 	}
 
@@ -63,13 +63,13 @@ class GuildMethods {
 	 *
 	 * @example
 	 * // Update the name of a guild to "Nice Guild"
-	 * let client = new SnowTransfer('TOKEN')
-	 * let guildData = {
-	 *   name: 'Nice Guild'
+	 * const client = new SnowTransfer('TOKEN')
+	 * const guildData = {
+	 * 	name: 'Nice Guild'
 	 * }
 	 * client.guild.updateGuild('guild Id', guildData)
 	 */
-	public async updateGuild(guildId: string, data: UpdateGuildData): Promise<import("discord-typings").GuildData> {
+	public async updateGuild(guildId: string, data: UpdateGuildData): Promise<import("discord-typings").Guild> {
 		return this.requestHandler.request(Endpoints.GUILD(guildId), "patch", "json", data);
 	}
 
@@ -91,7 +91,7 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @returns list of [channels](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
 	 */
-	public async getGuildChannels(guildId: string): Promise<Array<import("discord-typings").GuildChannelData>> {
+	public async getGuildChannels(guildId: string): Promise<Array<import("discord-typings").GuildChannel>> {
 		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), "get", "json");
 	}
 
@@ -106,7 +106,7 @@ class GuildMethods {
 	 * | MANAGE_CHANNELS    | always                                        |
 	 * | ADMINISTRATOR      | setting MANAGE_ROLES in permission_overwrites |
 	 */
-	public async createGuildChannel(guildId: string, data: CreateGuildChannelData): Promise<import("discord-typings").GuildChannelData> {
+	public async createGuildChannel(guildId: string, data: CreateGuildChannelData): Promise<import("discord-typings").GuildChannel> {
 		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), "post", "json", data);
 	}
 
@@ -124,7 +124,7 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @returns All active threads and members the current user has access to.
 	 */
-	public async listActiveThreads(guildId: string): Promise<{ threads: Array<import("discord-typings").ThreadChannelData>; members: Array<import("discord-typings").ThreadMemberData>; }> {
+	public async listActiveThreads(guildId: string): Promise<{ threads: Array<import("discord-typings").NewsThread | import("discord-typings").PublicThread | import("discord-typings").PrivateThread>; members: Array<import("discord-typings").ThreadMember>; }> {
 		return this.requestHandler.request(Endpoints.GUILD_THREADS_ACTIVE(guildId), "get", "json");
 	}
 
@@ -134,7 +134,7 @@ class GuildMethods {
 	 * @param memberId Id of the guild member
 	 * @returns [guild member](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure)
 	 */
-	public async getGuildMember(guildId: string, memberId: string): Promise<import("discord-typings").MemberData> {
+	public async getGuildMember(guildId: string, memberId: string): Promise<import("discord-typings").Member> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "get", "json");
 	}
 
@@ -144,7 +144,7 @@ class GuildMethods {
 	 * @param data query data
 	 * @returns list of [guild members](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure)
 	 */
-	public async getGuildMembers(guildId: string, data: GetGuildMembersData = {}): Promise<Array<import("discord-typings").MemberData>> {
+	public async getGuildMembers(guildId: string, data: GetGuildMembersData = {}): Promise<Array<import("discord-typings").Member>> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBERS(guildId), "get", "json", data);
 	}
 
@@ -154,7 +154,7 @@ class GuildMethods {
 	 * @param options query data
 	 * @returns list of [guild members](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure)
 	 */
-	public async searchGuildMembers(guildId: string, options: { query?: string; limit?: number; }): Promise<Array<import("discord-typings").MemberData>> {
+	public async searchGuildMembers(guildId: string, options: { query?: string; limit?: number; }): Promise<Array<import("discord-typings").Member>> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBERS_SEARCH(guildId), "get", "json", options);
 	}
 
@@ -181,13 +181,13 @@ class GuildMethods {
 	 *
 	 * @example
 	 * // add a user to a server
-	 * let client = new SnowTransfer('TOKEN')
-	 * let memberData = {
-	 *   access_token: 'access token of a user with the guilds.join scope'
+	 * const client = new SnowTransfer('TOKEN')
+	 * const memberData = {
+	 * 	access_token: 'access token of a user with the guilds.join scope'
 	 * }
 	 * client.guild.addGuildMember('guildId', 'memberId', memberData)
 	 */
-	public async addGuildMember(guildId: string, memberId: string, data: AddGuildMemberData): Promise<import("discord-typings").MemberData> {
+	public async addGuildMember(guildId: string, memberId: string, data: AddGuildMemberData): Promise<import("discord-typings").Member> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "put", "json", data);
 	}
 
@@ -212,9 +212,9 @@ class GuildMethods {
 	 *
 	 * @example
 	 * // Reset the nickname of a guild member
-	 * let client = new SnowTransfer('TOKEN')
-	 * let memberData = {
-	 *   nick: "" // You can reset nicknames by providing an empty string as the value of data.nick
+	 * const client = new SnowTransfer('TOKEN')
+	 * const memberData = {
+	 * 	nick: "" // You can reset nicknames by providing an empty string as the value of data.nick
 	 * }
 	 * client.guild.updateGuildMember('guild Id', 'memberId', memberData)
 	 */
@@ -234,14 +234,14 @@ class GuildMethods {
 	 *
 	 * @example
 	 * // change nick of bot to "Nice Nick"
-	 * let client = new SnowTransfer('TOKEN')
-	 * let nickData = {
-	 *   nick: 'Nice Nick'
+	 * const client = new SnowTransfer('TOKEN')
+	 * const nickData = {
+	 * 	nick: 'Nice Nick'
 	 * }
 	 * client.guild.updateSelf('guildId', nickData)
 	 */
 	public async updateSelf(guildId: string, data: { nick: string; }): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER_NICK(guildId, "@me"), "patch", "json", data);
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, "@me"), "patch", "json", data);
 	}
 
 	/**
@@ -289,9 +289,9 @@ class GuildMethods {
 	 *
 	 * @example
 	 * // Kick a member with a reason of "spam"
-	 * let client = new SnowTransfer('TOKEN')
-	 * let kickData = {
-	 *   reason: 'spam'
+	 * const client = new SnowTransfer('TOKEN')
+	 * const kickData = {
+	 * 	reason: 'spam'
 	 * }
 	 * client.guild.removeGuildMember('guild Id', 'memberId', kickData)
 	 */
@@ -325,10 +325,10 @@ class GuildMethods {
 	 *
 	 * @example
 	 * // Ban a user with a reason and delete the last 2 days of their messages
-	 * let client = new SnowTransfer('TOKEN')
-	 * let banData = {
-	 *   reason: 'Memes were not good enough',
-	 *   "delete_message_days":2
+	 * const client = new SnowTransfer('TOKEN')
+	 * const banData = {
+	 * 	reason: 'Memes were not good enough',
+	 * 	delete_message_days":2
 	 * }
 	 * client.guild.createGuildBan('guild Id', 'memberId', banData)
 	 */
@@ -336,9 +336,9 @@ class GuildMethods {
 		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), "put", "json", data);
 	}
 
-	
+
 	/**
-	 * 
+	 *
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param data object with a reason and a communication_disabled_until property
@@ -346,13 +346,13 @@ class GuildMethods {
 	 * | Permissions deeded | Condition |
 	 * |--------------------|-----------|
 	 * | MODERATE_MEMBERS   | always    |
-	 * 
+	 *
 	 * @example
 	 * // Timeout a user with a reason and disable their communication for 1 week
-	 * let client = new SnowTransfer('TOKEN')
-	 * let timeoutData = {
-	 *  reason: 'Bad words',
-	 * 	"communication_disabled_until": new Date(Date.now() + 604800000).toISOString() 
+	 * const client = new SnowTransfer('TOKEN')
+	 * const timeoutData = {
+	 *	reason: 'Bad words',
+	 * 	"communication_disabled_until": new Date(Date.now() + 604800000).toISOString()
 	 * }
 	 * client.guild.createGuildTimeout('guild Id', 'memberId', timeoutData)
 	 */
@@ -384,7 +384,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_ROLES       | always    |
 	 */
-	public async getGuildRoles(guildId: string): Promise<Array<import("discord-typings").RoleData>> {
+	public async getGuildRoles(guildId: string): Promise<Array<import("discord-typings").Role>> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), "get", "json");
 	}
 
@@ -400,14 +400,14 @@ class GuildMethods {
 	 *
 	 * @example
 	 * // Create a role with the name "Nice Role" and a color of a soft blue
-	 * let client = new SnowTransfer('TOKEN')
-	 * let roleData = {
-	 *   name: 'Nice Role',
-	 *   color: 0x7c7cf8
+	 * const client = new SnowTransfer('TOKEN')
+	 * const roleData = {
+	 * 	name: 'Nice Role',
+	 * 	color: 0x7c7cf8
 	 * }
 	 * client.guild.createGuildRole('guild Id', roleData)
 	 */
-	public async createGuildRole(guildId: string, data?: RoleOptions): Promise<import("discord-typings").RoleData> {
+	public async createGuildRole(guildId: string, data?: RoleOptions): Promise<import("discord-typings").Role> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), "post", "json", data);
 	}
 
@@ -421,7 +421,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_ROLES       | always    |
 	 */
-	public async updateGuildRolePositions(guildId: string, data: { id: string; position?: number | null; reason?: string; } | Array<{ id: string; position?: number | null; reason?: string; }>): Promise<Array<import("discord-typings").RoleData>> {
+	public async updateGuildRolePositions(guildId: string, data: { id: string; position?: number | null; reason?: string; } | Array<{ id: string; position?: number | null; reason?: string; }>): Promise<Array<import("discord-typings").Role>> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), Array.isArray(data) ? "put" : "patch", "json", data);
 	}
 
@@ -436,7 +436,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_ROLES       | always    |
 	 */
-	public async updateGuildRole(guildId: string, roleId: string, data: RoleOptions): Promise<import("discord-typings").RoleData> {
+	public async updateGuildRole(guildId: string, roleId: string, data: RoleOptions): Promise<import("discord-typings").Role> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLE(guildId, roleId), "patch", "json", data);
 	}
 
@@ -564,7 +564,7 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @returns [Guild Widget](https://discord.com/developers/docs/resources/guild#guild-widget-object)
 	 */
-	public async getGuildWidget(guildId: string): Promise<import("discord-typings").GuildWidgetData> {
+	public async getGuildWidget(guildId: string): Promise<import("discord-typings").GuildWidget> {
 		return this.requestHandler.request(Endpoints.GUILD_WIDGET(guildId), "get", "json");
 	}
 
@@ -613,7 +613,7 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @returns [Guild Welcome Screen](https://discord.com/developers/docs/resources/guild#welcome-screen-object)
 	 */
-	public async getGuildWelcomeScreen(guildId: string): Promise<import("discord-typings").WelcomeScreenData> {
+	public async getGuildWelcomeScreen(guildId: string): Promise<import("discord-typings").WelcomeScreen> {
 		return this.requestHandler.request(Endpoints.GUILD_WELCOME_SCREEN(guildId), "get", "json");
 	}
 
@@ -627,7 +627,7 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | MANAGE_GUILD       | always    |
 	 */
-	public async editGuildWelcomeScreen(guildId: string, data: Partial<import("discord-typings").WelcomeScreenData> & { enabled?: boolean; }) {
+	public async editGuildWelcomeScreen(guildId: string, data: Partial<import("discord-typings").WelcomeScreen> & { enabled?: boolean; }) {
 		return this.requestHandler.request(Endpoints.GUILD_WELCOME_SCREEN(guildId), "patch", "json", data);
 	}
 
@@ -683,11 +683,11 @@ interface CreateGuildData {
 	/**
 	 * array of [channels](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
 	 */
-	channels?: Array<Partial<Exclude<import("discord-typings").GuildChannelData, "id">>>;
+	channels?: Array<Partial<Exclude<import("discord-typings").GuildChannel, "id">>>;
 	/**
 	 * array of [roles](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
 	 */
-	roles?: Array<Partial<Exclude<import("discord-typings").RoleData, "id">>>;
+	roles?: Array<Partial<Exclude<import("discord-typings").Role, "id">>>;
 	afk_channel_id?: string;
 	/**
 	 * afk timeout in seconds
@@ -754,7 +754,7 @@ interface CreateGuildChannelData {
 	/**
 	 * [type](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) of the channel
 	 */
-	type?: number;
+	type?: import("discord-typings").ChannelType;
 	topic?: string;
 	/**
 	 * bitrate of the channel (voice only)

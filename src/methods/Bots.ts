@@ -23,11 +23,11 @@ class BotMethods {
 	 * @returns [Gateway data](https://discord.com/developers/docs/topics/gateway#get-gateway-example-response)
 	 *
 	 * @example
-	 * let client = new SnowTransfer('TOKEN');
-	 * let result = await client.bot.getGateway();
-	 * // result should be something like {"url": "wss://gateway.discord.gg"}
+	 * const client = new SnowTransfer('TOKEN');
+	 * const result = await client.bot.getGateway();
+	 * // result should be something like { url: "wss://gateway.discord.gg" }
 	 */
-	public getGateway(): Promise<GatewayData> {
+	public getGateway(): Promise<{ url: string; }> {
 		return this.requestHandler.request(Endpoints.GATEWAY, "get", "json");
 	}
 
@@ -36,18 +36,13 @@ class BotMethods {
 	 * @returns [Gateway data](https://discord.com/developers/docs/topics/gateway#get-gateway-example-response)
 	 *
 	 * @example
-	 * let client = new SnowTransfer('TOKEN');
-	 * let result = await client.bot.getGateway();
-	 * // result should be something like {"url": "wss://gateway.discord.gg", "shards": 1}
+	 * const client = new SnowTransfer('TOKEN');
+	 * const result = await client.bot.getGateway();
+	 * // result should be something like { url: "wss://gateway.discord.gg", shards: 1, session_start_limit: { total: 1000, remaining: 999, reset_after: 14400000, max_concurrency: 1 } }
 	 */
-	public getGatewayBot(): Promise<GatewayData> {
+	public getGatewayBot(): Promise<{ url: string; shards: number; session_start_limit: import("discord-typings").SessionStartLimit; }> {
 		return this.requestHandler.request(Endpoints.GATEWAY_BOT, "get", "json");
 	}
-}
-
-interface GatewayData {
-	url: string;
-	shards?: number;
 }
 
 export = BotMethods;
