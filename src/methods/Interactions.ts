@@ -47,7 +47,7 @@ class InteractionMethods {
 	 * @param data The command data
 	 * @returns An [application command](https://discord.com/developers/docs/interactions/slash-commands#application-command-object) object
 	 */
-	public createApplicationCommand(appId: string, data: CommandData & { type?: import("discord-typings").ApplicationCommandType; }): Promise<import("discord-typings").ApplicationCommand> {
+	public createApplicationCommand(appId: string, data: import("discord-typings").ApplicationCommandBase): Promise<import("discord-typings").FetchedApplicationCommand> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appId), "post", "json", data);
 	}
 
@@ -58,7 +58,7 @@ class InteractionMethods {
 	 * @param data The command data
 	 * @returns An [application command](https://discord.com/developers/docs/interactions/slash-commands#application-command-object) object
 	 */
-	public editApplicationCommand(appId: string, cmdId: string, data: Partial<CommandData>): Promise<import("discord-typings").ApplicationCommand> {
+	public editApplicationCommand(appId: string, cmdId: string, data: Partial<import("discord-typings").ApplicationCommandBase>): Promise<import("discord-typings").FetchedApplicationCommand> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMAND(appId, cmdId), "patch", "json", data);
 	}
 
@@ -69,7 +69,7 @@ class InteractionMethods {
 	 * @param data Array of commands
 	 * @returns An Array of [application command](https://discord.com/developers/docs/interactions/slash-commands#application-command-object) objects
 	 */
-	public bulkOverwriteApplicationCommands(appId, data: Array<CommandData & { type?: import("discord-typings").ApplicationCommandType; }>): Promise<Array<import("discord-typings").ApplicationCommand>> {
+	public bulkOverwriteApplicationCommands(appId, data: Array<import("discord-typings").ApplicationCommandBase>): Promise<Array<import("discord-typings").FetchedApplicationCommand>> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appId), "put", "json", data);
 	}
 
@@ -89,7 +89,7 @@ class InteractionMethods {
 	 * @param guildId The Id of the guild
 	 * @returns An Array of [application command](https://discord.com/developers/docs/interactions/slash-commands#application-command-object) objects
 	 */
-	public getGuildApplicationCommands(appId: string, guildId: string): Promise<Array<import("discord-typings").ApplicationCommand>> {
+	public getGuildApplicationCommands(appId: string, guildId: string): Promise<Array<import("discord-typings").FetchedApplicationCommand>> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId), "get", "json");
 	}
 
@@ -100,7 +100,7 @@ class InteractionMethods {
 	 * @param cmdId The Id of the command
 	 * @returns An [application command](https://discord.com/developers/docs/interactions/slash-commands#application-command-object) object
 	 */
-	public getGuildApplicationCommand(appId: string, guildId: string, cmdId: string): Promise<import("discord-typings").ApplicationCommand> {
+	public getGuildApplicationCommand(appId: string, guildId: string, cmdId: string): Promise<import("discord-typings").FetchedApplicationCommand> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND(appId, guildId, cmdId), "get", "json");
 	}
 
@@ -111,7 +111,7 @@ class InteractionMethods {
 	 * @param data Command data
 	 * @returns An [application command](https://discord.com/developers/docs/interactions/slash-commands#application-command-object) object
 	 */
-	public createGuildApplicationCommand(appId: string, guildId: string, data: CommandData & { type?: import("discord-typings").ApplicationCommandType; }): Promise<import("discord-typings").ApplicationCommand> {
+	public createGuildApplicationCommand(appId: string, guildId: string, data: import("discord-typings").ApplicationCommandBase): Promise<import("discord-typings").FetchedApplicationCommand> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId), "post", "json", data);
 	}
 
@@ -123,7 +123,7 @@ class InteractionMethods {
 	 * @param data New command data
 	 * @returns An [application command](https://discord.com/developers/docs/interactions/slash-commands#application-command-object) object
 	 */
-	public editGuildApplicationCommand(appId: string, guildId: string, cmdId: string, data: Partial<CommandData>): Promise<import("discord-typings").ApplicationCommand> {
+	public editGuildApplicationCommand(appId: string, guildId: string, cmdId: string, data: Partial<import("discord-typings").ApplicationCommandBase>): Promise<import("discord-typings").FetchedApplicationCommand> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND(appId, guildId, cmdId), "patch", "json", data);
 	}
 
@@ -134,7 +134,7 @@ class InteractionMethods {
 	 * @param data Array of commands
 	 * @returns An Array of [application command](https://discord.com/developers/docs/interactions/slash-commands#application-command-object) objects
 	 */
-	public bulkOverwriteGuildApplicationCommand(appId: string, guildId: string, data: Array<CommandData & { type?: import("discord-typings").ApplicationCommandType; }>): Promise<Array<import("discord-typings").ApplicationCommand>> {
+	public bulkOverwriteGuildApplicationCommand(appId: string, guildId: string, data: Array<import("discord-typings").ApplicationCommandBase>): Promise<Array<import("discord-typings").FetchedApplicationCommand>> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId), "put", "json", data);
 	}
 
@@ -267,9 +267,7 @@ class InteractionMethods {
 	 * @returns A [guild application command permission](https://discord.com/developers/docs/interactions/slash-commands#application-command-permissions-object-guild-application-command-permissions-structure) object
 	 */
 	public editGuildApplicationCommandPermissions(appId: string, guildId: string, cmdId: string, permissions: Array<Exclude<import("discord-typings").ApplicationCommandPermissions, "id">>): Promise<import("discord-typings").GuildApplicationCommandPermission> {
-		const payload = {
-			permissions: permissions
-		};
+		const payload = { permissions: permissions };
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND_PERMISSIONS(appId, guildId, cmdId), "put", "json", payload);
 	}
 
@@ -287,10 +285,3 @@ class InteractionMethods {
 }
 
 export = InteractionMethods;
-
-interface CommandData {
-	name: string;
-	description: string;
-	options?: Array<import("discord-typings").ApplicationCommandOption>;
-	default_permission?: boolean;
-}

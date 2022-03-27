@@ -15,7 +15,7 @@ import AuditLogMethods from "./methods/AuditLog";
 import StageInstanceMethods from "./methods/StageInstance";
 import Endpoints from "./Endpoints";
 
-const { version } = require("../package.json");
+const { version } = require("../package.json") as { version: string; };
 
 class SnowTransfer {
 	public options: { baseHost: string; disableEveryone: boolean; sentryOptions: { extra: { snowtransferVersion: string; }; }; useRedis: boolean; };
@@ -42,20 +42,13 @@ class SnowTransfer {
 	 * @param options options
 	 */
 	public constructor(token: string, options?: { baseHost?: string; disableEveryone?: boolean; }) {
-		if (!token || token === "") {
-			throw new Error("Missing token");
-		}
-		if (!token.startsWith("Bot")) {
-			token = `Bot ${token}`;
-		}
+		if (!token || token === "") throw new Error("Missing token");
+		if (!token.startsWith("Bot")) token = `Bot ${token}`;
 		this.options = { baseHost: Endpoints.BASE_HOST, disableEveryone: false, sentryOptions: { extra: { snowtransferVersion: version } }, useRedis: false };
 		this.token = token;
 		Object.assign(this.options, options);
 		this.ratelimiter = new Ratelimiter();
-		this.requestHandler = new RequestHandler(this.ratelimiter, {
-			token: this.token,
-			baseHost: this.options.baseHost || Endpoints.BASE_HOST
-		});
+		this.requestHandler = new RequestHandler(this.ratelimiter, { token: this.token, baseHost: this.options.baseHost || Endpoints.BASE_HOST });
 		this.channel = new ChannelMethods(this.requestHandler, this.options.disableEveryone);
 		this.user = new UserMethods(this.requestHandler);
 		this.guildAssets = new GuildAssetsMethods(this.requestHandler);

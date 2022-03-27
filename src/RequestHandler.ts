@@ -36,15 +36,10 @@ class DiscordAPIError extends Error {
 			if (k === "message") continue;
 			const newKey = key ? (isNaN(Number(k)) ? `${key}.${k}` : `${key}[${k}]`) : k;
 
-			if (v._errors) {
-				messages.push(`${newKey}: ${v._errors.map(e => e.message).join(" ")}`);
-			} else if (v.code || v.message) {
-				messages.push(`${v.code ? `${v.code}: ` : ""}${v.message}`.trim());
-			} else if (typeof v === "string") {
-				messages.push(v);
-			} else {
-				messages = messages.concat(this.flattenErrors(v, newKey));
-			}
+			if (v._errors) messages.push(`${newKey}: ${v._errors.map(e => e.message).join(" ")}`);
+			else if (v.code || v.message) messages.push(`${v.code ? `${v.code}: ` : ""}${v.message}`.trim());
+			else if (typeof v === "string") messages.push(v);
+			else messages = messages.concat(this.flattenErrors(v, newKey));
 		}
 
 		return messages;
@@ -98,7 +93,7 @@ class RequestHandler extends EventEmitter {
 			baseURL: Endpoints.BASE_URL,
 			headers: {
 				Authorization: options.token,
-				"User-Agent": `DiscordBot (https://github.com/DasWolke/SnowTransfer, ${version})`
+				"User-Agent": `Discordbot (https://github.com/DasWolke/SnowTransfer, ${version}) Node.js/${process.version}`
 			}
 		};
 		Object.assign(this.options, options);
@@ -126,11 +121,9 @@ class RequestHandler extends EventEmitter {
 					this.emit("request", reqID, { endpoint, method, dataType, data });
 
 					let request: import("centra").Response;
-					if (dataType == "json") {
-						request = await this._request(endpoint, method, data, (method === "get" || endpoint.includes("/bans") || endpoint.includes("/prune")), amount);
-					} else if (dataType == "multipart") {
-						request = await this._multiPartRequest(endpoint, method, data, amount);
-					} else {
+					if (dataType == "json") request = await this._request(endpoint, method, data, (method === "get" || endpoint.includes("/bans") || endpoint.includes("/prune")), amount);
+					else if (dataType == "multipart") request = await this._multiPartRequest(endpoint, method, data, amount);
+					else {
 						const e = new Error("Forbidden dataType. Use json or multipart");
 						e.stack = stack;
 						throw e;
@@ -160,9 +153,7 @@ class RequestHandler extends EventEmitter {
 							res(undefined);
 						}
 						return res(b);
-					} else {
-						return res(undefined);
-					}
+					} else return res(undefined);
 				} catch (error) {
 					if (error && error.stack) error.stack = stack;
 					this.emit("requestError", reqID, error);
@@ -185,15 +176,9 @@ class RequestHandler extends EventEmitter {
 		if (headers["x-ratelimit-remaining"]) {
 			bkt.remaining = parseInt(headers["x-ratelimit-remaining"]);
 			if (bkt.remaining === 0) bkt.resetAt = Date.now() + bkt.reset;
-		} else {
-			bkt.remaining = 1;
-		}
-		if (headers["x-ratelimit-limit"]) {
-			bkt.limit = parseInt(headers["x-ratelimit-limit"]);
-		}
-		if (headers["retry-after"] && !headers["x-ratelimit-global"]) { // The ms precision is not strictly necessary. It always rounds up, which is safe.
-			bkt.resetAt = Date.now() + (parseInt(headers["retry-after"]) * 1000); // retry-after is in seconds.
-		}
+		} else bkt.remaining = 1;
+		if (headers["x-ratelimit-limit"]) bkt.limit = parseInt(headers["x-ratelimit-limit"]);
+		if (headers["retry-after"] && !headers["x-ratelimit-global"]) bkt.resetAt = Date.now() + (parseInt(headers["retry-after"]) * 1000); // The ms precision is not strictly necessary. It always rounds up, which is safe.
 	}
 
 	/**
@@ -212,9 +197,8 @@ class RequestHandler extends EventEmitter {
 			delete data.reason;
 		}
 		const req = c(this.apiURL, method).path(endpoint).header({ ...this.options.headers, ...headers });
-		if (useParams) {
-			return req.query(data).send();
-		} else {
+		if (useParams) return req.query(data).send();
+		else {
 			if (data && typeof data === "object") req.body(data, "json");
 			else if (data) req.body(data);
 			return req.send();

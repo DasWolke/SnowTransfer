@@ -39,9 +39,7 @@ class Ratelimiter {
 			}
 		};
 		this._timeoutDuration = 1000;
-		this._timeout = setInterval(() => {
-			limiter._timeoutFN();
-		}, limiter._timeoutDuration);
+		this._timeout = setInterval(() => { limiter._timeoutFN(); }, limiter._timeoutDuration);
 	}
 
 	/**
@@ -55,9 +53,7 @@ class Ratelimiter {
 		let route = url.replace(/\/([a-z-]+)\/(?:\d+)/g, function (match, p) {
 			return p === "channels" || p === "guilds" || p === "webhooks" ? match : `/${p}/:id`;
 		}).replace(/\/reactions\/[^/]+/g, "/reactions/:id").replace(/^\/webhooks\/(\d+)\/[A-Za-z0-9-_]{64,}/, "/webhooks/$1/:token");
-		if (method.toUpperCase() === "DELETE" && route.endsWith("/messages/:id")) { // Delete Messsage endpoint has its own ratelimit
-			route = method + route;
-		}
+		if (method.toUpperCase() === "DELETE" && route.endsWith("/messages/:id")) route = method + route; // Delete Messsage endpoint has its own ratelimit
 		return route;
 	}
 
@@ -69,9 +65,7 @@ class Ratelimiter {
 	 */
 	public queue(fn: (bucket: import("./ratelimitBuckets/LocalBucket")) => any, url: string, method: string) {
 		const routeKey = this.routify(url, method);
-		if (!this.buckets[routeKey]) {
-			this.buckets[routeKey] = new LocalBucket(this);
-		}
+		if (!this.buckets[routeKey]) this.buckets[routeKey] = new LocalBucket(this);
 		this.buckets[routeKey].queue(fn);
 	}
 }

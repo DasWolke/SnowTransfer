@@ -63,14 +63,10 @@ class LocalBucket {
 	public queue(fn: (bucket: LocalBucket) => any | Promise<any>): Promise<any> {
 		return new Promise((res, rej) => {
 			const wrapFn = () => {
-				if (fn instanceof Promise) {
-					return fn(this).then(res).catch(rej);
-				}
+				if (fn instanceof Promise) return fn.then(res).catch(rej);
 				return res(fn(this));
 			};
-			this.fnQueue.push({
-				fn, callback: wrapFn
-			});
+			this.fnQueue.push({ fn, callback: wrapFn });
 			this.checkQueue();
 		});
 	}
@@ -79,9 +75,7 @@ class LocalBucket {
 	 * Check if there are any functions in the queue that haven't been executed yet
 	 */
 	public checkQueue() {
-		if (this.reset < 0) {
-			this.reset = 100;
-		}
+		if (this.reset < 0) this.reset = 100;
 		if (this.ratelimiter.global && this.ratelimiter.globalResetAt > Date.now()) return;
 		if (this.fnQueue.length > 0 && this.remaining !== 0) {
 			const queuedFunc = this.fnQueue.splice(0, 1)[0];

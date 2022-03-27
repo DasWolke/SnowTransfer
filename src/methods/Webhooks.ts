@@ -153,17 +153,11 @@ class WebhookMethods {
 	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options?: { wait?: false; disableEveryone?: boolean; thread_id?: string; }): Promise<void>;
 	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options: { wait: true; disableEveryone?: boolean; thread_id?: string; }): Promise<import("discord-typings").Message>;
 	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options: { wait?: boolean; disableEveryone?: boolean; thread_id?: string; } = { wait: false, disableEveryone: this.disableEveryone }): Promise<void | import("discord-typings").Message> {
-		if (typeof data !== "string" && !data?.content && !data?.embeds && !data?.files) {
-			throw new Error("Missing content or embeds or files");
-		}
-		if (typeof data === "string") {
-			data = { content: data };
-		}
+		if (typeof data !== "string" && !data?.content && !data?.embeds && !data?.files) throw new Error("Missing content or embeds or files");
+		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message
-		if (data.content && (options?.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) {
-			data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
-		}
+		if (data.content && (options?.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
 
 		if (data.files) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token) + (options?.wait ? "?wait=true" : "") + (options?.thread_id ? `${options?.wait ? "&" : "?"}thread_id=${options.thread_id}` : ""), "post", "multipart", data);
 		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token) + (options?.wait ? "?wait=true" : "") + (options?.thread_id ? `${options?.wait ? "&" : "?"}thread_id=${options.thread_id}` : ""), "post", "json", data);
@@ -179,9 +173,7 @@ class WebhookMethods {
 	 */
 	public async executeWebhookSlack(webhookId: string, token: string, data: any, options: { wait?: boolean; disableEveryone?: boolean; thread_id?: string; } = { wait: false, disableEveryone: this.disableEveryone }): Promise<void> {
 		// Sanitize the message
-		if (data.text && (options?.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) {
-			data.text = data.text.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
-		}
+		if (data.text && (options?.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.text = data.text.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
 
 		return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_SLACK(webhookId, token) + (options?.wait ? "?wait=true" : "") + (options?.thread_id ? `${options?.wait ? "&" : "?"}thread_id=${options.thread_id}` : ""), "post", "json", data);
 	}
@@ -238,11 +230,8 @@ class WebhookMethods {
 }
 
 function replaceEveryone(match: string, target: string) {
-	if (target.match(/^[&!]?\d+$/)) {
-		return `@${target}`;
-	} else {
-		return `@\u200b${target}`;
-	}
+	if (target.match(/^[&!]?\d+$/)) return `@${target}`;
+	else return `@\u200b${target}`;
 }
 
 /**

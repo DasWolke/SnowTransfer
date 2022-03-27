@@ -115,9 +115,7 @@ class ChannelMethods {
 			delete options.before;
 			delete options.around;
 		}
-		if (options.limit && options.limit > Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS) {
-			throw new Error(`The maximum amount of messages that may be requested is ${Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS}`);
-		}
+		if (options.limit && options.limit > Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS) throw new Error(`The maximum amount of messages that may be requested is ${Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS}`);
 		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "get", "json", options);
 	}
 
@@ -182,17 +180,11 @@ class ChannelMethods {
 	 * client.channel.createMessage('channel id', { content: 'This is a nice picture', files: [{ name: 'Optional_Filename.png', file: fileData }] })
 	 */
 	public async createMessage(channelId: string, data: string | CreateMessageData, options: { disableEveryone?: boolean; } = { disableEveryone: this.disableEveryone }): Promise<import("discord-typings").Message> {
-		if (typeof data !== "string" && !data.content && !data.embeds && !data.files) {
-			throw new Error("Missing content or embeds or files");
-		}
-		if (typeof data === "string") {
-			data = { content: data };
-		}
+		if (typeof data !== "string" && !data.content && !data.embeds && !data.files) throw new Error("Missing content or embeds or files");
+		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message
-		if (data.content && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) {
-			data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
-		}
+		if (data.content && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
 
 		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "post", "multipart", data);
 		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "post", "json", data);
@@ -235,17 +227,11 @@ class ChannelMethods {
 	 * client.channel.editMessage('channel id', message.id, `pong ${Date.now() - time}ms`)
 	 */
 	public async editMessage(channelId: string, messageId: string, data: string | EditMessageData, options: { disableEveryone?: boolean; } = { disableEveryone: this.disableEveryone }): Promise<import("discord-typings").Message> {
-		if (typeof data !== "string" && data.content === undefined && data.embeds === undefined && data.files === undefined) {
-			throw new Error("Missing content or embeds or files");
-		}
-		if (typeof data === "string") {
-			data = { content: data };
-		}
+		if (typeof data !== "string" && data.content === undefined && data.embeds === undefined && data.files === undefined) throw new Error("Missing content or embeds or files");
+		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message
-		if (data.content && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) {
-			data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
-		}
+		if (data.content && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
 
 		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "multipart", data);
 		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "json", data);
@@ -285,15 +271,11 @@ class ChannelMethods {
 	 * | MANAGE_MESSAGES    | always    |
 	 */
 	public async bulkDeleteMessages(channelId: string, messages: Array<string>, reason?: string): Promise<void> {
-		if (messages.length < Constants.BULK_DELETE_MESSAGES_MIN || messages.length > Constants.BULK_DELETE_MESSAGES_MAX) {
-			throw new Error(`Amount of messages to be deleted has to be between ${Constants.BULK_DELETE_MESSAGES_MIN} and ${Constants.BULK_DELETE_MESSAGES_MAX}`);
-		}
+		if (messages.length < Constants.BULK_DELETE_MESSAGES_MIN || messages.length > Constants.BULK_DELETE_MESSAGES_MAX) throw new Error(`Amount of messages to be deleted has to be between ${Constants.BULK_DELETE_MESSAGES_MIN} and ${Constants.BULK_DELETE_MESSAGES_MAX}`);
 		// (Current date - (discord epoch + 2 weeks)) * (2**22) weird constant that everybody seems to use
 		const oldestSnowflake = BigInt(Date.now() - 1421280000000) * (BigInt(2) ** BigInt(22));
 		const forbiddenMessage = messages.find(m => BigInt(m) < oldestSnowflake);
-		if (forbiddenMessage) {
-			throw new Error(`The message ${forbiddenMessage} is older than 2 weeks and may not be deleted using the bulk delete endpoint`);
-		}
+		if (forbiddenMessage) throw new Error(`The message ${forbiddenMessage} is older than 2 weeks and may not be deleted using the bulk delete endpoint`);
 		const data = { messages };
 		if (reason) Object.assign(data, { reason });
 		return this.requestHandler.request(Endpoints.CHANNEL_BULK_DELETE(channelId), "post", "json", data);
@@ -697,11 +679,8 @@ class ChannelMethods {
 }
 
 function replaceEveryone(match: string, target: string) {
-	if (target.match(/^[&!]?\d+$/)) {
-		return `@${target}`;
-	} else {
-		return `@\u200b${target}`;
-	}
+	if (target.match(/^[&!]?\d+$/)) return `@${target}`;
+	else return `@\u200b${target}`;
 }
 
 interface EditChannelData {
