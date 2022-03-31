@@ -74,7 +74,7 @@ interface RequestHandler {
  */
 class RequestHandler extends EventEmitter {
 	public ratelimiter: import("./Ratelimiter");
-	public options: { baseHost: string; baseURL: string; headers: { Authorization: string; "User-Agent": string; } };
+	public options: { baseHost: string; baseURL: string; headers: { Authorization?: string; "User-Agent": string; } };
 	public latency: number;
 	public apiURL: string;
 	public static DiscordAPIErrror = DiscordAPIError;
@@ -84,7 +84,7 @@ class RequestHandler extends EventEmitter {
 	 * @param ratelimiter ratelimiter to use for ratelimiting requests
 	 * @param options options
 	 */
-	public constructor(ratelimiter: import("./Ratelimiter"), options: { token: string; baseHost: string; }) {
+	public constructor(ratelimiter: import("./Ratelimiter"), options: { token?: string; baseHost: string; }) {
 		super();
 
 		this.ratelimiter = ratelimiter;
@@ -92,11 +92,11 @@ class RequestHandler extends EventEmitter {
 			baseHost: Endpoints.BASE_HOST,
 			baseURL: Endpoints.BASE_URL,
 			headers: {
-				Authorization: options.token,
 				"User-Agent": `Discordbot (https://github.com/DasWolke/SnowTransfer, ${version}) Node.js/${process.version}`
 			}
 		};
-		Object.assign(this.options, options);
+		if (options.token) this.options.headers.Authorization = options.token;
+		this.options.baseHost = options.baseHost;
 
 		this.apiURL = this.options.baseHost + Endpoints.BASE_URL;
 		this.latency = 500;

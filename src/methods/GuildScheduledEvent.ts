@@ -119,8 +119,7 @@ class GuildScheduledEventMethods {
 	 */
 	public async getGuildScheduledEventUsers(guildId: string, eventId: string, options: GetGuildScheduledEventUsers = { limit: 50 }): Promise<Array<import("discord-typings").GuildScheduledEventUser & { member?: import("discord-typings").Member }>> {
 		if (options.limit && options.limit > Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MAX_RESULTS) throw new Error(`The maximum amount of users that may be requested is ${Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MAX_RESULTS}`);
-		const qs: string = Object.keys(options).map(key => `${key}=${options[key]}`).join("&");
-		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT_USERS(guildId, eventId) + (qs ? `?${qs}` : ""), "get", "json");
+		return this.requestHandler.request(`${Endpoints.GUILD_SCHEDULED_EVENT_USERS(guildId, eventId)}${options ? Object.keys(options).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${options[v]}`) : ""}`, "get", "json");
 	}
 }
 

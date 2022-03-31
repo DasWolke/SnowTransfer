@@ -19,7 +19,7 @@ const { version } = require("../package.json") as { version: string; };
 
 class SnowTransfer {
 	public options: { baseHost: string; disableEveryone: boolean; sentryOptions: { extra: { snowtransferVersion: string; }; }; useRedis: boolean; };
-	public token: string;
+	public token: string | undefined;
 	public channel: ChannelMethods;
 	public requestHandler: RequestHandler;
 	public user: UserMethods;
@@ -41,9 +41,9 @@ class SnowTransfer {
 	 * @param token Discord Bot token to use
 	 * @param options options
 	 */
-	public constructor(token: string, options?: { baseHost?: string; disableEveryone?: boolean; }) {
-		if (!token || token === "") throw new Error("Missing token");
-		if (!token.startsWith("Bot")) token = `Bot ${token}`;
+	public constructor(token?: string, options?: { baseHost?: string; disableEveryone?: boolean; }) {
+		if (typeof token === "string" && token === "") throw new Error("Missing token");
+		if (token && !token.startsWith("Bot")) token = `Bot ${token}`;
 		this.options = { baseHost: Endpoints.BASE_HOST, disableEveryone: false, sentryOptions: { extra: { snowtransferVersion: version } }, useRedis: false };
 		this.token = token;
 		Object.assign(this.options, options);

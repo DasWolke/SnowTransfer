@@ -308,8 +308,22 @@ class GuildMethods {
 	 * |--------------------|-----------|
 	 * | BAN_MEMBERS        | always    |
 	 */
-	public async getGuildBans(guildId: string): Promise<Array<any>> {
-		return this.requestHandler.request(Endpoints.GUILD_BANS(guildId), "get", "json");
+	public async getGuildBans(guildId: string, options?: { limit?: number; before?: string; after?: string; }): Promise<Array<import("discord-typings").Ban>> {
+		return this.requestHandler.request(`${Endpoints.GUILD_BANS(guildId)}${options ? Object.keys(options).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${options[v]}`) : ""}`, "get", "json");
+	}
+
+	/**
+	 * Get a specific ban of a guild member
+	 * @param guildId Id of the guild
+	 * @param memberId Id of the member
+	 * @returns [ban](https://discord.com/developers/docs/resources/guild#ban-object-ban-structure) object
+	 *
+	 * | Permissions needed | Condition |
+	 * |--------------------|-----------|
+	 * | BAN_MEMBERS        | always    |
+	 */
+	public async getGuildBan(guildId: string, memberId: string): Promise<import("discord-typings").Ban> {
+		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), "get", "json");
 	}
 
 	/**
