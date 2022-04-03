@@ -79,7 +79,7 @@ const Endpoints = {
 	GUILD_WIDGET_SETTINGS: (guildID: string) => `${Endpoints.GUILD(guildID)}/widget` as `${ReturnType<typeof Endpoints.GUILD>}/widget`,
 	GUILDS: "/guilds" as const,
 	INTERACTION_CALLBACK: (interactionID: string, token: string) => `/interactions/${interactionID}/${token}/callback` as "/interactions/:interaction_id/:token/callback",
-	INVITE: (inviteID: string) => `/invite/${inviteID}` as "/invite/:invite_id",
+	INVITE: (inviteID: string) => `/invites/${inviteID}` as "/invites/:invite_id",
 	OAUTH2_APPLICATION: (appID: string) => `/oauth2/applications/${appID}` as "/oauth2/applications/:app_id",
 	STAGE_INSTANCE_CHANNEL: (chanID: string) => `${Endpoints.STAGE_INSTANCES}/${chanID}` as `${typeof Endpoints.STAGE_INSTANCES}/:channel_id`,
 	STAGE_INSTANCES: "/stage-instances" as const,
