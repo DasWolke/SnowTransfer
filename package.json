@@ -1,6 +1,6 @@
 {
   "name": "snowtransfer",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Minimalistic Rest client for the Discord Api",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -30,7 +30,7 @@
   "license": "MIT",
   "dependencies": {
     "centra": "^2.5.0",
-    "discord-typings": "^10.0.2",
+    "discord-typings": "^10.0.3",
     "form-data": "~4.0.0"
   },
   "devDependencies": {

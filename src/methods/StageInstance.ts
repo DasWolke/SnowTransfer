@@ -29,7 +29,7 @@ class StageInstanceMethods {
 	 * | MUTE_MEMBERS       | always    |
 	 * | MOVE_MEMBERS       | always    |
 	 */
-	public async createStageInstance(data: { channel_id: string; topic: string; }): Promise<import("discord-typings").StageInstance> {
+	public async createStageInstance(data: { channel_id: string; topic: string; privacy_level?: import("discord-typings").PrivacyLevel; send_start_notification?: boolean; }): Promise<import("discord-typings").StageInstance> {
 		return this.requestHandler.request(Endpoints.STAGE_INSTANCES, "post", "json", data);
 	}
 
@@ -54,7 +54,7 @@ class StageInstanceMethods {
 	 * | MUTE_MEMBERS       | always    |
 	 * | MOVE_MEMBERS       | always    |
 	 */
-	public async editStageInstance(channelId: string, data: { topic: string}): Promise<import("discord-typings").StageInstance> {
+	public async editStageInstance(channelId: string, data: { topic: string; privacy_level?: import("discord-typings").PrivacyLevel; }): Promise<import("discord-typings").StageInstance> {
 		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), "patch", "json", data);
 	}
 
