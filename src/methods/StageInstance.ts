@@ -28,8 +28,13 @@ class StageInstanceMethods {
 	 * | MANAGE_CHANNELS    | always    |
 	 * | MUTE_MEMBERS       | always    |
 	 * | MOVE_MEMBERS       | always    |
+	 *
+	 * @example
+	 * // Create a new stage instance for channel id and the topic "This My House"
+	 * const client = new SnowTransfer("TOKEN")
+	 * const instance = await client.stageInstance.createStageInstance({ channel_id: "channel id", topic: "This My House" })
 	 */
-	public async createStageInstance(data: { channel_id: string; topic: string; privacy_level?: import("discord-typings").PrivacyLevel; send_start_notification?: boolean; }): Promise<import("discord-typings").StageInstance> {
+	public async createStageInstance(data: { channel_id: string; topic: string; privacy_level?: import("discord-typings").PrivacyLevel; send_start_notification?: boolean; reason?: string; }): Promise<import("discord-typings").StageInstance> {
 		return this.requestHandler.request(Endpoints.STAGE_INSTANCES, "post", "json", data);
 	}
 
@@ -37,6 +42,10 @@ class StageInstanceMethods {
 	 * Gets the stage instance assocuated to a stage channel if it exists
 	 * @param channelId Id of the stage channel
 	 * @returns a [stage instance](https://discord.com/developers/docs/resources/stage-instance#auto-closing-stage-instance-structure) object
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const instance = await client.stageInstance.getStageInstance("channel id")
 	 */
 	public async getStageInstance(channelId: string): Promise<import("discord-typings").StageInstance> {
 		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), "get", "json");
@@ -53,8 +62,12 @@ class StageInstanceMethods {
 	 * | MANAGE_CHANNELS    | always    |
 	 * | MUTE_MEMBERS       | always    |
 	 * | MOVE_MEMBERS       | always    |
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const instance = await client.stageInstance.updateStageInstance("channel id", { topic: "This my city, this my town" })
 	 */
-	public async editStageInstance(channelId: string, data: { topic: string; privacy_level?: import("discord-typings").PrivacyLevel; }): Promise<import("discord-typings").StageInstance> {
+	public async editStageInstance(channelId: string, data: { topic: string; privacy_level?: import("discord-typings").PrivacyLevel; reason?: string; }): Promise<import("discord-typings").StageInstance> {
 		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), "patch", "json", data);
 	}
 
@@ -68,9 +81,13 @@ class StageInstanceMethods {
 	 * | MANAGE_CHANNELS    | always    |
 	 * | MUTE_MEMBERS       | always    |
 	 * | MOVE_MEMBERS       | always    |
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * client.stageInstance.deleteStageInstance("channel id", "They already know who's house this is")
 	 */
-	public async deleteStageInstance(channelId: string): Promise<import("discord-typings").StageInstance> {
-		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), "delete", "json");
+	public async deleteStageInstance(channelId: string, reason?: string): Promise<void> {
+		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), "delete", "json", reason ? { reason } : undefined);
 	}
 }
 

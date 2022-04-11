@@ -27,13 +27,13 @@ class LocalBucket {
 	/**
 	 * ratelimiter used for ratelimiting requests
 	 */
-	public ratelimiter: import("../Ratelimiter");
+	public ratelimiter: import("./Ratelimiter");
 
 	/**
 	 * Create a new bucket
 	 * @param ratelimiter ratelimiter used for ratelimiting requests
 	 */
-	public constructor(ratelimiter: import("../Ratelimiter")) {
+	public constructor(ratelimiter: import("./Ratelimiter")) {
 		this.fnQueue = [];
 		this.limit = 5;
 		this._remaining = 1;

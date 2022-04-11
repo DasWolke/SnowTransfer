@@ -27,8 +27,17 @@ class AuditLogMethods {
 	 * | Permissions needed | Condition |
 	 * |--------------------|-----------|
 	 * | VIEW_AUDIT_LOG     | always    |
+	 *
+	 * @example
+	 * // Get an audit log entry of user 12345678901234567 updating themself (24 is MEMBER_UPDATE)
+	 * const client = new SnowTransfer("TOKEN")
+	 * const data = {
+	 * 	user_id: "12345678901234567",
+	 * 	action_type: 24,
+	 * }
+	 * const channel = await client.auditLog.getAuditLog("guild id", data)
 	 */
-	public async getAuditLog(guildId: string, data?: Partial<Pick<import("discord-typings").AuditLogEntry, "user_id" | "action_type"> & { before: import("discord-typings").Snowflake; limit: number; }>): Promise<import("discord-typings").AuditLog> {
+	public async getAuditLog(guildId: string, data?: { user_id?: string; action_type?: import("discord-typings").AuditLogEvent; before?: string; limit?: number; }): Promise<import("discord-typings").AuditLog> {
 		return this.requestHandler.request(Endpoints.GUILD_AUDIT_LOGS(guildId), "get", "json", data);
 	}
 }

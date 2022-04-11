@@ -9,7 +9,7 @@ import GuildScheduledEventMethods from "./methods/GuildScheduledEvent";
 import GuildTemplateMethods from "./methods/GuildTemplate";
 import InteractionMethods from "./methods/Interactions";
 import InviteMethods from "./methods/Invites";
-import VoiceMethods from "./methods/Voices";
+import VoiceMethods from "./methods/Voice";
 import BotMethods from "./methods/Bots";
 import AuditLogMethods from "./methods/AuditLog";
 import StageInstanceMethods from "./methods/StageInstance";
