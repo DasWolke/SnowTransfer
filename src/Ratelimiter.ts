@@ -1,4 +1,4 @@
-import LocalBucket from "./ratelimitBuckets/LocalBucket";
+import LocalBucket from "./LocalBucket";
 
 /**
  * Ratelimiter used for handling the ratelimits imposed by the rest api
@@ -17,29 +17,26 @@ class Ratelimiter {
 	 */
 	protected _timeout: NodeJS.Timeout;
 	protected _timeoutFN: () => void;
-	protected _timeoutDuration: number;
+	protected _timeoutDuration = 1000;
 
 	public constructor() {
 		this.buckets = {};
 		this.global = false;
 		this.globalResetAt = 0;
 
-		// eslint-disable-next-line @typescript-eslint/no-this-alias
-		const limiter = this;
-		this._timeoutFN = function() {
-			for (const routeKey of Object.keys(limiter.buckets)) {
-				const bkt = limiter.buckets[routeKey];
+		this._timeoutFN = () => {
+			for (const routeKey of Object.keys(this.buckets)) {
+				const bkt = this.buckets[routeKey];
 				if (bkt.resetAt && bkt.resetAt < Date.now()) {
 					if (bkt.fnQueue.length) bkt.resetRemaining();
-					else delete limiter.buckets[routeKey];
-				} else if (!bkt.resetAt && limiter.global && limiter.globalResetAt < Date.now()) {
+					else delete this.buckets[routeKey];
+				} else if (!bkt.resetAt && this.global && this.globalResetAt < Date.now()) {
 					if (bkt.fnQueue.length) bkt.checkQueue();
-					else delete limiter.buckets[routeKey];
+					else delete this.buckets[routeKey];
 				}
 			}
 		};
-		this._timeoutDuration = 1000;
-		this._timeout = setInterval(() => { limiter._timeoutFN(); }, limiter._timeoutDuration);
+		this._timeout = setInterval(() => { this._timeoutFN(); }, this._timeoutDuration);
 	}
 
 	/**
@@ -63,7 +60,7 @@ class Ratelimiter {
 	 * @param url Endpoint of the request
 	 * @param method Http method used by the request
 	 */
-	public queue(fn: (bucket: import("./ratelimitBuckets/LocalBucket")) => any, url: string, method: string) {
+	public queue(fn: (bucket: import("./LocalBucket")) => any, url: string, method: string) {
 		const routeKey = this.routify(url, method);
 		if (!this.buckets[routeKey]) this.buckets[routeKey] = new LocalBucket(this);
 		this.buckets[routeKey].queue(fn);

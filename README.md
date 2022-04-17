@@ -6,7 +6,7 @@
 Part of the WeatherStack
 
 SnowTransfer is a small library specially made to **only** cover the REST/HTTP area of the discord api.
-It makes no assumptions about the rest of your stack, therefore you can use it anywhere as long as you use node 8 or higher.
+It makes no assumptions about the rest of your stack, therefore you can use it anywhere as long as you use node 12 or higher.
 
 ### Some of the things that make SnowTransfer awesome:
 - No requirement for other components

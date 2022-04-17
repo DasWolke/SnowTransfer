@@ -168,7 +168,7 @@ class RequestHandler extends EventEmitter {
 	 * @param bkt Ratelimit bucket to apply the headers to
 	 * @param headers Http headers received from discord
 	 */
-	private _applyRatelimitHeaders(bkt: import("./ratelimitBuckets/LocalBucket"), headers: any) {
+	private _applyRatelimitHeaders(bkt: import("./LocalBucket"), headers: any) {
 		if (headers["x-ratelimit-global"]) {
 			bkt.ratelimiter.global = true;
 			bkt.ratelimiter.globalResetAt = Date.now() + (parseFloat(headers["retry-after"]) * 1000);
@@ -223,6 +223,7 @@ class RequestHandler extends EventEmitter {
 				index++;
 			}
 		}
+		if (data.data) delete data.files; // Interactions responses are weird, but I need to support it
 		form.append("payload_json", JSON.stringify(data));
 		// duplicate headers in options as to not risk mutating the state.
 		const newHeaders = Object.assign({}, this.options.headers, form.getHeaders());
