@@ -15,10 +15,8 @@ import AuditLogMethods from "./methods/AuditLog";
 import StageInstanceMethods from "./methods/StageInstance";
 import Endpoints from "./Endpoints";
 
-const { version } = require("../package.json") as { version: string; };
-
 class SnowTransfer {
-	public options: { baseHost: string; disableEveryone: boolean; sentryOptions: { extra: { snowtransferVersion: string; }; }; useRedis: boolean; };
+	public options: { baseHost: string; disableEveryone: boolean; };
 	public token: string | undefined;
 	public channel: ChannelMethods;
 	public requestHandler: RequestHandler;
@@ -43,8 +41,8 @@ class SnowTransfer {
 	 */
 	public constructor(token?: string, options?: { baseHost?: string; disableEveryone?: boolean; }) {
 		if (typeof token === "string" && token === "") throw new Error("Missing token");
-		if (token && !token.startsWith("Bot")) token = `Bot ${token}`;
-		this.options = { baseHost: Endpoints.BASE_HOST, disableEveryone: false, sentryOptions: { extra: { snowtransferVersion: version } }, useRedis: false };
+		if (token && (!token.startsWith("Bot") && !token.startsWith("Bearer"))) token = `Bot ${token}`;
+		this.options = { baseHost: Endpoints.BASE_HOST, disableEveryone: false };
 		this.token = token;
 		Object.assign(this.options, options);
 		this.ratelimiter = new Ratelimiter();

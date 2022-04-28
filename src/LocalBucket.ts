@@ -7,52 +7,39 @@ class LocalBucket {
 	/**
 	 * array of functions waiting to be executed
 	 */
-	public fnQueue: Array<{ fn: (...args: Array<any>) => any; callback: () => any; }>;
+	public fnQueue: Array<{ fn: (...args: Array<any>) => any; callback: () => any; }> = [];
 	/**
 	 * Number of functions that may be executed during the timeframe set in limitReset
 	 */
-	public limit: number;
+	public limit = 5;
 	/**
 	 * Remaining amount of executions during the current timeframe
 	 */
-	protected _remaining: number;
+	public remaining = 1;
 	/**
 	 * Timeframe in milliseconds until the ratelimit resets
 	 */
-	public reset: number;
+	public reset = 5000;
 	/**
-	 * The Date time in which the bucket will reset
+	 * Timeout that calls the reset function once the timeframe passed
 	 */
-	public resetAt: number | null;
+	public resetTimeout: NodeJS.Timeout | null = null;
 	/**
 	 * ratelimiter used for ratelimiting requests
 	 */
 	public ratelimiter: import("./Ratelimiter");
+	/**
+	 * Key used internally to routify requests
+	 */
+	public routeKey: string;
 
 	/**
 	 * Create a new bucket
 	 * @param ratelimiter ratelimiter used for ratelimiting requests
 	 */
-	public constructor(ratelimiter: import("./Ratelimiter")) {
-		this.fnQueue = [];
-		this.limit = 5;
-		this._remaining = 1;
-		this.reset = 5000;
-		this.resetAt = null;
+	public constructor(ratelimiter: import("./Ratelimiter"), routeKey: string) {
 		this.ratelimiter = ratelimiter;
-	}
-
-	public get remaining() {
-		if (this.resetAt && this.resetAt <= Date.now()) {
-			this._remaining = this.limit;
-			this.resetAt = null;
-		}
-
-		return this._remaining;
-	}
-
-	public set remaining(value) {
-		this._remaining = value;
+		this.routeKey = routeKey;
 	}
 
 	/**
@@ -60,10 +47,9 @@ class LocalBucket {
 	 * @param fn function to be executed
 	 * @returns Result of the function if any
 	 */
-	public queue(fn: (bucket: LocalBucket) => any | Promise<any>): Promise<any> {
-		return new Promise((res, rej) => {
+	public queue(fn: (bucket: LocalBucket) => any): Promise<any> {
+		return new Promise(res => {
 			const wrapFn = () => {
-				if (fn instanceof Promise) return fn.then(res).catch(rej);
 				return res(fn(this));
 			};
 			this.fnQueue.push({ fn, callback: wrapFn });
@@ -71,32 +57,40 @@ class LocalBucket {
 		});
 	}
 
+	public runTimer(): void {
+		if (this.resetTimeout) clearTimeout(this.resetTimeout);
+		this.resetTimeout = setTimeout(() => this.resetRemaining(), this.ratelimiter.global ? this.ratelimiter.globalReset : this.reset);
+	}
+
 	/**
 	 * Check if there are any functions in the queue that haven't been executed yet
 	 */
-	public checkQueue() {
+	public checkQueue(): void {
 		if (this.reset < 0) this.reset = 100;
-		if (this.ratelimiter.global && this.ratelimiter.globalResetAt > Date.now()) return;
+		if (this.ratelimiter.global) return this.runTimer();
+		if (this.remaining === 0) this.runTimer();
 		if (this.fnQueue.length > 0 && this.remaining !== 0) {
 			const queuedFunc = this.fnQueue.splice(0, 1)[0];
+			this.remaining--;
 			queuedFunc.callback();
 			this.checkQueue();
 		}
 	}
 
 	/**
-	 * Reset the remaining tokens to the base limit
+	 * Reset the remaining tokens to the base limit and removes the bucket from the rate limiter to save memory
 	 */
-	public resetRemaining() {
-		this._remaining = this.limit;
-		this.resetAt = null;
-		this.checkQueue();
+	public resetRemaining(): void {
+		this.remaining = this.limit;
+		if (this.resetTimeout) clearTimeout(this.resetTimeout);
+		this.resetTimeout = null;
+		delete this.ratelimiter.buckets[this.routeKey];
 	}
 
 	/**
 	 * Clear the current queue of events to be sent
 	 */
-	public dropQueue() {
+	public dropQueue(): void {
 		this.fnQueue.length = 0;
 	}
 }

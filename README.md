@@ -12,6 +12,7 @@ It makes no assumptions about the rest of your stack, therefore you can use it a
 - No requirement for other components
 - Full coverage of the discord rest api
 - Well documented
+- Supports both Bot and Bearer tokens (Bearer tokens will have much more limited access than Bot tokens)
 
 ### General Usecase:
 SnowTransfer is not your everyday library,

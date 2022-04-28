@@ -241,22 +241,6 @@ class InteractionMethods {
 	}
 
 	/**
-	 * Batch edits permissions for all commands in a guild. Takes an Array of partial [guild application command permission](https://discord.com/developers/docs/interactions/application-commands#application-command-permissions-object-guild-application-command-permissions-structure) objects.
-	 * You can only add up to 10 permission overwrites for a command
-	 * @param appId The Id of the application
-	 * @param guildId The Id of the guild
-	 * @param permissions New application command permissions data Array
-	 * @returns An Array of [guild application command permission](https://discord.com/developers/docs/interactions/slash-commands#application-command-permissions-object-guild-application-command-permissions-structure) objects
-	 *
-	 * @example
-	 * const client = new SnowTransfer("TOKEN")
-	 * const permissions = await client.interaction.bulkEditGuildApplicationCommandPermissions("appId", "guildId", [{ id: "cmdId", permissions: [{ type: 2, id: "userId", permission: true }] }])
-	 */
-	public batchEditGuildApplicationCommandPermissions(appId: string, guildId: string, permissions: Array<Pick<import("discord-typings").GuildApplicationCommandPermission, "id" | "permissions">>): Promise<Array<import("discord-typings").GuildApplicationCommandPermission>> {
-		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS_PERMISSIONS(appId, guildId), "put", "json", permissions);
-	}
-
-	/**
 	 * Create a response to an Interaction
 	 *
 	 * When uploading attachments to respond to message interactions, you must provide the top level files property

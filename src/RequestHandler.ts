@@ -108,10 +108,9 @@ class RequestHandler extends EventEmitter {
 	 * @param method http method to use
 	 * @param dataType type of the data being sent
 	 * @param data data to send, if any
-	 * @param amount amount of requests previously executed
 	 * @returns Result of the request
 	 */
-	public request(endpoint: string, method: HTTPMethod, dataType: "json" | "multipart" = "json", data: any | undefined = {}, amount = 0): Promise<any> {
+	public request(endpoint: string, method: HTTPMethod, dataType: "json" | "multipart" = "json", data: any | undefined = {}): Promise<any> {
 		if (typeof data === "number") data = String(data);
 		const stack = new Error().stack;
 		return new Promise(async (res, rej) => {
@@ -121,30 +120,25 @@ class RequestHandler extends EventEmitter {
 					this.emit("request", reqID, { endpoint, method, dataType, data });
 
 					let request: import("centra").Response;
-					if (dataType == "json") request = await this._request(endpoint, method, data, (method === "get" || endpoint.includes("/bans") || endpoint.includes("/prune")), amount);
-					else if (dataType == "multipart") request = await this._multiPartRequest(endpoint, method, data, amount);
-					else {
-						const e = new Error("Forbidden dataType. Use json or multipart");
-						e.stack = stack;
-						throw e;
-					}
+					if (dataType == "json") request = await this._request(endpoint, method, data, (method === "get" || endpoint.includes("/bans") || endpoint.includes("/prune")));
+					else if (dataType == "multipart") request = await this._multiPartRequest(endpoint, method, data);
+					else throw new Error("Forbidden dataType. Use json or multipart");
 
-					// 429 and 502 are recoverable and will be re-tried automatically with 3 attempts max.
-					if (request.statusCode && !Constants.OK_STATUS_CODES.includes(request.statusCode) && ![429, 502].includes(request.statusCode)) {
-						const e = new DiscordAPIError(endpoint, request.headers["content-type"]?.startsWith("application/json") ? await request.json() : request.body.toString(), method, request.statusCode);
-						e.stack = stack;
-						throw e;
-					}
+					if (request.statusCode && !Constants.OK_STATUS_CODES.includes(request.statusCode) && request.statusCode !== 429) throw new DiscordAPIError(endpoint, request.headers["content-type"]?.startsWith("application/json") ? await request.json() : request.body.toString(), method, request.statusCode);
 
-					if (request.statusCode && [429, 502].includes(request.statusCode)) {
-						if (request.statusCode === 429) {
-							this._applyRatelimitHeaders(bkt, request.headers);
-							this.emit("rateLimit", { timeout: bkt.reset, limit: bkt.limit, method: method, path: endpoint, route: this.ratelimiter.routify(endpoint, method) });
-						}
-						return this.request(endpoint, method, dataType, data, amount++);
+					this._applyRatelimitHeaders(bkt, request.headers);
+
+					if (request.statusCode === 429) {
+						const b = JSON.parse(request.body.toString()); // Discord says it will be a JSON, so if there's an error, sucks
+						if (b.global) this.ratelimiter.global = true;
+						if (b.reset_after) bkt.reset = b.reset_after * 1000;
+						bkt.runTimer();
+						this.emit("rateLimit", { timeout: bkt.reset, limit: bkt.limit, method: method, path: endpoint, route: this.ratelimiter.routify(endpoint, method) });
+						throw new DiscordAPIError(endpoint, b.message || "unknnown", method, request.statusCode);
 					}
 
 					this.emit("done", reqID, request);
+
 					if (request.body) {
 						let b: any;
 						try {
@@ -168,17 +162,13 @@ class RequestHandler extends EventEmitter {
 	 * @param bkt Ratelimit bucket to apply the headers to
 	 * @param headers Http headers received from discord
 	 */
-	private _applyRatelimitHeaders(bkt: import("./LocalBucket"), headers: any) {
-		if (headers["x-ratelimit-global"]) {
-			bkt.ratelimiter.global = true;
-			bkt.ratelimiter.globalResetAt = Date.now() + (parseFloat(headers["retry-after"]) * 1000);
-		}
-		if (headers["x-ratelimit-remaining"]) {
-			bkt.remaining = parseInt(headers["x-ratelimit-remaining"]);
-			if (bkt.remaining === 0) bkt.resetAt = Date.now() + bkt.reset;
-		} else bkt.remaining = 1;
+	private _applyRatelimitHeaders(bkt: import("./LocalBucket"), headers: any): void {
+		if (headers["x-ratelimit-remaining"]) bkt.remaining = parseInt(headers["x-ratelimit-remaining"]);
 		if (headers["x-ratelimit-limit"]) bkt.limit = parseInt(headers["x-ratelimit-limit"]);
-		if (headers["retry-after"] && !headers["x-ratelimit-global"]) bkt.resetAt = Date.now() + (parseInt(headers["retry-after"]) * 1000); // The ms precision is not strictly necessary. It always rounds up, which is safe.
+		if (headers["x-ratelimit-reset"]) {
+			bkt.reset = parseInt(headers["x-ratelimit-reset"]) - Date.now();
+			bkt.runTimer();
+		}
 	}
 
 	/**
@@ -186,11 +176,9 @@ class RequestHandler extends EventEmitter {
 	 * @param endpoint Endpoint to use
 	 * @param data Data to send
 	 * @param useParams Whether to send the data in the body or use query params
-	 * @param amount amount of requests previously executed
 	 * @returns Result of the request
 	 */
-	private async _request(endpoint: string, method: HTTPMethod, data?: any, useParams = false, amount = 0): Promise<import("centra").Response> {
-		if (amount >= 3) throw new Error("Max amount of rety attempts reached");
+	private async _request(endpoint: string, method: HTTPMethod, data?: any, useParams = false): Promise<import("centra").Response> {
 		const headers = {};
 		if (typeof data != "string" && data.reason) {
 			headers["X-Audit-Log-Reason"] = encodeURIComponent(data.reason);
@@ -212,8 +200,7 @@ class RequestHandler extends EventEmitter {
 	 * @param data data to send
 	 * @returns Result of the request
 	 */
-	private async _multiPartRequest(endpoint: string, method: HTTPMethod, data: any, amount = 0): Promise<import("centra").Response> {
-		if (amount >= 3) throw new Error("Max amount of rety attempts reached");
+	private async _multiPartRequest(endpoint: string, method: HTTPMethod, data: any): Promise<import("centra").Response> {
 		const form = new FormData();
 		if (data.files && Array.isArray(data.files) && data.files.every(f => !!f.name && !!f.file)) {
 			let index = 0;

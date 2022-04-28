@@ -7,36 +7,12 @@ import LocalBucket from "./LocalBucket";
 class Ratelimiter {
 	public buckets: { [routeKey: string]: LocalBucket; };
 	public global: boolean;
-	public globalResetAt: number;
-
-	/**
-	 * This is an interval to constantly check Buckets which should be reset or unreferenced from the RateLimiter to be swept by the garbage collector.
-	 * This 1 timeout is more performant as compared to potentially many more ticking timers to reset individual bucket remaining values.
-	 *
-	 * YOU SHOULD NEVER OVERRIDE THIS UNLESS YOU KNOW WHAT YOU'RE DOING. REQUESTS MAY POSSIBLY NEVER EXECUTE WITHOUT THIS AND/OR MEMORY MAY SLOWLY CLIMB OVER TIME.
-	 */
-	protected _timeout: NodeJS.Timeout;
-	protected _timeoutFN: () => void;
-	protected _timeoutDuration = 1000;
+	public globalReset: number;
 
 	public constructor() {
 		this.buckets = {};
 		this.global = false;
-		this.globalResetAt = 0;
-
-		this._timeoutFN = () => {
-			for (const routeKey of Object.keys(this.buckets)) {
-				const bkt = this.buckets[routeKey];
-				if (bkt.resetAt && bkt.resetAt < Date.now()) {
-					if (bkt.fnQueue.length) bkt.resetRemaining();
-					else delete this.buckets[routeKey];
-				} else if (!bkt.resetAt && this.global && this.globalResetAt < Date.now()) {
-					if (bkt.fnQueue.length) bkt.checkQueue();
-					else delete this.buckets[routeKey];
-				}
-			}
-		};
-		this._timeout = setInterval(() => { this._timeoutFN(); }, this._timeoutDuration);
+		this.globalReset = 0;
 	}
 
 	/**
@@ -62,7 +38,7 @@ class Ratelimiter {
 	 */
 	public queue(fn: (bucket: import("./LocalBucket")) => any, url: string, method: string) {
 		const routeKey = this.routify(url, method);
-		if (!this.buckets[routeKey]) this.buckets[routeKey] = new LocalBucket(this);
+		if (!this.buckets[routeKey]) this.buckets[routeKey] = new LocalBucket(this, routeKey);
 		this.buckets[routeKey].queue(fn);
 	}
 }
