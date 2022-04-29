@@ -130,9 +130,8 @@ class RequestHandler extends EventEmitter {
 
 					if (request.statusCode === 429) {
 						const b = JSON.parse(request.body.toString()); // Discord says it will be a JSON, so if there's an error, sucks
+						if (b.reset_after) this.ratelimiter.globalReset = b.reset_after * 1000;
 						if (b.global) this.ratelimiter.global = true;
-						if (b.reset_after) bkt.reset = b.reset_after * 1000;
-						bkt.runTimer();
 						this.emit("rateLimit", { timeout: bkt.reset, limit: bkt.limit, method: method, path: endpoint, route: this.ratelimiter.routify(endpoint, method) });
 						throw new DiscordAPIError(endpoint, b.message || "unknnown", method, request.statusCode);
 					}
@@ -165,10 +164,7 @@ class RequestHandler extends EventEmitter {
 	private _applyRatelimitHeaders(bkt: import("./LocalBucket"), headers: any): void {
 		if (headers["x-ratelimit-remaining"]) bkt.remaining = parseInt(headers["x-ratelimit-remaining"]);
 		if (headers["x-ratelimit-limit"]) bkt.limit = parseInt(headers["x-ratelimit-limit"]);
-		if (headers["x-ratelimit-reset"]) {
-			bkt.reset = parseInt(headers["x-ratelimit-reset"]) - Date.now();
-			bkt.runTimer();
-		}
+		if (headers["x-ratelimit-reset"]) bkt.reset = parseInt(headers["x-ratelimit-reset"]) - Date.now();
 	}
 
 	/**

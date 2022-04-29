@@ -6,6 +6,8 @@ import Endpoints from "../Endpoints";
 class BotMethods {
 	public requestHandler: import("../RequestHandler");
 
+	public static default = BotMethods;
+
 	/**
 	 * Create a new Bot Method Handler
 	 *

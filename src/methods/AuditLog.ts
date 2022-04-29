@@ -6,6 +6,8 @@ import Endpoints from "../Endpoints";
 class AuditLogMethods {
 	public requestHandler: import("../RequestHandler");
 
+	public static default = AuditLogMethods;
+
 	/**
 	 * Create a new Audit Log Method Handler
 	 *

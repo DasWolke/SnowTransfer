@@ -7,6 +7,8 @@ class WebhookMethods {
 	public requestHandler: import("../RequestHandler");
 	public disableEveryone: boolean;
 
+	public static default = WebhookMethods;
+
 	/**
 	 * Create a new Method Handler
 	 *

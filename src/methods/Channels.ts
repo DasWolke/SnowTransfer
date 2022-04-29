@@ -8,6 +8,8 @@ class ChannelMethods {
 	public requestHandler: import("../RequestHandler");
 	public disableEveryone: boolean;
 
+	public static default = ChannelMethods;
+
 	/**
 	 * Create a new Channel Method handler
 	 *

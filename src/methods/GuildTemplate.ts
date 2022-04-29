@@ -6,6 +6,8 @@ import Endpoints from "../Endpoints";
 class GuildTemplateMethods {
 	public requestHandler: import("../RequestHandler");
 
+	public static default = GuildTemplateMethods;
+
 	/**
 	 * Create a new Guild Template Method Handler
 	 *

@@ -6,6 +6,8 @@ import Endpoints from "../Endpoints";
 class InviteMethods {
 	public requestHandler: import("../RequestHandler");
 
+	public static default = InviteMethods;
+
 	/**
 	 * Create a new Invite Method Handler
 	 *

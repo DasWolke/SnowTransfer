@@ -9,6 +9,8 @@ class InteractionMethods {
 	public requestHandler: import("../RequestHandler");
 	public webhooks: import("./Webhooks");
 
+	public static default = InteractionMethods;
+
 	/**
 	 * Create a new Interaction Method Handler
 	 *

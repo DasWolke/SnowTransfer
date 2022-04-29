@@ -7,6 +7,8 @@ import Constants from "../Constants";
 class GuildMethods {
 	public requestHandler: import("../RequestHandler");
 
+	public static default = GuildMethods;
+
 	/**
 	 * Create a new Guild Method Handler
 	 *

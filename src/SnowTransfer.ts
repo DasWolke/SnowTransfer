@@ -34,6 +34,8 @@ class SnowTransfer {
 	public stageInstance: StageInstanceMethods;
 	public ratelimiter: Ratelimiter;
 
+	public static default = SnowTransfer;
+
 	/**
 	 * Create a new Rest Client
 	 * @param token Discord Bot token to use

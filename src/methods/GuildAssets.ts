@@ -6,6 +6,8 @@ import Endpoints from "../Endpoints";
 class GuildAssetsMethods {
 	public requestHandler: import("../RequestHandler");
 
+	public static default = GuildAssetsMethods;
+
 	/**
 	 * Create a new GuildAssets Method handler
 	 *

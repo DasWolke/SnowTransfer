@@ -6,6 +6,8 @@ import Endpoints from "../Endpoints";
 class VoiceMethods {
 	public requestHandler: import("../RequestHandler");
 
+	public static default = VoiceMethods;
+
 	/**
 	 * Create a new Voice Method Handler
 	 *

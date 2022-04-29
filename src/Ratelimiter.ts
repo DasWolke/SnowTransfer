@@ -5,14 +5,48 @@ import LocalBucket from "./LocalBucket";
  * @protected
  */
 class Ratelimiter {
-	public buckets: { [routeKey: string]: LocalBucket; };
-	public global: boolean;
-	public globalReset: number;
+	/**
+	 * An object of Buckets that store rate limit info
+	 */
+	public buckets: { [routeKey: string]: LocalBucket; } = {};
+	/**
+	 * If you're being globally rate limited
+	 */
+	private _global = false;
+	/**
+	 * Timeframe in milliseconds until when the global rate limit resets
+	 */
+	public globalReset = 0;
+	/**
+	 * Timeout that resets the global ratelimit once the timeframe has passed
+	 */
+	public globalResetTimeout: NodeJS.Timeout | null = null;
 
-	public constructor() {
-		this.buckets = {};
-		this.global = false;
-		this.globalReset = 0;
+	public static default = Ratelimiter;
+
+	/**
+	 * If you're being globally rate limited
+	 */
+	public get global() {
+		return this._global;
+	}
+
+	/**
+	 * If you're being globally rate limited
+	 */
+	public set global(value) {
+		if (value && this.globalReset) {
+			if (this.globalResetTimeout) clearTimeout(this.globalResetTimeout);
+			this.globalResetTimeout = setTimeout(() => {
+				this.globalResetTimeout = null;
+				this.globalReset = 0;
+				this.global = false;
+				for (const bkt of Object.values(this.buckets)) {
+					bkt.checkQueue();
+				}
+			}, this.globalReset);
+		}
+		this._global = value;
 	}
 
 	/**

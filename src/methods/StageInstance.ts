@@ -6,6 +6,8 @@ import Endpoints from "../Endpoints";
 class StageInstanceMethods {
 	public requestHandler: import("../RequestHandler");
 
+	public static default = StageInstanceMethods;
+
 	/**
 	 * Create a new Stage Instance Method Handler
 	 *

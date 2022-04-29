@@ -2,6 +2,7 @@
 
 /**
  * Bucket used for saving ratelimits
+ * @protected
  */
 class LocalBucket {
 	/**
@@ -33,9 +34,12 @@ class LocalBucket {
 	 */
 	public routeKey: string;
 
+	public static readonly default = LocalBucket;
+
 	/**
 	 * Create a new bucket
 	 * @param ratelimiter ratelimiter used for ratelimiting requests
+	 * @param routeKey Key used internally to routify requests. Assigned by ratelimiter
 	 */
 	public constructor(ratelimiter: import("./Ratelimiter"), routeKey: string) {
 		this.ratelimiter = ratelimiter;
@@ -47,9 +51,12 @@ class LocalBucket {
 	 * @param fn function to be executed
 	 * @returns Result of the function if any
 	 */
-	public queue(fn: (bucket: LocalBucket) => any): Promise<any> {
+	public queue<T>(fn: (bucket: LocalBucket) => T): Promise<T> {
 		return new Promise(res => {
 			const wrapFn = () => {
+				this.remaining--;
+				if (!this.resetTimeout) this.resetTimeout = setTimeout(() => this.resetRemaining(), this.reset);
+				if (this.remaining !== 0) this.checkQueue();
 				return res(fn(this));
 			};
 			this.fnQueue.push({ fn, callback: wrapFn });
@@ -57,34 +64,28 @@ class LocalBucket {
 		});
 	}
 
-	public runTimer(): void {
-		if (this.resetTimeout) clearTimeout(this.resetTimeout);
-		this.resetTimeout = setTimeout(() => this.resetRemaining(), this.ratelimiter.global ? this.ratelimiter.globalReset : this.reset);
-	}
-
 	/**
 	 * Check if there are any functions in the queue that haven't been executed yet
 	 */
 	public checkQueue(): void {
-		if (this.reset < 0) this.reset = 100;
-		if (this.ratelimiter.global) return this.runTimer();
-		if (this.remaining === 0) this.runTimer();
-		if (this.fnQueue.length > 0 && this.remaining !== 0) {
+		if (this.ratelimiter.global) return;
+		if (this.fnQueue.length && this.remaining !== 0) {
 			const queuedFunc = this.fnQueue.splice(0, 1)[0];
-			this.remaining--;
 			queuedFunc.callback();
-			this.checkQueue();
 		}
 	}
 
 	/**
-	 * Reset the remaining tokens to the base limit and removes the bucket from the rate limiter to save memory
+	 * Reset the remaining tokens to the base limit
 	 */
-	public resetRemaining(): void {
+	private resetRemaining(): void {
 		this.remaining = this.limit;
-		if (this.resetTimeout) clearTimeout(this.resetTimeout);
-		this.resetTimeout = null;
-		delete this.ratelimiter.buckets[this.routeKey];
+		if (this.resetTimeout) {
+			clearTimeout(this.resetTimeout);
+			this.resetTimeout = null;
+		}
+		if (this.fnQueue.length) this.checkQueue();
+		else delete this.ratelimiter.buckets[this.routeKey];
 	}
 
 	/**

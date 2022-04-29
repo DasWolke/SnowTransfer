@@ -7,6 +7,8 @@ import Constants from "../Constants";
 class GuildScheduledEventMethods {
 	public requestHandler: import("../RequestHandler");
 
+	public static default = GuildScheduledEventMethods;
+
 	/**
 	 * Create a new Guild Scheduled Event Method Handler
 	 *

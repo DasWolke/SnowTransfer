@@ -6,6 +6,8 @@ import Endpoints from "../Endpoints";
 class UserMethods {
 	public requestHandler: import("../RequestHandler");
 
+	public static default = UserMethods;
+
 	/**
 	 * Create a new User Method handler
 	 *
