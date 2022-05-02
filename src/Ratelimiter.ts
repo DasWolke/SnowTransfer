@@ -35,16 +35,20 @@ class Ratelimiter {
 	 * If you're being globally rate limited
 	 */
 	public set global(value) {
-		if (value && this.globalReset) {
+		if (value && this.globalReset !== 0) {
 			if (this.globalResetTimeout) clearTimeout(this.globalResetTimeout);
+			// eslint-disable-next-line @typescript-eslint/no-this-alias
+			const instance = this;
 			this.globalResetTimeout = setTimeout(() => {
-				this.globalResetTimeout = null;
-				this.globalReset = 0;
-				this.global = false;
-				for (const bkt of Object.values(this.buckets)) {
-					bkt.checkQueue();
-				}
+				instance.global = false;
 			}, this.globalReset);
+		} else {
+			if (this.globalResetTimeout) clearTimeout(this.globalResetTimeout);
+			this.globalResetTimeout = null;
+			this.globalReset = 0;
+			for (const bkt of Object.values(this.buckets)) {
+				bkt.checkQueue();
+			}
 		}
 		this._global = value;
 	}

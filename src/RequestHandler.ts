@@ -129,11 +129,14 @@ class RequestHandler extends EventEmitter {
 					this._applyRatelimitHeaders(bkt, request.headers);
 
 					if (request.statusCode === 429) {
-						const b = JSON.parse(request.body.toString()); // Discord says it will be a JSON, so if there's an error, sucks
-						if (b.reset_after) this.ratelimiter.globalReset = b.reset_after * 1000;
-						if (b.global) this.ratelimiter.global = true;
+						if (!this.ratelimiter.global) {
+							const b = JSON.parse(request.body.toString()); // Discord says it will be a JSON, so if there's an error, sucks
+							if (b.reset_after !== undefined) this.ratelimiter.globalReset = b.reset_after * 1000;
+							else this.ratelimiter.globalReset = 1000; // Should realistically never happen, but you never know
+							if (b.global !== undefined) this.ratelimiter.global = b.global;
+						}
 						this.emit("rateLimit", { timeout: bkt.reset, limit: bkt.limit, method: method, path: endpoint, route: this.ratelimiter.routify(endpoint, method) });
-						throw new DiscordAPIError(endpoint, b.message || "unknnown", method, request.statusCode);
+						throw new DiscordAPIError(endpoint, "You're being ratelimited", method, request.statusCode);
 					}
 
 					this.emit("done", reqID, request);
