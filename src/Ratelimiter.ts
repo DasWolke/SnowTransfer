@@ -41,7 +41,7 @@ class Ratelimiter {
 			const instance = this;
 			this.globalResetTimeout = setTimeout(() => {
 				instance.global = false;
-			}, this.globalReset);
+			}, this.globalReset).unref();
 		} else {
 			if (this.globalResetTimeout) clearTimeout(this.globalResetTimeout);
 			this.globalResetTimeout = null;
