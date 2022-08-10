@@ -59,9 +59,9 @@ class UserMethods {
 	 * // update the avatar of the user
 	 * const client = new SnowTransfer("TOKEN")
 	 * const fileData = fs.readFileSync("new_avatar.png") // You should probably use fs.readFile, since it is asynchronous, synchronous methods may lag your bot.
-	 * const updateData = {
+	 * const updateData = \{
 	 * 	avatar: `data:image/png;base64,${fileData.toString("base64")}` // base64 data url: data:mimetype;base64,base64String
-	 * }
+	 * \}
 	 * client.user.updateSelf(updateData)
 	 */
 	public async updateSelf(data: { username?: string; avatar?: string | null; }): Promise<import("discord-typings").User> {

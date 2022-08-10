@@ -61,10 +61,10 @@ class GuildAssetsMethods {
 	 * // upload a simple png emoji with a name of "niceEmoji"
 	 * const client = new SnowTransfer("TOKEN")
 	 * const fileData = fs.readFileSync("nice_emoji.png") // You should probably use fs.readFile, since it is asynchronous, synchronous methods pause the thread.
-	 * const emojiData = {
+	 * const emojiData = \{
 	 * 	name: "niceEmoji",
 	 * 	image: `data:image/png;base64,${fileData.toString("base64")}` // base64 data url: data:mimetype;base64,base64String
-	 * }
+	 * \}
 	 * client.guildAssets.createEmoji("guild id", emojiData)
 	 */
 	public async createEmoji(guildId: string, data: CreateEmojiData): Promise<import("discord-typings").Emoji> {

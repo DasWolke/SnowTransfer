@@ -137,11 +137,11 @@ class GuildMethods {
 	 * @example
 	 * // Creates a guild voice channel with the name "nice voice channel" and with permission connect denied for the @everyone role
 	 * const client = new SnowTransfer("TOKEN")
-	 * const channelData = {
+	 * const channelData = \{
 	 * 	name: "nice voice channel",
 	 * 	type: 2,
-	 * 	permission_overwrites: [{ id: "guild id", type: 0, allow: "0" deny: (BigInt(1) << BigInt(20)).toString() }]
-	 * }
+	 * 	permission_overwrites: [\{ id: "guild id", type: 0, allow: "0" deny: (BigInt(1) << BigInt(20)).toString() \}]
+	 * \}
 	 * const channel = await client.guild.createGuildChannel("guild id", channelData)
 	 */
 	public async createGuildChannel(guildId: string, data: CreateGuildChannelData): Promise<import("discord-typings").GuildChannel> {
