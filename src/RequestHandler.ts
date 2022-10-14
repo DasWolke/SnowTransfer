@@ -12,6 +12,10 @@ import Constants from "./Constants";
 
 type HTTPMethod = "get" | "post" | "patch" | "head" | "put" | "delete" | "connect" | "options" | "trace";
 
+const includesSlashBansRegex = /\/bans/;
+const includesSlashPruneRegex = /\/prune/;
+const applicationJSONRegex = /application\/json/;
+
 class DiscordAPIError extends Error {
 	public method: HTTPMethod;
 	public path: string;
@@ -103,11 +107,11 @@ class RequestHandler extends EventEmitter {
 					this.emit("request", reqID, { endpoint, method, dataType, data });
 
 					let request: import("centra").Response;
-					if (dataType == "json") request = await this._request(endpoint, method, data, (method === "get" || endpoint.includes("/bans") || endpoint.includes("/prune")));
+					if (dataType == "json") request = await this._request(endpoint, method, data, (method === "get" || includesSlashBansRegex.test(endpoint) || includesSlashPruneRegex.test(endpoint)));
 					else if (dataType == "multipart") request = await this._multiPartRequest(endpoint, method, data);
 					else throw new Error("Forbidden dataType. Use json or multipart");
 
-					if (request.statusCode && !Constants.OK_STATUS_CODES.includes(request.statusCode) && request.statusCode !== 429) throw new DiscordAPIError(endpoint, request.headers["content-type"]?.startsWith("application/json") ? await request.json() : request.body.toString(), method, request.statusCode);
+					if (request.statusCode && !Constants.OK_STATUS_CODES.includes(request.statusCode) && request.statusCode !== 429) throw new DiscordAPIError(endpoint, request.headers["content-type"] && applicationJSONRegex.test(request.headers["content-type"]) ? await request.json() : request.body.toString(), method, request.statusCode);
 
 					this._applyRatelimitHeaders(bkt, request.headers);
 

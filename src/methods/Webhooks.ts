@@ -1,5 +1,7 @@
 import Endpoints from "../Endpoints";
 
+const mentionRegex = /@([^<>@ ]*)/gsmu;
+
 /**
  * Methods for handling webhook interactions
  */
@@ -167,7 +169,7 @@ class WebhookMethods {
 		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message
-		if (data.content && (options?.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
+		if (data.content && (options?.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.content = data.content.replace(mentionRegex, replaceEveryone);
 		if (options) {
 			delete options.disableEveryone;
 			if (Object.keys(options).length === 0) options = undefined;
@@ -190,7 +192,7 @@ class WebhookMethods {
 	 */
 	public async executeWebhookSlack(webhookId: string, token: string, data: any, options: { wait?: boolean; disableEveryone?: boolean; thread_id?: string; } | undefined = { disableEveryone: this.disableEveryone }): Promise<void> {
 		// Sanitize the message
-		if (data.text && (options?.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.text = data.text.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
+		if (data.text && (options?.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.text = data.text.replace(mentionRegex, replaceEveryone);
 		if (options) {
 			delete options.disableEveryone;
 			if (Object.keys(options).length === 0) options = undefined;
@@ -255,8 +257,10 @@ class WebhookMethods {
 	}
 }
 
+const isValidUserMentionRegex = /^[&!]?\d+$/;
+
 function replaceEveryone(_match: string, target: string) {
-	if (target.match(/^[&!]?\d+$/)) return `@${target}`;
+	if (isValidUserMentionRegex.test(target)) return `@${target}`;
 	else return `@\u200b${target}`;
 }
 

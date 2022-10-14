@@ -1,5 +1,11 @@
 import LocalBucket from "./LocalBucket";
 
+const routeRegex = /\/([a-z-]+)\/(?:[0-9]+)/g;
+const reactionsRegex = /\/reactions\/[^/]+/g;
+const reactionsUserRegex = /\/reactions\/:id\/[^/]+/g;
+const webhooksRegex = /^\/webhooks\/(\d+)\/[A-Za-z0-9-_]+/;
+const isMessageEndpointRegex = /\/messages\/:id$/;
+
 /**
  * Ratelimiter used for handling the ratelimits imposed by the rest api
  * @protected
@@ -61,10 +67,10 @@ class Ratelimiter {
 	 * @returns reduced url: /channels/266277541646434305/messages/:id/
 	 */
 	public routify(url: string, method: string): string {
-		let route = url.replace(/\/([a-z-]+)\/(?:\d+)/g, function (match, p) {
+		let route = url.replace(routeRegex, function (match, p: string) {
 			return p === "channels" || p === "guilds" || p === "webhooks" ? match : `/${p}/:id`;
-		}).replace(/\/reactions\/[^/]+/g, "/reactions/:id").replace(/^\/webhooks\/(\d+)\/[A-Za-z0-9-_]{64,}/, "/webhooks/$1/:token");
-		if (method.toUpperCase() === "DELETE" && route.endsWith("/messages/:id")) route = method + route; // Delete Messsage endpoint has its own ratelimit
+		}).replace(reactionsRegex, "/reactions/:id").replace(reactionsUserRegex, "/reactions/:id/:userID").replace(webhooksRegex, "/webhooks/$1/:token");
+		if (method.toUpperCase() === "DELETE" && isMessageEndpointRegex.test(route)) route = method + route; // Delete Messsage endpoint has its own ratelimit
 		return route;
 	}
 

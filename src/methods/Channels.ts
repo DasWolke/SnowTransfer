@@ -1,6 +1,8 @@
 import Endpoints from "../Endpoints";
 import Constants from "../Constants";
 
+const mentionRegex = /@([^<>@ ]*)/gsmu;
+
 /**
  * Methods for interacting with Channels and Messages
  */
@@ -193,7 +195,7 @@ class ChannelMethods {
 		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message
-		if (data.content && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
+		if (data.content && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.content = data.content.replace(mentionRegex, replaceEveryone);
 
 		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "post", "multipart", data);
 		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), "post", "json", data);
@@ -371,7 +373,7 @@ class ChannelMethods {
 		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message
-		if (data.content && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.content = data.content.replace(/@([^<>@ ]*)/gsmu, replaceEveryone);
+		if (data.content && (options.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.content = data.content.replace(mentionRegex, replaceEveryone);
 
 		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "multipart", data);
 		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), "patch", "json", data);
@@ -631,7 +633,7 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const thread = await client.channel.createThreadWithMessage("channel id", "message id", { name: "cool-art", reason: "I wanna talk about it!" })
 	 */
-	public async createThreadWithMessage(channelId: string, messageId: string, options: { name: string; auto_archive_duration?: 60 | 1440 | 4320 | 10080; rate_limit_per_user?: number | null; reason?: string; }): Promise<import("discord-typings").NewsThread | import("discord-typings").PublicThread> {
+	public async createThreadWithMessage(channelId: string, messageId: string, options: { name: string; auto_archive_duration?: 60 | 1440 | 4320 | 10080; rate_limit_per_user?: number | null; reason?: string; }): Promise<import("discord-typings").AnnouncementThread | import("discord-typings").PublicThread> {
 		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_THREADS(channelId, messageId), "post", "json", options);
 	}
 
@@ -780,7 +782,7 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const result = await client.channel.getChannelArchivedPublicThreads("channel id")
 	 */
-	public async getChannelArchivedPublicThreads(channelId: string, query?: { before?: string; limit?: number; }): Promise<{ threads: Array<import("discord-typings").NewsThread | import("discord-typings").PublicThread>; members: Array<import("discord-typings").ThreadMember>; has_more: boolean; }> {
+	public async getChannelArchivedPublicThreads(channelId: string, query?: { before?: string; limit?: number; }): Promise<{ threads: Array<import("discord-typings").AnnouncementThread | import("discord-typings").PublicThread>; members: Array<import("discord-typings").ThreadMember>; has_more: boolean; }> {
 		return this.requestHandler.request(`${Endpoints.CHANNEL_THREADS_ARCHIVED_PUBLIC(channelId)}${query ? Object.keys(query).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${query[v]}`).join("") : ""}`, "get", "json");
 	}
 
@@ -825,8 +827,10 @@ class ChannelMethods {
 	}
 }
 
+const isValidUserMentionRegex = /^[&!]?\d+$/;
+
 function replaceEveryone(_match: string, target: string) {
-	if (target.match(/^[&!]?\d+$/)) return `@${target}`;
+	if (isValidUserMentionRegex.test(target)) return `@${target}`;
 	else return `@\u200b${target}`;
 }
 
