@@ -1,16 +1,14 @@
-import Endpoints from "../Endpoints";
-import Constants from "../Constants";
+import Endpoints = require("../Endpoints");
+import Constants = require("../Constants");
 
 const mentionRegex = /@([^<>@ ]*)/gsmu;
 
 /**
  * Methods for interacting with Channels and Messages
  */
-class ChannelMethods {
-	public requestHandler: import("../RequestHandler");
+export class ChannelMethods {
+	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
 	public disableEveryone: boolean;
-
-	public static default = ChannelMethods;
 
 	/**
 	 * Create a new Channel Method handler
@@ -21,7 +19,7 @@ class ChannelMethods {
 	 * @param requestHandler request handler that calls the rest api
 	 * @param disableEveryone Disable [at]everyone/[at]here on outgoing messages
 	 */
-	public constructor(requestHandler: import("../RequestHandler"), disableEveryone: boolean) {
+	public constructor(requestHandler: ChannelMethods["requestHandler"], disableEveryone: boolean) {
 		this.requestHandler = requestHandler;
 		this.disableEveryone = disableEveryone;
 	}
@@ -834,7 +832,7 @@ function replaceEveryone(_match: string, target: string) {
 	else return `@\u200b${target}`;
 }
 
-interface EditChannelData {
+export type EditChannelData = {
 	/**
 	 * New name of the channel
 	 */
@@ -891,7 +889,7 @@ interface EditChannelData {
 	default_auto_archive_duration?: number | null;
 }
 
-interface EditThreadData {
+export type EditThreadData = {
 	/**
 	 * The new name of the thread
 	 */
@@ -919,7 +917,7 @@ interface EditThreadData {
 	rate_limit_per_user?: number;
 }
 
-interface GetMessageOptions {
+export type GetMessageOptions = {
 	/**
 	 * Gets messages around the Id of the passed snowflake
 	 */
@@ -938,7 +936,7 @@ interface GetMessageOptions {
 	limit?: number;
 }
 
-interface CreateMessageData {
+export type CreateMessageData = {
 	/**
 	 * Content of the message
 	 */
@@ -990,7 +988,7 @@ interface CreateMessageData {
 	flags?: number;
 }
 
-interface EditMessageData {
+export type EditMessageData = {
 	/**
 	 * Content of the message
 	 */
@@ -1030,7 +1028,7 @@ interface EditMessageData {
 	attachments?: Array<Omit<import("discord-typings").Attachment, "ephemeral" | "proxy_url" | "url" | "size">>;
 }
 
-interface CreateInviteData {
+export type CreateInviteData = {
 	/**
 	 * max age of the invite in seconds
 	 */
@@ -1060,8 +1058,6 @@ interface CreateInviteData {
 	 */
 	target_application_id?: string;
 }
-
-export = ChannelMethods;
 
 
 // Wolke >>

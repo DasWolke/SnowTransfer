@@ -1,15 +1,13 @@
-import Endpoints from "../Endpoints";
+import Endpoints = require("../Endpoints");
 
 const mentionRegex = /@([^<>@ ]*)/gsmu;
 
 /**
  * Methods for handling webhook interactions
  */
-class WebhookMethods {
-	public requestHandler: import("../RequestHandler");
+export class WebhookMethods {
+	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
 	public disableEveryone: boolean;
-
-	public static default = WebhookMethods;
 
 	/**
 	 * Create a new Method Handler
@@ -20,7 +18,7 @@ class WebhookMethods {
 	 * @param requestHandler request handler that calls the rest api
 	 * @param disableEveryone Disable [at]everyone/[at]here on outgoing messages
 	 */
-	public constructor(requestHandler: import("../RequestHandler"), disableEveryone: boolean) {
+	public constructor(requestHandler: WebhookMethods["requestHandler"], disableEveryone: boolean) {
 		this.requestHandler = requestHandler;
 		this.disableEveryone = disableEveryone;
 	}
@@ -267,7 +265,7 @@ function replaceEveryone(_match: string, target: string) {
 /**
  * Data from https://docs.github.com/en/developers/webhooks-and-events/webhook-events-and-payloads#webhook-payload-object
  */
-interface GitHubWebhookData {
+export type GitHubWebhookData = {
 	action: "created" | "completed" | "rerequested" | "requested_action";
 	/**
 	 * https://docs.github.com/en/rest/reference/checks#get-a-check-run
@@ -288,7 +286,7 @@ interface GitHubWebhookData {
 	sender: any;
 }
 
-interface WebhookCreateMessageData {
+export type WebhookCreateMessageData = {
 	/**
 	 * content of the message
 	 */
@@ -340,7 +338,7 @@ interface WebhookCreateMessageData {
 	flags?: number;
 }
 
-interface WebhookEditMessageData {
+export type WebhookEditMessageData = {
 	/**
 	 * content of the message
 	 */
@@ -379,5 +377,3 @@ interface WebhookEditMessageData {
 	 */
 	thread_id?: string;
 }
-
-export = WebhookMethods;

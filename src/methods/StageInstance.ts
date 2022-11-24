@@ -1,12 +1,10 @@
-import Endpoints from "../Endpoints";
+import Endpoints = require("../Endpoints");
 
 /**
  * Methods for interacting with Stage instances
  */
 class StageInstanceMethods {
-	public requestHandler: import("../RequestHandler");
-
-	public static default = StageInstanceMethods;
+	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
 
 	/**
 	 * Create a new Stage Instance Method Handler
@@ -16,7 +14,7 @@ class StageInstanceMethods {
 	 * You can access the methods listed via `client.stageInstance.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: import("../RequestHandler")) {
+	public constructor(requestHandler: StageInstanceMethods["requestHandler"]) {
 		this.requestHandler = requestHandler;
 	}
 

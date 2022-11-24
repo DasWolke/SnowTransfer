@@ -1,13 +1,11 @@
-import Endpoints from "../Endpoints";
-import Constants from "../Constants";
+import Endpoints = require("../Endpoints");
+import Constants = require("../Constants");
 
 /**
  * Methods for interacting with Guild Scheduled Events
  */
-class GuildScheduledEventMethods {
-	public requestHandler: import("../RequestHandler");
-
-	public static default = GuildScheduledEventMethods;
+export class GuildScheduledEventMethods {
+	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
 
 	/**
 	 * Create a new Guild Scheduled Event Method Handler
@@ -17,7 +15,7 @@ class GuildScheduledEventMethods {
 	 * You can access the methods listed via `client.guildScheduledEvent.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: import("../RequestHandler")) {
+	public constructor(requestHandler: GuildScheduledEventMethods["requestHandler"]) {
 		this.requestHandler = requestHandler;
 	}
 
@@ -152,7 +150,7 @@ class GuildScheduledEventMethods {
 	}
 }
 
-interface CreateGuildScheduledEventData {
+export type CreateGuildScheduledEventData = {
 	channel_id?: string;
 	entity_metadata?: import("discord-typings").GuildScheduledEventEntityMetadata;
 	name: string;
@@ -177,7 +175,7 @@ interface CreateGuildScheduledEventData {
 	reason?: string;
 }
 
-interface EditGuildScheduledEventData {
+export type EditGuildScheduledEventData = {
 	channel_id?: string;
 	entity_metadata?: import("discord-typings").GuildScheduledEventEntityMetadata;
 	name?: string;
@@ -206,11 +204,9 @@ interface EditGuildScheduledEventData {
 	reason?: string;
 }
 
-interface GetGuildScheduledEventUsers {
+export type GetGuildScheduledEventUsers = {
 	limit?: number;
 	with_member?: boolean;
 	before?: string;
 	after?: string;
 }
-
-export = GuildScheduledEventMethods;

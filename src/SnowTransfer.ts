@@ -1,19 +1,18 @@
-import Ratelimiter from "./Ratelimiter";
-import RequestHandler from "./RequestHandler";
-import ChannelMethods from "./methods/Channels";
-import UserMethods from "./methods/Users";
-import GuildAssetsMethods from "./methods/GuildAssets";
-import WebhookMethods from "./methods/Webhooks";
-import GuildMethods from "./methods/Guilds";
-import GuildScheduledEventMethods from "./methods/GuildScheduledEvent";
-import GuildTemplateMethods from "./methods/GuildTemplate";
-import InteractionMethods from "./methods/Interactions";
-import InviteMethods from "./methods/Invites";
-import VoiceMethods from "./methods/Voice";
-import BotMethods from "./methods/Bots";
-import AuditLogMethods from "./methods/AuditLog";
-import StageInstanceMethods from "./methods/StageInstance";
-import Endpoints from "./Endpoints";
+import { Ratelimiter, RequestHandler } from "./RequestHandler";
+import { ChannelMethods } from "./methods/Channels";
+import UserMethods = require("./methods/Users");
+import { GuildAssetsMethods } from "./methods/GuildAssets";
+import { WebhookMethods } from "./methods/Webhooks";
+import { GuildMethods } from "./methods/Guilds";
+import { GuildScheduledEventMethods } from "./methods/GuildScheduledEvent";
+import GuildTemplateMethods = require("./methods/GuildTemplate");
+import InteractionMethods = require("./methods/Interactions");
+import InviteMethods = require("./methods/Invites");
+import VoiceMethods = require("./methods/Voice");
+import BotMethods = require("./methods/Bots");
+import AuditLogMethods = require("./methods/AuditLog");
+import StageInstanceMethods = require("./methods/StageInstance");
+import Endpoints = require("./Endpoints");
 
 class SnowTransfer {
 	public options: { baseHost: string; disableEveryone: boolean; };
@@ -33,8 +32,6 @@ class SnowTransfer {
 	public auditLog: AuditLogMethods;
 	public stageInstance: StageInstanceMethods;
 	public ratelimiter: Ratelimiter;
-
-	public static default = SnowTransfer;
 
 	/**
 	 * Create a new Rest Client

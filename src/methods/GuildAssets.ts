@@ -1,12 +1,10 @@
-import Endpoints from "../Endpoints";
+import Endpoints = require("../Endpoints");
 
 /**
  * Methods for interacting with emojis
  */
-class GuildAssetsMethods {
-	public requestHandler: import("../RequestHandler");
-
-	public static default = GuildAssetsMethods;
+export class GuildAssetsMethods {
+	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
 
 	/**
 	 * Create a new GuildAssets Method handler
@@ -16,7 +14,7 @@ class GuildAssetsMethods {
 	 * You can access the methods listed via `client.guildAssets.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: import("../RequestHandler")) {
+	public constructor(requestHandler: GuildAssetsMethods["requestHandler"]) {
 		this.requestHandler = requestHandler;
 	}
 
@@ -233,7 +231,7 @@ class GuildAssetsMethods {
 	}
 }
 
-interface CreateEmojiData {
+export type CreateEmojiData = {
 	/**
 	 * name of the emoji
 	 */
@@ -252,7 +250,7 @@ interface CreateEmojiData {
 	reason?: string;
 }
 
-interface CreateStickerData {
+export type CreateStickerData = {
 	/**
 	 * name of the emoji
 	 */
@@ -274,5 +272,3 @@ interface CreateStickerData {
 	 */
 	reason?: string;
 }
-
-export = GuildAssetsMethods;

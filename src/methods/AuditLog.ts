@@ -1,12 +1,10 @@
-import Endpoints from "../Endpoints";
+import Endpoints = require("../Endpoints");
 
 /**
  * Methods for interacting with Guild Audit Logs
  */
 class AuditLogMethods {
-	public requestHandler: import("../RequestHandler");
-
-	public static default = AuditLogMethods;
+	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
 
 	/**
 	 * Create a new Audit Log Method Handler
@@ -16,7 +14,7 @@ class AuditLogMethods {
 	 * You can access the methods listed via `client.auditLog.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: import("../RequestHandler")) {
+	public constructor(requestHandler: AuditLogMethods["requestHandler"]) {
 		this.requestHandler = requestHandler;
 	}
 

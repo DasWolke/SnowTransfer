@@ -1,6 +1,6 @@
 "use strict";
 
-import Constants from "./Constants";
+import Constants = require("./Constants");
 
 /**
  * Mostly taken from https://github.com/abalabahaha/eris/blob/master/lib/rest/Endpoints.js

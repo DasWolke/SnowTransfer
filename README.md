@@ -27,7 +27,7 @@ I've written a general whitepaper on the idea of microservice bots, which you ca
 You can find the docs at [https://daswolke.github.io/SnowTransfer/](https://daswolke.github.io/SnowTransfer/)
 
 ### Installation:
-To install SnowTransfer, make sure that you have node 8 or higher and npm installed on your computer.
+To install SnowTransfer, make sure that you have node 12 or higher and npm installed on your computer.
 
 Then run the following command in a terminal `npm install snowtransfer`
 

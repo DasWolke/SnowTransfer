@@ -1,12 +1,10 @@
-import Endpoints from "../Endpoints";
+import Endpoints = require("../Endpoints");
 
 /**
  * Methods for interacting with bot specific endpoints
  */
 class BotMethods {
-	public requestHandler: import("../RequestHandler");
-
-	public static default = BotMethods;
+	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
 
 	/**
 	 * Create a new Bot Method Handler
@@ -16,7 +14,7 @@ class BotMethods {
 	 * You can access the methods listed via `client.bot.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: import("../RequestHandler")) {
+	public constructor(requestHandler: BotMethods["requestHandler"]) {
 		this.requestHandler = requestHandler;
 	}
 

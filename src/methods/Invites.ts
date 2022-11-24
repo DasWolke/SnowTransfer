@@ -1,12 +1,10 @@
-import Endpoints from "../Endpoints";
+import Endpoints = require("../Endpoints");
 
 /**
  * Methods for interacting with invites
  */
 class InviteMethods {
-	public requestHandler: import("../RequestHandler");
-
-	public static default = InviteMethods;
+	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
 
 	/**
 	 * Create a new Invite Method Handler
@@ -16,7 +14,7 @@ class InviteMethods {
 	 * You can access the methods listed via `client.invite.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: import("../RequestHandler")) {
+	public constructor(requestHandler: InviteMethods["requestHandler"]) {
 		this.requestHandler = requestHandler;
 	}
 

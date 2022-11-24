@@ -1,12 +1,10 @@
-import Endpoints from "../Endpoints";
+import Endpoints = require("../Endpoints");
 
 /**
  * Methods for interacting with Guild Templates
  */
 class GuildTemplateMethods {
-	public requestHandler: import("../RequestHandler");
-
-	public static default = GuildTemplateMethods;
+	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
 
 	/**
 	 * Create a new Guild Template Method Handler
@@ -16,7 +14,7 @@ class GuildTemplateMethods {
 	 * You can access the methods listed via `client.guildTemplate.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: import("../RequestHandler")) {
+	public constructor(requestHandler: GuildTemplateMethods["requestHandler"]) {
 		this.requestHandler = requestHandler;
 	}
 

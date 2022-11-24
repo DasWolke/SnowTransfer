@@ -1,15 +1,11 @@
-import Endpoints from "../Endpoints";
-
-type WebhookMethods = import("./Webhooks");
+import Endpoints = require("../Endpoints");
 
 /**
  * Methods for interacting with slash command specific endpoints
  */
 class InteractionMethods {
-	public requestHandler: import("../RequestHandler");
-	public webhooks: import("./Webhooks");
-
-	public static default = InteractionMethods;
+	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
+	public webhooks: (typeof import("./Webhooks"))["WebhookMethods"]["prototype"];
 
 	/**
 	 * Create a new Interaction Method Handler
@@ -19,7 +15,7 @@ class InteractionMethods {
 	 * You can access the methods listed via `client.interaction.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: import("../RequestHandler"), webhooks: import("./Webhooks")) {
+	public constructor(requestHandler: InteractionMethods["requestHandler"], webhooks: InteractionMethods["webhooks"]) {
 		this.requestHandler = requestHandler;
 		this.webhooks = webhooks;
 	}
@@ -287,7 +283,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * const message = await client.interaction.editOriginalInteractionResponse("appId", "token", { content: "The world said hello back" })
 	 */
-	public editOriginalInteractionResponse(appId: string, token: string, data: Parameters<WebhookMethods["editWebhookMessage"]>[3]): Promise<import("discord-typings").Message> {
+	public editOriginalInteractionResponse(appId: string, token: string, data: import("./Webhooks").WebhookEditMessageData): Promise<import("discord-typings").Message> {
 		return this.webhooks.editWebhookMessage(appId, token, "@original", data);
 	}
 
@@ -316,7 +312,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * const message = await client.interaction.createFollowupMessage("appId", "token", { content: "The pacer gram fitness test-" })
 	 */
-	public createFollowupMessage(appId: string, token: string, data: Omit<Parameters<WebhookMethods["executeWebhook"]>[2], "avatar_url" | "username">): Promise<import("discord-typings").Message> {
+	public createFollowupMessage(appId: string, token: string, data: Omit<import("./Webhooks").WebhookCreateMessageData, "avatar_url" | "username">): Promise<import("discord-typings").Message> {
 		// wait is always true for interactions and should not be supplied as it will throw an error if the query string is present
 		return this.webhooks.executeWebhook(appId, token, data) as unknown as Promise<import("discord-typings").Message>;
 	}
@@ -348,7 +344,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * const message = await client.interaction.editFollowupMessage("appId", "token", "messageId", { content: "-is a multistage aerobic capacity test" })
 	 */
-	public editFollowupMessage(appId: string, token: string, messageId: string, data: Parameters<WebhookMethods["editWebhookMessage"]>[3]): Promise<import("discord-typings").Message> {
+	public editFollowupMessage(appId: string, token: string, messageId: string, data: import("./Webhooks").WebhookEditMessageData): Promise<import("discord-typings").Message> {
 		return this.webhooks.editWebhookMessage(appId, token, messageId, data);
 	}
 

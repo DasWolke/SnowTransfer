@@ -1,12 +1,10 @@
-import Endpoints from "../Endpoints";
+import Endpoints = require("../Endpoints");
 
 /**
  * Methods for interacting with voice stuff via rest
  */
 class VoiceMethods {
-	public requestHandler: import("../RequestHandler");
-
-	public static default = VoiceMethods;
+	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
 
 	/**
 	 * Create a new Voice Method Handler
@@ -16,7 +14,7 @@ class VoiceMethods {
 	 * You can access the methods listed via `client.voice.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: import("../RequestHandler")) {
+	public constructor(requestHandler: VoiceMethods["requestHandler"]) {
 		this.requestHandler = requestHandler;
 	}
 

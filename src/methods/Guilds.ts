@@ -1,13 +1,11 @@
-import Endpoints from "../Endpoints";
-import Constants from "../Constants";
+import Endpoints = require("../Endpoints");
+import Constants = require("../Constants");
 
 /**
  * Methods for interacting with Guilds
  */
-class GuildMethods {
-	public requestHandler: import("../RequestHandler");
-
-	public static default = GuildMethods;
+export class GuildMethods {
+	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
 
 	/**
 	 * Create a new Guild Method Handler
@@ -17,7 +15,7 @@ class GuildMethods {
 	 * You can access the methods listed via `client.guild.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: import("../RequestHandler")) {
+	public constructor(requestHandler: GuildMethods["requestHandler"]) {
 		this.requestHandler = requestHandler;
 	}
 
@@ -804,7 +802,7 @@ class GuildMethods {
 
 // Please end my suffering (ft. Papi)
 
-interface CreateGuildData {
+export type CreateGuildData = {
 	/**
 	 * name of the guild
 	 */
@@ -847,7 +845,7 @@ interface CreateGuildData {
 	system_channel_flags?: number;
 }
 
-interface UpdateGuildData {
+export type UpdateGuildData = {
 	/**
 	 * name of the guild
 	 */
@@ -930,7 +928,7 @@ interface UpdateGuildData {
 	premium_progress_bar_enabled?: boolean;
 }
 
-interface CreateGuildChannelData {
+export type CreateGuildChannelData = {
 	/**
 	 * name of the channel
 	 */
@@ -978,7 +976,7 @@ interface CreateGuildChannelData {
 	reason?: string;
 }
 
-interface AddGuildMemberData {
+export type AddGuildMemberData = {
 	/**
 	 * oauth2 access token with a `guilds.join` scope enabled
 	 */
@@ -1001,7 +999,7 @@ interface AddGuildMemberData {
 	deaf?: boolean;
 }
 
-interface UpdateGuildMemberData {
+export type UpdateGuildMemberData = {
 	nick?: string | null;
 	roles?: Array<string> | null;
 	mute?: boolean | null;
@@ -1011,12 +1009,12 @@ interface UpdateGuildMemberData {
 	reason?: string;
 }
 
-interface GetGuildMembersData {
+export type GetGuildMembersData = {
 	limit?: number;
 	after?: string;
 }
 
-interface RoleOptions {
+export type RoleOptions = {
 	/**
 	 * Name of the role
 	 */
@@ -1052,4 +1050,3 @@ interface RoleOptions {
 }
 
 // those moves https://youtu.be/oCrwzN6eb4Q?t=51s nice
-export = GuildMethods;
