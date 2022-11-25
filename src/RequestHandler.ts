@@ -4,9 +4,9 @@ import { EventEmitter } from "events";
 import crypto = require("crypto");
 
 import FormData = require("form-data");
+import centra = require("centra");
 
 import Endpoints = require("./Endpoints");
-import httpClient = require("./http");
 const { version } = require("../package.json");
 import Constants = require("./Constants");
 
@@ -221,7 +221,7 @@ export class LocalBucket {
 
 type HandlerEvents = {
 	request: [string, { endpoint: string, method: HTTPMethod, dataType: "json" | "multipart", data: any; }];
-	done: [string, import("./http").ConnectionResponse];
+	done: [string, import("centra").Response];
 	requestError: [string, Error];
 	rateLimit: [{ timeout: number; limit: number; method: HTTPMethod; path: string; route: string; }];
 }
@@ -291,16 +291,16 @@ export class RequestHandler extends EventEmitter {
 				try {
 					this.emit("request", reqID, { endpoint, method, dataType, data: data ?? {} });
 
-					let request: import("./http").ConnectionResponse;
+					let request: import("centra").Response;
 					if (dataType == "json") request = await this._request(endpoint, method, data, (method === "get" || includesSlashBansRegex.test(endpoint) || includesSlashPruneRegex.test(endpoint)));
 					else if (dataType == "multipart") request = await this._multiPartRequest(endpoint, method, data);
 					else throw new Error("Forbidden dataType. Use json or multipart");
 
-					if (request.status && !Constants.OK_STATUS_CODES.includes(request.status) && request.status !== 429) throw new DiscordAPIError(endpoint, request.headers["content-type"] && applicationJSONRegex.test(request.headers["content-type"]) ? { message: JSON.stringify(await request.json()) } : { message: String(request.body) }, method, request.status);
+					if (request.statusCode && !Constants.OK_STATUS_CODES.includes(request.statusCode) && request.statusCode !== 429) throw new DiscordAPIError(endpoint, request.headers["content-type"] && applicationJSONRegex.test(request.headers["content-type"]) ? { message: JSON.stringify(await request.json()) } : { message: String(request.body) }, method, request.statusCode);
 
 					this._applyRatelimitHeaders(bkt, request.headers);
 
-					if (request.status === 429) {
+					if (request.statusCode === 429) {
 						if (!this.ratelimiter.global) {
 							const b = JSON.parse(String(request.body)); // Discord says it will be a JSON, so if there's an error, sucks
 							if (b.reset_after !== undefined) this.ratelimiter.globalReset = b.reset_after * 1000;
@@ -308,7 +308,7 @@ export class RequestHandler extends EventEmitter {
 							if (b.global !== undefined) this.ratelimiter.global = b.global;
 						}
 						this.emit("rateLimit", { timeout: bkt.reset, limit: bkt.limit, method: method, path: endpoint, route: this.ratelimiter.routify(endpoint, method) });
-						throw new DiscordAPIError(endpoint, { message: "You're being ratelimited", code: 429 }, method, request.status);
+						throw new DiscordAPIError(endpoint, { message: "You're being ratelimited", code: 429 }, method, request.statusCode);
 					}
 
 					this.emit("done", reqID, request);
@@ -349,25 +349,20 @@ export class RequestHandler extends EventEmitter {
 	 * @param useParams Whether to send the data in the body or use query params
 	 * @returns Result of the request
 	 */
-	private async _request(endpoint: string, method: HTTPMethod, data?: any, useParams = false): Promise<import("./http").ConnectionResponse> {
+	private async _request(endpoint: string, method: HTTPMethod, data?: any, useParams = false): Promise<import("centra").Response> {
 		const headers = { ...this.options.headers };
 		if (typeof data !== "string" && data?.reason) {
 			headers["X-Audit-Log-Reason"] = encodeURIComponent(data.reason);
 			delete data.reason;
 		}
-		let url = `${this.apiURL}/${endpoint}`;
-		let body: string | undefined = undefined;
-		if (useParams && data && Object.keys(data).length) url += `?${Object.keys(data).map(k => `${k}=${data[k]}`).join("&")}`;
+
+		const req = centra(this.apiURL, method).path(endpoint).header({ ...this.options.headers, ...headers });
+		if (useParams) return req.query(data).send();
 		else {
-			if (data && typeof data === "object") {
-				body = JSON.stringify(data);
-				headers["Content-Type"] = "application/json";
-			} else if (data) body = String(data);
+			if (data && typeof data === "object") req.body(data, "json");
+			else if (data) req.body(data);
+			return req.send();
 		}
-		const req = await httpClient.connect(url, { method, headers, bodyInit: body ? Buffer.from(body) : void 0 });
-		const response = await httpClient.socketToRequest(req);
-		req.end();
-		return response;
 	}
 
 	/**
@@ -377,7 +372,7 @@ export class RequestHandler extends EventEmitter {
 	 * @param data data to send
 	 * @returns Result of the request
 	 */
-	private async _multiPartRequest(endpoint: string, method: HTTPMethod, data: { files?: [{ name: string; file?: Buffer; }], data?: any }): Promise<import("./http").ConnectionResponse> {
+	private async _multiPartRequest(endpoint: string, method: HTTPMethod, data: { files?: [{ name: string; file?: Buffer; }], data?: any }): Promise<import("centra").Response> {
 		const form = new FormData();
 		if (data.files && Array.isArray(data.files) && data.files.every(f => !!f.name && !!f.file)) {
 			let index = 0;
@@ -389,11 +384,7 @@ export class RequestHandler extends EventEmitter {
 		}
 		if (data.data) delete data.files; // Interactions responses are weird, but I need to support it
 		form.append("payload_json", JSON.stringify(data));
-		// duplicate headers in options as to not risk mutating the state.
 		const headers = { ...this.options.headers, ...form.getHeaders() };
-		const req = await httpClient.connect(`${this.apiURL}/${endpoint}`, { method, headers, bodyInit: form.getBuffer() });
-		const response = await httpClient.socketToRequest(req);
-		req.end();
-		return response;
+		return centra(this.apiURL, method).path(endpoint).header(headers).body(form.getBuffer()).timeout(15000).send();
 	}
 }
