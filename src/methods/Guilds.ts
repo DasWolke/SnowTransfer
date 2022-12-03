@@ -388,7 +388,7 @@ export class GuildMethods {
 	 * const bans = await client.guild.getGuildBans("guildId")
 	 */
 	public async getGuildBans(guildId: string, options?: { limit?: number; before?: string; after?: string; }): Promise<Array<import("discord-typings").Ban>> {
-		return this.requestHandler.request(`${Endpoints.GUILD_BANS(guildId)}${options ? Object.keys(options).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${options[v]}`) : ""}`, "get", "json");
+		return this.requestHandler.request(`${Endpoints.GUILD_BANS(guildId)}${options ? Object.keys(options).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${options[v]}`).join("") : ""}`, "get", "json");
 	}
 
 	/**
