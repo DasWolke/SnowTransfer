@@ -189,7 +189,7 @@ export class ChannelMethods {
 	 * client.channel.createMessage("channel id", { content: "This is a nice picture", files: [{ name: "Optional_Filename.png", file: fileData }] })
 	 */
 	public async createMessage(channelId: string, data: string | CreateMessageData, options: { disableEveryone?: boolean; } = { disableEveryone: this.disableEveryone }): Promise<import("discord-typings").Message> {
-		if (typeof data !== "string" && !data.content && !data.embeds && !data.files) throw new Error("Missing content, embeds, files");
+		if (typeof data !== "string" && !data.content && !data.embeds && !data.sticker_ids && !data.components && !data.files) throw new Error("Missing content, embeds, sticker_ids, components, or files");
 		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message
@@ -367,7 +367,6 @@ export class ChannelMethods {
 	 * client.channel.editMessage("channel id", message.id, `pong ${Date.now() - time}ms`)
 	 */
 	public async editMessage(channelId: string, messageId: string, data: string | EditMessageData, options: { disableEveryone?: boolean; } = { disableEveryone: this.disableEveryone }): Promise<import("discord-typings").Message> {
-		if (typeof data !== "string" && data.content === undefined && data.embeds === undefined && data.files === undefined) throw new Error("Missing content, embeds, or files");
 		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message

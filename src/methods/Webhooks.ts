@@ -163,7 +163,7 @@ export class WebhookMethods {
 	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options?: { wait?: false; disableEveryone?: boolean; thread_id?: string; }): Promise<void>;
 	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options: { wait: true; disableEveryone?: boolean; thread_id?: string; }): Promise<import("discord-typings").Message>;
 	public async executeWebhook(webhookId: string, token: string, data: WebhookCreateMessageData, options: { wait?: boolean; disableEveryone?: boolean; thread_id?: string; } | undefined = { disableEveryone: this.disableEveryone }): Promise<void | import("discord-typings").Message> {
-		if (typeof data !== "string" && !data?.content && !data?.embeds && !data?.files) throw new Error("Missing content or embeds or files");
+		if (typeof data !== "string" && !data?.content && !data?.embeds && !data?.components && !data?.files) throw new Error("Missing content or embeds or components or files");
 		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message
