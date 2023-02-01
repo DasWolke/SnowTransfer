@@ -12,8 +12,8 @@ import Constants = require("./Constants");
 
 export type HTTPMethod = "get" | "post" | "patch" | "head" | "put" | "delete" | "connect" | "options" | "trace";
 
-const includesSlashBansRegex = /\/bans/;
-const includesSlashPruneRegex = /\/prune/;
+const routeShouldUseParamsRegex = /(?:\/bans)|(?:\/prune)/;
+
 const applicationJSONRegex = /application\/json/;
 const routeRegex = /\/([a-z-]+)\/(?:\d{17,19})/g;
 const reactionsRegex = /\/reactions\/[^/]+/g;
@@ -292,7 +292,7 @@ export class RequestHandler extends EventEmitter {
 					this.emit("request", reqID, { endpoint, method, dataType, data: data ?? {} });
 
 					let request: import("centra").Response;
-					if (dataType == "json") request = await this._request(endpoint, method, data, (method === "get" || includesSlashBansRegex.test(endpoint) || includesSlashPruneRegex.test(endpoint)));
+					if (dataType == "json") request = await this._request(endpoint, method, data, (method === "get" || routeShouldUseParamsRegex.test(endpoint)));
 					else if (dataType == "multipart") request = await this._multiPartRequest(endpoint, method, data);
 					else throw new Error("Forbidden dataType. Use json or multipart");
 

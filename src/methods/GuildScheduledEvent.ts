@@ -30,7 +30,7 @@ export class GuildScheduledEventMethods {
 	 * const events = await client.guildScheduledEvent.listGuildScheduledEvents(guildId)
 	 */
 	public async listGuildScheduledEvents(guildId: string, withCounts?: boolean): Promise<Array<import("discord-typings").GuildScheduledEvent>> {
-		return this.requestHandler.request(`${Endpoints.GUILD_SCHEDULED_EVENTS(guildId)}${withCounts ? "?with_user_count=true" : ""}`, "get", "json");
+		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENTS(guildId), "get", "json", withCounts !== undefined ? { with_user_count: withCounts } : undefined);
 	}
 
 	/**
@@ -66,7 +66,7 @@ export class GuildScheduledEventMethods {
 	 * Get a specific scheduled event for a guild
 	 * @param guildId The Id of the guild
 	 * @param eventId The Id of the event
-	 * @param withCount Include number of users subscribed to this event
+	 * @param withCounts Include number of users subscribed to this event
 	 * @returns A [scheduled event](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-structure)
 	 *
 	 * | Permissions needed | Condition                                 |
@@ -77,8 +77,8 @@ export class GuildScheduledEventMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const event = await client.guildScheduledEvent.getGuildScheduledEvent(guildId, eventId)
 	 */
-	public async getGuildScheduledEvent(guildId: string, eventId: string, withCount?: boolean): Promise<import("discord-typings").GuildScheduledEvent> {
-		return this.requestHandler.request(`${Endpoints.GUILD_SCHEDULED_EVENT(guildId, eventId)}${withCount ? "?with_user_count=true" : ""}`, "get", "json");
+	public async getGuildScheduledEvent(guildId: string, eventId: string, withCounts?: boolean): Promise<import("discord-typings").GuildScheduledEvent> {
+		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT(guildId, eventId), "get", "json", withCounts !== undefined ? { with_user_count: withCounts } : undefined);
 	}
 
 	/**
@@ -146,7 +146,7 @@ export class GuildScheduledEventMethods {
 	 */
 	public async getGuildScheduledEventUsers(guildId: string, eventId: string, query?: GetGuildScheduledEventUsers): Promise<Array<import("discord-typings").GuildScheduledEventUser & { member?: import("discord-typings").Member }>> {
 		if (query?.limit !== undefined && (query.limit < Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MIN_RESULTS || query.limit > Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MAX_RESULTS)) throw new RangeError(`The maximum amount of users that may be requested has to be between ${Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MIN_RESULTS} and ${Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MAX_RESULTS}`);
-		return this.requestHandler.request(`${Endpoints.GUILD_SCHEDULED_EVENT_USERS(guildId, eventId)}${query ? Object.keys(query).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${query[v]}`).join("") : ""}`, "get", "json");
+		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT_USERS(guildId, eventId), "get", "json", query);
 	}
 }
 

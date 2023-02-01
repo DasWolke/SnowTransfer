@@ -30,7 +30,7 @@ class InviteMethods {
 	 * const invite = await client.invite.getInvite("inviteId", { with_counts: true })
 	 */
 	public async getInvite(inviteId: string, query?: { with_counts?: boolean; with_expiration?: boolean; guild_scheduled_event_id?: string; }): Promise<import("discord-typings").Invite> {
-		return this.requestHandler.request(`${Endpoints.INVITES(inviteId)}${query ? Object.keys(query).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${query[v]}`).join("") : ""}`, "get", "json");
+		return this.requestHandler.request(Endpoints.INVITES(inviteId), "get", "json", query);
 	}
 
 	/**

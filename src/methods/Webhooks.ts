@@ -168,12 +168,10 @@ export class WebhookMethods {
 
 		// Sanitize the message
 		if (data.content && (options?.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.content = data.content.replace(mentionRegex, replaceEveryone);
-		if (options) {
-			delete options.disableEveryone;
-			if (Object.keys(options).length === 0) options = undefined;
-		}
+		if (options) delete options.disableEveryone;
+		const query = options ? new URLSearchParams(options as Record<string, string>) : undefined;
 
-		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN(webhookId, token)}${options ? Object.keys(options).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${options[v]}`).join("") : ""}`, "post", data.files ? "multipart" : "json", data);
+		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN(webhookId, token)}${query ? `?${query.toString()}` : undefined}`, "post", data.files ? "multipart" : "json", data);
 	}
 
 	/**
@@ -191,12 +189,10 @@ export class WebhookMethods {
 	public async executeWebhookSlack(webhookId: string, token: string, data: any, options: { wait?: boolean; disableEveryone?: boolean; thread_id?: string; } | undefined = { disableEveryone: this.disableEveryone }): Promise<void> {
 		// Sanitize the message
 		if (data.text && (options?.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.text = data.text.replace(mentionRegex, replaceEveryone);
-		if (options) {
-			delete options.disableEveryone;
-			if (Object.keys(options).length === 0) options = undefined;
-		}
+		if (options) delete options.disableEveryone;
+		const query = options ? new URLSearchParams(options as Record<string, string>) : undefined;
 
-		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN_SLACK(webhookId, token)}${options ? Object.keys(options).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${options[v]}`).join("") : ""}`, "post", "json", data);
+		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN_SLACK(webhookId, token)}${query ? `?${query.toString()}` : undefined}`, "post", "json", data);
 	}
 
 	/**
@@ -208,7 +204,8 @@ export class WebhookMethods {
 	 * @returns Resolves the Promise on successful execution
 	 */
 	public async executeWebhookGitHub(webhookId: string, token: string, data: GitHubWebhookData, options?: { wait?: boolean; thread_id?: string; }): Promise<void> {
-		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN_GITHUB(webhookId, token)}${options ? Object.keys(options).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${options[v]}`).join("") : ""}`, "post", "json", data);
+		const query = options ? new URLSearchParams(options as Record<string, string>) : undefined;
+		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN_GITHUB(webhookId, token)}${query ? `?${query.toString()}` : undefined}`, "post", "json", data);
 	}
 
 	/**
@@ -220,7 +217,7 @@ export class WebhookMethods {
 	 * @returns [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
 	 */
 	public async getWebhookMessage(webhookId: string, token: string, messageId: string, threadId?: string): Promise<import("discord-typings").Message> {
-		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId)}${threadId ? `?thread_id=${threadId}` : ""}`, "get", "json");
+		return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), "get", "json", threadId ? { thread_id: threadId } : undefined);
 	}
 
 	/**

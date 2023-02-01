@@ -324,7 +324,7 @@ export class ChannelMethods {
 	 * const reactions = await client.channel.getReactions("channel Id", "message Id", encodeURIComponent("awooo:322522663304036352"))
 	 */
 	public async getReactions(channelId: string, messageId: string, emoji: string, query?: { after?: string; limit?: number; }): Promise<Array<import("discord-typings").User>> {
-		return this.requestHandler.request(`${Endpoints.CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji)}${query ? Object.keys(query).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${query[v]}`).join("") : ""}`, "get", "json");
+		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji), "get", "json", query);
 	}
 
 	/**
@@ -780,7 +780,7 @@ export class ChannelMethods {
 	 * const result = await client.channel.getChannelArchivedPublicThreads("channel id")
 	 */
 	public async getChannelArchivedPublicThreads(channelId: string, query?: { before?: string; limit?: number; }): Promise<{ threads: Array<import("discord-typings").AnnouncementThread | import("discord-typings").PublicThread>; members: Array<import("discord-typings").ThreadMember>; has_more: boolean; }> {
-		return this.requestHandler.request(`${Endpoints.CHANNEL_THREADS_ARCHIVED_PUBLIC(channelId)}${query ? Object.keys(query).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${query[v]}`).join("") : ""}`, "get", "json");
+		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PUBLIC(channelId), "get", "json", query);
 	}
 
 	/**
@@ -801,7 +801,7 @@ export class ChannelMethods {
 	 * const result = await client.channel.getChannelArchivedPrivateThreads("channel id")
 	 */
 	public async getChannelArchivedPrivateThreads(channelId: string, query?: { before?: string; limit?: number; }): Promise<{ threads: Array<import("discord-typings").PrivateThread>; members: Array<import("discord-typings").ThreadMember>; has_more: boolean; }> {
-		return this.requestHandler.request(`${Endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE(channelId)}${query ? Object.keys(query).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${query[v]}`).join("") : ""}`, "get", "json");
+		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE(channelId), "get", "json", query);
 	}
 
 	/**
@@ -820,7 +820,7 @@ export class ChannelMethods {
 	 * const result = await client.channel.getChannelArchivedPrivateThreadsUser("channel id")
 	 */
 	public async getChannelArchivedPrivateThreadsUser(channelId: string, query?: { before?: string; limit?: number; }): Promise<{ threads: Array<import("discord-typings").PrivateThread>; members: Array<import("discord-typings").ThreadMember>; has_more: boolean; }> {
-		return this.requestHandler.request(`${Endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE_USER(channelId)}${query ? Object.keys(query).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${query[v]}`).join("") : ""}`, "get", "json");
+		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE_USER(channelId), "get", "json", query);
 	}
 }
 

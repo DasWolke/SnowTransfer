@@ -42,15 +42,15 @@ export class GuildMethods {
 	 *
 	 * CurrentUser must be a member of the guild
 	 * @param guildId Id of the guild
-	 * @param with_counts when true, will return approximate member and presence counts for the guild
+	 * @param withCounts when true, will return approximate member and presence counts for the guild
 	 * @returns [Guild object](https://discord.com/developers/docs/resources/guild#guild-object)
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
 	 * const guild = await client.guild.getGuild("guild id")
 	 */
-	public async getGuild(guildId: string, with_counts?: boolean): Promise<import("discord-typings").Guild> {
-		return this.requestHandler.request(`${Endpoints.GUILD(guildId)}${with_counts !== undefined ? `?with_counts=${with_counts}` : ""}`, "get", "json");
+	public async getGuild(guildId: string, withCounts?: boolean): Promise<import("discord-typings").Guild> {
+		return this.requestHandler.request(Endpoints.GUILD(guildId), "get", "json", withCounts !== undefined ? { with_counts: withCounts } : undefined);
 	}
 
 	/**
@@ -388,7 +388,7 @@ export class GuildMethods {
 	 * const bans = await client.guild.getGuildBans("guildId")
 	 */
 	public async getGuildBans(guildId: string, options?: { limit?: number; before?: string; after?: string; }): Promise<Array<import("discord-typings").Ban>> {
-		return this.requestHandler.request(`${Endpoints.GUILD_BANS(guildId)}${options ? Object.keys(options).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${options[v]}`) : ""}`, "get", "json");
+		return this.requestHandler.request(Endpoints.GUILD_BANS(guildId), "get", "json", options);
 	}
 
 	/**
@@ -570,7 +570,7 @@ export class GuildMethods {
 	 * const data = await client.guild.getGuildPruneCount("guildId", { days: 7 })
 	 */
 	public async getGuildPruneCount(guildId: string, query?: { days?: number; include_roles?: string; }): Promise<{ pruned: number; }> {
-		return this.requestHandler.request(`${Endpoints.GUILD_PRUNE(guildId)}${query ? Object.keys(query).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${query[v]}`).join("") : ""}`, "get", "json");
+		return this.requestHandler.request(Endpoints.GUILD_PRUNE(guildId), "get", "json", query);
 	}
 
 	/**

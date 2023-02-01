@@ -31,7 +31,7 @@ class InteractionMethods {
 	 * const commands = await client.interaction.getApplicationCommands("appId")
 	 */
 	public getApplicationCommands(appId: string, withLocalizations?: boolean): Promise<Array<import("discord-typings").FetchedApplicationCommand>> {
-		return this.requestHandler.request(`${Endpoints.APPLICATION_COMMANDS(appId)}${withLocalizations ? "?with_localizations=true" : ""}`, "get", "json");
+		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appId), "get", "json", withLocalizations !== undefined ? { with_localizations: withLocalizations } : undefined);
 	}
 
 	/**
@@ -118,7 +118,7 @@ class InteractionMethods {
 	 * const commands = await client.interaction.getGuildCommands("appId", "guildId", true)
 	 */
 	public getGuildApplicationCommands(appId: string, guildId: string, withLocalizations?: boolean): Promise<Array<import("discord-typings").FetchedApplicationCommand>> {
-		return this.requestHandler.request(`${Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId)}${withLocalizations ? "?with_localizations=true" : ""}`, "get", "json");
+		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId), "get", "json", withLocalizations !== undefined ? { with_localizations: withLocalizations } : undefined);
 	}
 
 	/**

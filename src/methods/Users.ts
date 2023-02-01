@@ -75,7 +75,7 @@ class UserMethods {
 	 * const guilds = await client.user.getGuilds()
 	 */
 	public async getGuilds(query?: { before?: string; after?: string; limit?: number; }): Promise<Array<import("discord-typings").Guild>> {
-		return this.requestHandler.request(`${Endpoints.USER_GUILDS("@me")}${query ? Object.keys(query).map((v, index) => `${index === 0 ? "?" : "&"}${v}=${query[v]}`).join("") : ""}`, "get", "json");
+		return this.requestHandler.request(Endpoints.USER_GUILDS("@me"), "get", "json", query);
 	}
 
 	/**
