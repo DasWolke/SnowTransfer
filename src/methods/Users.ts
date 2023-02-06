@@ -1,5 +1,7 @@
 import Endpoints = require("../Endpoints");
 
+import type APITypes = require("discord-api-types/v10");
+
 /**
  * Methods for interacting with users
  */
@@ -31,7 +33,7 @@ class UserMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const self = await client.user.getSelf()
 	 */
-	public async getSelf(): Promise<import("discord-typings").User> {
+	public async getSelf(): Promise<APITypes.RESTGetAPICurrentUserResult> {
 		return this.requestHandler.request(Endpoints.USER("@me"), "get", "json");
 	}
 
@@ -44,7 +46,7 @@ class UserMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const user = await client.user.getUser("userId")
 	 */
-	public async getUser(userId: string): Promise<import("discord-typings").User> {
+	public async getUser(userId: string): Promise<APITypes.RESTGetAPIUserResult> {
 		return this.requestHandler.request(Endpoints.USER(userId), "get", "json");
 	}
 
@@ -62,7 +64,7 @@ class UserMethods {
 	 * \}
 	 * client.user.updateSelf(updateData)
 	 */
-	public async updateSelf(data: { username?: string; avatar?: string | null; }): Promise<import("discord-typings").User> {
+	public async updateSelf(data: APITypes.RESTPatchAPICurrentUserJSONBody): Promise<APITypes.RESTPatchAPICurrentUserResult> {
 		return this.requestHandler.request(Endpoints.USER("@me"), "patch", "json", data);
 	}
 
@@ -74,7 +76,7 @@ class UserMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const guilds = await client.user.getGuilds()
 	 */
-	public async getGuilds(query?: { before?: string; after?: string; limit?: number; }): Promise<Array<import("discord-typings").Guild>> {
+	public async getGuilds(query?: APITypes.RESTGetAPICurrentUserGuildsQuery): Promise<APITypes.RESTGetAPICurrentUserGuildsResult> {
 		return this.requestHandler.request(Endpoints.USER_GUILDS("@me"), "get", "json", query);
 	}
 
@@ -87,8 +89,8 @@ class UserMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.user.leaveGuild("guildId")
 	 */
-	public async leaveGuild(guildId: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.USER_GUILD("@me", guildId), "delete", "json");
+	public async leaveGuild(guildId: string): Promise<APITypes.RESTDeleteAPICurrentUserGuildResult> {
+		return this.requestHandler.request(Endpoints.USER_GUILD("@me", guildId), "delete", "json") as APITypes.RESTDeleteAPICurrentUserGuildResult;
 	}
 
 	/**
@@ -104,8 +106,81 @@ class UserMethods {
 	 * const channel = await client.user.createDirectMessageChannel("other user id")
 	 * client.channel.createMessage(channel.id, "hi")
 	 */
-	public async createDirectMessageChannel(userId: string): Promise<import("discord-typings").DMChannel> {
+	public async createDirectMessageChannel(userId: string): Promise<APITypes.RESTPostAPICurrentUserCreateDMChannelResult> {
 		return this.requestHandler.request(Endpoints.USER_CHANNELS("@me"), "post", "json", { recipient_id: userId });
+	}
+
+	/**
+	 * Create a group direct message channel with other users
+	 *
+	 * @param data An object containing a list of access tokens with gdm.join and optionally, a nickname dictionary keyed by user IDs with strings as values
+	 * @returns A [DM channel](https://discord.com/developers/docs/resources/channel#channel-object)
+	 *
+	 * | OAUTH2 Scopes | Condition            |
+	 * |---------------|----------------------|
+	 * | gdm.join      | always for each user |
+	 *
+	 * @example
+	 * // Create a group dm channel and send "hi" to it
+	 * const client = new SnowTransfer("TOKEN")
+	 * const channel = await client.user.createGroupDirectMessageChannel({ access_tokens: ["user 1 access token", "user 2 access token"], { "320067006521147393": "Brad", "128392910574977024": "Wolke" } })
+	 * client.channel.createMessage(channel.id, "hi")
+	 */
+	public async createGroupDirectMessageChannel(data: { access_tokens: Array<string>; nicks?: { [userId: string]: string } }): Promise<APITypes.RESTPostAPICurrentUserCreateDMChannelResult> {
+		return this.requestHandler.request(Endpoints.USER_CHANNELS("@me"), "post", "json", data);
+	}
+
+	/**
+	 * Returns a list of connections for the current user
+	 * @returns A list of [connections](https://discord.com/developers/docs/resources/user#connection-object)
+	 *
+	 * | OAUTH2 Scopes | Condition |
+	 * |---------------|-----------|
+	 * | connections   | always    |
+	 *
+	 * @example
+	 * // Get all user's connections
+	 * const client = new SnowTransfer("TOKEN")
+	 * const connections = await client.user.getConnections()
+	 */
+	public async getConnections(): Promise<APITypes.RESTGetAPICurrentUserConnectionsResult> {
+		return this.requestHandler.request(Endpoints.USER_CONNECTIONS("@me"), "get", "json");
+	}
+
+	/**
+	 * Gets a role connection for the current user
+	 * @param appId Id of the application
+	 * @returns An [Application role connection](https://discord.com/developers/docs/resources/user#application-role-connection-object)
+	 *
+	 * | OAUTH2 Scopes          | Condition |
+	 * |------------------------|-----------|
+	 * | role_connections.write | always    |
+	 *
+	 * @example
+	 * // Get a role connection for an app
+	 * const client = new SnowTransfer("TOKEN")
+	 * const connection = await client.user.getApplicationRoleConnection("app id")
+	 */
+	public async getApplicationRoleConnection(appId: string): Promise<APITypes.RESTGetAPICurrentUserApplicationRoleConnectionResult> {
+		return this.requestHandler.request(Endpoints.USER_APPLICATION_ROLE_CONNECTION("@me", appId), "get", "json");
+	}
+
+	/**
+	 * Updates a role connection for the current user
+	 * @param appId Id of the application
+	 * @returns An [Application role connection](https://discord.com/developers/docs/resources/user#application-role-connection-object)
+	 *
+	 * | OAUTH2 Scopes          | Condition |
+	 * |------------------------|-----------|
+	 * | role_connections.write | always    |
+	 *
+	 * @example
+	 * // Updates a role connection for an app
+	 * const client = new SnowTransfer("TOKEN")
+	 * const connection = await client.user.updateApplicationRoleConnection("app id", { platform_name: "some platform", platform_username: "Cool user 22" })
+	 */
+	public async updateApplicationRoleConnection(appId: string, data: APITypes.RESTPutAPICurrentUserApplicationRoleConnectionJSONBody): Promise<APITypes.RESTPutAPICurrentUserApplicationRoleConnectionResult> {
+		return this.requestHandler.request(Endpoints.USER_APPLICATION_ROLE_CONNECTION("@me", appId), "put", "json", data);
 	}
 }
 

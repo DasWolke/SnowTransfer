@@ -1,5 +1,7 @@
 import Endpoints = require("../Endpoints");
 
+import type APITypes = require("discord-api-types/v10");
+
 /**
  * Methods for interacting with invites
  */
@@ -29,7 +31,7 @@ class InviteMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const invite = await client.invite.getInvite("inviteId", { with_counts: true })
 	 */
-	public async getInvite(inviteId: string, query?: { with_counts?: boolean; with_expiration?: boolean; guild_scheduled_event_id?: string; }): Promise<import("discord-typings").Invite> {
+	public async getInvite(inviteId: string, query?: APITypes.RESTGetAPIInviteQuery): Promise<APITypes.RESTGetAPIInviteResult> {
 		return this.requestHandler.request(Endpoints.INVITES(inviteId), "get", "json", query);
 	}
 
@@ -47,7 +49,7 @@ class InviteMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const invite = await client.invite.deleteInvite("inviteId")
 	 */
-	public async deleteInvite(inviteId: string): Promise<import("discord-typings").Invite> {
+	public async deleteInvite(inviteId: string): Promise<APITypes.RESTDeleteAPIInviteResult> {
 		return this.requestHandler.request(Endpoints.INVITES(inviteId), "delete", "json");
 	}
 }

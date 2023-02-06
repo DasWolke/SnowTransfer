@@ -1,10 +1,12 @@
 import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
 
+import type APITypes = require("discord-api-types/v10");
+
 /**
  * Methods for interacting with Guilds
  */
-export class GuildMethods {
+class GuildMethods {
 	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
 
 	/**
@@ -33,7 +35,7 @@ export class GuildMethods {
 	 * }
 	 * const guild = await client.guild.createGuild(guildData)
 	 */
-	public async createGuild(data: CreateGuildData): Promise<import("discord-typings").Guild> {
+	public async createGuild(data: APITypes.RESTPostAPIGuildsJSONBody): Promise<APITypes.RESTPostAPIGuildsResult> {
 		return this.requestHandler.request(Endpoints.GUILDS, "post", "json", data);
 	}
 
@@ -49,7 +51,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const guild = await client.guild.getGuild("guild id")
 	 */
-	public async getGuild(guildId: string, withCounts?: boolean): Promise<import("discord-typings").Guild> {
+	public async getGuild(guildId: string, withCounts?: boolean): Promise<APITypes.RESTGetAPIGuildResult> {
 		return this.requestHandler.request(Endpoints.GUILD(guildId), "get", "json", withCounts !== undefined ? { with_counts: withCounts } : undefined);
 	}
 
@@ -62,7 +64,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const guildPreview = await client.guild.getGuildPreview("guild id")
 	 */
-	public async getGuildPreview(guildId: string): Promise<import("discord-typings").GuildPreview> {
+	public async getGuildPreview(guildId: string): Promise<APITypes.RESTGetAPIGuildPreviewResult> {
 		return this.requestHandler.request(Endpoints.GUILD_PREVIEW(guildId), "get", "json");
 	}
 
@@ -84,7 +86,7 @@ export class GuildMethods {
 	 * }
 	 * client.guild.updateGuild("guild Id", guildData)
 	 */
-	public async updateGuild(guildId: string, data: UpdateGuildData): Promise<import("discord-typings").Guild> {
+	public async updateGuild(guildId: string, data: APITypes.RESTPatchAPIGuildJSONBody): Promise<APITypes.RESTPatchAPIGuildResult> {
 		return this.requestHandler.request(Endpoints.GUILD(guildId), "patch", "json", data);
 	}
 
@@ -101,8 +103,8 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guild.deleteGuild("guild id")
 	 */
-	public async deleteGuild(guildId: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD(guildId), "delete", "json");
+	public async deleteGuild(guildId: string): Promise<APITypes.RESTDeleteAPIGuildResult> {
+		return this.requestHandler.request(Endpoints.GUILD(guildId), "delete", "json") as APITypes.RESTDeleteAPIGuildResult;
 	}
 
 	/**
@@ -116,7 +118,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const channels = await client.guild.getGuildChannels("guild id")
 	 */
-	public async getGuildChannels(guildId: string): Promise<Array<import("discord-typings").GuildChannel>> {
+	public async getGuildChannels(guildId: string): Promise<APITypes.RESTGetAPIGuildChannelsResult> {
 		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), "get", "json");
 	}
 
@@ -142,7 +144,7 @@ export class GuildMethods {
 	 * \}
 	 * const channel = await client.guild.createGuildChannel("guild id", channelData)
 	 */
-	public async createGuildChannel(guildId: string, data: CreateGuildChannelData): Promise<import("discord-typings").GuildChannel> {
+	public async createGuildChannel(guildId: string, data: APITypes.RESTPostAPIGuildChannelJSONBody): Promise<APITypes.RESTPostAPIGuildChannelResult> {
 		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), "post", "json", data);
 	}
 
@@ -159,10 +161,10 @@ export class GuildMethods {
 	 * @example
 	 * // Sets the position of a channel to 2 under a category channel
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.guild.updateChannelPositions("guild id", [{ id: "channel id", position: 2, category_id: "category id" }])
+	 * client.guild.updateChannelPositions("guild id", [{ id: "channel id", position: 2, category_id: "category id" }], "they looked out of order")
 	 */
-	public async updateChannelPositions(guildId: string, data: Array<{ id: string; position: number | null; lock_permissions?: boolean | null; parent_id?: string | null; }>): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), "patch", "json", data); // Support for X-Audit-Log-Reason cannot be added here because member reason doesn't exist on Arrays
+	public async updateChannelPositions(guildId: string, data: APITypes.RESTPatchAPIGuildChannelPositionsJSONBody, reason?: string): Promise<APITypes.RESTPatchAPIGuildChannelPositionsResult> {
+		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), "patch", "json", data, reason ? { "X-Audit-Log-Reason": reason } : void 0) as APITypes.RESTPatchAPIGuildChannelPositionsResult;
 	}
 
 	/**
@@ -174,7 +176,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const threads = await client.guild.listActiveThreads("guild id")
 	 */
-	public async listActiveThreads(guildId: string): Promise<{ threads: Array<import("discord-typings").ThreadChannel>; members: Array<import("discord-typings").ThreadMember>; }> {
+	public async listActiveThreads(guildId: string): Promise<APITypes.RESTGetAPIGuildThreadsResult> {
 		return this.requestHandler.request(Endpoints.GUILD_THREADS_ACTIVE(guildId), "get", "json");
 	}
 
@@ -190,7 +192,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const member = await client.guild.getGuildMember("guild id", "member id")
 	 */
-	public async getGuildMember(guildId: string, memberId: string): Promise<import("discord-typings").Member> {
+	public async getGuildMember(guildId: string, memberId: string): Promise<APITypes.RESTGetAPIGuildMemberResult> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "get", "json");
 	}
 
@@ -211,7 +213,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const members = await client.guild.getGuildMembers("guild id", { limit: 10 })
 	 */
-	public async getGuildMembers(guildId: string, data?: GetGuildMembersData): Promise<Array<import("discord-typings").Member>> {
+	public async getGuildMembers(guildId: string, data?: APITypes.RESTGetAPIGuildMembersQuery): Promise<APITypes.RESTGetAPIGuildMembersResult> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBERS(guildId), "get", "json", data);
 	}
 
@@ -226,7 +228,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const members = await client.guild.searchGuildMembers("guild id", { query: "Wolke" })
 	 */
-	public async searchGuildMembers(guildId: string, options: { query: string; limit?: number; }): Promise<Array<import("discord-typings").Member>> {
+	public async searchGuildMembers(guildId: string, options: APITypes.RESTGetAPIGuildMembersSearchQuery): Promise<APITypes.RESTGetAPIGuildMembersSearchResult> {
 		if (options.limit !== undefined && (options.limit < Constants.SEARCH_MEMBERS_MIN_RESULTS || options.limit > Constants.SEARCH_MEMBERS_MAX_RESULTS)) throw new RangeError(`Limit for searching guild members has to be between ${Constants.SEARCH_MEMBERS_MIN_RESULTS} and ${Constants.SEARCH_MEMBERS_MAX_RESULTS}`);
 		return this.requestHandler.request(Endpoints.GUILD_MEMBERS_SEARCH(guildId), "get", "json", options);
 	}
@@ -238,7 +240,7 @@ export class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param data object containing the needed request data
-	 * @returns [guild member](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure)
+	 * @returns [guild member](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure) or void if the member is already in the guild
 	 *
 	 * | Permissions needed    | Condition |
 	 * |-----------------------|-----------|
@@ -256,7 +258,7 @@ export class GuildMethods {
 	 * }
 	 * client.guild.addGuildMember("guildId", "memberId", memberData)
 	 */
-	public async addGuildMember(guildId: string, memberId: string, data: AddGuildMemberData): Promise<import("discord-typings").Member | void> {
+	public async addGuildMember(guildId: string, memberId: string, data: APITypes.RESTPutAPIGuildMemberJSONBody): Promise<APITypes.RESTPutAPIGuildMemberResult> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "put", "json", data);
 	}
 
@@ -285,7 +287,7 @@ export class GuildMethods {
 	 * }
 	 * const member = await client.guild.updateGuildMember("guild Id", "memberId", memberData)
 	 */
-	public async updateGuildMember(guildId: string, memberId: string, data: UpdateGuildMemberData): Promise<import("discord-typings").Member> {
+	public async updateGuildMember(guildId: string, memberId: string, data: APITypes.RESTPatchAPIGuildMemberJSONBody): Promise<APITypes.RESTPatchAPIGuildMemberResult> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "patch", "json", data);
 	}
 
@@ -307,7 +309,7 @@ export class GuildMethods {
 	 * }
 	 * client.guild.updateSelf("guildId", nickData)
 	 */
-	public async updateSelf(guildId: string, data: { nick: string; reason?: string; }): Promise<import("discord-typings").Member> {
+	public async updateSelf(guildId: string, data: APITypes.RESTPatchAPICurrentGuildMemberJSONBody & { reason?: string; }): Promise<APITypes.APIGuildMember> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, "@me"), "patch", "json", data);
 	}
 
@@ -316,7 +318,7 @@ export class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param roleId Id of the role
-	 * @param data object with reason property
+	 * @param reason The reason for the role to be added
 	 * @returns Resolves the Promise on successful execution
 	 *
 	 * | Permissions needed | Condition |
@@ -326,10 +328,10 @@ export class GuildMethods {
 	 * @example
 	 * // add a role to a member with a reason of "I want to add a role"
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.guild.addGuildMemberRole("guildId", "memberId", "roleId", { reason: "I want to add a role" })
+	 * client.guild.addGuildMemberRole("guildId", "memberId", "roleId", "I want to add a role")
 	 */
-	public async addGuildMemberRole(guildId: string, memberId: string, roleId: string, data?: { reason?: string; }): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), "put", "json", data);
+	public async addGuildMemberRole(guildId: string, memberId: string, roleId: string, reason?: string): Promise<APITypes.RESTPutAPIGuildMemberRoleResult> {
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), "put", "json", reason ? { reason } : void 0) as APITypes.RESTPutAPIGuildMemberRoleResult;
 	}
 
 	/**
@@ -349,8 +351,8 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guild.removeGuildMemberRole("guildId", "memberId", "roleId", "I want to remove a role")
 	 */
-	public async removeGuildMemberRole(guildId: string, memberId: string, roleId: string, reason?: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), "delete", "json", reason ? { reason } : undefined);
+	public async removeGuildMemberRole(guildId: string, memberId: string, roleId: string, reason?: string): Promise<APITypes.RESTDeleteAPIGuildMemberRoleResult> {
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), "delete", "json", reason ? { reason } : undefined) as APITypes.RESTDeleteAPIGuildMemberRoleResult;
 	}
 
 	/**
@@ -369,8 +371,8 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guild.removeGuildMember("guild Id", "memberId", "spam")
 	 */
-	public async removeGuildMember(guildId: string, memberId: string, reason?: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "delete", "json", reason ? { reason } : undefined);
+	public async removeGuildMember(guildId: string, memberId: string, reason?: string): Promise<APITypes.RESTDeleteAPIGuildMemberResult> {
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), "delete", "json", reason ? { reason } : undefined) as APITypes.RESTDeleteAPIGuildMemberResult;
 	}
 
 	/**
@@ -387,7 +389,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const bans = await client.guild.getGuildBans("guildId")
 	 */
-	public async getGuildBans(guildId: string, options?: { limit?: number; before?: string; after?: string; }): Promise<Array<import("discord-typings").Ban>> {
+	public async getGuildBans(guildId: string, options?: APITypes.RESTGetAPIGuildBansQuery): Promise<APITypes.RESTGetAPIGuildBansResult> {
 		return this.requestHandler.request(Endpoints.GUILD_BANS(guildId), "get", "json", options);
 	}
 
@@ -407,7 +409,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const ban = await client.guild.getGuildBan("guildId", "memberId")
 	 */
-	public async getGuildBan(guildId: string, memberId: string): Promise<import("discord-typings").Ban> {
+	public async getGuildBan(guildId: string, memberId: string): Promise<APITypes.RESTGetAPIGuildBanResult> {
 		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), "get", "json");
 	}
 
@@ -431,8 +433,8 @@ export class GuildMethods {
 	 * }
 	 * client.guild.createGuildBan("guild Id", "memberId", banData)
 	 */
-	public async createGuildBan(guildId: string, memberId: string, data?: { reason?: string; delete_message_days?: number; }): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), "put", "json", data);
+	public async createGuildBan(guildId: string, memberId: string, data?: APITypes.RESTPutAPIGuildBanJSONBody & { reason?: string; }): Promise<APITypes.RESTPutAPIGuildBanResult> {
+		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), "put", "json", data) as APITypes.RESTPutAPIGuildBanResult;
 	}
 
 	/**
@@ -451,8 +453,8 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guild.removeGuildBan("guildId", "memberId", "This guy was cool")
 	 */
-	public async removeGuildBan(guildId: string, memberId: string, reason?: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), "delete", "json", reason ? { reason } : undefined);
+	public async removeGuildBan(guildId: string, memberId: string, reason?: string): Promise<APITypes.RESTDeleteAPIGuildBanResult> {
+		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), "delete", "json", reason ? { reason } : undefined) as APITypes.RESTDeleteAPIGuildBanResult;
 	}
 
 	/**
@@ -468,7 +470,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const roles = await client.guild.getGuildRoles("guildId")
 	 */
-	public async getGuildRoles(guildId: string): Promise<Array<import("discord-typings").Role>> {
+	public async getGuildRoles(guildId: string): Promise<APITypes.RESTGetAPIGuildRolesResult> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), "get", "json");
 	}
 
@@ -491,7 +493,7 @@ export class GuildMethods {
 	 * }
 	 * client.guild.createGuildRole("guild Id", roleData)
 	 */
-	public async createGuildRole(guildId: string, data?: RoleOptions): Promise<import("discord-typings").Role> {
+	public async createGuildRole(guildId: string, data?: APITypes.RESTPostAPIGuildRoleJSONBody & { reason?: string; }): Promise<APITypes.RESTPostAPIGuildRoleResult> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), "post", "json", data);
 	}
 
@@ -509,8 +511,8 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const roles = await client.guild.updateGuildRolePositions("guildId", [{ id: "guild id", position: 1 }, { id: "role id 2", position: 2 }])
 	 */
-	public async updateGuildRolePositions(guildId: string, data: Array<{ id: string; position?: number | null; }>): Promise<Array<import("discord-typings").Role>> {
-		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), "patch", "json", data);
+	public async updateGuildRolePositions(guildId: string, data: APITypes.RESTPatchAPIGuildRolePositionsJSONBody, reason?: string): Promise<APITypes.RESTPatchAPIGuildRolePositionsResult> {
+		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), "patch", "json", data, reason ? { "X-Audit-Log-Reason": reason } : void 0);
 	}
 
 	/**
@@ -531,7 +533,7 @@ export class GuildMethods {
 	 * }
 	 * client.guild.updateGuildRole("guildId", "roleId", roleData)
 	 */
-	public async updateGuildRole(guildId: string, roleId: string, data: RoleOptions): Promise<import("discord-typings").Role> {
+	public async updateGuildRole(guildId: string, roleId: string, data: APITypes.RESTPatchAPIGuildRoleJSONBody): Promise<APITypes.RESTPatchAPIGuildRoleResult> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLE(guildId, roleId), "patch", "json", data);
 	}
 
@@ -551,8 +553,8 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guild.deleteGuildRole("guildId", "roleId", "This role is too cool")
 	 */
-	public async removeGuildRole(guildId: string, roleId: string, reason?: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD_ROLE(guildId, roleId), "delete", "json", reason ? { reason } : undefined);
+	public async removeGuildRole(guildId: string, roleId: string, reason?: string): Promise<APITypes.RESTDeleteAPIGuildRoleResult> {
+		return this.requestHandler.request(Endpoints.GUILD_ROLE(guildId, roleId), "delete", "json", reason ? { reason } : undefined) as APITypes.RESTDeleteAPIGuildRoleResult;
 	}
 
 	/**
@@ -569,7 +571,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const data = await client.guild.getGuildPruneCount("guildId", { days: 7 })
 	 */
-	public async getGuildPruneCount(guildId: string, query?: { days?: number; include_roles?: string; }): Promise<{ pruned: number; }> {
+	public async getGuildPruneCount(guildId: string, query?: APITypes.RESTGetAPIGuildPruneCountQuery): Promise<APITypes.RESTGetAPIGuildPruneCountResult> {
 		return this.requestHandler.request(Endpoints.GUILD_PRUNE(guildId), "get", "json", query);
 	}
 
@@ -587,9 +589,9 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const data = await client.guild.startGuildPrune("guildId", { days: 7 })
 	 */
-	public async startGuildPrune(guildId: string, data: { days?: number; compute_prune_count?: boolean; include_roles?: Array<string>; reason?: string; }): Promise<{ pruned: number; }>
-	public async startGuildPrune(guildId: string, data: { days?: number; compute_prune_count: false; include_roles?: Array<string>; reason?: string; }): Promise<{ pruned: null; }>
-	public async startGuildPrune(guildId: string, data: { days?: number; compute_prune_count?: boolean; include_roles?: Array<string>; reason?: string; }): Promise<{ pruned: number | null; }> {
+	public async startGuildPrune(guildId: string, data: APITypes.RESTPostAPIGuildPruneJSONBody & { computer_prune_count: true; reason?: string; }): Promise<APITypes.RESTPostAPIGuildPruneResult & { pruned: number; }>
+	public async startGuildPrune(guildId: string, data: APITypes.RESTPostAPIGuildPruneJSONBody & { computer_prune_count: false; reason?: string; }): Promise<APITypes.RESTPostAPIGuildPruneResult & { pruned: null; }>
+	public async startGuildPrune(guildId: string, data: APITypes.RESTPostAPIGuildPruneJSONBody & { reason?: string; }): Promise<APITypes.RESTPostAPIGuildPruneResult> {
 		return this.requestHandler.request(Endpoints.GUILD_PRUNE(guildId), "post", "json", data);
 	}
 
@@ -602,7 +604,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const regions = await client.guild.getGuildVoiceRegions("guildId")
 	 */
-	public async getGuildVoiceRegions(guildId: string): Promise<Array<import("discord-typings").VoiceRegion>> {
+	public async getGuildVoiceRegions(guildId: string): Promise<APITypes.RESTGetAPIGuildVoiceRegionsResult> {
 		return this.requestHandler.request(Endpoints.GUILD_VOICE_REGIONS(guildId), "get", "json");
 	}
 
@@ -619,7 +621,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const invites = await client.guild.getGuildInvites("guildId")
 	 */
-	public async getGuildInvites(guildId: string): Promise<Array<import("discord-typings").Invite & import("discord-typings").InviteMetadata>> {
+	public async getGuildInvites(guildId: string): Promise<APITypes.RESTGetAPIGuildInvitesResult> {
 		return this.requestHandler.request(Endpoints.GUILD_INVITES(guildId), "get", "json");
 	}
 
@@ -636,7 +638,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const integrations = await client.guild.getGuildIntegrations("guildId")
 	 */
-	public async getGuildIntegrations(guildId: string): Promise<Array<import("discord-typings").Integration>> {
+	public async getGuildIntegrations(guildId: string): Promise<APITypes.RESTGetAPIGuildIntegrationsResult> {
 		return this.requestHandler.request(Endpoints.GUILD_INTEGRATIONS(guildId), "get", "json");
 	}
 
@@ -654,8 +656,8 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * await client.guild.deleteGuildIntegration("guildId", "integrationId", "Didn't need anymore")
 	 */
-	public async removeGuildIntegration(guildId: string, integrationId: string, reason?: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD_INTEGRATION(guildId, integrationId), "delete", "json", reason ? { reason } : undefined);
+	public async removeGuildIntegration(guildId: string, integrationId: string, reason?: string): Promise<APITypes.RESTDeleteAPIGuildIntegrationResult> {
+		return this.requestHandler.request(Endpoints.GUILD_INTEGRATION(guildId, integrationId), "delete", "json", reason ? { reason } : undefined) as APITypes.RESTDeleteAPIGuildIntegrationResult;
 	}
 
 	/**
@@ -671,7 +673,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const widgetSettings = await client.guild.getGuildWidgetSettings("guildId")
 	 */
-	public async getGuildWidgetSettings(guildId: string): Promise<import("discord-typings").GuildWidgetSettings> {
+	public async getGuildWidgetSettings(guildId: string): Promise<APITypes.RESTGetAPIGuildWidgetSettingsResult> {
 		return this.requestHandler.request(Endpoints.GUILD_WIDGET_SETTINGS(guildId), "get", "json");
 	}
 
@@ -690,7 +692,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const widgetSettings = await client.guild.updateGuildWidgetSettings("guildId", { enabled: false })
 	 */
-	public async updateGuildWidgetSettings(guildId: string, data: Partial<import("discord-typings").GuildWidgetSettings & { reason: string }>): Promise<import("discord-typings").GuildWidgetSettings> {
+	public async updateGuildWidgetSettings(guildId: string, data: Partial<APITypes.RESTPatchAPIGuildWidgetSettingsJSONBody & { reason?: string }>): Promise<APITypes.RESTPatchAPIGuildWidgetSettingsResult> {
 		return this.requestHandler.request(Endpoints.GUILD_WIDGET_SETTINGS(guildId), "patch", "json", data);
 	}
 
@@ -703,7 +705,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const widget = await client.guild.getGuildWidget("guildId")
 	 */
-	public async getGuildWidget(guildId: string): Promise<import("discord-typings").GuildWidget> {
+	public async getGuildWidget(guildId: string): Promise<APITypes.APIGuildWidget> { // no return type in api types
 		return this.requestHandler.request(Endpoints.GUILD_WIDGET(guildId), "get", "json");
 	}
 
@@ -720,7 +722,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const vanityUrl = await client.guild.getGuildVanityUrl("guildId")
 	 */
-	public async getGuildVanityURL(guildId: string): Promise<{ code: string | null; uses: number; }> {
+	public async getGuildVanityURL(guildId: string): Promise<APITypes.RESTGetAPIGuildVanityUrlResult> {
 		return this.requestHandler.request(Endpoints.GUILD_VANITY(guildId), "get", "json");
 	}
 
@@ -737,7 +739,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const welcomeScreen = await client.guild.getGuildWelcomeScreen("guildId")
 	 */
-	public async getGuildWelcomeScreen(guildId: string): Promise<import("discord-typings").WelcomeScreen> {
+	public async getGuildWelcomeScreen(guildId: string): Promise<APITypes.RESTGetAPIGuildWelcomeScreenResult> {
 		return this.requestHandler.request(Endpoints.GUILD_WELCOME_SCREEN(guildId), "get", "json");
 	}
 
@@ -756,7 +758,7 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const welcomeScreen = await client.guild.updateGuildWelcomeScreen("guildId", { enabled: false })
 	 */
-	public async editGuildWelcomeScreen(guildId: string, data: Partial<import("discord-typings").WelcomeScreen> & { enabled?: boolean; reason?: string; }): Promise<import("discord-typings").WelcomeScreen> {
+	public async editGuildWelcomeScreen(guildId: string, data: APITypes.RESTPatchAPIGuildWelcomeScreenJSONBody & { reason?: string; }): Promise<APITypes.RESTPatchAPIGuildWelcomeScreenResult> {
 		return this.requestHandler.request(Endpoints.GUILD_WELCOME_SCREEN(guildId), "patch", "json", data);
 	}
 
@@ -776,8 +778,8 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guild.updateGuildVoiceState("guildId", { channel_id: "channel id", suppress: false })
 	 */
-	public updateCurrentUserVoiceState(guildId: string, data: { channel_id: string; suppress?: boolean; request_to_speak_timestamp?: string | null; }): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD_VOICE_STATE_USER(guildId, "@me"), "patch", "json", data);
+	public updateCurrentUserVoiceState(guildId: string, data: APITypes.RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody): Promise<APITypes.RESTPatchAPIGuildVoiceStateCurrentMemberResult> {
+		return this.requestHandler.request(Endpoints.GUILD_VOICE_STATE_USER(guildId, "@me"), "patch", "json", data) as APITypes.RESTPatchAPIGuildVoiceStateCurrentMemberResult;
 	}
 
 	/**
@@ -795,258 +797,14 @@ export class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guild.updateGuildVoiceState("guildId", "userId", { channel_id: "channel id", suppress: true })
 	 */
-	public updateUserVoiceState(guildId: string, userId: string, data: { channel_id: string; suppress?: boolean; }): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD_VOICE_STATE_USER(guildId, userId), "patch", "json", data);
+	public updateUserVoiceState(guildId: string, userId: string, data: APITypes.RESTPatchAPIGuildVoiceStateUserJSONBody): Promise<APITypes.RESTPatchAPIGuildVoiceStateUserResult> {
+		return this.requestHandler.request(Endpoints.GUILD_VOICE_STATE_USER(guildId, userId), "patch", "json", data) as APITypes.RESTPatchAPIGuildVoiceStateUserResult;
 	}
 }
 
+export = GuildMethods;
+
 // Please end my suffering (ft. Papi)
 
-export type CreateGuildData = {
-	/**
-	 * name of the guild
-	 */
-	name: string;
-	/**
-	 * base64 encoded icon to use for the guild
-	 */
-	icon?: string;
-	/**
-	 * guild [verification level](https://discord.com/developers/docs/resources/guild#guild-object-verification-level)
-	 */
-	verification_level?: import("discord-typings").VerificationLevel;
-	/**
-	 * default message [notification setting](https://discord.com/developers/docs/resources/guild#default-message-notification-level)
-	 */
-	default_message_notifications?: import("discord-typings").MessageNotificationLevel;
-	/**
-	 * array of partial [channels](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
-	 */
-	channels?: Array<{ name: string; type: Exclude<import("discord-typings").GuildChannel["type"], import("discord-typings").CategoryChannel["type"]>; parent_id?: string; id?: string; } | { name: string; type: import("discord-typings").CategoryChannel["type"]; id: string; }>;
-	/**
-	 * array of [roles](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
-	 */
-	roles?: Array<Partial<import("discord-typings").Role>>;
-	/**
-	 * id for afk channel
-	 */
-	afk_channel_id?: string;
-	/**
-	 * afk timeout in seconds
-	 */
-	afk_timeout?: number;
-	/**
-	 * the id of the channel where guild notices such as welcome messages and boost events are posted
-	 */
-	system_channel_id?: string;
-	/**
-	 * system channel flags
-	 */
-	system_channel_flags?: number;
-}
-
-export type UpdateGuildData = {
-	/**
-	 * name of the guild
-	 */
-	name?: string;
-	/**
-	 * guild [verification level](https://discord.com/developers/docs/resources/guild#guild-object-verification-level)
-	 */
-	verification_level?: import("discord-typings").VerificationLevel | null;
-	/**
-	 * message [notification setting](https://discord.com/developers/docs/resources/guild#default-message-notification-level)
-	 */
-	default_message_notifications?: import("discord-typings").MessageNotificationLevel | null;
-	/**
-	 * explicit content filter level
-	 */
-	explicit_content_filter?: import("discord-typings").ExplicitContentFilterLevel | null;
-	/**
-	 * Id of the afk channel
-	 */
-	afk_channel_id?: string | null;
-	/**
-	 * afk timeout in seconds
-	 */
-	afk_timeout?: number;
-	/**
-	 * base64 image for the guild icon
-	 */
-	icon?: string | null;
-	/**
-	 * Id of the owner user
-	 */
-	owner_id?: string;
-	/**
-	 * base64 image for the guild splash
-	 */
-	splash?: string | null;
-	/**
-	 * reason for updating the guild
-	 */
-	reason?: string;
-	/**
-	 * base64 image for the guild discovery splash
-	 */
-	discovery_splash?: string | null;
-	/**
-	 * base64 image for the guild banner
-	 */
-	banner?: string | null;
-	/**
-	 * the id of the channel where guild notices such as welcome messages and boost events are posted
-	 */
-	system_channel_id?: string | null;
-	/**
-	 * system channel flags
-	 */
-	system_channel_flags?: number;
-	/**
-	 * the id of the channel where Community guilds display rules and/or guidelines
-	 */
-	rules_channel_id?: string | null;
-	/**
-	 * the id of the channel where admins and moderators of Community guilds receive notices from Discord
-	 */
-	public_updates_channel_id?: string | null;
-	/**
-	 * the preferred locale of a Community guild used in server discovery and notices from Discord; defaults to "en-US"
-	 */
-	preferred_locale?: import("discord-typings").Locale | null;
-	/**
-	 * enabled guild features
-	 */
-	features?: Array<import("discord-typings").GuildFeature>;
-	/**
-	 * the description for the guild
-	 */
-	description?: string | null;
-	/**
-	 * whether the guild's boost progress bar should be enabled
-	 */
-	premium_progress_bar_enabled?: boolean;
-}
-
-export type CreateGuildChannelData = {
-	/**
-	 * name of the channel
-	 */
-	name: string;
-	/**
-	 * [type](https://discord.com/developers/docs/resources/channel#channel-object-channel-types) of the channel
-	 */
-	type?: import("discord-typings").GuildChannel["type"];
-	/**
-	 * The topic of the channel
-	 */
-	topic?: string;
-	/**
-	 * bitrate of the channel (voice only)
-	 */
-	bitrate?: number;
-	/**
-	 * user limit of a channel (voice only)
-	 */
-	user_limit?: number;
-	/**
-	 * amount of seconds a user has to wait before sending another message (0-21600).
-	 * bots, as well as users with the permission MANAGE_MESSAGES or MANAGE_CHANNEL, are unaffected
-	 */
-	rate_limit_per_user?: number;
-	/**
-	 * sorting position of the channel
-	 */
-	position?: number;
-	/**
-	 * permissions overwrites for the channel
-	 */
-	permission_overwrites?: Array<import("discord-typings").Overwrite>;
-	/**
-	 * id of the parent category for a channel
-	 */
-	parent_id?: string;
-	/**
-	 * whether the channel is nsfw
-	 */
-	nsfw?: boolean;
-	/**
-	 * reason for creating the channel
-	 */
-	reason?: string;
-}
-
-export type AddGuildMemberData = {
-	/**
-	 * oauth2 access token with a `guilds.join` scope enabled
-	 */
-	access_token: string;
-	/**
-	 * nickname of the new member
-	 */
-	nick?: string;
-	/**
-	 * Array of Role Ids the new member should have
-	 */
-	roles?: Array<string>;
-	/**
-	 * if the new member should be muted
-	 */
-	mute?: boolean;
-	/**
-	 * if the new member is deaf
-	 */
-	deaf?: boolean;
-}
-
-export type UpdateGuildMemberData = {
-	nick?: string | null;
-	roles?: Array<string> | null;
-	mute?: boolean | null;
-	deaf?: boolean | null;
-	channel_id?: string | null;
-	communication_disabled_until?: string | null;
-	reason?: string;
-}
-
-export type GetGuildMembersData = {
-	limit?: number;
-	after?: string;
-}
-
-export type RoleOptions = {
-	/**
-	 * Name of the role
-	 */
-	name?: string;
-	/**
-	 * Bitwise value of the permissions
-	 */
-	permissions?: string;
-	/**
-	 * RGB color of the role
-	 */
-	color?: number;
-	/**
-	 * If this role should show separately on the member list if it is the highest hoisted role for a member
-	 */
-	hoist?: boolean;
-	/**
-	 * The role's icon
-	 */
-	icon?: string | null;
-	/**
-	 * The role's icon as a unicode emoji
-	 */
-	unicode_emoji?: string | null;
-	/**
-	 * If the role can be mentioned by users without the ADMINISTRATOR permission
-	 */
-	mentionable?: boolean;
-	/**
-	 * Reason for creating/updating the role
-	 */
-	reason?: string;
-}
-
-// those moves https://youtu.be/oCrwzN6eb4Q?t=51s nice
+// those moves https://youtu.be/oCrwzN6eb4Q?t=51s
+// Papi: nice

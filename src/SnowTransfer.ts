@@ -1,17 +1,18 @@
 import { Ratelimiter, RequestHandler } from "./RequestHandler";
-import { ChannelMethods } from "./methods/Channels";
-import UserMethods = require("./methods/Users");
-import { GuildAssetsMethods } from "./methods/GuildAssets";
-import { WebhookMethods } from "./methods/Webhooks";
-import { GuildMethods } from "./methods/Guilds";
-import { GuildScheduledEventMethods } from "./methods/GuildScheduledEvent";
+import AuditLogMethods = require("./methods/AuditLog");
+import AutoModerationMethods = require("./methods/AutoModeration");
+import BotMethods = require("./methods/Bots");
+import ChannelMethods = require("./methods/Channels");
+import GuildAssetsMethods = require("./methods/GuildAssets");
+import GuildMethods = require("./methods/Guilds");
+import GuildScheduledEventMethods = require("./methods/GuildScheduledEvent");
 import GuildTemplateMethods = require("./methods/GuildTemplate");
 import InteractionMethods = require("./methods/Interactions");
 import InviteMethods = require("./methods/Invites");
-import VoiceMethods = require("./methods/Voice");
-import BotMethods = require("./methods/Bots");
-import AuditLogMethods = require("./methods/AuditLog");
 import StageInstanceMethods = require("./methods/StageInstance");
+import UserMethods = require("./methods/Users");
+import VoiceMethods = require("./methods/Voice");
+import WebhookMethods = require("./methods/Webhooks");
 import Endpoints = require("./Endpoints");
 
 class SnowTransfer {
@@ -31,6 +32,7 @@ class SnowTransfer {
 	public bot: BotMethods;
 	public auditLog: AuditLogMethods;
 	public stageInstance: StageInstanceMethods;
+	public autoMod: AutoModerationMethods;
 	public ratelimiter: Ratelimiter;
 
 	/**
@@ -59,6 +61,7 @@ class SnowTransfer {
 		this.bot = new BotMethods(this.requestHandler);
 		this.auditLog = new AuditLogMethods(this.requestHandler);
 		this.stageInstance = new StageInstanceMethods(this.requestHandler);
+		this.autoMod = new AutoModerationMethods(this.requestHandler);
 	}
 }
 

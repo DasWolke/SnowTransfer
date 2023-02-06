@@ -1,9 +1,13 @@
+import FormData = require("form-data");
+
 import Endpoints = require("../Endpoints");
+
+import type APITypes = require("discord-api-types/v10");
 
 /**
  * Methods for interacting with emojis
  */
-export class GuildAssetsMethods {
+class GuildAssetsMethods {
 	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
 
 	/**
@@ -27,7 +31,7 @@ export class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const emojis = await client.guildAssets.getEmojis("guild id")
 	 */
-	public async getEmojis(guildId: string): Promise<Array<import("discord-typings").Emoji>> {
+	public async getEmojis(guildId: string): Promise<APITypes.RESTGetAPIGuildEmojisResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), "get", "json");
 	}
 
@@ -41,7 +45,7 @@ export class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const emoji = await client.guildAssets.getEmoji("guild id", "emoji id")
 	 */
-	public async getEmoji(guildId: string, emojiId: string): Promise<import("discord-typings").Emoji> {
+	public async getEmoji(guildId: string, emojiId: string): Promise<APITypes.RESTGetAPIGuildEmojiResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), "get", "json");
 	}
 
@@ -65,7 +69,7 @@ export class GuildAssetsMethods {
 	 * \}
 	 * client.guildAssets.createEmoji("guild id", emojiData)
 	 */
-	public async createEmoji(guildId: string, data: CreateEmojiData): Promise<import("discord-typings").Emoji> {
+	public async createEmoji(guildId: string, data: APITypes.RESTPostAPIGuildEmojiJSONBody & { reason?: string; }): Promise<APITypes.RESTPostAPIGuildEmojiResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), "post", "json", data);
 	}
 
@@ -88,7 +92,7 @@ export class GuildAssetsMethods {
 	 * }
 	 * client.guildAssets.updateEmoji("guild id", "emoji id", emojiData)
 	 */
-	public async updateEmoji(guildId: string, emojiId: string, data: { name?: string; roles?: Array<string> | null; reason?: string; }): Promise<import("discord-typings").Emoji> {
+	public async updateEmoji(guildId: string, emojiId: string, data: APITypes.RESTPatchAPIGuildEmojiJSONBody & { reason?: string; }): Promise<APITypes.RESTPatchAPIGuildEmojiResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), "patch", "json", data);
 	}
 
@@ -108,8 +112,8 @@ export class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guildAssets.deleteEmoji("guild id", "emoji id", "wasn't nice")
 	 */
-	public async deleteEmoji(guildId: string, emojiId: string, reason?: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), "delete", "json", reason ? { reason } : undefined);
+	public async deleteEmoji(guildId: string, emojiId: string, reason?: string): Promise<APITypes.RESTDeleteAPIGuildEmojiResult> {
+		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), "delete", "json", reason ? { reason } : undefined) as APITypes.RESTDeleteAPIGuildEmojiResult;
 	}
 
 	/**
@@ -121,7 +125,7 @@ export class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const sticker = await client.guildAssets.getSticker("sticker id")
 	 */
-	public async getSticker(stickerId: string): Promise<import("discord-typings").Sticker> {
+	public async getSticker(stickerId: string): Promise<APITypes.RESTGetAPIStickerResult> {
 		return this.requestHandler.request(Endpoints.STICKER(stickerId), "get", "json");
 	}
 
@@ -138,7 +142,7 @@ export class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const stickers = await client.guildAssets.getGuildStickers("guild id")
 	 */
-	public async getGuildStickers(guildId: string): Promise<Array<import("discord-typings").Sticker>> {
+	public async getGuildStickers(guildId: string): Promise<APITypes.RESTGetAPIGuildStickersResult> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), "get", "json");
 	}
 
@@ -156,7 +160,7 @@ export class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const sticker = await client.guildAssets.getGuildSticker("guild id", "sticker id")
 	 */
-	public async getGuildSticker(guildId: string, stickerId: string): Promise<import("discord-typings").Sticker> {
+	public async getGuildSticker(guildId: string, stickerId: string): Promise<APITypes.RESTGetAPIGuildStickerResult> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), "get", "json");
 	}
 
@@ -183,12 +187,17 @@ export class GuildAssetsMethods {
 	 * 	file: fileData,
 	 * 	description: "A very nice sticker",
 	 * 	tags: ["nice", "sticker"],
-	 * 	reason: "because it was nice"
 	 * }
 	 * const sticker = await client.guildAssets.createGuildSticker("guild id", stickerData)
 	 */
-	public createGuildSticker(guildId: string, data: CreateStickerData): Promise<import("discord-typings").Sticker> {
-		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), "post", "multipart", data);
+	public createGuildSticker(guildId: string, data: APITypes.RESTPostAPIGuildStickerFormDataBody & { file: Buffer; reason?: string; }): Promise<APITypes.RESTPostAPIGuildStickerResult> {
+		const form = new FormData();
+		const reason = data.reason;
+		if (data.reason) delete data.reason;
+		for (const key of Object.keys(data)) {
+			form.append(key, data[key]);
+		}
+		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), "post", "multipart", form, reason ? { "X-Audit-Log-Reason": reason } : void 0);
 	}
 
 	/**
@@ -207,7 +216,7 @@ export class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const sticker = await client.guildAssets.updateGuildSticker("guild id", "sticker id", { name: "nicerSticker", reason: "because it was nicer" })
 	 */
-	public updateGuildSticker(guildId: string, stickerId: string, data: { name?: string; description?: string | null; tags?: string; reason?: string; }): Promise<import("discord-typings").Sticker> {
+	public updateGuildSticker(guildId: string, stickerId: string, data: APITypes.RESTPatchAPIGuildStickerJSONBody & { reason?: string; }): Promise<APITypes.RESTPatchAPIGuildStickerResult> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), "patch", "json", data);
 	}
 
@@ -226,49 +235,9 @@ export class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guildAssets.deleteGuildSticker("guild id", "sticker id", "It was too nice")
 	 */
-	public deleteGuildSticker(guildId: string, stickerId: string, reason?: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), "delete", "json", reason ? { reason } : undefined);
+	public deleteGuildSticker(guildId: string, stickerId: string, reason?: string): Promise<APITypes.RESTDeleteAPIGuildStickerResult> {
+		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), "delete", "json", reason ? { reason } : undefined) as APITypes.RESTDeleteAPIGuildStickerResult;
 	}
 }
 
-export type CreateEmojiData = {
-	/**
-	 * name of the emoji
-	 */
-	name: string;
-	/**
-	 * base 64 encoded image data
-	 */
-	image: string;
-	/**
-	 * Roles allowed to use the emoji
-	 */
-	roles?: Array<string>;
-	/**
-	 * reason for creating the emoji
-	 */
-	reason?: string;
-}
-
-export type CreateStickerData = {
-	/**
-	 * name of the emoji
-	 */
-	name: string;
-	/**
-	 * description of the sticker (empty or 2-100 characters)
-	 */
-	description: string;
-	/**
-	 * comma separated autocomplete/suggestion tags for the sticker (max 200 characters)
-	 */
-	tags: string;
-	/**
-	 * The file contents; Must be a PNG, APNG, or Lottie JSON file; Max 500 KB
-	 */
-	file: Buffer;
-	/**
-	 * reason for creating the sticker
-	 */
-	reason?: string;
-}
+export = GuildAssetsMethods;

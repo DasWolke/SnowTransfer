@@ -1,16 +1,17 @@
 import AuditLogMethods = require("./methods/AuditLog");
+import AutoModerationMethods = require("./methods/AutoModeration");
 import BotMethods = require("./methods/Bots");
-export * from "./methods/Channels";
-export * from "./methods/GuildAssets";
-export * from "./methods/Guilds";
-export * from "./methods/GuildScheduledEvent";
+import ChannelMethods = require("./methods/Channels");
+import GuildAssetsMethods = require("./methods/GuildAssets");
+import GuildMethods = require("./methods/Guilds");
+import GuildScheduledEventMethods = require("./methods/GuildScheduledEvent");
 import GuildTemplateMethods = require("./methods/GuildTemplate");
 import InteractionMethods = require("./methods/Interactions");
 import InviteMethods = require("./methods/Invites");
 import StageInstanceMethods = require("./methods/StageInstance");
 import UserMethods = require("./methods/Users");
 import VoiceMethods = require("./methods/Voice");
-export * from "./methods/Webhooks";
+import WebhookMethods = require("./methods/Webhooks");
 
 import Constants = require("./Constants");
 import Endpoints = require("./Endpoints");
@@ -18,13 +19,19 @@ import SnowTransfer = require("./SnowTransfer");
 
 export {
 	AuditLogMethods,
+	AutoModerationMethods,
 	BotMethods,
+	ChannelMethods,
+	GuildAssetsMethods,
+	GuildMethods,
+	GuildScheduledEventMethods,
 	GuildTemplateMethods,
 	InteractionMethods,
 	InviteMethods,
 	StageInstanceMethods,
 	UserMethods,
 	VoiceMethods,
+	WebhookMethods,
 
 	Constants,
 	Endpoints,

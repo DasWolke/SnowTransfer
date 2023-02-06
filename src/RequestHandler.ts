@@ -282,8 +282,7 @@ export class RequestHandler extends EventEmitter {
 	 * @param data data to send, if any
 	 * @returns Result of the request
 	 */
-	public request(endpoint: string, method: HTTPMethod, dataType: "json" | "multipart" = "json", data?: any): Promise<any> {
-		if (typeof data === "number") data = String(data);
+	public request<T extends "json" | "multipart">(endpoint: string, method: HTTPMethod, dataType: T = "json" as T, data?: T extends "json" ? any : FormData, extraHeaders?: Record<string, string>): Promise<any> {
 		// const stack = new Error().stack as string;
 		return new Promise(async (res, rej) => {
 			this.ratelimiter.queue(async (bkt) => {
@@ -292,9 +291,9 @@ export class RequestHandler extends EventEmitter {
 					this.emit("request", reqID, { endpoint, method, dataType, data: data ?? {} });
 
 					let request: import("centra").Response;
-					if (dataType == "json") request = await this._request(endpoint, method, data, (method === "get" || routeShouldUseParamsRegex.test(endpoint)));
-					else if (dataType == "multipart") request = await this._multiPartRequest(endpoint, method, data);
-					else throw new Error("Forbidden dataType. Use json or multipart");
+					if (dataType == "json") request = await this._request(endpoint, method, data, (method === "get" || routeShouldUseParamsRegex.test(endpoint)), extraHeaders);
+					else if (dataType == "multipart" && data) request = await this._multiPartRequest(endpoint, method, data, extraHeaders);
+					else throw new Error("Forbidden dataType. Use json or multipart or ensure multipart has FormData");
 
 					if (request.statusCode && !Constants.OK_STATUS_CODES.includes(request.statusCode) && request.statusCode !== 429) throw new DiscordAPIError(endpoint, request.headers["content-type"] && applicationJSONRegex.test(request.headers["content-type"]) ? { message: JSON.stringify(await request.json()) } : { message: String(request.body) }, method, request.statusCode);
 
@@ -349,8 +348,9 @@ export class RequestHandler extends EventEmitter {
 	 * @param useParams Whether to send the data in the body or use query params
 	 * @returns Result of the request
 	 */
-	private async _request(endpoint: string, method: HTTPMethod, data?: any, useParams = false): Promise<import("centra").Response> {
+	private async _request(endpoint: string, method: HTTPMethod, data?: any, useParams = false, extraHeaders?: Record<string, string>): Promise<import("centra").Response> {
 		const headers = { ...this.options.headers };
+		if (extraHeaders) Object.assign(headers, extraHeaders);
 		if (typeof data !== "string" && data?.reason) {
 			headers["X-Audit-Log-Reason"] = encodeURIComponent(data.reason);
 			delete data.reason;
@@ -372,19 +372,9 @@ export class RequestHandler extends EventEmitter {
 	 * @param data data to send
 	 * @returns Result of the request
 	 */
-	private async _multiPartRequest(endpoint: string, method: HTTPMethod, data: { files?: [{ name: string; file?: Buffer; }], data?: any }): Promise<import("centra").Response> {
-		const form = new FormData();
-		if (data.files && Array.isArray(data.files) && data.files.every(f => !!f.name && !!f.file)) {
-			let index = 0;
-			for (const file of data.files) {
-				form.append(`files[${index}]`, file.file, { filename: file.name });
-				delete file.file;
-				index++;
-			}
-		}
-		if (data.data) delete data.files; // Interactions responses are weird, but I need to support it
-		form.append("payload_json", JSON.stringify(data));
-		const headers = { ...this.options.headers, ...form.getHeaders() };
-		return centra(this.apiURL, method).path(endpoint).header(headers).body(form.getBuffer()).timeout(15000).send();
+	private async _multiPartRequest(endpoint: string, method: HTTPMethod, data: FormData, extraHeaders?: Record<string, string>): Promise<import("centra").Response> {
+		const headers = { ...this.options.headers, ...data.getHeaders() };
+		if (extraHeaders) Object.assign(headers, extraHeaders);
+		return centra(this.apiURL, method).path(endpoint).header(headers).body(data.getBuffer()).timeout(15000).send();
 	}
 }
