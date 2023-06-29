@@ -1,6 +1,9 @@
 import Endpoints = require("../Endpoints");
 
-import type APITypes = require("discord-api-types/v10");
+import type {
+	RESTGetAPIGatewayBotResult,
+	RESTGetAPIGatewayResult
+} from "discord-api-types/v10";
 
 /**
  * Methods for interacting with bot specific endpoints
@@ -29,7 +32,7 @@ class BotMethods {
 	 * const result = await client.bot.getGateway()
 	 * // result should be something like { url: "wss://gateway.discord.gg" }
 	 */
-	public getGateway(): Promise<APITypes.RESTGetAPIGatewayResult> {
+	public getGateway(): Promise<RESTGetAPIGatewayResult> {
 		return this.requestHandler.request(Endpoints.GATEWAY, "get", "json");
 	}
 
@@ -42,7 +45,7 @@ class BotMethods {
 	 * const result = await client.bot.getGatewayBot()
 	 * // result should be something like { url: "wss://gateway.discord.gg", shards: 1, session_start_limit: { total: 1000, remaining: 999, reset_after: 14400000, max_concurrency: 1 } }
 	 */
-	public getGatewayBot(): Promise<APITypes.RESTGetAPIGatewayBotResult> {
+	public getGatewayBot(): Promise<RESTGetAPIGatewayBotResult> {
 		return this.requestHandler.request(Endpoints.GATEWAY_BOT, "get", "json");
 	}
 }

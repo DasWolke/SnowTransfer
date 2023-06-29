@@ -1,6 +1,19 @@
 import Endpoints = require("../Endpoints");
 
-import type APITypes = require("discord-api-types/v10");
+import type {
+	RESTDeleteAPICurrentUserGuildResult,
+	RESTGetAPICurrentUserApplicationRoleConnectionResult,
+	RESTGetAPICurrentUserConnectionsResult,
+	RESTGetAPICurrentUserGuildsQuery,
+	RESTGetAPICurrentUserGuildsResult,
+	RESTGetAPICurrentUserResult,
+	RESTGetAPIUserResult,
+	RESTPatchAPICurrentUserJSONBody,
+	RESTPatchAPICurrentUserResult,
+	RESTPostAPICurrentUserCreateDMChannelResult,
+	RESTPutAPICurrentUserApplicationRoleConnectionJSONBody,
+	RESTPutAPICurrentUserApplicationRoleConnectionResult
+} from "discord-api-types/v10";
 
 /**
  * Methods for interacting with users
@@ -33,7 +46,7 @@ class UserMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const self = await client.user.getSelf()
 	 */
-	public async getSelf(): Promise<APITypes.RESTGetAPICurrentUserResult> {
+	public async getSelf(): Promise<RESTGetAPICurrentUserResult> {
 		return this.requestHandler.request(Endpoints.USER("@me"), "get", "json");
 	}
 
@@ -46,7 +59,7 @@ class UserMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const user = await client.user.getUser("userId")
 	 */
-	public async getUser(userId: string): Promise<APITypes.RESTGetAPIUserResult> {
+	public async getUser(userId: string): Promise<RESTGetAPIUserResult> {
 		return this.requestHandler.request(Endpoints.USER(userId), "get", "json");
 	}
 
@@ -64,7 +77,7 @@ class UserMethods {
 	 * \}
 	 * client.user.updateSelf(updateData)
 	 */
-	public async updateSelf(data: APITypes.RESTPatchAPICurrentUserJSONBody): Promise<APITypes.RESTPatchAPICurrentUserResult> {
+	public async updateSelf(data: RESTPatchAPICurrentUserJSONBody): Promise<RESTPatchAPICurrentUserResult> {
 		return this.requestHandler.request(Endpoints.USER("@me"), "patch", "json", data);
 	}
 
@@ -76,7 +89,7 @@ class UserMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const guilds = await client.user.getGuilds()
 	 */
-	public async getGuilds(query?: APITypes.RESTGetAPICurrentUserGuildsQuery): Promise<APITypes.RESTGetAPICurrentUserGuildsResult> {
+	public async getGuilds(query?: RESTGetAPICurrentUserGuildsQuery): Promise<RESTGetAPICurrentUserGuildsResult> {
 		return this.requestHandler.request(Endpoints.USER_GUILDS("@me"), "get", "json", query);
 	}
 
@@ -89,8 +102,8 @@ class UserMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.user.leaveGuild("guildId")
 	 */
-	public async leaveGuild(guildId: string): Promise<APITypes.RESTDeleteAPICurrentUserGuildResult> {
-		return this.requestHandler.request(Endpoints.USER_GUILD("@me", guildId), "delete", "json") as APITypes.RESTDeleteAPICurrentUserGuildResult;
+	public async leaveGuild(guildId: string): Promise<RESTDeleteAPICurrentUserGuildResult> {
+		return this.requestHandler.request(Endpoints.USER_GUILD("@me", guildId), "delete", "json") as RESTDeleteAPICurrentUserGuildResult;
 	}
 
 	/**
@@ -106,7 +119,7 @@ class UserMethods {
 	 * const channel = await client.user.createDirectMessageChannel("other user id")
 	 * client.channel.createMessage(channel.id, "hi")
 	 */
-	public async createDirectMessageChannel(userId: string): Promise<APITypes.RESTPostAPICurrentUserCreateDMChannelResult> {
+	public async createDirectMessageChannel(userId: string): Promise<RESTPostAPICurrentUserCreateDMChannelResult> {
 		return this.requestHandler.request(Endpoints.USER_CHANNELS("@me"), "post", "json", { recipient_id: userId });
 	}
 
@@ -126,7 +139,7 @@ class UserMethods {
 	 * const channel = await client.user.createGroupDirectMessageChannel({ access_tokens: ["user 1 access token", "user 2 access token"], { "320067006521147393": "Brad", "128392910574977024": "Wolke" } })
 	 * client.channel.createMessage(channel.id, "hi")
 	 */
-	public async createGroupDirectMessageChannel(data: { access_tokens: Array<string>; nicks?: { [userId: string]: string } }): Promise<APITypes.RESTPostAPICurrentUserCreateDMChannelResult> {
+	public async createGroupDirectMessageChannel(data: { access_tokens: Array<string>; nicks?: { [userId: string]: string } }): Promise<RESTPostAPICurrentUserCreateDMChannelResult> {
 		return this.requestHandler.request(Endpoints.USER_CHANNELS("@me"), "post", "json", data);
 	}
 
@@ -143,7 +156,7 @@ class UserMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const connections = await client.user.getConnections()
 	 */
-	public async getConnections(): Promise<APITypes.RESTGetAPICurrentUserConnectionsResult> {
+	public async getConnections(): Promise<RESTGetAPICurrentUserConnectionsResult> {
 		return this.requestHandler.request(Endpoints.USER_CONNECTIONS("@me"), "get", "json");
 	}
 
@@ -161,7 +174,7 @@ class UserMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const connection = await client.user.getApplicationRoleConnection("app id")
 	 */
-	public async getApplicationRoleConnection(appId: string): Promise<APITypes.RESTGetAPICurrentUserApplicationRoleConnectionResult> {
+	public async getApplicationRoleConnection(appId: string): Promise<RESTGetAPICurrentUserApplicationRoleConnectionResult> {
 		return this.requestHandler.request(Endpoints.USER_APPLICATION_ROLE_CONNECTION("@me", appId), "get", "json");
 	}
 
@@ -179,7 +192,7 @@ class UserMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const connection = await client.user.updateApplicationRoleConnection("app id", { platform_name: "some platform", platform_username: "Cool user 22" })
 	 */
-	public async updateApplicationRoleConnection(appId: string, data: APITypes.RESTPutAPICurrentUserApplicationRoleConnectionJSONBody): Promise<APITypes.RESTPutAPICurrentUserApplicationRoleConnectionResult> {
+	public async updateApplicationRoleConnection(appId: string, data: RESTPutAPICurrentUserApplicationRoleConnectionJSONBody): Promise<RESTPutAPICurrentUserApplicationRoleConnectionResult> {
 		return this.requestHandler.request(Endpoints.USER_APPLICATION_ROLE_CONNECTION("@me", appId), "put", "json", data);
 	}
 }

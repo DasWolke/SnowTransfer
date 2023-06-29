@@ -2,7 +2,23 @@ import FormData = require("form-data");
 
 import Endpoints = require("../Endpoints");
 
-import type APITypes = require("discord-api-types/v10");
+import type {
+	RESTDeleteAPIGuildEmojiResult,
+	RESTDeleteAPIGuildStickerResult,
+	RESTGetAPIGuildEmojiResult,
+	RESTGetAPIGuildEmojisResult,
+	RESTGetAPIGuildStickerResult,
+	RESTGetAPIGuildStickersResult,
+	RESTGetAPIStickerResult,
+	RESTPatchAPIGuildEmojiJSONBody,
+	RESTPatchAPIGuildEmojiResult,
+	RESTPatchAPIGuildStickerJSONBody,
+	RESTPatchAPIGuildStickerResult,
+	RESTPostAPIGuildEmojiJSONBody,
+	RESTPostAPIGuildEmojiResult,
+	RESTPostAPIGuildStickerFormDataBody,
+	RESTPostAPIGuildStickerResult
+} from "discord-api-types/v10";
 
 /**
  * Methods for interacting with emojis
@@ -31,7 +47,7 @@ class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const emojis = await client.guildAssets.getEmojis("guild id")
 	 */
-	public async getEmojis(guildId: string): Promise<APITypes.RESTGetAPIGuildEmojisResult> {
+	public async getEmojis(guildId: string): Promise<RESTGetAPIGuildEmojisResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), "get", "json");
 	}
 
@@ -45,7 +61,7 @@ class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const emoji = await client.guildAssets.getEmoji("guild id", "emoji id")
 	 */
-	public async getEmoji(guildId: string, emojiId: string): Promise<APITypes.RESTGetAPIGuildEmojiResult> {
+	public async getEmoji(guildId: string, emojiId: string): Promise<RESTGetAPIGuildEmojiResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), "get", "json");
 	}
 
@@ -69,7 +85,7 @@ class GuildAssetsMethods {
 	 * \}
 	 * client.guildAssets.createEmoji("guild id", emojiData)
 	 */
-	public async createEmoji(guildId: string, data: APITypes.RESTPostAPIGuildEmojiJSONBody & { reason?: string; }): Promise<APITypes.RESTPostAPIGuildEmojiResult> {
+	public async createEmoji(guildId: string, data: RESTPostAPIGuildEmojiJSONBody & { reason?: string; }): Promise<RESTPostAPIGuildEmojiResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), "post", "json", data);
 	}
 
@@ -92,7 +108,7 @@ class GuildAssetsMethods {
 	 * }
 	 * client.guildAssets.updateEmoji("guild id", "emoji id", emojiData)
 	 */
-	public async updateEmoji(guildId: string, emojiId: string, data: APITypes.RESTPatchAPIGuildEmojiJSONBody & { reason?: string; }): Promise<APITypes.RESTPatchAPIGuildEmojiResult> {
+	public async updateEmoji(guildId: string, emojiId: string, data: RESTPatchAPIGuildEmojiJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildEmojiResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), "patch", "json", data);
 	}
 
@@ -112,8 +128,8 @@ class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guildAssets.deleteEmoji("guild id", "emoji id", "wasn't nice")
 	 */
-	public async deleteEmoji(guildId: string, emojiId: string, reason?: string): Promise<APITypes.RESTDeleteAPIGuildEmojiResult> {
-		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), "delete", "json", reason ? { reason } : undefined) as APITypes.RESTDeleteAPIGuildEmojiResult;
+	public async deleteEmoji(guildId: string, emojiId: string, reason?: string): Promise<RESTDeleteAPIGuildEmojiResult> {
+		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), "delete", "json", reason ? { reason } : undefined) as RESTDeleteAPIGuildEmojiResult;
 	}
 
 	/**
@@ -125,7 +141,7 @@ class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const sticker = await client.guildAssets.getSticker("sticker id")
 	 */
-	public async getSticker(stickerId: string): Promise<APITypes.RESTGetAPIStickerResult> {
+	public async getSticker(stickerId: string): Promise<RESTGetAPIStickerResult> {
 		return this.requestHandler.request(Endpoints.STICKER(stickerId), "get", "json");
 	}
 
@@ -142,7 +158,7 @@ class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const stickers = await client.guildAssets.getGuildStickers("guild id")
 	 */
-	public async getGuildStickers(guildId: string): Promise<APITypes.RESTGetAPIGuildStickersResult> {
+	public async getGuildStickers(guildId: string): Promise<RESTGetAPIGuildStickersResult> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), "get", "json");
 	}
 
@@ -160,7 +176,7 @@ class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const sticker = await client.guildAssets.getGuildSticker("guild id", "sticker id")
 	 */
-	public async getGuildSticker(guildId: string, stickerId: string): Promise<APITypes.RESTGetAPIGuildStickerResult> {
+	public async getGuildSticker(guildId: string, stickerId: string): Promise<RESTGetAPIGuildStickerResult> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), "get", "json");
 	}
 
@@ -190,7 +206,7 @@ class GuildAssetsMethods {
 	 * }
 	 * const sticker = await client.guildAssets.createGuildSticker("guild id", stickerData)
 	 */
-	public createGuildSticker(guildId: string, data: APITypes.RESTPostAPIGuildStickerFormDataBody & { file: Buffer; reason?: string; }): Promise<APITypes.RESTPostAPIGuildStickerResult> {
+	public createGuildSticker(guildId: string, data: RESTPostAPIGuildStickerFormDataBody & { file: Buffer; reason?: string; }): Promise<RESTPostAPIGuildStickerResult> {
 		const form = new FormData();
 		const reason = data.reason;
 		if (data.reason) delete data.reason;
@@ -216,7 +232,7 @@ class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const sticker = await client.guildAssets.updateGuildSticker("guild id", "sticker id", { name: "nicerSticker", reason: "because it was nicer" })
 	 */
-	public updateGuildSticker(guildId: string, stickerId: string, data: APITypes.RESTPatchAPIGuildStickerJSONBody & { reason?: string; }): Promise<APITypes.RESTPatchAPIGuildStickerResult> {
+	public updateGuildSticker(guildId: string, stickerId: string, data: RESTPatchAPIGuildStickerJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildStickerResult> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), "patch", "json", data);
 	}
 
@@ -235,8 +251,8 @@ class GuildAssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guildAssets.deleteGuildSticker("guild id", "sticker id", "It was too nice")
 	 */
-	public deleteGuildSticker(guildId: string, stickerId: string, reason?: string): Promise<APITypes.RESTDeleteAPIGuildStickerResult> {
-		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), "delete", "json", reason ? { reason } : undefined) as APITypes.RESTDeleteAPIGuildStickerResult;
+	public deleteGuildSticker(guildId: string, stickerId: string, reason?: string): Promise<RESTDeleteAPIGuildStickerResult> {
+		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), "delete", "json", reason ? { reason } : undefined) as RESTDeleteAPIGuildStickerResult;
 	}
 }
 

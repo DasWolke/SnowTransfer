@@ -1,6 +1,13 @@
 import Endpoints = require("../Endpoints");
 
-import type APITypes = require("discord-api-types/v10");
+import type {
+	RESTDeleteAPIStageInstanceResult,
+	RESTGetAPIStageInstanceResult,
+	RESTPatchAPIStageInstanceJSONBody,
+	RESTPatchAPIStageInstanceResult,
+	RESTPostAPIStageInstanceJSONBody,
+	RESTPostAPIStageInstanceResult
+} from "discord-api-types/v10";
 
 /**
  * Methods for interacting with Stage instances
@@ -36,7 +43,7 @@ class StageInstanceMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const instance = await client.stageInstance.createStageInstance({ channel_id: "channel id", topic: "This My House" })
 	 */
-	public async createStageInstance(data: APITypes.RESTPostAPIStageInstanceJSONBody & { reason?: string; }): Promise<APITypes.RESTPostAPIStageInstanceResult> {
+	public async createStageInstance(data: RESTPostAPIStageInstanceJSONBody & { reason?: string; }): Promise<RESTPostAPIStageInstanceResult> {
 		return this.requestHandler.request(Endpoints.STAGE_INSTANCES, "post", "json", data);
 	}
 
@@ -49,7 +56,7 @@ class StageInstanceMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const instance = await client.stageInstance.getStageInstance("channel id")
 	 */
-	public async getStageInstance(channelId: string): Promise<APITypes.RESTGetAPIStageInstanceResult> {
+	public async getStageInstance(channelId: string): Promise<RESTGetAPIStageInstanceResult> {
 		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), "get", "json");
 	}
 
@@ -69,7 +76,7 @@ class StageInstanceMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const instance = await client.stageInstance.updateStageInstance("channel id", { topic: "This my city, this my town" })
 	 */
-	public async editStageInstance(channelId: string, data: APITypes.RESTPatchAPIStageInstanceJSONBody & { reason?: string; }): Promise<APITypes.RESTPatchAPIStageInstanceResult> {
+	public async editStageInstance(channelId: string, data: RESTPatchAPIStageInstanceJSONBody & { reason?: string; }): Promise<RESTPatchAPIStageInstanceResult> {
 		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), "patch", "json", data);
 	}
 
@@ -88,8 +95,8 @@ class StageInstanceMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.stageInstance.deleteStageInstance("channel id", "They already know who's house this is")
 	 */
-	public async deleteStageInstance(channelId: string, reason?: string): Promise<APITypes.RESTDeleteAPIStageInstanceResult> {
-		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), "delete", "json", reason ? { reason } : undefined) as APITypes.RESTDeleteAPIStageInstanceResult;
+	public async deleteStageInstance(channelId: string, reason?: string): Promise<RESTDeleteAPIStageInstanceResult> {
+		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), "delete", "json", reason ? { reason } : undefined) as RESTDeleteAPIStageInstanceResult;
 	}
 }
 

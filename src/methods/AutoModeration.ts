@@ -1,6 +1,14 @@
 import Endpoints = require("../Endpoints");
 
-import type APITypes = require("discord-api-types/v10");
+import type {
+	RESTGetAPIAutoModerationRulesResult,
+	RESTGetAPIAutoModerationRuleResult,
+	RESTPostAPIAutoModerationRuleJSONBody,
+	RESTPostAPIAutoModerationRuleResult,
+	RESTPatchAPIAutoModerationRuleJSONBody,
+	RESTPatchAPIAutoModerationRuleResult,
+	RESTDeleteAPIAutoModerationRuleResult
+} from "discord-api-types/v10";
 
 /**
  * Methods for interacting with guild auto moderation
@@ -34,7 +42,7 @@ class AutoModerationMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const rules = await client.autoMod.getAutoModerationRules("guild id")
 	 */
-	public async getAutoModerationRules(guildId: string): Promise<APITypes.RESTGetAPIAutoModerationRulesResult> {
+	public async getAutoModerationRules(guildId: string): Promise<RESTGetAPIAutoModerationRulesResult> {
 		return this.requestHandler.request(Endpoints.GUILD_AUTO_MOD_RULES(guildId), "get", "json");
 	}
 
@@ -53,7 +61,7 @@ class AutoModerationMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const rule = await client.autoMod.getAutoModerationRule("guild id", "rule id")
 	 */
-	public async getAutoModerationRule(guildId: string, ruleId: string): Promise<APITypes.RESTGetAPIAutoModerationRuleResult> {
+	public async getAutoModerationRule(guildId: string, ruleId: string): Promise<RESTGetAPIAutoModerationRuleResult> {
 		return this.requestHandler.request(Endpoints.GUILD_AUTO_MOD_RULE(guildId, ruleId), "get", "json");
 	}
 
@@ -84,7 +92,7 @@ class AutoModerationMethods {
 	 * }
 	 * const newRule = await client.autoMod.createAutoModerationRule("guild id", data)
 	 */
-	public async createAutoModerationRule(guildId: string, data: APITypes.RESTPostAPIAutoModerationRuleJSONBody & { reason?: string }): Promise<APITypes.RESTPostAPIAutoModerationRuleResult> {
+	public async createAutoModerationRule(guildId: string, data: RESTPostAPIAutoModerationRuleJSONBody & { reason?: string }): Promise<RESTPostAPIAutoModerationRuleResult> {
 		return this.requestHandler.request(Endpoints.GUILD_AUTO_MOD_RULES(guildId), "post", "json", data);
 	}
 
@@ -109,7 +117,7 @@ class AutoModerationMethods {
 	 * }
 	 * const updatedRule = await client.autoMod.editAutoModerationRule("guild id", "rule id", data)
 	 */
-	public async editAutoModerationRule(guildId: string, ruleId: string, data: APITypes.RESTPatchAPIAutoModerationRuleJSONBody & { reason?: string }): Promise<APITypes.RESTPatchAPIAutoModerationRuleResult> {
+	public async editAutoModerationRule(guildId: string, ruleId: string, data: RESTPatchAPIAutoModerationRuleJSONBody & { reason?: string }): Promise<RESTPatchAPIAutoModerationRuleResult> {
 		return this.requestHandler.request(Endpoints.GUILD_AUTO_MOD_RULE(guildId, ruleId), "patch", "json", data);
 	}
 
@@ -128,8 +136,8 @@ class AutoModerationMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.autoMod.deleteAutoModerationRules("guild id", "rule id", "was useless")
 	 */
-	public async deleteAutoModerationRule(guildId: string, ruleId: string, reason?: string): Promise<APITypes.RESTDeleteAPIAutoModerationRuleResult> {
-		return this.requestHandler.request(Endpoints.GUILD_AUTO_MOD_RULE(guildId, ruleId), "delete", "json", reason ? { reason } : undefined) as APITypes.RESTDeleteAPIAutoModerationRuleResult;
+	public async deleteAutoModerationRule(guildId: string, ruleId: string, reason?: string): Promise<RESTDeleteAPIAutoModerationRuleResult> {
+		return this.requestHandler.request(Endpoints.GUILD_AUTO_MOD_RULE(guildId, ruleId), "delete", "json", reason ? { reason } : undefined) as RESTDeleteAPIAutoModerationRuleResult;
 	}
 }
 

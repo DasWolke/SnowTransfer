@@ -1,7 +1,38 @@
 import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
 
-import type APITypes = require("discord-api-types/v10");
+import type {
+	RESTDeleteAPIInteractionFollowupResult,
+	RESTDeleteAPIInteractionOriginalResponseResult,
+	RESTGetAPIApplicationCommandPermissionsResult,
+	RESTGetAPIApplicationCommandResult,
+	RESTGetAPIApplicationCommandsResult,
+	RESTGetAPIApplicationGuildCommandResult,
+	RESTGetAPIApplicationGuildCommandsResult,
+	RESTGetAPIInteractionFollowupResult,
+	RESTGetAPIInteractionOriginalResponseResult,
+	RESTPatchAPIApplicationCommandJSONBody,
+	RESTPatchAPIApplicationCommandResult,
+	RESTPatchAPIApplicationGuildCommandJSONBody,
+	RESTPatchAPIApplicationGuildCommandResult,
+	RESTPatchAPIInteractionFollowupJSONBody,
+	RESTPatchAPIInteractionFollowupResult,
+	RESTPatchAPIInteractionOriginalResponseJSONBody,
+	RESTPatchAPIInteractionOriginalResponseResult,
+	RESTPostAPIApplicationCommandsJSONBody,
+	RESTPostAPIApplicationCommandsResult,
+	RESTPostAPIApplicationGuildCommandsJSONBody,
+	RESTPostAPIApplicationGuildCommandsResult,
+	RESTPostAPIInteractionCallbackJSONBody,
+	RESTPostAPIInteractionFollowupJSONBody,
+	RESTPostAPIInteractionFollowupResult,
+	RESTPutAPIApplicationCommandPermissionsJSONBody,
+	RESTPutAPIApplicationCommandPermissionsResult,
+	RESTPutAPIApplicationCommandsJSONBody,
+	RESTPutAPIApplicationCommandsResult,
+	RESTPutAPIApplicationGuildCommandsJSONBody,
+	RESTPutAPIApplicationGuildCommandsResult
+} from "discord-api-types/v10";
 
 /**
  * Methods for interacting with slash command specific endpoints
@@ -33,7 +64,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const commands = await client.interaction.getApplicationCommands("appId")
 	 */
-	public getApplicationCommands(appId: string, withLocalizations?: boolean): Promise<APITypes.RESTGetAPIApplicationCommandsResult> {
+	public getApplicationCommands(appId: string, withLocalizations?: boolean): Promise<RESTGetAPIApplicationCommandsResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appId), "get", "json", withLocalizations ? { with_localizations: withLocalizations } : undefined);
 	}
 
@@ -47,7 +78,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const command = await client.interaction.createApplicationCommand("appId", { name: "test", description: "testing 1, 2, 3" })
 	 */
-	public createApplicationCommand(appId: string, data: APITypes.RESTPostAPIApplicationCommandsJSONBody): Promise<APITypes.RESTPostAPIApplicationCommandsResult> {
+	public createApplicationCommand(appId: string, data: RESTPostAPIApplicationCommandsJSONBody): Promise<RESTPostAPIApplicationCommandsResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appId), "post", "json", data);
 	}
 
@@ -61,7 +92,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const command = await client.interaction.getApplicationCommand("appId", "cmdId")
 	 */
-	public getApplicationCommand(appId: string, cmdId: string): Promise<APITypes.RESTGetAPIApplicationCommandResult> {
+	public getApplicationCommand(appId: string, cmdId: string): Promise<RESTGetAPIApplicationCommandResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMAND(appId, cmdId), "get", "json");
 	}
 
@@ -76,7 +107,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const command = await client.interaction.editApplicationCommand("appId", "cmdId", { name: "cool", description: "tells you how cool you are" })
 	 */
-	public editApplicationCommand(appId: string, cmdId: string, data: APITypes.RESTPatchAPIApplicationCommandJSONBody): Promise<APITypes.RESTPatchAPIApplicationCommandResult> {
+	public editApplicationCommand(appId: string, cmdId: string, data: RESTPatchAPIApplicationCommandJSONBody): Promise<RESTPatchAPIApplicationCommandResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMAND(appId, cmdId), "patch", "json", data);
 	}
 
@@ -105,7 +136,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const commands = await client.interaction.bulkOverwriteApplicationCommands("appId", [{ name: "test", description: "testing 1, 2, 3" }])
 	 */
-	public bulkOverwriteApplicationCommands(appId: string, data: APITypes.RESTPutAPIApplicationCommandsJSONBody): Promise<APITypes.RESTPutAPIApplicationCommandsResult> {
+	public bulkOverwriteApplicationCommands(appId: string, data: RESTPutAPIApplicationCommandsJSONBody): Promise<RESTPutAPIApplicationCommandsResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appId), "put", "json", data);
 	}
 
@@ -120,7 +151,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const commands = await client.interaction.getGuildCommands("appId", "guildId", true)
 	 */
-	public getGuildApplicationCommands(appId: string, guildId: string, withLocalizations?: boolean): Promise<APITypes.RESTGetAPIApplicationGuildCommandsResult> {
+	public getGuildApplicationCommands(appId: string, guildId: string, withLocalizations?: boolean): Promise<RESTGetAPIApplicationGuildCommandsResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId), "get", "json", withLocalizations ? { with_localizations: withLocalizations } : undefined);
 	}
 
@@ -135,7 +166,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const command = await client.interaction.createGuildApplicationCommand("appId", "guildId", { name: "test", description: "testing 1, 2, 3" })
 	 */
-	public createGuildApplicationCommand(appId: string, guildId: string, data: APITypes.RESTPostAPIApplicationGuildCommandsJSONBody): Promise<APITypes.RESTPostAPIApplicationGuildCommandsResult> {
+	public createGuildApplicationCommand(appId: string, guildId: string, data: RESTPostAPIApplicationGuildCommandsJSONBody): Promise<RESTPostAPIApplicationGuildCommandsResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId), "post", "json", data);
 	}
 
@@ -150,7 +181,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const command = await client.interaction.getGuildApplicationCommand("appId", "guildId", "cmdId")
 	 */
-	public getGuildApplicationCommand(appId: string, guildId: string, cmdId: string): Promise<APITypes.RESTGetAPIApplicationGuildCommandResult> {
+	public getGuildApplicationCommand(appId: string, guildId: string, cmdId: string): Promise<RESTGetAPIApplicationGuildCommandResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND(appId, guildId, cmdId), "get", "json");
 	}
 
@@ -166,7 +197,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const command = await client.interaction.editGuildApplicationCommand("appId", "guildId", "cmdId", { name: "coolest", description: "tells you that you are the coolest" })
 	 */
-	public editGuildApplicationCommand(appId: string, guildId: string, cmdId: string, data: APITypes.RESTPatchAPIApplicationGuildCommandJSONBody): Promise<APITypes.RESTPatchAPIApplicationGuildCommandResult> {
+	public editGuildApplicationCommand(appId: string, guildId: string, cmdId: string, data: RESTPatchAPIApplicationGuildCommandJSONBody): Promise<RESTPatchAPIApplicationGuildCommandResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND(appId, guildId, cmdId), "patch", "json", data);
 	}
 
@@ -196,7 +227,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const commands = await client.interaction.bulkOverwriteGuildApplicationCommands("appId", "guildId", [{ name: "test", description: "testing 1, 2, 3" }])
 	 */
-	public bulkOverwriteGuildApplicationCommands(appId: string, guildId: string, data: APITypes.RESTPutAPIApplicationGuildCommandsJSONBody): Promise<APITypes.RESTPutAPIApplicationGuildCommandsResult> {
+	public bulkOverwriteGuildApplicationCommands(appId: string, guildId: string, data: RESTPutAPIApplicationGuildCommandsJSONBody): Promise<RESTPutAPIApplicationGuildCommandsResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId), "put", "json", data);
 	}
 
@@ -217,9 +248,9 @@ class InteractionMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const permissions = await client.interaction.getGuildApplicationCommandPermissions("appId", "guildId", "cmdId")
 	 */
-	public getGuildApplicationCommandPermissions(appId: string, guildId: string): Promise<Array<APITypes.RESTGetAPIApplicationCommandPermissionsResult>>;
-	public getGuildApplicationCommandPermissions(appId: string, guildId: string, cmdId: string): Promise<APITypes.RESTGetAPIApplicationCommandPermissionsResult>;
-	public getGuildApplicationCommandPermissions(appId: string, guildId: string, cmdId?: string): Promise<Array<APITypes.RESTGetAPIApplicationCommandPermissionsResult> | APITypes.RESTGetAPIApplicationCommandPermissionsResult> {
+	public getGuildApplicationCommandPermissions(appId: string, guildId: string): Promise<Array<RESTGetAPIApplicationCommandPermissionsResult>>;
+	public getGuildApplicationCommandPermissions(appId: string, guildId: string, cmdId: string): Promise<RESTGetAPIApplicationCommandPermissionsResult>;
+	public getGuildApplicationCommandPermissions(appId: string, guildId: string, cmdId?: string): Promise<Array<RESTGetAPIApplicationCommandPermissionsResult> | RESTGetAPIApplicationCommandPermissionsResult> {
 		if (cmdId) return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND_PERMISSIONS(appId, guildId, cmdId), "get", "json");
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS_PERMISSIONS(appId, guildId), "get", "json");
 	}
@@ -236,7 +267,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const permissions = await client.interaction.editGuildApplicationCommandPermissions("appId", "guildId", "cmdId", [{ type: 2, id: "userId", permission: true }])
 	 */
-	public editGuildApplicationCommandPermissions(appId: string, guildId: string, cmdId: string, permissions: APITypes.RESTPutAPIApplicationCommandPermissionsJSONBody["permissions"]): Promise<APITypes.RESTPutAPIApplicationCommandPermissionsResult> {
+	public editGuildApplicationCommandPermissions(appId: string, guildId: string, cmdId: string, permissions: RESTPutAPIApplicationCommandPermissionsJSONBody["permissions"]): Promise<RESTPutAPIApplicationCommandPermissionsResult> {
 		const payload = { permissions: permissions };
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND_PERMISSIONS(appId, guildId, cmdId), "put", "json", payload);
 	}
@@ -257,7 +288,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * client.interaction.createInteractionResponse("interactionId", "token", { type: 4, data: { content: "Hello World" } })
 	 */
-	public createInteractionResponse(interactionId: string, token: string, data: APITypes.RESTPostAPIInteractionCallbackJSONBody & { files?: Array<{ name: string; file: Buffer; }> }): Promise<void> {
+	public createInteractionResponse(interactionId: string, token: string, data: RESTPostAPIInteractionCallbackJSONBody & { files?: Array<{ name: string; file: Buffer; }> }): Promise<void> {
 		if (data.files) return this.requestHandler.request(Endpoints.INTERACTION_CALLBACK(interactionId, token), "post", "multipart", Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.INTERACTION_CALLBACK(interactionId, token), "post", "json", data);
 	}
@@ -272,7 +303,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * const message = await client.interaction.getOriginalInteractionResponse("appId", "token")
 	 */
-	public getOriginalInteractionResponse(appId: string, token: string): Promise<APITypes.RESTGetAPIInteractionOriginalResponseResult> {
+	public getOriginalInteractionResponse(appId: string, token: string): Promise<RESTGetAPIInteractionOriginalResponseResult> {
 		return this.webhooks.getWebhookMessage(appId, token, "@original");
 	}
 
@@ -287,7 +318,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * const message = await client.interaction.editOriginalInteractionResponse("appId", "token", { content: "The world said hello back" })
 	 */
-	public editOriginalInteractionResponse(appId: string, token: string, data: APITypes.RESTPatchAPIInteractionOriginalResponseJSONBody & { files?: Array<{ name: string; file: Buffer }> }): Promise<APITypes.RESTPatchAPIInteractionOriginalResponseResult> {
+	public editOriginalInteractionResponse(appId: string, token: string, data: RESTPatchAPIInteractionOriginalResponseJSONBody & { files?: Array<{ name: string; file: Buffer }> }): Promise<RESTPatchAPIInteractionOriginalResponseResult> {
 		return this.webhooks.editWebhookMessage(appId, token, "@original", data);
 	}
 
@@ -301,8 +332,8 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * client.interaction.deleteOriginalInteractionResponse("appId", "token")
 	 */
-	public deleteOriginalInteractionResponse(appId: string, token: string): Promise<APITypes.RESTDeleteAPIInteractionOriginalResponseResult> {
-		return this.webhooks.deleteWebhookMessage(appId, token, "@original") as APITypes.RESTDeleteAPIInteractionOriginalResponseResult;
+	public deleteOriginalInteractionResponse(appId: string, token: string): Promise<RESTDeleteAPIInteractionOriginalResponseResult> {
+		return this.webhooks.deleteWebhookMessage(appId, token, "@original") as RESTDeleteAPIInteractionOriginalResponseResult;
 	}
 
 	/**
@@ -316,9 +347,9 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * const message = await client.interaction.createFollowupMessage("appId", "token", { content: "The pacer gram fitness test-" })
 	 */
-	public createFollowupMessage(appId: string, token: string, data: APITypes.RESTPostAPIInteractionFollowupJSONBody & { files?: Array<{ name: string; file: Buffer; }> }): Promise<APITypes.RESTPostAPIInteractionFollowupResult> {
+	public createFollowupMessage(appId: string, token: string, data: RESTPostAPIInteractionFollowupJSONBody & { files?: Array<{ name: string; file: Buffer; }> }): Promise<RESTPostAPIInteractionFollowupResult> {
 		// wait is always true for interactions and should not be supplied as it will throw an error if the query string is present
-		return this.webhooks.executeWebhook(appId, token, data) as unknown as Promise<APITypes.RESTPostAPIInteractionFollowupResult>;
+		return this.webhooks.executeWebhook(appId, token, data) as unknown as Promise<RESTPostAPIInteractionFollowupResult>;
 	}
 
 	/**
@@ -332,7 +363,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * const message = await client.interaction.getFollowupMessage("appId", "token", "messageId")
 	 */
-	public getFollowupMessage(appId: string, token: string, messageId: string): Promise<APITypes.RESTGetAPIInteractionFollowupResult> {
+	public getFollowupMessage(appId: string, token: string, messageId: string): Promise<RESTGetAPIInteractionFollowupResult> {
 		return this.webhooks.getWebhookMessage(appId, token, messageId);
 	}
 
@@ -348,7 +379,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * const message = await client.interaction.editFollowupMessage("appId", "token", "messageId", { content: "-is a multistage aerobic capacity test" })
 	 */
-	public editFollowupMessage(appId: string, token: string, messageId: string, data: APITypes.RESTPatchAPIInteractionFollowupJSONBody & { files?: Array<{ name: string; file: Buffer; }> }): Promise<APITypes.RESTPatchAPIInteractionFollowupResult> {
+	public editFollowupMessage(appId: string, token: string, messageId: string, data: RESTPatchAPIInteractionFollowupJSONBody & { files?: Array<{ name: string; file: Buffer; }> }): Promise<RESTPatchAPIInteractionFollowupResult> {
 		return this.webhooks.editWebhookMessage(appId, token, messageId, data);
 	}
 
@@ -363,8 +394,8 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * client.interaction.deleteFollowupMessage("appId", "token", "messageId")
 	 */
-	public deleteFollowupMessage(appId: string, token: string, messageId: string): Promise<APITypes.RESTDeleteAPIInteractionFollowupResult> {
-		return this.webhooks.deleteWebhookMessage(appId, token, messageId) as APITypes.RESTDeleteAPIInteractionFollowupResult;
+	public deleteFollowupMessage(appId: string, token: string, messageId: string): Promise<RESTDeleteAPIInteractionFollowupResult> {
+		return this.webhooks.deleteWebhookMessage(appId, token, messageId) as RESTDeleteAPIInteractionFollowupResult;
 	}
 }
 

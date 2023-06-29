@@ -1,6 +1,6 @@
 import Endpoints = require("../Endpoints");
 
-import type APITypes = require("discord-api-types/v10");
+import type { RESTGetAPIVoiceRegionsResult } from "discord-api-types/v10";
 
 /**
  * Methods for interacting with some voice
@@ -28,7 +28,7 @@ class VoiceMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const regions = await client.voice.getVoiceRegions()
 	 */
-	public async getVoiceRegions(): Promise<APITypes.RESTGetAPIVoiceRegionsResult> {
+	public async getVoiceRegions(): Promise<RESTGetAPIVoiceRegionsResult> {
 		return this.requestHandler.request(Endpoints.VOICE_REGIONS, "get", "json");
 	}
 }

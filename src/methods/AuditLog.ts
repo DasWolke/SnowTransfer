@@ -1,6 +1,9 @@
 import Endpoints = require("../Endpoints");
 
-import type APITypes = require("discord-api-types/v10");
+import {
+	RESTGetAPIAuditLogQuery,
+	RESTGetAPIAuditLogResult
+} from "discord-api-types/v10";
 
 /**
  * Methods for interacting with Guild Audit Logs
@@ -39,7 +42,7 @@ class AuditLogMethods {
 	 * }
 	 * const channel = await client.auditLog.getAuditLog("guild id", data)
 	 */
-	public async getAuditLog(guildId: string, data?: APITypes.RESTGetAPIAuditLogQuery): Promise<APITypes.RESTGetAPIAuditLogResult> {
+	public async getAuditLog(guildId: string, data?: RESTGetAPIAuditLogQuery): Promise<RESTGetAPIAuditLogResult> {
 		return this.requestHandler.request(Endpoints.GUILD_AUDIT_LOGS(guildId), "get", "json", data);
 	}
 }

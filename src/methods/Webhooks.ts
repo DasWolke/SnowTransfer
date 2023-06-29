@@ -3,7 +3,32 @@ import Constants = require("../Constants");
 
 const mentionRegex = /@([^<>@ ]*)/gsmu;
 
-import type APITypes = require("discord-api-types/v10");
+import type {
+	RESTDeleteAPIWebhookResult,
+	RESTDeleteAPIWebhookWithTokenMessageResult,
+	RESTGetAPIChannelWebhooksResult,
+	RESTGetAPIGuildWebhooksResult,
+	RESTGetAPIWebhookResult,
+	RESTGetAPIWebhookWithTokenMessageResult,
+	RESTPatchAPIWebhookJSONBody,
+	RESTPatchAPIWebhookResult,
+	RESTPatchAPIWebhookWithTokenJSONBody,
+	RESTPatchAPIWebhookWithTokenMessageJSONBody,
+	RESTPatchAPIWebhookWithTokenMessageResult,
+	RESTPatchAPIWebhookWithTokenResult,
+	RESTPostAPIChannelWebhookJSONBody,
+	RESTPostAPIChannelWebhookResult,
+	RESTPostAPIWebhookWithTokenGitHubQuery,
+	RESTPostAPIWebhookWithTokenGitHubResult,
+	RESTPostAPIWebhookWithTokenGitHubWaitResult,
+	RESTPostAPIWebhookWithTokenJSONBody,
+	RESTPostAPIWebhookWithTokenQuery,
+	RESTPostAPIWebhookWithTokenResult,
+	RESTPostAPIWebhookWithTokenSlackQuery,
+	RESTPostAPIWebhookWithTokenSlackResult,
+	RESTPostAPIWebhookWithTokenSlackWaitResult,
+	RESTPostAPIWebhookWithTokenWaitResult
+} from "discord-api-types/v10";
 
 /**
  * Methods for handling webhook interactions
@@ -44,7 +69,7 @@ class WebhookMethods {
 	 * }
 	 * const webhook = await client.webhook.createWebhook("channel Id", webhookData)
 	 */
-	public async createWebhook(channelId: string, data: APITypes.RESTPostAPIChannelWebhookJSONBody): Promise<APITypes.RESTPostAPIChannelWebhookResult> {
+	public async createWebhook(channelId: string, data: RESTPostAPIChannelWebhookJSONBody): Promise<RESTPostAPIChannelWebhookResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_WEBHOOKS(channelId), "post", "json", data);
 	}
 
@@ -62,7 +87,7 @@ class WebhookMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const webhooks = await client.webhook.getChannelWebhooks("channel Id")
 	 */
-	public async getChannelWebhooks(channelId: string): Promise<APITypes.RESTGetAPIChannelWebhooksResult> {
+	public async getChannelWebhooks(channelId: string): Promise<RESTGetAPIChannelWebhooksResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_WEBHOOKS(channelId), "get", "json");
 	}
 
@@ -80,7 +105,7 @@ class WebhookMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const webhooks = await client.webhook.getGuildWebhooks("guild Id")
 	 */
-	public async getGuildWebhooks(guildId: string): Promise<APITypes.RESTGetAPIGuildWebhooksResult> {
+	public async getGuildWebhooks(guildId: string): Promise<RESTGetAPIGuildWebhooksResult> {
 		return this.requestHandler.request(Endpoints.GUILD_WEBHOOKS(guildId), "get", "json");
 	}
 
@@ -99,7 +124,7 @@ class WebhookMethods {
 	 * const client = new SnowTransfer() // No token needed if webhook token is provided
 	 * const webhook = await client.webhook.getWebhook("webhook Id", "webhook token")
 	 */
-	public async getWebhook(webhookId: string, token?: string): Promise<APITypes.RESTGetAPIWebhookResult> {
+	public async getWebhook(webhookId: string, token?: string): Promise<RESTGetAPIWebhookResult> {
 		if (token) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), "get", "json");
 		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), "get", "json");
 	}
@@ -123,9 +148,9 @@ class WebhookMethods {
 	 * }
 	 * const webhook = await client.webhook.updateWebhook("webhook Id", webhookData, "webhook token")
 	 */
-	public async updateWebhook(webhookId: string, data: APITypes.RESTPatchAPIWebhookWithTokenJSONBody & { reason?: string; }, token: string): Promise<APITypes.RESTPatchAPIWebhookWithTokenResult>
-	public async updateWebhook(webhookId: string, data: APITypes.RESTPatchAPIWebhookJSONBody & { reason?: string; }): Promise<APITypes.RESTPatchAPIWebhookResult>
-	public async updateWebhook(webhookId: string, data: (APITypes.RESTPatchAPIWebhookWithTokenJSONBody | APITypes.RESTPatchAPIWebhookJSONBody) & { reason?: string; }, token?: string): Promise<APITypes.RESTPatchAPIWebhookWithTokenResult | APITypes.RESTPatchAPIWebhookResult> {
+	public async updateWebhook(webhookId: string, data: RESTPatchAPIWebhookWithTokenJSONBody & { reason?: string; }, token: string): Promise<RESTPatchAPIWebhookWithTokenResult>
+	public async updateWebhook(webhookId: string, data: RESTPatchAPIWebhookJSONBody & { reason?: string; }): Promise<RESTPatchAPIWebhookResult>
+	public async updateWebhook(webhookId: string, data: (RESTPatchAPIWebhookWithTokenJSONBody | RESTPatchAPIWebhookJSONBody) & { reason?: string; }, token?: string): Promise<RESTPatchAPIWebhookWithTokenResult | RESTPatchAPIWebhookResult> {
 		if (token) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), "patch", "json", data);
 		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), "patch", "json", data);
 	}
@@ -145,9 +170,9 @@ class WebhookMethods {
 	 * const client = new SnowTransfer(); // No token needed if webhook token is provided
 	 * client.webhook.deleteWebhook("webhook Id", "webhook token")
 	 */
-	public async deleteWebhook(webhookId: string, token?: string): Promise<APITypes.RESTDeleteAPIWebhookResult> {
-		if (token) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), "delete", "json") as APITypes.RESTDeleteAPIWebhookResult;
-		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), "delete", "json") as APITypes.RESTDeleteAPIWebhookResult;
+	public async deleteWebhook(webhookId: string, token?: string): Promise<RESTDeleteAPIWebhookResult> {
+		if (token) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), "delete", "json") as RESTDeleteAPIWebhookResult;
+		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), "delete", "json") as RESTDeleteAPIWebhookResult;
 	}
 
 	/**
@@ -163,9 +188,9 @@ class WebhookMethods {
 	 * const client = new SnowTransfer()
 	 * client.webhook.executeWebhook("webhook Id", "webhook token", { content: "Hi from my webhook" })
 	 */
-	public async executeWebhook(webhookId: string, token: string, data: APITypes.RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer; }> }, options?: APITypes.RESTPostAPIWebhookWithTokenQuery & { wait?: false, disableEveryone?: boolean; }): Promise<APITypes.RESTPostAPIWebhookWithTokenResult>;
-	public async executeWebhook(webhookId: string, token: string, data: APITypes.RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer; }> }, options: APITypes.RESTPostAPIWebhookWithTokenQuery & { wait: true, disableEveryone?: boolean; }): Promise<APITypes.RESTPostAPIWebhookWithTokenWaitResult>;
-	public async executeWebhook(webhookId: string, token: string, data: APITypes.RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer; }> }, options: APITypes.RESTPostAPIWebhookWithTokenQuery & { disableEveryone?: boolean; } | undefined = { disableEveryone: this.disableEveryone }): Promise<APITypes.RESTPostAPIWebhookWithTokenResult | APITypes.RESTPostAPIWebhookWithTokenWaitResult> {
+	public async executeWebhook(webhookId: string, token: string, data: RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer; }> }, options?: RESTPostAPIWebhookWithTokenQuery & { wait?: false, disableEveryone?: boolean; }): Promise<RESTPostAPIWebhookWithTokenResult>;
+	public async executeWebhook(webhookId: string, token: string, data: RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer; }> }, options: RESTPostAPIWebhookWithTokenQuery & { wait: true, disableEveryone?: boolean; }): Promise<RESTPostAPIWebhookWithTokenWaitResult>;
+	public async executeWebhook(webhookId: string, token: string, data: RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer; }> }, options: RESTPostAPIWebhookWithTokenQuery & { disableEveryone?: boolean; } | undefined = { disableEveryone: this.disableEveryone }): Promise<RESTPostAPIWebhookWithTokenResult | RESTPostAPIWebhookWithTokenWaitResult> {
 		if (typeof data !== "string" && !data?.content && !data?.embeds && !data?.components && !data?.files) throw new Error("Missing content or embeds or components or files");
 		if (typeof data === "string") data = { content: data };
 
@@ -190,9 +215,9 @@ class WebhookMethods {
 	 * const client = new SnowTransfer() // No token needed
 	 * client.webhook.executeSlackWebhook("webhook Id", "webhook token", slackdata)
 	 */
-	public async executeWebhookSlack(webhookId: string, token: string, data: any, options?: APITypes.RESTPostAPIWebhookWithTokenSlackQuery & { wait?: false }): Promise<APITypes.RESTPostAPIWebhookWithTokenSlackResult>
-	public async executeWebhookSlack(webhookId: string, token: string, data: any, options?: APITypes.RESTPostAPIWebhookWithTokenSlackQuery & { wait: true }): Promise<APITypes.RESTPostAPIWebhookWithTokenSlackWaitResult>
-	public async executeWebhookSlack(webhookId: string, token: string, data: any, options?: APITypes.RESTPostAPIWebhookWithTokenSlackQuery): Promise<APITypes.RESTPostAPIWebhookWithTokenSlackResult | APITypes.RESTPostAPIWebhookWithTokenSlackWaitResult> {
+	public async executeWebhookSlack(webhookId: string, token: string, data: any, options?: RESTPostAPIWebhookWithTokenSlackQuery & { wait?: false }): Promise<RESTPostAPIWebhookWithTokenSlackResult>
+	public async executeWebhookSlack(webhookId: string, token: string, data: any, options?: RESTPostAPIWebhookWithTokenSlackQuery & { wait: true }): Promise<RESTPostAPIWebhookWithTokenSlackWaitResult>
+	public async executeWebhookSlack(webhookId: string, token: string, data: any, options?: RESTPostAPIWebhookWithTokenSlackQuery): Promise<RESTPostAPIWebhookWithTokenSlackResult | RESTPostAPIWebhookWithTokenSlackWaitResult> {
 		const query = options ? new URLSearchParams(options as Record<string, string>) : undefined;
 
 		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN_SLACK(webhookId, token)}${query ? `?${query.toString()}` : undefined}`, "post", "json", data);
@@ -206,9 +231,9 @@ class WebhookMethods {
 	 * @param options Options for executing the webhook
 	 * @returns Resolves the Promise on successful execution
 	 */
-	public async executeWebhookGitHub(webhookId: string, token: string, data: any, options?: APITypes.RESTPostAPIWebhookWithTokenGitHubQuery & { wait?: false }): Promise<APITypes.RESTPostAPIWebhookWithTokenGitHubResult>
-	public async executeWebhookGitHub(webhookId: string, token: string, data: any, options?: APITypes.RESTPostAPIWebhookWithTokenGitHubQuery & { wait: true }): Promise<APITypes.RESTPostAPIWebhookWithTokenGitHubWaitResult>
-	public async executeWebhookGitHub(webhookId: string, token: string, data: any, options?: APITypes.RESTPostAPIWebhookWithTokenGitHubQuery): Promise<APITypes.RESTPostAPIWebhookWithTokenGitHubResult | APITypes.RESTPostAPIWebhookWithTokenGitHubWaitResult> {
+	public async executeWebhookGitHub(webhookId: string, token: string, data: any, options?: RESTPostAPIWebhookWithTokenGitHubQuery & { wait?: false }): Promise<RESTPostAPIWebhookWithTokenGitHubResult>
+	public async executeWebhookGitHub(webhookId: string, token: string, data: any, options?: RESTPostAPIWebhookWithTokenGitHubQuery & { wait: true }): Promise<RESTPostAPIWebhookWithTokenGitHubWaitResult>
+	public async executeWebhookGitHub(webhookId: string, token: string, data: any, options?: RESTPostAPIWebhookWithTokenGitHubQuery): Promise<RESTPostAPIWebhookWithTokenGitHubResult | RESTPostAPIWebhookWithTokenGitHubWaitResult> {
 		const query = options ? new URLSearchParams(options as Record<string, string>) : undefined;
 		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN_GITHUB(webhookId, token)}${query ? `?${query.toString()}` : undefined}`, "post", "json", data);
 	}
@@ -221,7 +246,7 @@ class WebhookMethods {
 	 * @param threadId Id of the thread the message was sent in
 	 * @returns [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
 	 */
-	public async getWebhookMessage(webhookId: string, token: string, messageId: string, threadId?: string): Promise<APITypes.RESTGetAPIWebhookWithTokenMessageResult> {
+	public async getWebhookMessage(webhookId: string, token: string, messageId: string, threadId?: string): Promise<RESTGetAPIWebhookWithTokenMessageResult> {
 		return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), "get", "json", threadId ? { thread_id: threadId } : undefined);
 	}
 
@@ -237,7 +262,7 @@ class WebhookMethods {
 	 * const client = new SnowTransfer()
 	 * const message = await client.webhook.editWebhookMessage("webhook Id", "webhook token", "message Id", { content: "New content" })
 	 */
-	public async editWebhookMessage(webhookId: string, token: string, messageId: string, data: APITypes.RESTPatchAPIWebhookWithTokenMessageJSONBody & { thread_id?: string; files?: Array<{ name: string; file: Buffer; }> }): Promise<APITypes.RESTPatchAPIWebhookWithTokenMessageResult> {
+	public async editWebhookMessage(webhookId: string, token: string, messageId: string, data: RESTPatchAPIWebhookWithTokenMessageJSONBody & { thread_id?: string; files?: Array<{ name: string; file: Buffer; }> }): Promise<RESTPatchAPIWebhookWithTokenMessageResult> {
 		let threadID: string | undefined = undefined;
 		if (data.thread_id) threadID = data.thread_id;
 		delete data.thread_id;
@@ -253,8 +278,8 @@ class WebhookMethods {
 	 * @param threadId Id of the thread the message was sent in
 	 * @returns Resolves the Promise on successful execution
 	 */
-	public async deleteWebhookMessage(webhookId: string, token: string, messageId: string, threadId?: string): Promise<APITypes.RESTDeleteAPIWebhookWithTokenMessageResult> {
-		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId)}${threadId ? `?thread_id=${threadId}` : ""}`, "delete", "json") as APITypes.RESTDeleteAPIWebhookWithTokenMessageResult;
+	public async deleteWebhookMessage(webhookId: string, token: string, messageId: string, threadId?: string): Promise<RESTDeleteAPIWebhookWithTokenMessageResult> {
+		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId)}${threadId ? `?thread_id=${threadId}` : ""}`, "delete", "json") as RESTDeleteAPIWebhookWithTokenMessageResult;
 	}
 }
 
