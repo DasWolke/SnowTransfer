@@ -65,7 +65,7 @@ class InteractionMethods {
 	 * const commands = await client.interaction.getApplicationCommands("appId")
 	 */
 	public getApplicationCommands(appId: string, withLocalizations?: boolean): Promise<RESTGetAPIApplicationCommandsResult> {
-		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appId), "get", "json", withLocalizations ? { with_localizations: withLocalizations } : undefined);
+		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appId), { with_localizations: withLocalizations }, "get", "json");
 	}
 
 	/**
@@ -79,7 +79,7 @@ class InteractionMethods {
 	 * const command = await client.interaction.createApplicationCommand("appId", { name: "test", description: "testing 1, 2, 3" })
 	 */
 	public createApplicationCommand(appId: string, data: RESTPostAPIApplicationCommandsJSONBody): Promise<RESTPostAPIApplicationCommandsResult> {
-		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appId), "post", "json", data);
+		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appId), {}, "post", "json", data);
 	}
 
 	/**
@@ -93,7 +93,7 @@ class InteractionMethods {
 	 * const command = await client.interaction.getApplicationCommand("appId", "cmdId")
 	 */
 	public getApplicationCommand(appId: string, cmdId: string): Promise<RESTGetAPIApplicationCommandResult> {
-		return this.requestHandler.request(Endpoints.APPLICATION_COMMAND(appId, cmdId), "get", "json");
+		return this.requestHandler.request(Endpoints.APPLICATION_COMMAND(appId, cmdId), {}, "get", "json");
 	}
 
 	/**
@@ -108,7 +108,7 @@ class InteractionMethods {
 	 * const command = await client.interaction.editApplicationCommand("appId", "cmdId", { name: "cool", description: "tells you how cool you are" })
 	 */
 	public editApplicationCommand(appId: string, cmdId: string, data: RESTPatchAPIApplicationCommandJSONBody): Promise<RESTPatchAPIApplicationCommandResult> {
-		return this.requestHandler.request(Endpoints.APPLICATION_COMMAND(appId, cmdId), "patch", "json", data);
+		return this.requestHandler.request(Endpoints.APPLICATION_COMMAND(appId, cmdId), {}, "patch", "json", data);
 	}
 
 	/**
@@ -122,7 +122,7 @@ class InteractionMethods {
 	 * client.interaction.deleteApplicationCommand("appId", "cmdId")
 	 */
 	public deleteApplicationCommand(appId: string, cmdId: string): Promise<never> { // no return type in api types
-		return this.requestHandler.request(Endpoints.APPLICATION_COMMAND(appId, cmdId), "delete", "json") as never;
+		return this.requestHandler.request(Endpoints.APPLICATION_COMMAND(appId, cmdId), {}, "delete", "json") as never;
 	}
 
 	/**
@@ -137,7 +137,7 @@ class InteractionMethods {
 	 * const commands = await client.interaction.bulkOverwriteApplicationCommands("appId", [{ name: "test", description: "testing 1, 2, 3" }])
 	 */
 	public bulkOverwriteApplicationCommands(appId: string, data: RESTPutAPIApplicationCommandsJSONBody): Promise<RESTPutAPIApplicationCommandsResult> {
-		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appId), "put", "json", data);
+		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appId), {}, "put", "json", data);
 	}
 
 	/**
@@ -152,7 +152,7 @@ class InteractionMethods {
 	 * const commands = await client.interaction.getGuildCommands("appId", "guildId", true)
 	 */
 	public getGuildApplicationCommands(appId: string, guildId: string, withLocalizations?: boolean): Promise<RESTGetAPIApplicationGuildCommandsResult> {
-		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId), "get", "json", withLocalizations ? { with_localizations: withLocalizations } : undefined);
+		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId), { with_localizations: withLocalizations }, "get", "json");
 	}
 
 	/**
@@ -167,7 +167,7 @@ class InteractionMethods {
 	 * const command = await client.interaction.createGuildApplicationCommand("appId", "guildId", { name: "test", description: "testing 1, 2, 3" })
 	 */
 	public createGuildApplicationCommand(appId: string, guildId: string, data: RESTPostAPIApplicationGuildCommandsJSONBody): Promise<RESTPostAPIApplicationGuildCommandsResult> {
-		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId), "post", "json", data);
+		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId), {}, "post", "json", data);
 	}
 
 	/**
@@ -182,7 +182,7 @@ class InteractionMethods {
 	 * const command = await client.interaction.getGuildApplicationCommand("appId", "guildId", "cmdId")
 	 */
 	public getGuildApplicationCommand(appId: string, guildId: string, cmdId: string): Promise<RESTGetAPIApplicationGuildCommandResult> {
-		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND(appId, guildId, cmdId), "get", "json");
+		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND(appId, guildId, cmdId), {}, "get", "json");
 	}
 
 	/**
@@ -198,7 +198,7 @@ class InteractionMethods {
 	 * const command = await client.interaction.editGuildApplicationCommand("appId", "guildId", "cmdId", { name: "coolest", description: "tells you that you are the coolest" })
 	 */
 	public editGuildApplicationCommand(appId: string, guildId: string, cmdId: string, data: RESTPatchAPIApplicationGuildCommandJSONBody): Promise<RESTPatchAPIApplicationGuildCommandResult> {
-		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND(appId, guildId, cmdId), "patch", "json", data);
+		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND(appId, guildId, cmdId), {}, "patch", "json", data);
 	}
 
 	/**
@@ -213,7 +213,7 @@ class InteractionMethods {
 	 * client.interaction.deleteGuildApplicationCommand("appId", "guildId", "cmdId")
 	 */
 	public deleteGuildApplicationCommand(appId: string, guildId: string, cmdId: string): Promise<never> { // no return type in api types
-		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND(appId, guildId, cmdId), "delete", "json") as never;
+		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND(appId, guildId, cmdId), {}, "delete", "json") as never;
 	}
 
 	/**
@@ -228,7 +228,7 @@ class InteractionMethods {
 	 * const commands = await client.interaction.bulkOverwriteGuildApplicationCommands("appId", "guildId", [{ name: "test", description: "testing 1, 2, 3" }])
 	 */
 	public bulkOverwriteGuildApplicationCommands(appId: string, guildId: string, data: RESTPutAPIApplicationGuildCommandsJSONBody): Promise<RESTPutAPIApplicationGuildCommandsResult> {
-		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId), "put", "json", data);
+		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId), {}, "put", "json", data);
 	}
 
 	/**
@@ -251,8 +251,8 @@ class InteractionMethods {
 	public getGuildApplicationCommandPermissions(appId: string, guildId: string): Promise<Array<RESTGetAPIApplicationCommandPermissionsResult>>;
 	public getGuildApplicationCommandPermissions(appId: string, guildId: string, cmdId: string): Promise<RESTGetAPIApplicationCommandPermissionsResult>;
 	public getGuildApplicationCommandPermissions(appId: string, guildId: string, cmdId?: string): Promise<Array<RESTGetAPIApplicationCommandPermissionsResult> | RESTGetAPIApplicationCommandPermissionsResult> {
-		if (cmdId) return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND_PERMISSIONS(appId, guildId, cmdId), "get", "json");
-		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS_PERMISSIONS(appId, guildId), "get", "json");
+		if (cmdId) return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND_PERMISSIONS(appId, guildId, cmdId), {}, "get", "json");
+		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS_PERMISSIONS(appId, guildId), {}, "get", "json");
 	}
 
 	/**
@@ -269,7 +269,7 @@ class InteractionMethods {
 	 */
 	public editGuildApplicationCommandPermissions(appId: string, guildId: string, cmdId: string, permissions: RESTPutAPIApplicationCommandPermissionsJSONBody["permissions"]): Promise<RESTPutAPIApplicationCommandPermissionsResult> {
 		const payload = { permissions: permissions };
-		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND_PERMISSIONS(appId, guildId, cmdId), "put", "json", payload);
+		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMAND_PERMISSIONS(appId, guildId, cmdId), {}, "put", "json", payload);
 	}
 
 	/**
@@ -289,8 +289,8 @@ class InteractionMethods {
 	 * client.interaction.createInteractionResponse("interactionId", "token", { type: 4, data: { content: "Hello World" } })
 	 */
 	public createInteractionResponse(interactionId: string, token: string, data: RESTPostAPIInteractionCallbackJSONBody & { files?: Array<{ name: string; file: Buffer; }> }): Promise<void> {
-		if (data.files) return this.requestHandler.request(Endpoints.INTERACTION_CALLBACK(interactionId, token), "post", "multipart", Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
-		else return this.requestHandler.request(Endpoints.INTERACTION_CALLBACK(interactionId, token), "post", "json", data);
+		if (data.files) return this.requestHandler.request(Endpoints.INTERACTION_CALLBACK(interactionId, token), {}, "post", "multipart", Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
+		else return this.requestHandler.request(Endpoints.INTERACTION_CALLBACK(interactionId, token), {}, "post", "json", data);
 	}
 
 	/**

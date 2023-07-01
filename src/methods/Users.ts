@@ -47,7 +47,7 @@ class UserMethods {
 	 * const self = await client.user.getSelf()
 	 */
 	public async getSelf(): Promise<RESTGetAPICurrentUserResult> {
-		return this.requestHandler.request(Endpoints.USER("@me"), "get", "json");
+		return this.requestHandler.request(Endpoints.USER("@me"), {}, "get", "json");
 	}
 
 	/**
@@ -60,7 +60,7 @@ class UserMethods {
 	 * const user = await client.user.getUser("userId")
 	 */
 	public async getUser(userId: string): Promise<RESTGetAPIUserResult> {
-		return this.requestHandler.request(Endpoints.USER(userId), "get", "json");
+		return this.requestHandler.request(Endpoints.USER(userId), {}, "get", "json");
 	}
 
 	/**
@@ -78,7 +78,7 @@ class UserMethods {
 	 * client.user.updateSelf(updateData)
 	 */
 	public async updateSelf(data: RESTPatchAPICurrentUserJSONBody): Promise<RESTPatchAPICurrentUserResult> {
-		return this.requestHandler.request(Endpoints.USER("@me"), "patch", "json", data);
+		return this.requestHandler.request(Endpoints.USER("@me"), {}, "patch", "json", data);
 	}
 
 	/**
@@ -90,7 +90,7 @@ class UserMethods {
 	 * const guilds = await client.user.getGuilds()
 	 */
 	public async getGuilds(query?: RESTGetAPICurrentUserGuildsQuery): Promise<RESTGetAPICurrentUserGuildsResult> {
-		return this.requestHandler.request(Endpoints.USER_GUILDS("@me"), "get", "json", query);
+		return this.requestHandler.request(Endpoints.USER_GUILDS("@me"), {}, "get", "json", query);
 	}
 
 	/**
@@ -103,7 +103,7 @@ class UserMethods {
 	 * client.user.leaveGuild("guildId")
 	 */
 	public async leaveGuild(guildId: string): Promise<RESTDeleteAPICurrentUserGuildResult> {
-		return this.requestHandler.request(Endpoints.USER_GUILD("@me", guildId), "delete", "json") as RESTDeleteAPICurrentUserGuildResult;
+		return this.requestHandler.request(Endpoints.USER_GUILD("@me", guildId), {}, "delete", "json") as RESTDeleteAPICurrentUserGuildResult;
 	}
 
 	/**
@@ -120,7 +120,7 @@ class UserMethods {
 	 * client.channel.createMessage(channel.id, "hi")
 	 */
 	public async createDirectMessageChannel(userId: string): Promise<RESTPostAPICurrentUserCreateDMChannelResult> {
-		return this.requestHandler.request(Endpoints.USER_CHANNELS("@me"), "post", "json", { recipient_id: userId });
+		return this.requestHandler.request(Endpoints.USER_CHANNELS("@me"), {}, "post", "json", { recipient_id: userId });
 	}
 
 	/**
@@ -140,7 +140,7 @@ class UserMethods {
 	 * client.channel.createMessage(channel.id, "hi")
 	 */
 	public async createGroupDirectMessageChannel(data: { access_tokens: Array<string>; nicks?: { [userId: string]: string } }): Promise<RESTPostAPICurrentUserCreateDMChannelResult> {
-		return this.requestHandler.request(Endpoints.USER_CHANNELS("@me"), "post", "json", data);
+		return this.requestHandler.request(Endpoints.USER_CHANNELS("@me"), {}, "post", "json", data);
 	}
 
 	/**
@@ -157,7 +157,7 @@ class UserMethods {
 	 * const connections = await client.user.getConnections()
 	 */
 	public async getConnections(): Promise<RESTGetAPICurrentUserConnectionsResult> {
-		return this.requestHandler.request(Endpoints.USER_CONNECTIONS("@me"), "get", "json");
+		return this.requestHandler.request(Endpoints.USER_CONNECTIONS("@me"), {}, "get", "json");
 	}
 
 	/**
@@ -175,7 +175,7 @@ class UserMethods {
 	 * const connection = await client.user.getApplicationRoleConnection("app id")
 	 */
 	public async getApplicationRoleConnection(appId: string): Promise<RESTGetAPICurrentUserApplicationRoleConnectionResult> {
-		return this.requestHandler.request(Endpoints.USER_APPLICATION_ROLE_CONNECTION("@me", appId), "get", "json");
+		return this.requestHandler.request(Endpoints.USER_APPLICATION_ROLE_CONNECTION("@me", appId), {}, "get", "json");
 	}
 
 	/**
@@ -193,7 +193,7 @@ class UserMethods {
 	 * const connection = await client.user.updateApplicationRoleConnection("app id", { platform_name: "some platform", platform_username: "Cool user 22" })
 	 */
 	public async updateApplicationRoleConnection(appId: string, data: RESTPutAPICurrentUserApplicationRoleConnectionJSONBody): Promise<RESTPutAPICurrentUserApplicationRoleConnectionResult> {
-		return this.requestHandler.request(Endpoints.USER_APPLICATION_ROLE_CONNECTION("@me", appId), "put", "json", data);
+		return this.requestHandler.request(Endpoints.USER_APPLICATION_ROLE_CONNECTION("@me", appId), {}, "put", "json", data);
 	}
 }
 

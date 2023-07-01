@@ -42,7 +42,7 @@ class GuildScheduledEventMethods {
 	 * const events = await client.guildScheduledEvent.listGuildScheduledEvents(guildId)
 	 */
 	public async listGuildScheduledEvents(guildId: string, withCounts?: boolean): Promise<RESTGetAPIGuildScheduledEventsResult> {
-		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENTS(guildId), "get", "json", withCounts !== undefined ? { with_user_count: withCounts } : undefined);
+		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENTS(guildId), { with_user_count: withCounts }, "get", "json");
 	}
 
 	/**
@@ -71,7 +71,7 @@ class GuildScheduledEventMethods {
 	 * const event = await client.guildScheduledEvent.createGuildScheduledEvent(guildId, eventData)
 	 */
 	public async createGuildScheduledEvent(guildId: string, data: RESTPostAPIGuildScheduledEventJSONBody): Promise<RESTPostAPIGuildScheduledEventResult> {
-		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENTS(guildId), "post", "json", data);
+		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENTS(guildId), {}, "post", "json", data);
 	}
 
 	/**
@@ -90,7 +90,7 @@ class GuildScheduledEventMethods {
 	 * const event = await client.guildScheduledEvent.getGuildScheduledEvent(guildId, eventId)
 	 */
 	public async getGuildScheduledEvent(guildId: string, eventId: string, withCounts?: boolean): Promise<RESTGetAPIGuildScheduledEventResult> {
-		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT(guildId, eventId), "get", "json", withCounts !== undefined ? { with_user_count: withCounts } : undefined);
+		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT(guildId, eventId), {}, "get", "json", { with_user_count: withCounts });
 	}
 
 	/**
@@ -115,7 +115,7 @@ class GuildScheduledEventMethods {
 	 * const event = await client.guildScheduledEvent.editGuildScheduledEvent(guildId, eventId, { entity_type: 3, channel_id: null, entity_metadata: { location: "Brazil" }, scheduled_end_time: "2025-01-01T00:00:00.000Z" })
 	 */
 	public async editGuildScheduledEvent(guildId: string, eventId: string, data: RESTPatchAPIGuildScheduledEventJSONBody): Promise<RESTPatchAPIGuildScheduledEventResult> {
-		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT(guildId, eventId), "patch", "json", data);
+		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT(guildId, eventId), {}, "patch", "json", data);
 	}
 
 	/**
@@ -138,7 +138,7 @@ class GuildScheduledEventMethods {
 	 * client.guildScheduledEvent.deleteGuildScheduledEvent(guildId, eventId)
 	 */
 	public async deleteGuildScheduledEvent(guildId: string, eventId: string): Promise<RESTDeleteAPIGuildScheduledEventResult> {
-		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT(guildId, eventId), "delete", "json") as RESTDeleteAPIGuildScheduledEventResult;
+		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT(guildId, eventId), {}, "delete", "json") as RESTDeleteAPIGuildScheduledEventResult;
 	}
 
 	/**
@@ -158,7 +158,7 @@ class GuildScheduledEventMethods {
 	 */
 	public async getGuildScheduledEventUsers(guildId: string, eventId: string, query?: RESTGetAPIGuildScheduledEventUsersQuery): Promise<RESTGetAPIGuildScheduledEventUsersResult> {
 		if (query?.limit !== undefined && (query.limit < Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MIN_RESULTS || query.limit > Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MAX_RESULTS)) throw new RangeError(`The maximum amount of users that may be requested has to be between ${Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MIN_RESULTS} and ${Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MAX_RESULTS}`);
-		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT_USERS(guildId, eventId), "get", "json", query);
+		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT_USERS(guildId, eventId), query, "get", "json");
 	}
 }
 

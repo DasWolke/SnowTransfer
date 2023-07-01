@@ -43,7 +43,7 @@ class AuditLogMethods {
 	 * const channel = await client.auditLog.getAuditLog("guild id", data)
 	 */
 	public async getAuditLog(guildId: string, data?: RESTGetAPIAuditLogQuery): Promise<RESTGetAPIAuditLogResult> {
-		return this.requestHandler.request(Endpoints.GUILD_AUDIT_LOGS(guildId), "get", "json", data);
+		return this.requestHandler.request(Endpoints.GUILD_AUDIT_LOGS(guildId), data, "get", "json");
 	}
 }
 

@@ -29,7 +29,7 @@ class VoiceMethods {
 	 * const regions = await client.voice.getVoiceRegions()
 	 */
 	public async getVoiceRegions(): Promise<RESTGetAPIVoiceRegionsResult> {
-		return this.requestHandler.request(Endpoints.VOICE_REGIONS, "get", "json");
+		return this.requestHandler.request(Endpoints.VOICE_REGIONS, {}, "get", "json");
 	}
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "snowtransfer",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "description": "Minimalistic Rest client for the Discord Api",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -29,12 +29,11 @@
   "author": "wolke <wolke@weeb.sh>",
   "license": "MIT",
   "dependencies": {
-    "centra": "^2.6.0",
     "discord-api-types": "^0.37.47",
-    "form-data": "^4.0.0"
+    "form-data": "^4.0.0",
+    "undici": "^5.22.1"
   },
   "devDependencies": {
-    "@types/centra": "^2.2.0",
     "@types/node": "^20.3.3",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",

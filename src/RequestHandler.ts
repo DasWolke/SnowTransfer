@@ -4,15 +4,15 @@ import { EventEmitter } from "events";
 import crypto = require("crypto");
 
 import FormData = require("form-data");
-import centra = require("centra");
+import undici = require("undici"); // Not using global.fetch yet until the Node ecosystem matures
 
 import Endpoints = require("./Endpoints");
 const { version } = require("../package.json");
 import Constants = require("./Constants");
 
-export type HTTPMethod = "get" | "post" | "patch" | "head" | "put" | "delete" | "connect" | "options" | "trace";
+import type { Response } from "undici";
 
-const routeShouldUseParamsRegex = /(?:\/bans)|(?:\/prune)/;
+export type HTTPMethod = "get" | "post" | "patch" | "head" | "put" | "delete" | "connect" | "options" | "trace";
 
 const applicationJSONRegex = /application\/json/;
 const routeRegex = /\/([a-z-]+)\/(?:\d{17,19})/g;
@@ -118,7 +118,7 @@ export class Ratelimiter {
 	 * @param url Endpoint of the request
 	 * @param method Http method used by the request
 	 */
-	public queue(fn: (bucket: LocalBucket) => any, url: string, method: string) {
+	public queue(fn: (bucket: LocalBucket) => any, url: string, method: string): void {
 		const routeKey = this.routify(url, method);
 		if (!this.buckets[routeKey]) this.buckets[routeKey] = new LocalBucket(this, routeKey);
 		this.buckets[routeKey].queue(fn);
@@ -221,7 +221,7 @@ export class LocalBucket {
 
 type HandlerEvents = {
 	request: [string, { endpoint: string, method: HTTPMethod, dataType: "json" | "multipart", data: any; }];
-	done: [string, import("centra").Response];
+	done: [string, Response];
 	requestError: [string, Error];
 	rateLimit: [{ timeout: number; limit: number; method: HTTPMethod; path: string; route: string; }];
 }
@@ -277,12 +277,13 @@ export class RequestHandler extends EventEmitter {
 	/**
 	 * Request a route from the discord api
 	 * @param endpoint endpoint to request
+	 * @param params URL query parameters to add on to the URL
 	 * @param method http method to use
 	 * @param dataType type of the data being sent
 	 * @param data data to send, if any
 	 * @returns Result of the request
 	 */
-	public request<T extends "json" | "multipart">(endpoint: string, method: HTTPMethod, dataType: T = "json" as T, data?: T extends "json" ? any : FormData, extraHeaders?: Record<string, string>): Promise<any> {
+	public request<T extends "json" | "multipart">(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, dataType: T = "json" as T, data?: T extends "json" ? any : FormData, extraHeaders?: Record<string, string>): Promise<any> {
 		// const stack = new Error().stack as string;
 		return new Promise(async (res, rej) => {
 			this.ratelimiter.queue(async (bkt) => {
@@ -290,16 +291,23 @@ export class RequestHandler extends EventEmitter {
 				try {
 					this.emit("request", reqID, { endpoint, method, dataType, data: data ?? {} });
 
-					let request: import("centra").Response;
-					if (dataType == "json") request = await this._request(endpoint, method, data, (method === "get" || routeShouldUseParamsRegex.test(endpoint)), extraHeaders);
-					else if (dataType == "multipart" && data) request = await this._multiPartRequest(endpoint, method, data, extraHeaders);
+					let request: Response;
+					if (dataType == "json") request = await this._request(endpoint, params, method, data, extraHeaders);
+					else if (dataType == "multipart" && data) request = await this._multiPartRequest(endpoint, params, method, data);
 					else throw new Error("Forbidden dataType. Use json or multipart or ensure multipart has FormData");
 
-					if (request.statusCode && !Constants.OK_STATUS_CODES.includes(request.statusCode) && request.statusCode !== 429) throw new DiscordAPIError(endpoint, request.headers["content-type"] && applicationJSONRegex.test(request.headers["content-type"]) ? { message: JSON.stringify(await request.json()) } : { message: String(request.body) }, method, request.statusCode);
+					if (request.status && !Constants.OK_STATUS_CODES.includes(request.status) && request.status !== 429) {
+						throw new DiscordAPIError(
+							endpoint,
+							request.headers["content-type"] && applicationJSONRegex.test(request.headers["content-type"])
+								? { message: JSON.stringify(await request.json()) }
+								: { message: await request.text() }, method, request.status
+						);
+					}
 
 					this._applyRatelimitHeaders(bkt, request.headers);
 
-					if (request.statusCode === 429) {
+					if (request.status === 429) {
 						if (!this.ratelimiter.global) {
 							const b = JSON.parse(String(request.body)); // Discord says it will be a JSON, so if there's an error, sucks
 							if (b.reset_after !== undefined) this.ratelimiter.globalReset = b.reset_after * 1000;
@@ -307,7 +315,7 @@ export class RequestHandler extends EventEmitter {
 							if (b.global !== undefined) this.ratelimiter.global = b.global;
 						}
 						this.emit("rateLimit", { timeout: bkt.reset, limit: bkt.limit, method: method, path: endpoint, route: this.ratelimiter.routify(endpoint, method) });
-						throw new DiscordAPIError(endpoint, { message: "You're being ratelimited", code: 429 }, method, request.statusCode);
+						throw new DiscordAPIError(endpoint, { message: "You're being ratelimited", code: 429 }, method, request.status);
 					}
 
 					this.emit("done", reqID, request);
@@ -315,9 +323,9 @@ export class RequestHandler extends EventEmitter {
 					if (request.body) {
 						let b: any;
 						try {
-							b = JSON.parse(request.body.toString());
+							b = await request.json();
 						} catch {
-							res(undefined);
+							return res(undefined);
 						}
 						return res(b);
 					} else return res(undefined);
@@ -344,11 +352,11 @@ export class RequestHandler extends EventEmitter {
 	/**
 	 * Execute a normal json request
 	 * @param endpoint Endpoint to use
+	 * @param params URL query parameters to add on to the URL
 	 * @param data Data to send
-	 * @param useParams Whether to send the data in the body or use query params
 	 * @returns Result of the request
 	 */
-	private async _request(endpoint: string, method: HTTPMethod, data?: any, useParams = false, extraHeaders?: Record<string, string>): Promise<import("centra").Response> {
+	private async _request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data?: any, extraHeaders?: Record<string, string>): Promise<Response> {
 		const headers = { ...this.options.headers };
 		if (extraHeaders) Object.assign(headers, extraHeaders);
 		if (typeof data !== "string" && data?.reason) {
@@ -356,25 +364,48 @@ export class RequestHandler extends EventEmitter {
 			delete data.reason;
 		}
 
-		const req = centra(this.apiURL, method).path(endpoint).header({ ...this.options.headers, ...headers });
-		if (useParams) return req.query(data).send();
-		else {
-			if (data && typeof data === "object") req.body(data, "json");
-			else if (data) req.body(data);
-			return req.send();
+		let body: string | undefined = undefined;
+		if (!["head", "get"].includes(method)) {
+			if (typeof data === "object") {
+				body = JSON.stringify(data);
+			} else body = String(data);
 		}
+
+		headers["Content-Type"] = "application/json";
+
+		return undici.fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
+			method: method.toUpperCase(),
+			headers,
+			body
+		});
 	}
 
 	/**
 	 * Execute a multipart/form-data request
 	 * @param endpoint Endpoint to use
+	 * @param params URL query parameters to add on to the URL
 	 * @param method Http Method to use
 	 * @param data data to send
 	 * @returns Result of the request
 	 */
-	private async _multiPartRequest(endpoint: string, method: HTTPMethod, data: FormData, extraHeaders?: Record<string, string>): Promise<import("centra").Response> {
+	private async _multiPartRequest(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data: FormData, extraHeaders?: Record<string, string>): Promise<Response> {
 		const headers = { ...this.options.headers, ...data.getHeaders() };
 		if (extraHeaders) Object.assign(headers, extraHeaders);
-		return centra(this.apiURL, method).path(endpoint).header(headers).body(data.getBuffer()).timeout(15000).send();
+
+		return undici.fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
+			method: method.toUpperCase(),
+			headers,
+			body: data.getBuffer()
+		});
 	}
+}
+
+function appendQuery(query: Record<string, any>): string {
+	let count = 0;
+	for (const [key, value] of Object.entries(query)) {
+		if (value == undefined) delete query[key];
+		else count++;
+	}
+
+	return count > 0 ? `?${new URLSearchParams(query).toString()}` : "";
 }

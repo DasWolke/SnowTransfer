@@ -33,7 +33,7 @@ class BotMethods {
 	 * // result should be something like { url: "wss://gateway.discord.gg" }
 	 */
 	public getGateway(): Promise<RESTGetAPIGatewayResult> {
-		return this.requestHandler.request(Endpoints.GATEWAY, "get", "json");
+		return this.requestHandler.request(Endpoints.GATEWAY, {}, "get", "json");
 	}
 
 	/**
@@ -46,7 +46,7 @@ class BotMethods {
 	 * // result should be something like { url: "wss://gateway.discord.gg", shards: 1, session_start_limit: { total: 1000, remaining: 999, reset_after: 14400000, max_concurrency: 1 } }
 	 */
 	public getGatewayBot(): Promise<RESTGetAPIGatewayBotResult> {
-		return this.requestHandler.request(Endpoints.GATEWAY_BOT, "get", "json");
+		return this.requestHandler.request(Endpoints.GATEWAY_BOT, {}, "get", "json");
 	}
 }
 

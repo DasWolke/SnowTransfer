@@ -36,7 +36,7 @@ class InviteMethods {
 	 * const invite = await client.invite.getInvite("inviteId", { with_counts: true })
 	 */
 	public async getInvite(inviteId: string, query?: RESTGetAPIInviteQuery): Promise<RESTGetAPIInviteResult> {
-		return this.requestHandler.request(Endpoints.INVITES(inviteId), "get", "json", query);
+		return this.requestHandler.request(Endpoints.INVITES(inviteId), query, "get", "json");
 	}
 
 	/**
@@ -54,7 +54,7 @@ class InviteMethods {
 	 * const invite = await client.invite.deleteInvite("inviteId")
 	 */
 	public async deleteInvite(inviteId: string): Promise<RESTDeleteAPIInviteResult> {
-		return this.requestHandler.request(Endpoints.INVITES(inviteId), "delete", "json");
+		return this.requestHandler.request(Endpoints.INVITES(inviteId), {}, "delete", "json");
 	}
 }
 
