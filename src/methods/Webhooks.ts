@@ -195,12 +195,12 @@ class WebhookMethods {
 		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message
-		if (data.content && (options?.disableEveryone !== undefined ? options.disableEveryone : this.disableEveryone)) data.content = data.content.replace(mentionRegex, replaceEveryone);
-		if (options) delete options.disableEveryone;
-		const query = options ? new URLSearchParams(options as Record<string, string>) : undefined;
+		if (data.content && (options.disableEveryone ?? this.disableEveryone)) data.content = data.content.replace(mentionRegex, replaceEveryone);
+		delete options.disableEveryone;
+		const query = new URLSearchParams(options as Record<string, string>);
 
-		if (data.files) return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN(webhookId, token)}${query ? `?${query.toString()}` : undefined}`, "post", "multipart", Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
-		else return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN(webhookId, token)}${query ? `?${query.toString()}` : undefined}`, "post", "json", data);
+		if (data.files) return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN(webhookId, token)}?${query.toString()}`, "post", "multipart", Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
+		else return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN(webhookId, token)}?${query.toString()}`, "post", "json", data);
 	}
 
 	/**
@@ -217,10 +217,10 @@ class WebhookMethods {
 	 */
 	public async executeWebhookSlack(webhookId: string, token: string, data: any, options?: RESTPostAPIWebhookWithTokenSlackQuery & { wait?: false }): Promise<RESTPostAPIWebhookWithTokenSlackResult>
 	public async executeWebhookSlack(webhookId: string, token: string, data: any, options?: RESTPostAPIWebhookWithTokenSlackQuery & { wait: true }): Promise<RESTPostAPIWebhookWithTokenSlackWaitResult>
-	public async executeWebhookSlack(webhookId: string, token: string, data: any, options?: RESTPostAPIWebhookWithTokenSlackQuery): Promise<RESTPostAPIWebhookWithTokenSlackResult | RESTPostAPIWebhookWithTokenSlackWaitResult> {
-		const query = options ? new URLSearchParams(options as Record<string, string>) : undefined;
+	public async executeWebhookSlack(webhookId: string, token: string, data: any, options: RESTPostAPIWebhookWithTokenSlackQuery = {}): Promise<RESTPostAPIWebhookWithTokenSlackResult | RESTPostAPIWebhookWithTokenSlackWaitResult> {
+		const query = new URLSearchParams(options as Record<string, string>);
 
-		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN_SLACK(webhookId, token)}${query ? `?${query.toString()}` : undefined}`, "post", "json", data);
+		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN_SLACK(webhookId, token)}?${query.toString()}`, "post", "json", data);
 	}
 
 	/**
@@ -233,9 +233,9 @@ class WebhookMethods {
 	 */
 	public async executeWebhookGitHub(webhookId: string, token: string, data: any, options?: RESTPostAPIWebhookWithTokenGitHubQuery & { wait?: false }): Promise<RESTPostAPIWebhookWithTokenGitHubResult>
 	public async executeWebhookGitHub(webhookId: string, token: string, data: any, options?: RESTPostAPIWebhookWithTokenGitHubQuery & { wait: true }): Promise<RESTPostAPIWebhookWithTokenGitHubWaitResult>
-	public async executeWebhookGitHub(webhookId: string, token: string, data: any, options?: RESTPostAPIWebhookWithTokenGitHubQuery): Promise<RESTPostAPIWebhookWithTokenGitHubResult | RESTPostAPIWebhookWithTokenGitHubWaitResult> {
-		const query = options ? new URLSearchParams(options as Record<string, string>) : undefined;
-		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN_GITHUB(webhookId, token)}${query ? `?${query.toString()}` : undefined}`, "post", "json", data);
+	public async executeWebhookGitHub(webhookId: string, token: string, data: any, options: RESTPostAPIWebhookWithTokenGitHubQuery = {}): Promise<RESTPostAPIWebhookWithTokenGitHubResult | RESTPostAPIWebhookWithTokenGitHubWaitResult> {
+		const query = new URLSearchParams(options as Record<string, string>);
+		return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN_GITHUB(webhookId, token)}?${query.toString()}`, "post", "json", data);
 	}
 
 	/**
