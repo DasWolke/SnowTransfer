@@ -263,7 +263,6 @@ class WebhookMethods {
 		if (data.thread_id) threadID = data.thread_id;
 		delete data.thread_id;
 
-		console.log(data);
 		if (data.files) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadID }, "patch", "multipart", Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadID }, "patch", "json", data);
 	}
