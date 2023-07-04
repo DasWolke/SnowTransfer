@@ -105,9 +105,9 @@ export class Ratelimiter {
 		if (method.toUpperCase() === "DELETE" && isMessageEndpointRegex.test(route)) route = method + route;
 		else if (method.toUpperCase() === "GET" && isGuildChannelsRegex.test(route)) route = "/guilds/:id/channels";
 
-		if(method === "PUT" || method === "DELETE") {
+		if (method === "PUT" || method === "DELETE") {
 			const index = route.indexOf("/reactions");
-			if(index !== -1) route = "MODIFY" + route.slice(0, index + 10);
+			if (index !== -1) route = "MODIFY" + route.slice(0, index + 10);
 		}
 		return route;
 	}
@@ -178,13 +178,19 @@ export class LocalBucket {
 		return new Promise(res => {
 			const wrapFn = () => {
 				this.remaining--;
-				if (!this.resetTimeout) this.resetTimeout = setTimeout(() => this.resetRemaining(), this.reset);
+				// Placeholder until we get the real time remaining. When the request gets a response the headers will tell the real time.
+				if (!this.resetTimeout) this.makeResetTimeout(5000);
 				if (this.remaining !== 0) this.checkQueue();
 				return res(fn(this));
 			};
 			this.fnQueue.push({ fn, callback: wrapFn });
 			this.checkQueue();
 		});
+	}
+
+	public makeResetTimeout(durationMS: number) {
+		if (this.resetTimeout) clearTimeout(this.resetTimeout);
+		this.resetTimeout = setTimeout(() => this.resetRemaining(), durationMS);
 	}
 
 	/**
@@ -223,7 +229,7 @@ type HandlerEvents = {
 	request: [string, { endpoint: string, method: HTTPMethod, dataType: "json" | "multipart", data: any; }];
 	done: [string, Response];
 	requestError: [string, Error];
-	rateLimit: [{ timeout: number; limit: number; method: HTTPMethod; path: string; route: string; }];
+	rateLimit: [{ timeout: number; remaining: number; limit: number; method: HTTPMethod; path: string; route: string; }];
 }
 
 export interface RequestHandler {
@@ -296,6 +302,8 @@ export class RequestHandler extends EventEmitter {
 					else if (dataType == "multipart" && data) request = await this._multiPartRequest(endpoint, params, method, data);
 					else throw new Error("Forbidden dataType. Use json or multipart or ensure multipart has FormData");
 
+					this._applyRatelimitHeaders(bkt, request.headers);
+
 					if (request.status && !Constants.OK_STATUS_CODES.includes(request.status) && request.status !== 429) {
 						throw new DiscordAPIError(
 							endpoint,
@@ -305,8 +313,6 @@ export class RequestHandler extends EventEmitter {
 						);
 					}
 
-					this._applyRatelimitHeaders(bkt, request.headers);
-
 					if (request.status === 429) {
 						if (!this.ratelimiter.global) {
 							const b = await request.json() as any; // Discord says it will be a JSON, so if there's an error, sucks
@@ -314,7 +320,7 @@ export class RequestHandler extends EventEmitter {
 							else this.ratelimiter.globalReset = 1000; // Should realistically never happen, but you never know
 							if (b.global !== undefined) this.ratelimiter.global = b.global;
 						}
-						this.emit("rateLimit", { timeout: bkt.reset, limit: bkt.limit, method: method, path: endpoint, route: this.ratelimiter.routify(endpoint, method) });
+						this.emit("rateLimit", { timeout: bkt.reset, remaining: bkt.remaining, limit: bkt.limit, method: method, path: endpoint, route: this.ratelimiter.routify(endpoint, method) });
 						throw new DiscordAPIError(endpoint, { message: "You're being ratelimited", code: 429 }, method, request.status);
 					}
 
@@ -343,10 +349,17 @@ export class RequestHandler extends EventEmitter {
 	 * @param bkt Ratelimit bucket to apply the headers to
 	 * @param headers Http headers received from discord
 	 */
-	private _applyRatelimitHeaders(bkt: LocalBucket, headers: any): void {
-		if (headers["x-ratelimit-remaining"]) bkt.remaining = parseInt(headers["x-ratelimit-remaining"]);
-		if (headers["x-ratelimit-limit"]) bkt.limit = parseInt(headers["x-ratelimit-limit"]);
-		if (headers["x-ratelimit-reset"]) bkt.reset = parseInt(headers["x-ratelimit-reset"]) - Date.now();
+	private _applyRatelimitHeaders(bkt: LocalBucket, headers: undici.Headers): void {
+		const remaining = headers.get("x-ratelimit-remaining");
+		const limit = headers.get("x-ratelimit-limit");
+		const resetAfter = headers.get("x-ratelimit-reset-after");
+
+		if (remaining) bkt.remaining = parseInt(remaining);
+		if (limit) bkt.limit = parseInt(limit);
+		if (resetAfter) {
+			bkt.reset = parseFloat(resetAfter) * 1000;
+			bkt.makeResetTimeout(bkt.reset);
+		}
 	}
 
 	/**
