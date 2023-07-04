@@ -1,6 +1,6 @@
 {
   "name": "snowtransfer",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Minimalistic Rest client for the Discord Api",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -18,7 +18,7 @@
     "microservice bot"
   ],
   "scripts": {
-    "build:src": "tsup src/index.ts --dts --sourcemap --format cjs --target node12 --minify",
+    "build:src": "tsup src/index.ts --clean --dts --sourcemap --format cjs --target node12 --minify-whitespace",
     "build:docs": "typedoc --name SnowTransfer --excludeExternals --sort static-first --sort alphabetical"
   },
   "repository": {
@@ -35,8 +35,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.3.3",
-    "@typescript-eslint/eslint-plugin": "^5.60.1",
-    "@typescript-eslint/parser": "^5.60.1",
+    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "@typescript-eslint/parser": "^5.61.0",
     "eslint": "^8.44.0",
     "tsup": "^7.1.0",
     "typedoc": "^0.24.8",

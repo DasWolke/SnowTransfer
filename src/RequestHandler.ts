@@ -14,7 +14,7 @@ import type { Response } from "undici";
 
 export type HTTPMethod = "get" | "post" | "patch" | "head" | "put" | "delete" | "connect" | "options" | "trace";
 
-const applicationJSONRegex = /application\/json/;
+// const applicationJSONRegex = /application\/json/;
 const routeRegex = /\/([a-z-]+)\/(?:\d{17,19})/g;
 const reactionsRegex = /\/reactions\/[^/]+/g;
 const reactionsUserRegex = /\/reactions\/:id\/[^/]+/g;
@@ -299,9 +299,9 @@ export class RequestHandler extends EventEmitter {
 					if (request.status && !Constants.OK_STATUS_CODES.includes(request.status) && request.status !== 429) {
 						throw new DiscordAPIError(
 							endpoint,
-							request.headers["content-type"] && applicationJSONRegex.test(request.headers["content-type"])
-								? { message: JSON.stringify(await request.json()) }
-								: { message: await request.text() }, method, request.status
+							{ message: await request.text() },
+							method,
+							request.status
 						);
 					}
 
@@ -309,7 +309,7 @@ export class RequestHandler extends EventEmitter {
 
 					if (request.status === 429) {
 						if (!this.ratelimiter.global) {
-							const b = JSON.parse(String(request.body)); // Discord says it will be a JSON, so if there's an error, sucks
+							const b = await request.json() as any; // Discord says it will be a JSON, so if there's an error, sucks
 							if (b.reset_after !== undefined) this.ratelimiter.globalReset = b.reset_after * 1000;
 							else this.ratelimiter.globalReset = 1000; // Should realistically never happen, but you never know
 							if (b.global !== undefined) this.ratelimiter.global = b.global;
