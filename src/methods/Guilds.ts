@@ -276,7 +276,7 @@ class GuildMethods {
 	 * const members = await client.guild.getGuildMembers("guild id", { limit: 10 })
 	 */
 	public async getGuildMembers(guildId: string, data?: RESTGetAPIGuildMembersQuery): Promise<RESTGetAPIGuildMembersResult> {
-		return this.requestHandler.request(Endpoints.GUILD_MEMBERS(guildId), {}, "get", "json", data);
+		return this.requestHandler.request(Endpoints.GUILD_MEMBERS(guildId), data, "get", "json");
 	}
 
 	/**
