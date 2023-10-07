@@ -20,12 +20,13 @@ import type {
 	RESTPostAPIGuildStickerResult
 } from "discord-api-types/v10";
 
+import { Readable } from "stream";
+import { ReadableStream } from "stream/web";
+
 /**
  * Methods for interacting with emojis
  */
 class GuildAssetsMethods {
-	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
-
 	/**
 	 * Create a new GuildAssets Method handler
 	 *
@@ -34,9 +35,7 @@ class GuildAssetsMethods {
 	 * You can access the methods listed via `client.guildAssets.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: GuildAssetsMethods["requestHandler"]) {
-		this.requestHandler = requestHandler;
-	}
+	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
 
 	/**
 	 * Get a list of emojis of a guild
@@ -206,12 +205,12 @@ class GuildAssetsMethods {
 	 * }
 	 * const sticker = await client.guildAssets.createGuildSticker("guild id", stickerData)
 	 */
-	public createGuildSticker(guildId: string, data: RESTPostAPIGuildStickerFormDataBody & { file: Buffer; reason?: string; }): Promise<RESTPostAPIGuildStickerResult> {
+	public createGuildSticker(guildId: string, data: RESTPostAPIGuildStickerFormDataBody & { file: Buffer | Readable | ReadableStream; reason?: string; }): Promise<RESTPostAPIGuildStickerResult> {
 		const form = new FormData();
 		const reason = data.reason;
 		if (data.reason) delete data.reason;
 		for (const key of Object.keys(data)) {
-			form.append(key, data[key]);
+			form.append(key, data[key] instanceof ReadableStream ? Readable.fromWeb(data[key]) : data[key]);
 		}
 		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), {}, "post", "multipart", form, reason ? { "X-Audit-Log-Reason": reason } : undefined);
 	}

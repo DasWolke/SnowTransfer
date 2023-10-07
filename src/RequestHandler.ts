@@ -9,8 +9,8 @@ import undici = require("undici"); // Not using global.fetch yet until the Node 
 import Endpoints = require("./Endpoints");
 const { version } = require("../package.json");
 import Constants = require("./Constants");
-
-import type { Response } from "undici";
+import { Readable, pipeline } from "stream";
+import type { ReadableStream } from "stream/web";
 
 export type HTTPMethod = "get" | "post" | "patch" | "head" | "put" | "delete" | "connect" | "options" | "trace";
 
@@ -23,15 +23,13 @@ const isMessageEndpointRegex = /\/messages\/:id$/;
 const isGuildChannelsRegex = /\/guilds\/\d+\/channels$/;
 
 export class DiscordAPIError extends Error {
-	public method: HTTPMethod;
-	public path: string;
 	public code: number;
 	public httpStatus: number;
 
-	public constructor(path: string, error: { message?: string; code?: number; }, method: HTTPMethod, status: number) {
+	public constructor(public path: string, error: { message?: string; code?: number; }, public method: HTTPMethod, status: number) {
 		super();
 		this.name = "DiscordAPIError";
-		this.message = error.message || String(error);
+		this.message = error.message ?? String(error);
 		this.method = method;
 		this.path = path;
 		this.code = error.code ?? 4000;
@@ -150,24 +148,13 @@ export class LocalBucket {
 	 * Timeout that calls the reset function once the timeframe passed
 	 */
 	public resetTimeout: NodeJS.Timeout | null = null;
-	/**
-	 * ratelimiter used for ratelimiting requests
-	 */
-	public ratelimiter: Ratelimiter;
-	/**
-	 * Key used internally to routify requests
-	 */
-	public routeKey: string;
 
 	/**
 	 * Create a new bucket
 	 * @param ratelimiter ratelimiter used for ratelimiting requests
 	 * @param routeKey Key used internally to routify requests. Assigned by ratelimiter
 	 */
-	public constructor(ratelimiter: Ratelimiter, routeKey: string) {
-		this.ratelimiter = ratelimiter;
-		this.routeKey = routeKey;
-	}
+	public constructor(public ratelimiter: Ratelimiter, public routeKey: string) {}
 
 	/**
 	 * Queue a function to be executed
@@ -227,7 +214,7 @@ export class LocalBucket {
 
 type HandlerEvents = {
 	request: [string, { endpoint: string, method: HTTPMethod, dataType: "json" | "multipart", data: any; }];
-	done: [string, Response];
+	done: [string, IResponse];
 	requestError: [string, Error];
 	rateLimit: [{ timeout: number; remaining: number; limit: number; method: HTTPMethod; path: string; route: string; }];
 }
@@ -252,7 +239,6 @@ export interface RequestHandler {
  * Request Handler class
  */
 export class RequestHandler extends EventEmitter {
-	public ratelimiter: Ratelimiter;
 	public options: { baseHost: string; baseURL: string; headers: { Authorization?: string; "User-Agent": string; } };
 	public latency: number;
 	public apiURL: string;
@@ -262,10 +248,9 @@ export class RequestHandler extends EventEmitter {
 	 * @param ratelimiter ratelimiter to use for ratelimiting requests
 	 * @param options options
 	 */
-	public constructor(ratelimiter: Ratelimiter, options: { token?: string; baseHost: string; }) {
+	public constructor(public ratelimiter: Ratelimiter, options: { token?: string; baseHost: string; }) {
 		super();
 
-		this.ratelimiter = ratelimiter;
 		this.options = {
 			baseHost: Endpoints.BASE_HOST,
 			baseURL: Endpoints.BASE_URL,
@@ -297,10 +282,14 @@ export class RequestHandler extends EventEmitter {
 				try {
 					this.emit("request", reqID, { endpoint, method, dataType, data: data ?? {} });
 
-					let request: Response;
+					const before = Date.now();
+
+					let request: IResponse;
 					if (dataType == "json") request = await this._request(endpoint, params, method, data, extraHeaders);
 					else if (dataType == "multipart" && data) request = await this._multiPartRequest(endpoint, params, method, data);
 					else throw new Error("Forbidden dataType. Use json or multipart or ensure multipart has FormData");
+
+					this.latency = Date.now() - before;
 
 					this._applyRatelimitHeaders(bkt, request.headers);
 
@@ -369,7 +358,7 @@ export class RequestHandler extends EventEmitter {
 	 * @param data Data to send
 	 * @returns Result of the request
 	 */
-	private async _request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data?: any, extraHeaders?: Record<string, string>): Promise<Response> {
+	private async _request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data?: any, extraHeaders?: Record<string, string>): Promise<IResponse> {
 		const headers = { ...this.options.headers };
 		if (extraHeaders) Object.assign(headers, extraHeaders);
 		if (typeof data !== "string" && data?.reason) {
@@ -379,9 +368,8 @@ export class RequestHandler extends EventEmitter {
 
 		let body: string | undefined = undefined;
 		if (!["head", "get"].includes(method)) {
-			if (typeof data === "object") {
-				body = JSON.stringify(data);
-			} else body = String(data);
+			if (typeof data === "object") body = JSON.stringify(data);
+			else body = String(data);
 		}
 
 		headers["Content-Type"] = "application/json";
@@ -401,15 +389,121 @@ export class RequestHandler extends EventEmitter {
 	 * @param data data to send
 	 * @returns Result of the request
 	 */
-	private async _multiPartRequest(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data: FormData, extraHeaders?: Record<string, string>): Promise<Response> {
+	private async _multiPartRequest(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data: FormData, extraHeaders?: Record<string, string>): Promise<IResponse> {
 		const headers = { ...this.options.headers, ...data.getHeaders() };
 		if (extraHeaders) Object.assign(headers, extraHeaders);
 
-		return undici.fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
-			method: method.toUpperCase(),
-			headers,
-			body: data.getBuffer()
+		return new Promise<IResponse>((res, rej) => {
+			const line = pipeline([
+				data,
+				undici.pipeline(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
+					method: method.toUpperCase() as undici.Dispatcher.HttpMethod,
+					headers
+				}, d => {
+					res(new PipelineHandlerResponse(d));
+					return data;
+				})
+			], () => void 0);
+			const onError = (e: any) => {
+				line.removeListener("error", onError);
+				data.destroy();
+				rej(e);
+			};
+			line.once("error", onError);
 		});
+	}
+}
+
+interface IResponse {
+	headers: undici.Headers;
+	status: number;
+	body: ReadableStream | null;
+
+	json(): Promise<unknown>;
+	text(): Promise<string>;
+}
+
+class PipelineHandlerResponse implements IResponse {
+	public headers: undici.Headers;
+	public status: number;
+	public body: ReadableStream | null;
+
+	public constructor(public backing: undici.Dispatcher.PipelineHandlerData) {
+		this.headers = new undici.Headers(backing.headers as Record<string, string | ReadonlyArray<string>>);
+		this.status = backing.statusCode;
+		this.body = backing.body ? Readable.toWeb(backing.body) : null;
+	}
+
+	// undici.Dispatcher.PipelineHandlerData.body has type signatures for .json() and .text(), but they don't exist :angy:
+
+	public async json(): Promise<unknown> {
+		const str = await this.text();
+		return JSON.parse(str);
+	}
+
+	public async text(): Promise<string> {
+		if (!this.body) return "";
+		const acc = new BufferAccumulator();
+
+		for await (const chunk of this.body) {
+			acc.add(Buffer.from(chunk));
+		}
+
+		return acc.concat()?.toString() ?? "";
+	}
+}
+
+// BufferAccumulator taken from AmandaDiscord/Volcano#rewrite, which I am the owner of. Use for whatever - PapiOphidian
+
+type AccumulatorNode = {
+	chunk: Buffer;
+	next: AccumulatorNode | null;
+}
+
+class BufferAccumulator {
+	public first: AccumulatorNode | null = null;
+	public last: AccumulatorNode | null = null;
+	public size = 0;
+	public expecting: number | null;
+
+	private _allocated: Buffer | null = null;
+	private _streamed: number | null = null;
+
+	public constructor(expecting?: number) {
+		if (expecting) {
+			this._allocated = Buffer.allocUnsafe(expecting);
+			this._streamed = 0;
+		}
+		this.expecting = expecting ?? null;
+	}
+
+	public add(buf: Buffer): void {
+		if (this._allocated && this._streamed !== null && this.expecting !== null) {
+			if (this._streamed === this.expecting) return;
+			if ((this._streamed + buf.byteLength) > this.expecting) buf.subarray(0, this.expecting - this._streamed).copy(this._allocated, this._streamed);
+			else buf.copy(this._allocated, this._streamed);
+			return;
+		}
+		const obj = { chunk: buf, next: null };
+		if (!this.first) this.first = obj;
+		if (this.last) this.last.next = obj;
+		this.last = obj;
+		this.size += buf.byteLength;
+	}
+
+	public concat(): Buffer | null {
+		if (this._allocated) return this._allocated;
+		if (!this.first) return null;
+		if (!this.first.next) return this.first.chunk;
+		const r = Buffer.allocUnsafe(this.size);
+		let written = 0;
+		let current: AccumulatorNode | null = this.first;
+		while (current) {
+			current.chunk.copy(r, written);
+			written += current.chunk.byteLength;
+			current = current.next;
+		}
+		return r;
 	}
 }
 

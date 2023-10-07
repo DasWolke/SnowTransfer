@@ -50,15 +50,15 @@ import type {
 	RESTPutAPIChannelThreadMembersResult
 } from "discord-api-types/v10";
 
+import type { Readable } from "stream";
+import type { ReadableStream } from "stream/web";
+
 const mentionRegex = /@([^<>@ ]*)/gsmu;
 
 /**
  * Methods for interacting with Channels and Messages
  */
 class ChannelMethods {
-	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
-	public disableEveryone: boolean;
-
 	/**
 	 * Create a new Channel Method handler
 	 *
@@ -68,10 +68,7 @@ class ChannelMethods {
 	 * @param requestHandler request handler that calls the rest api
 	 * @param disableEveryone Disable [at]everyone/[at]here on outgoing messages
 	 */
-	public constructor(requestHandler: ChannelMethods["requestHandler"], disableEveryone: boolean) {
-		this.requestHandler = requestHandler;
-		this.disableEveryone = disableEveryone;
-	}
+	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>, public disableEveryone: boolean) {}
 
 	/**
 	 * Get a channel via Id
@@ -237,7 +234,7 @@ class ChannelMethods {
 	 * const fileData = fs.readFileSync("nice_picture.png") // You should probably use fs.readFile, since it is asynchronous, synchronous methods block the thread.
 	 * client.channel.createMessage("channel id", { content: "This is a nice picture", files: [{ name: "Optional_Filename.png", file: fileData }] })
 	 */
-	public async createMessage(channelId: string, data: string | RESTPostAPIChannelMessageJSONBody & { files?: Array<{ name: string; file: Buffer; }> }, options: { disableEveryone?: boolean; } = { disableEveryone: this.disableEveryone }): Promise<RESTPostAPIChannelMessageResult> {
+	public async createMessage(channelId: string, data: string | RESTPostAPIChannelMessageJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options: { disableEveryone?: boolean; } = { disableEveryone: this.disableEveryone }): Promise<RESTPostAPIChannelMessageResult> {
 		if (typeof data !== "string" && !data.content && !data.embeds && !data.sticker_ids && !data.components && !data.files) throw new Error("Missing content, embeds, sticker_ids, components, or files");
 		if (typeof data === "string") data = { content: data };
 
@@ -417,7 +414,7 @@ class ChannelMethods {
 	 * const message = await client.channel.createMessage("channel id", "pong")
 	 * client.channel.editMessage("channel id", message.id, `pong ${Date.now() - time}ms`)
 	 */
-	public async editMessage(channelId: string, messageId: string, data: string | RESTPatchAPIChannelMessageJSONBody & { files?: Array<{ name: string; file: Buffer; }> }, options: { disableEveryone?: boolean; } = { disableEveryone: this.disableEveryone }): Promise<RESTPatchAPIChannelMessageResult> {
+	public async editMessage(channelId: string, messageId: string, data: string | RESTPatchAPIChannelMessageJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options: { disableEveryone?: boolean; } = { disableEveryone: this.disableEveryone }): Promise<RESTPatchAPIChannelMessageResult> {
 		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message

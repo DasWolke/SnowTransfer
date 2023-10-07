@@ -17,8 +17,6 @@ import type {
  * Methods for interacting with Guild Scheduled Events
  */
 class GuildScheduledEventMethods {
-	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
-
 	/**
 	 * Create a new Guild Scheduled Event Method Handler
 	 *
@@ -27,9 +25,7 @@ class GuildScheduledEventMethods {
 	 * You can access the methods listed via `client.guildScheduledEvent.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: GuildScheduledEventMethods["requestHandler"]) {
-		this.requestHandler = requestHandler;
-	}
+	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
 
 	/**
 	 * Get all scheduled events for a guild

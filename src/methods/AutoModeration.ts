@@ -14,8 +14,6 @@ import type {
  * Methods for interacting with guild auto moderation
  */
 class AutoModerationMethods {
-	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
-
 	/**
 	 * Create a new Auto Moderation Method Handler
 	 *
@@ -24,9 +22,7 @@ class AutoModerationMethods {
 	 * You can access the methods listed via `client.autoMod.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: AutoModerationMethods["requestHandler"]) {
-		this.requestHandler = requestHandler;
-	}
+	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
 
 	/**
 	 * Get all of the auto moderation rules from a guild

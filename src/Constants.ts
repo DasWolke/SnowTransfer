@@ -1,5 +1,8 @@
 import FormData = require("form-data");
 
+import { Readable } from "stream";
+import { ReadableStream } from "stream/web";
+
 const Constants = {
 	REST_API_VERSION: 10 as const,
 	GET_CHANNEL_MESSAGES_MIN_RESULTS: 1 as const,
@@ -11,12 +14,13 @@ const Constants = {
 	BULK_DELETE_MESSAGES_MIN: 2 as const,
 	BULK_DELETE_MESSAGES_MAX: 100 as const,
 	OK_STATUS_CODES: [200, 201, 204, 304],
-	standardMultipartHandler(data: { files: Array<{ name: string; file: Buffer; }>; data?: any; }): FormData {
+	standardMultipartHandler(data: { files: Array<{ name: string; file: Buffer | Readable | ReadableStream }>; data?: any; }): FormData {
 		const form = new FormData();
 		if (data.files && Array.isArray(data.files) && data.files.every(f => !!f.name && !!f.file)) {
 			let index = 0;
 			for (const file of data.files) {
-				form.append(`files[${index}]`, file.file, { filename: file.name });
+				const asAcceptable = file.file instanceof ReadableStream ? Readable.fromWeb(file.file) : file.file;
+				form.append(`files[${index}]`, asAcceptable, { filename: file.name });
 				// @ts-ignore
 				delete file.file;
 				index++;

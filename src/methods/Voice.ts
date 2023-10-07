@@ -6,8 +6,6 @@ import type { RESTGetAPIVoiceRegionsResult } from "discord-api-types/v10";
  * Methods for interacting with some voice
  */
 class VoiceMethods {
-	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
-
 	/**
 	 * Create a new Voice Method Handler
 	 *
@@ -16,9 +14,7 @@ class VoiceMethods {
 	 * You can access the methods listed via `client.voice.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: VoiceMethods["requestHandler"]) {
-		this.requestHandler = requestHandler;
-	}
+	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
 
 	/**
 	 * Get currently available voice regions that can be used when creating servers

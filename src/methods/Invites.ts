@@ -10,8 +10,6 @@ import type {
  * Methods for interacting with invites
  */
 class InviteMethods {
-	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
-
 	/**
 	 * Create a new Invite Method Handler
 	 *
@@ -20,9 +18,7 @@ class InviteMethods {
 	 * You can access the methods listed via `client.invite.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: InviteMethods["requestHandler"]) {
-		this.requestHandler = requestHandler;
-	}
+	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
 
 	/**
 	 * Get the invite data on an invite id

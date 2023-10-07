@@ -9,8 +9,6 @@ import type {
  * Methods for interacting with bot specific endpoints
  */
 class BotMethods {
-	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
-
 	/**
 	 * Create a new Bot Method Handler
 	 *
@@ -19,9 +17,7 @@ class BotMethods {
 	 * You can access the methods listed via `client.bot.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: BotMethods["requestHandler"]) {
-		this.requestHandler = requestHandler;
-	}
+	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
 
 	/**
 	 * Get the gateway url to connect to

@@ -69,8 +69,6 @@ import type {
  * Methods for interacting with Guilds
  */
 class GuildMethods {
-	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
-
 	/**
 	 * Create a new Guild Method Handler
 	 *
@@ -79,9 +77,7 @@ class GuildMethods {
 	 * You can access the methods listed via `client.guild.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: GuildMethods["requestHandler"]) {
-		this.requestHandler = requestHandler;
-	}
+	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
 
 	/**
 	 * Create a new Guild, **limited to 10 guilds (you may create more if you are whitelisted)**

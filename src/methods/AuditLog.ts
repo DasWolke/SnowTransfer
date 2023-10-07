@@ -9,8 +9,6 @@ import {
  * Methods for interacting with Guild Audit Logs
  */
 class AuditLogMethods {
-	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
-
 	/**
 	 * Create a new Audit Log Method Handler
 	 *
@@ -19,9 +17,7 @@ class AuditLogMethods {
 	 * You can access the methods listed via `client.auditLog.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: AuditLogMethods["requestHandler"]) {
-		this.requestHandler = requestHandler;
-	}
+	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
 
 	/**
 	 * Get the audit logs of the specified guild id

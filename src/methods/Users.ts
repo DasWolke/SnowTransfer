@@ -19,8 +19,6 @@ import type {
  * Methods for interacting with users
  */
 class UserMethods {
-	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
-
 	/**
 	 * Create a new User Method handler
 	 *
@@ -29,9 +27,7 @@ class UserMethods {
 	 * You can access the methods listed via `client.user.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler
 	 */
-	public constructor(requestHandler: UserMethods["requestHandler"]) {
-		this.requestHandler = requestHandler;
-	}
+	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
 
 	/**
 	 * Get information about the CurrentUser

@@ -13,8 +13,6 @@ import type {
  * Methods for interacting with Stage instances
  */
 class StageInstanceMethods {
-	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
-
 	/**
 	 * Create a new Stage Instance Method Handler
 	 *
@@ -23,9 +21,7 @@ class StageInstanceMethods {
 	 * You can access the methods listed via `client.stageInstance.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: StageInstanceMethods["requestHandler"]) {
-		this.requestHandler = requestHandler;
-	}
+	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
 
 	/**
 	 * Creates a new stage instance associated to a stage channel

@@ -34,13 +34,13 @@ import type {
 	RESTPutAPIApplicationGuildCommandsResult
 } from "discord-api-types/v10";
 
+import type { Readable } from "stream";
+import type { ReadableStream } from "stream/web";
+
 /**
  * Methods for interacting with slash command specific endpoints
  */
 class InteractionMethods {
-	public requestHandler: (typeof import("../RequestHandler"))["RequestHandler"]["prototype"];
-	public webhooks: (typeof import("./Webhooks"))["prototype"];
-
 	/**
 	 * Create a new Interaction Method Handler
 	 *
@@ -49,10 +49,7 @@ class InteractionMethods {
 	 * You can access the methods listed via `client.interaction.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(requestHandler: InteractionMethods["requestHandler"], webhooks: InteractionMethods["webhooks"]) {
-		this.requestHandler = requestHandler;
-		this.webhooks = webhooks;
-	}
+	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>, public webhooks: InstanceType<typeof import("./Webhooks")>) {}
 
 	/**
 	 * Fetch all global commands for your application
@@ -288,7 +285,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * client.interaction.createInteractionResponse("interactionId", "token", { type: 4, data: { content: "Hello World" } })
 	 */
-	public createInteractionResponse(interactionId: string, token: string, data: RESTPostAPIInteractionCallbackJSONBody & { files?: Array<{ name: string; file: Buffer; }> }): Promise<void> {
+	public createInteractionResponse(interactionId: string, token: string, data: RESTPostAPIInteractionCallbackJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }): Promise<void> {
 		if (data.files) return this.requestHandler.request(Endpoints.INTERACTION_CALLBACK(interactionId, token), {}, "post", "multipart", Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.INTERACTION_CALLBACK(interactionId, token), {}, "post", "json", data);
 	}
@@ -318,7 +315,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * const message = await client.interaction.editOriginalInteractionResponse("appId", "token", { content: "The world said hello back" })
 	 */
-	public editOriginalInteractionResponse(appId: string, token: string, data: RESTPatchAPIInteractionOriginalResponseJSONBody & { files?: Array<{ name: string; file: Buffer }> }): Promise<RESTPatchAPIInteractionOriginalResponseResult> {
+	public editOriginalInteractionResponse(appId: string, token: string, data: RESTPatchAPIInteractionOriginalResponseJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream }> }): Promise<RESTPatchAPIInteractionOriginalResponseResult> {
 		return this.webhooks.editWebhookMessage(appId, token, "@original", data);
 	}
 
@@ -347,7 +344,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * const message = await client.interaction.createFollowupMessage("appId", "token", { content: "The pacer gram fitness test-" })
 	 */
-	public createFollowupMessage(appId: string, token: string, data: RESTPostAPIInteractionFollowupJSONBody & { files?: Array<{ name: string; file: Buffer; }> }): Promise<RESTPostAPIInteractionFollowupResult> {
+	public createFollowupMessage(appId: string, token: string, data: RESTPostAPIInteractionFollowupJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }): Promise<RESTPostAPIInteractionFollowupResult> {
 		// wait is always true for interactions and should not be supplied as it will throw an error if the query string is present
 		return this.webhooks.executeWebhook(appId, token, data) as unknown as Promise<RESTPostAPIInteractionFollowupResult>;
 	}
@@ -379,7 +376,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * const message = await client.interaction.editFollowupMessage("appId", "token", "messageId", { content: "-is a multistage aerobic capacity test" })
 	 */
-	public editFollowupMessage(appId: string, token: string, messageId: string, data: RESTPatchAPIInteractionFollowupJSONBody & { files?: Array<{ name: string; file: Buffer; }> }): Promise<RESTPatchAPIInteractionFollowupResult> {
+	public editFollowupMessage(appId: string, token: string, messageId: string, data: RESTPatchAPIInteractionFollowupJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }): Promise<RESTPatchAPIInteractionFollowupResult> {
 		return this.webhooks.editWebhookMessage(appId, token, messageId, data);
 	}
 
