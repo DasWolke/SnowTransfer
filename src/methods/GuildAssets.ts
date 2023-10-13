@@ -1,5 +1,6 @@
-import FormData = require("form-data");
+import { File, FormData } from "undici";
 
+import Constants = require("../Constants");
 import Endpoints = require("../Endpoints");
 
 import type {
@@ -19,6 +20,8 @@ import type {
 	RESTPostAPIGuildStickerFormDataBody,
 	RESTPostAPIGuildStickerResult
 } from "discord-api-types/v10";
+
+import type { Blob } from "buffer";
 
 import { Readable } from "stream";
 import { ReadableStream } from "stream/web";
@@ -77,7 +80,7 @@ class GuildAssetsMethods {
 	 * @example
 	 * // upload a simple png emoji with a name of "niceEmoji"
 	 * const client = new SnowTransfer("TOKEN")
-	 * const fileData = fs.readFileSync("nice_emoji.png") // You should probably use fs.readFile, since it is asynchronous, synchronous methods pause the thread.
+	 * const fileData = fs.readFileSync("nice_emoji.png") // You should probably use fs.promises.readFile, since it is asynchronous, synchronous methods pause the thread.
 	 * const emojiData = \{
 	 * 	name: "niceEmoji",
 	 * 	image: `data:image/png;base64,${fileData.toString("base64")}` // base64 data url: data:mimetype;base64,base64String
@@ -196,7 +199,7 @@ class GuildAssetsMethods {
 	 * @example
 	 * // Creates a LOTTIE sticker
 	 * const client = new SnowTransfer("TOKEN")
-	 * const fileData = fs.readFileSync("nice_sticker.json") // You should probably use fs.readFile, since it is asynchronous, synchronous methods pause the thread.
+	 * const fileData = fs.readFileSync("nice_sticker.json") // You should probably use fs.promises.readFile, since it is asynchronous, synchronous methods pause the thread.
 	 * const stickerData = {
 	 * 	name: "niceSticker",
 	 * 	file: fileData,
@@ -205,13 +208,15 @@ class GuildAssetsMethods {
 	 * }
 	 * const sticker = await client.guildAssets.createGuildSticker("guild id", stickerData)
 	 */
-	public createGuildSticker(guildId: string, data: RESTPostAPIGuildStickerFormDataBody & { file: Buffer | Readable | ReadableStream; reason?: string; }): Promise<RESTPostAPIGuildStickerResult> {
+	public createGuildSticker(guildId: string, data: RESTPostAPIGuildStickerFormDataBody & { file: Buffer | Blob | File | Readable | ReadableStream; reason?: string; }): Promise<RESTPostAPIGuildStickerResult> {
 		const form = new FormData();
 		const reason = data.reason;
 		if (data.reason) delete data.reason;
+
 		for (const key of Object.keys(data)) {
-			form.append(key, data[key] instanceof ReadableStream ? Readable.fromWeb(data[key]) : data[key]);
+			Constants.standardAddToFormHandler(form, key, data[key]);
 		}
+
 		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), {}, "post", "multipart", form, reason ? { "X-Audit-Log-Reason": reason } : undefined);
 	}
 

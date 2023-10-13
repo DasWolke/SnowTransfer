@@ -3,14 +3,11 @@
 import { EventEmitter } from "events";
 import crypto = require("crypto");
 
-import FormData = require("form-data");
-import undici = require("undici"); // Not using global.fetch yet until the Node ecosystem matures
+import { fetch, FormData, Headers, Response } from "undici"; // Not using global.fetch yet until the Node ecosystem matures
 
 import Endpoints = require("./Endpoints");
 const { version } = require("../package.json");
 import Constants = require("./Constants");
-import { Readable, pipeline } from "stream";
-import type { ReadableStream } from "stream/web";
 
 export type HTTPMethod = "get" | "post" | "patch" | "head" | "put" | "delete" | "connect" | "options" | "trace";
 
@@ -30,8 +27,6 @@ export class DiscordAPIError extends Error {
 		super();
 		this.name = "DiscordAPIError";
 		this.message = error.message ?? String(error);
-		this.method = method;
-		this.path = path;
 		this.code = error.code ?? 4000;
 		this.httpStatus = status;
 	}
@@ -214,7 +209,7 @@ export class LocalBucket {
 
 type HandlerEvents = {
 	request: [string, { endpoint: string, method: HTTPMethod, dataType: "json" | "multipart", data: any; }];
-	done: [string, IResponse];
+	done: [string, Response];
 	requestError: [string, Error];
 	rateLimit: [{ timeout: number; remaining: number; limit: number; method: HTTPMethod; path: string; route: string; }];
 }
@@ -284,7 +279,7 @@ export class RequestHandler extends EventEmitter {
 
 					const before = Date.now();
 
-					let request: IResponse;
+					let request: Response;
 					if (dataType == "json") request = await this._request(endpoint, params, method, data, extraHeaders);
 					else if (dataType == "multipart" && data) request = await this._multiPartRequest(endpoint, params, method, data);
 					else throw new Error("Forbidden dataType. Use json or multipart or ensure multipart has FormData");
@@ -338,7 +333,7 @@ export class RequestHandler extends EventEmitter {
 	 * @param bkt Ratelimit bucket to apply the headers to
 	 * @param headers Http headers received from discord
 	 */
-	private _applyRatelimitHeaders(bkt: LocalBucket, headers: undici.Headers): void {
+	private _applyRatelimitHeaders(bkt: LocalBucket, headers: Headers): void {
 		const remaining = headers.get("x-ratelimit-remaining");
 		const limit = headers.get("x-ratelimit-limit");
 		const resetAfter = headers.get("x-ratelimit-reset-after");
@@ -358,7 +353,7 @@ export class RequestHandler extends EventEmitter {
 	 * @param data Data to send
 	 * @returns Result of the request
 	 */
-	private async _request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data?: any, extraHeaders?: Record<string, string>): Promise<IResponse> {
+	private async _request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data?: any, extraHeaders?: Record<string, string>): Promise<Response> {
 		const headers = { ...this.options.headers };
 		if (extraHeaders) Object.assign(headers, extraHeaders);
 		if (typeof data !== "string" && data?.reason) {
@@ -374,7 +369,7 @@ export class RequestHandler extends EventEmitter {
 
 		headers["Content-Type"] = "application/json";
 
-		return undici.fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
+		return fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
 			method: method.toUpperCase(),
 			headers,
 			body
@@ -389,121 +384,15 @@ export class RequestHandler extends EventEmitter {
 	 * @param data data to send
 	 * @returns Result of the request
 	 */
-	private async _multiPartRequest(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data: FormData, extraHeaders?: Record<string, string>): Promise<IResponse> {
-		const headers = { ...this.options.headers, ...data.getHeaders() };
+	private async _multiPartRequest(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data: FormData, extraHeaders?: Record<string, string>): Promise<Response> {
+		const headers = { ...this.options.headers };
 		if (extraHeaders) Object.assign(headers, extraHeaders);
 
-		return new Promise<IResponse>((res, rej) => {
-			const line = pipeline([
-				data,
-				undici.pipeline(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
-					method: method.toUpperCase() as undici.Dispatcher.HttpMethod,
-					headers
-				}, d => {
-					res(new PipelineHandlerResponse(d));
-					return data;
-				})
-			], () => void 0);
-			const onError = (e: any) => {
-				line.removeListener("error", onError);
-				data.destroy();
-				rej(e);
-			};
-			line.once("error", onError);
+		return fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
+			method: method.toUpperCase(),
+			headers,
+			body: data
 		});
-	}
-}
-
-interface IResponse {
-	headers: undici.Headers;
-	status: number;
-	body: ReadableStream | null;
-
-	json(): Promise<unknown>;
-	text(): Promise<string>;
-}
-
-class PipelineHandlerResponse implements IResponse {
-	public headers: undici.Headers;
-	public status: number;
-	public body: ReadableStream | null;
-
-	public constructor(public backing: undici.Dispatcher.PipelineHandlerData) {
-		this.headers = new undici.Headers(backing.headers as Record<string, string | ReadonlyArray<string>>);
-		this.status = backing.statusCode;
-		this.body = backing.body ? Readable.toWeb(backing.body) : null;
-	}
-
-	// undici.Dispatcher.PipelineHandlerData.body has type signatures for .json() and .text(), but they don't exist :angy:
-
-	public async json(): Promise<unknown> {
-		const str = await this.text();
-		return JSON.parse(str);
-	}
-
-	public async text(): Promise<string> {
-		if (!this.body) return "";
-		const acc = new BufferAccumulator();
-
-		for await (const chunk of this.body) {
-			acc.add(Buffer.from(chunk));
-		}
-
-		return acc.concat()?.toString() ?? "";
-	}
-}
-
-// BufferAccumulator taken from AmandaDiscord/Volcano#rewrite, which I am the owner of. Use for whatever - PapiOphidian
-
-type AccumulatorNode = {
-	chunk: Buffer;
-	next: AccumulatorNode | null;
-}
-
-class BufferAccumulator {
-	public first: AccumulatorNode | null = null;
-	public last: AccumulatorNode | null = null;
-	public size = 0;
-	public expecting: number | null;
-
-	private _allocated: Buffer | null = null;
-	private _streamed: number | null = null;
-
-	public constructor(expecting?: number) {
-		if (expecting) {
-			this._allocated = Buffer.allocUnsafe(expecting);
-			this._streamed = 0;
-		}
-		this.expecting = expecting ?? null;
-	}
-
-	public add(buf: Buffer): void {
-		if (this._allocated && this._streamed !== null && this.expecting !== null) {
-			if (this._streamed === this.expecting) return;
-			if ((this._streamed + buf.byteLength) > this.expecting) buf.subarray(0, this.expecting - this._streamed).copy(this._allocated, this._streamed);
-			else buf.copy(this._allocated, this._streamed);
-			return;
-		}
-		const obj = { chunk: buf, next: null };
-		if (!this.first) this.first = obj;
-		if (this.last) this.last.next = obj;
-		this.last = obj;
-		this.size += buf.byteLength;
-	}
-
-	public concat(): Buffer | null {
-		if (this._allocated) return this._allocated;
-		if (!this.first) return null;
-		if (!this.first.next) return this.first.chunk;
-		const r = Buffer.allocUnsafe(this.size);
-		let written = 0;
-		let current: AccumulatorNode | null = this.first;
-		while (current) {
-			current.chunk.copy(r, written);
-			written += current.chunk.byteLength;
-			current = current.next;
-		}
-		return r;
 	}
 }
 

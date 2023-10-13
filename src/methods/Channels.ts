@@ -231,7 +231,7 @@ class ChannelMethods {
 	 * // Send a file with a comment
 	 * const client = new SnowTransfer("TOKEN")
 	 * // fileData will be a buffer with the data of the png image.
-	 * const fileData = fs.readFileSync("nice_picture.png") // You should probably use fs.readFile, since it is asynchronous, synchronous methods block the thread.
+	 * const fileData = fs.readFileSync("nice_picture.png") // You should probably use fs.promises.readFile, since it is asynchronous, synchronous methods block the thread.
 	 * client.channel.createMessage("channel id", { content: "This is a nice picture", files: [{ name: "Optional_Filename.png", file: fileData }] })
 	 */
 	public async createMessage(channelId: string, data: string | RESTPostAPIChannelMessageJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options: { disableEveryone?: boolean; } = { disableEveryone: this.disableEveryone }): Promise<RESTPostAPIChannelMessageResult> {
@@ -699,9 +699,9 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const thread = await client.channel.createThreadWithoutMessage("channel id", { name: "persons-birthday", type: 12, invitable: true, reason: "Shh! It's a surprise" })
 	 */
-	public async createThreadWithoutMessage(channelId: string, options: RESTPostAPIChannelThreadsJSONBody & { type: 10; reason?: string; }): Promise<APITextBasedChannel<ChannelType.AnnouncementThread>>;
-	public async createThreadWithoutMessage(channelId: string, options: RESTPostAPIChannelThreadsJSONBody & { type: 11; reason?: string; }): Promise<APITextBasedChannel<ChannelType.PublicThread>>;
-	public async createThreadWithoutMessage(channelId: string, options: RESTPostAPIChannelThreadsJSONBody & { type: 12; reason?: string; }): Promise<APITextBasedChannel<ChannelType.PrivateThread>>;
+	public async createThreadWithoutMessage(channelId: string, options: Omit<RESTPostAPIChannelThreadsJSONBody, "type"> & { type: 10; reason?: string; }): Promise<APITextBasedChannel<ChannelType.AnnouncementThread>>;
+	public async createThreadWithoutMessage(channelId: string, options: Omit<RESTPostAPIChannelThreadsJSONBody, "type"> & { type: 11; reason?: string; }): Promise<APITextBasedChannel<ChannelType.PublicThread>>;
+	public async createThreadWithoutMessage(channelId: string, options: Omit<RESTPostAPIChannelThreadsJSONBody, "type"> & { type: 12; reason?: string; }): Promise<APITextBasedChannel<ChannelType.PrivateThread>>;
 	public async createThreadWithoutMessage(channelId: string, options: RESTPostAPIChannelThreadsJSONBody & { reason?: string; }): Promise<APITextBasedChannel<ChannelType.PublicThread | ChannelType.PrivateThread | ChannelType.AnnouncementThread>> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREADS(channelId), {}, "post", "json", options);
 	}
