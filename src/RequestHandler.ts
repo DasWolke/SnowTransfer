@@ -126,7 +126,7 @@ export class LocalBucket {
 	/**
 	 * array of functions waiting to be executed
 	 */
-	public fnQueue: Array<{ fn: (...args: Array<any>) => any; callback: () => any; }> = [];
+	public fnQueue: Array<() => any> = [];
 	/**
 	 * Number of functions that may be executed during the timeframe set in limitReset
 	 */
@@ -165,7 +165,7 @@ export class LocalBucket {
 				if (this.remaining !== 0) this.checkQueue();
 				return res(fn(this));
 			};
-			this.fnQueue.push({ fn, callback: wrapFn });
+			this.fnQueue.push(wrapFn);
 			this.checkQueue();
 		});
 	}
@@ -182,7 +182,7 @@ export class LocalBucket {
 		if (this.ratelimiter.global) return;
 		if (this.fnQueue.length && this.remaining !== 0) {
 			const queuedFunc = this.fnQueue.splice(0, 1)[0];
-			queuedFunc.callback();
+			queuedFunc();
 		}
 	}
 
@@ -207,7 +207,7 @@ export class LocalBucket {
 	}
 }
 
-type HandlerEvents = {
+export type HandlerEvents = {
 	request: [string, { endpoint: string, method: HTTPMethod, dataType: "json" | "multipart", data: any; }];
 	done: [string, Response];
 	requestError: [string, Error];

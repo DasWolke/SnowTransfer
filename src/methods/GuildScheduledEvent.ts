@@ -152,9 +152,9 @@ class GuildScheduledEventMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const users = await client.guildScheduledEvent.getGuildScheduledEventUsers(guildId, eventId)
 	 */
-	public async getGuildScheduledEventUsers(guildId: string, eventId: string, query?: RESTGetAPIGuildScheduledEventUsersQuery): Promise<RESTGetAPIGuildScheduledEventUsersResult> {
-		if (query?.limit !== undefined && (query.limit < Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MIN_RESULTS || query.limit > Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MAX_RESULTS)) throw new RangeError(`The maximum amount of users that may be requested has to be between ${Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MIN_RESULTS} and ${Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MAX_RESULTS}`);
-		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT_USERS(guildId, eventId), query, "get", "json");
+	public async getGuildScheduledEventUsers(guildId: string, eventId: string, options?: RESTGetAPIGuildScheduledEventUsersQuery): Promise<RESTGetAPIGuildScheduledEventUsersResult> {
+		if (options?.limit !== undefined && (options.limit < Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MIN_RESULTS || options.limit > Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MAX_RESULTS)) throw new RangeError(`The maximum amount of users that may be requested has to be between ${Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MIN_RESULTS} and ${Constants.GET_GUILD_SCHEDULED_EVENT_USERS_MAX_RESULTS}`);
+		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT_USERS(guildId, eventId), options, "get", "json");
 	}
 }
 

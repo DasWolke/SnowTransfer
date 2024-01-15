@@ -259,7 +259,7 @@ class GuildMethods {
 	 *
 	 * CurrentUser must be a member of the guild
 	 * @param guildId Id of the guild
-	 * @param data query data
+	 * @param options query data
 	 * @returns list of [guild members](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure)
 	 *
 	 * | Intents       |
@@ -271,8 +271,8 @@ class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const members = await client.guild.getGuildMembers("guild id", { limit: 10 })
 	 */
-	public async getGuildMembers(guildId: string, data?: RESTGetAPIGuildMembersQuery): Promise<RESTGetAPIGuildMembersResult> {
-		return this.requestHandler.request(Endpoints.GUILD_MEMBERS(guildId), data, "get", "json");
+	public async getGuildMembers(guildId: string, options?: RESTGetAPIGuildMembersQuery): Promise<RESTGetAPIGuildMembersResult> {
+		return this.requestHandler.request(Endpoints.GUILD_MEMBERS(guildId), options, "get", "json");
 	}
 
 	/**
@@ -397,7 +397,6 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param roleId Id of the role
-	 * @param data object with reason property
 	 * @returns Resolves the Promise on successful execution
 	 *
 	 * | Permissions needed | Condition |
@@ -436,7 +435,7 @@ class GuildMethods {
 	/**
 	 * Get bans of a guild
 	 * @param guildId Id of the guild
-	 * @param query Query string options
+	 * @param options Query string options
 	 * @returns List of [bans](https://discord.com/developers/docs/resources/guild#ban-object-ban-structure)
 	 *
 	 * | Permissions needed | Condition |
@@ -618,7 +617,7 @@ class GuildMethods {
 	/**
 	 * Get the amount of members that would be pruned when a prune with the passed amount of days would be started
 	 * @param guildId Id of the guild
-	 * @param data Object with prune data
+	 * @param options Object with prune data
 	 * @returns Object with a "pruned" key indicating the amount of members that would be pruned
 	 *
 	 * | Permissions needed | Condition |
@@ -629,8 +628,8 @@ class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const data = await client.guild.getGuildPruneCount("guildId", { days: 7 })
 	 */
-	public async getGuildPruneCount(guildId: string, query?: RESTGetAPIGuildPruneCountQuery): Promise<RESTGetAPIGuildPruneCountResult> {
-		return this.requestHandler.request(Endpoints.GUILD_PRUNE(guildId), query, "get", "json");
+	public async getGuildPruneCount(guildId: string, options?: RESTGetAPIGuildPruneCountQuery): Promise<RESTGetAPIGuildPruneCountResult> {
+		return this.requestHandler.request(Endpoints.GUILD_PRUNE(guildId), options, "get", "json");
 	}
 
 	/**

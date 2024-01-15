@@ -23,7 +23,7 @@ class InviteMethods {
 	/**
 	 * Get the invite data on an invite id
 	 * @param inviteId Id of the invite
-	 * @param query Query params for additional metadata fields
+	 * @param options Query params for additional metadata fields
 	 * @returns [Invite Object](https://discord.com/developers/docs/resources/invite#invite-object)
 	 *
 	 * @example
@@ -31,8 +31,8 @@ class InviteMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const invite = await client.invite.getInvite("inviteId", { with_counts: true })
 	 */
-	public async getInvite(inviteId: string, query?: RESTGetAPIInviteQuery): Promise<RESTGetAPIInviteResult> {
-		return this.requestHandler.request(Endpoints.INVITES(inviteId), query, "get", "json");
+	public async getInvite(inviteId: string, options?: RESTGetAPIInviteQuery): Promise<RESTGetAPIInviteResult> {
+		return this.requestHandler.request(Endpoints.INVITES(inviteId), options, "get", "json");
 	}
 
 	/**

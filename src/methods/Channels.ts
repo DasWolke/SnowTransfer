@@ -358,7 +358,7 @@ class ChannelMethods {
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
 	 * @param emoji reaction emoji
-	 * @param query Options for getting users
+	 * @param options Options for getting users
 	 * @returns Array of [user objects](https://discord.com/developers/docs/resources/user#user-object)
 	 *
 	 * | Permissions needed   | Condition                      |
@@ -371,8 +371,8 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const reactions = await client.channel.getReactions("channel Id", "message Id", encodeURIComponent("awooo:322522663304036352"))
 	 */
-	public async getReactions(channelId: string, messageId: string, emoji: string, query?: RESTGetAPIChannelMessageReactionUsersQuery): Promise<RESTGetAPIChannelMessageReactionUsersResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji), query, "get", "json");
+	public async getReactions(channelId: string, messageId: string, emoji: string, options?: RESTGetAPIChannelMessageReactionUsersQuery): Promise<RESTGetAPIChannelMessageReactionUsersResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji), options, "get", "json");
 	}
 
 	/**
@@ -797,6 +797,7 @@ class ChannelMethods {
 	/**
 	 * Gets all members within a thread
 	 * @param channelId Id of the Thread
+	 * @param options Options for getting members
 	 * @returns Array of [thread members](https://discord.com/developers/docs/resources/channel#thread-member-object)
 	 *
 	 * | Permissions needed           | Condition |
@@ -811,13 +812,14 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const members = await client.channel.getThreadMembers("thread id")
 	 */
-	public async getThreadMembers(channelId: string, query?: RESTGetAPIChannelThreadMembersQuery): Promise<RESTGetAPIChannelThreadMembersResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_THREAD_MEMBERS(channelId), query, "get", "json");
+	public async getThreadMembers(channelId: string, options?: RESTGetAPIChannelThreadMembersQuery): Promise<RESTGetAPIChannelThreadMembersResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_THREAD_MEMBERS(channelId), options, "get", "json");
 	}
 
 	/**
 	 * Gets all threads that are public and archived within a guild channel
 	 * @param channelId Id of the guild channel
+	 * @param options Options for getting threads
 	 * @returns Object containing [public threads](https://discord.com/developers/docs/resources/channel#channel-object), [thread members](https://discord.com/developers/docs/resources/channel#thread-member-object) of the CurrentUser, and if there are more results in the pagination
 	 *
 	 * | Permissions needed          | Condition |
@@ -829,8 +831,8 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const result = await client.channel.getChannelArchivedPublicThreads("channel id")
 	 */
-	public async getChannelArchivedPublicThreads(channelId: string, query?: RESTGetAPIChannelThreadsArchivedQuery): Promise<RESTGetAPIChannelThreadsArchivedPublicResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PUBLIC(channelId), query, "get", "json");
+	public async getChannelArchivedPublicThreads(channelId: string, options?: RESTGetAPIChannelThreadsArchivedQuery): Promise<RESTGetAPIChannelThreadsArchivedPublicResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PUBLIC(channelId), options, "get", "json");
 	}
 
 	/**
@@ -838,6 +840,7 @@ class ChannelMethods {
 	 *
 	 * CurrentUser must be a member of the thread if they do not have MANAGE_THREADS permissions
 	 * @param channelId Id of the Channel
+	 * @param options Options for getting threads
 	 * @returns Object containing [private threads](https://discord.com/developers/docs/resources/channel#channel-object), [thread members](https://discord.com/developers/docs/resources/channel#thread-member-object) of the CurrentUser, and if there are more results in the pagination
 	 *
 	 * | Permissions needed          | Condition                            |
@@ -850,8 +853,8 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const result = await client.channel.getChannelArchivedPrivateThreads("channel id")
 	 */
-	public async getChannelArchivedPrivateThreads(channelId: string, query?: RESTGetAPIChannelThreadsArchivedQuery): Promise<RESTGetAPIChannelThreadsArchivedPrivateResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE(channelId), query, "get", "json");
+	public async getChannelArchivedPrivateThreads(channelId: string, options?: RESTGetAPIChannelThreadsArchivedQuery): Promise<RESTGetAPIChannelThreadsArchivedPrivateResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE(channelId), options, "get", "json");
 	}
 
 	/**
@@ -859,6 +862,7 @@ class ChannelMethods {
 	 *
 	 * CurrentUser must be a member of the thread if they do not have MANAGE_THREADS permissions
 	 * @param channelId Id of the Channel
+	 * @param options Option for getting threads
 	 * @returns Object containing [private threads](https://discord.com/developers/docs/resources/channel#channel-object), [thread members](https://discord.com/developers/docs/resources/channel#thread-member-object) of the CurrentUser, and if there are more results in the pagination
 	 *
 	 * | Permissions needed                | Condition                                  |
@@ -869,8 +873,8 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const result = await client.channel.getChannelArchivedPrivateThreadsUser("channel id")
 	 */
-	public async getChannelArchivedPrivateThreadsUser(channelId: string, query?: RESTGetAPIChannelThreadsArchivedQuery): Promise<RESTGetAPIChannelUsersThreadsArchivedResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE_USER(channelId), query, "get", "json");
+	public async getChannelArchivedPrivateThreadsUser(channelId: string, options?: RESTGetAPIChannelThreadsArchivedQuery): Promise<RESTGetAPIChannelUsersThreadsArchivedResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE_USER(channelId), options, "get", "json");
 	}
 }
 

@@ -272,8 +272,8 @@ class WebhookMethods {
 	 * @param threadId Id of the thread the message was sent in
 	 * @returns Resolves the Promise on successful execution
 	 */
-	public async deleteWebhookMessage(webhookId: string, token: string, messageId: string, threadID?: string): Promise<RESTDeleteAPIWebhookWithTokenMessageResult> {
-		return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadID }, "delete", "json") as RESTDeleteAPIWebhookWithTokenMessageResult;
+	public async deleteWebhookMessage(webhookId: string, token: string, messageId: string, threadId?: string): Promise<RESTDeleteAPIWebhookWithTokenMessageResult> {
+		return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadId }, "delete", "json") as RESTDeleteAPIWebhookWithTokenMessageResult;
 	}
 }
 

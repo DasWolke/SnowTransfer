@@ -16,6 +16,7 @@ import WebhookMethods = require("./methods/Webhooks");
 import Constants = require("./Constants");
 import Endpoints = require("./Endpoints");
 import SnowTransfer = require("./SnowTransfer");
+import { Ratelimiter, LocalBucket, RequestHandler, type HTTPMethod } from "./RequestHandler";
 
 export {
 	AuditLogMethods,
@@ -35,5 +36,10 @@ export {
 
 	Constants,
 	Endpoints,
-	SnowTransfer
+	SnowTransfer,
+	Ratelimiter,
+	LocalBucket,
+	RequestHandler,
+
+	type HTTPMethod
 };

@@ -79,14 +79,15 @@ class UserMethods {
 
 	/**
 	 * Get guilds of the current user
+	 * @param options Options for getting guilds
 	 * @returns Array of [partial guild objects](https://discord.com/developers/docs/resources/guild#guild-object)
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
 	 * const guilds = await client.user.getGuilds()
 	 */
-	public async getGuilds(query?: RESTGetAPICurrentUserGuildsQuery): Promise<RESTGetAPICurrentUserGuildsResult> {
-		return this.requestHandler.request(Endpoints.USER_GUILDS("@me"), {}, "get", "json", query);
+	public async getGuilds(options?: RESTGetAPICurrentUserGuildsQuery): Promise<RESTGetAPICurrentUserGuildsResult> {
+		return this.requestHandler.request(Endpoints.USER_GUILDS("@me"), {}, "get", "json", options);
 	}
 
 	/**

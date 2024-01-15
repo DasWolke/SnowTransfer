@@ -29,18 +29,18 @@
   "author": "wolke <wolke@weeb.sh>",
   "license": "MIT",
   "dependencies": {
-    "discord-api-types": "^0.37.60",
-    "undici": "^5.26.3"
+    "discord-api-types": "^0.37.67",
+    "undici": "^6.3.0"
   },
   "devDependencies": {
-    "@types/node": "^20.8.5",
-    "@typescript-eslint/eslint-plugin": "^6.7.5",
-    "@typescript-eslint/parser": "^6.7.5",
-    "eslint": "^8.51.0",
-    "tsup": "^7.2.0",
-    "typedoc": "^0.25.2",
-    "typedoc-plugin-mdn-links": "^3.1.0",
-    "typescript": "^5.2.2"
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^6.18.1",
+    "@typescript-eslint/parser": "^6.18.1",
+    "eslint": "^8.56.0",
+    "tsup": "^8.0.1",
+    "typedoc": "^0.25.7",
+    "typedoc-plugin-mdn-links": "^3.1.12",
+    "typescript": "^5.3.3"
   },
   "files": [
     "dist",
