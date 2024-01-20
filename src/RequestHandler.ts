@@ -36,11 +36,11 @@ export class DiscordAPIError extends Error {
  * Ratelimiter used for handling the ratelimits imposed by the rest api
  * @protected
  */
-export class Ratelimiter {
+export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
 	/**
 	 * An object of Buckets that store rate limit info
 	 */
-	public buckets: { [routeKey: string]: LocalBucket; } = {};
+	public buckets: { [routeKey: string]: InstanceType<B>; } = {};
 	/**
 	 * If you're being globally rate limited
 	 */
@@ -53,6 +53,10 @@ export class Ratelimiter {
 	 * Timeout that resets the global ratelimit once the timeframe has passed
 	 */
 	public globalResetTimeout: NodeJS.Timeout | null = null;
+	/**
+	 * The constructor function to call new on when creating buckets to cache and use
+	 */
+	public BucketConstructor = GlobalBucket as B;
 
 	/**
 	 * If you're being globally rate limited
@@ -111,9 +115,9 @@ export class Ratelimiter {
 	 * @param url Endpoint of the request
 	 * @param method Http method used by the request
 	 */
-	public queue(fn: (bucket: LocalBucket) => any, url: string, method: string): void {
+	public queue(fn: (bucket: InstanceType<B>) => any, url: string, method: string): void {
 		const routeKey = this.routify(url, method);
-		if (!this.buckets[routeKey]) this.buckets[routeKey] = new LocalBucket(this, routeKey);
+		if (!this.buckets[routeKey]) this.buckets[routeKey] = new this.BucketConstructor(this, routeKey) as InstanceType<B>;
 		this.buckets[routeKey].queue(fn);
 	}
 }
@@ -124,32 +128,27 @@ export class Ratelimiter {
  */
 export class LocalBucket {
 	/**
+	 * Remaining amount of executions during the current timeframe
+	 */
+	public remaining: number;
+	/**
 	 * array of functions waiting to be executed
 	 */
 	public fnQueue: Array<() => any> = [];
-	/**
-	 * Number of functions that may be executed during the timeframe set in limitReset
-	 */
-	public limit = 5;
-	/**
-	 * Remaining amount of executions during the current timeframe
-	 */
-	public remaining = 1;
-	/**
-	 * Timeframe in milliseconds until the ratelimit resets
-	 */
-	public reset = 5000;
 	/**
 	 * Timeout that calls the reset function once the timeframe passed
 	 */
 	public resetTimeout: NodeJS.Timeout | null = null;
 
 	/**
-	 * Create a new bucket
-	 * @param ratelimiter ratelimiter used for ratelimiting requests
-	 * @param routeKey Key used internally to routify requests. Assigned by ratelimiter
+	 * Create a new base bucket
+	 * @param limit Number of functions that may be executed during the timeframe set in reset
+	 * @param reset Timeframe in milliseconds until the ratelimit resets after first
+	 * @param remaining Remaining amount of executions during the current timeframe
 	 */
-	public constructor(public ratelimiter: Ratelimiter, public routeKey: string) {}
+	public constructor(public limit = 5, public reset = 5000, remaining?: number) {
+		this.remaining = remaining ?? limit;
+	}
 
 	/**
 	 * Queue a function to be executed
@@ -160,8 +159,7 @@ export class LocalBucket {
 		return new Promise(res => {
 			const wrapFn = () => {
 				this.remaining--;
-				// Placeholder until we get the real time remaining. When the request gets a response the headers will tell the real time.
-				if (!this.resetTimeout) this.makeResetTimeout(5000);
+				if (!this.resetTimeout) this.makeResetTimeout(this.reset);
 				if (this.remaining !== 0) this.checkQueue();
 				return res(fn(this));
 			};
@@ -179,7 +177,6 @@ export class LocalBucket {
 	 * Check if there are any functions in the queue that haven't been executed yet
 	 */
 	public checkQueue(): void {
-		if (this.ratelimiter.global) return;
 		if (this.fnQueue.length && this.remaining !== 0) {
 			const queuedFunc = this.fnQueue.splice(0, 1)[0];
 			queuedFunc();
@@ -189,14 +186,13 @@ export class LocalBucket {
 	/**
 	 * Reset the remaining tokens to the base limit
 	 */
-	private resetRemaining(): void {
+	public resetRemaining(): void {
 		this.remaining = this.limit;
 		if (this.resetTimeout) {
 			clearTimeout(this.resetTimeout);
 			this.resetTimeout = null;
 		}
 		if (this.fnQueue.length) this.checkQueue();
-		else delete this.ratelimiter.buckets[this.routeKey];
 	}
 
 	/**
@@ -204,6 +200,37 @@ export class LocalBucket {
 	 */
 	public dropQueue(): void {
 		this.fnQueue.length = 0;
+	}
+}
+
+/**
+ * Extended bucket that respects global ratelimits
+ * @protected
+ */
+export class GlobalBucket extends LocalBucket {
+	/**
+	 * Create a new bucket that respects global rate limits
+	 * @param ratelimiter ratelimiter used for ratelimiting requests. Assigned by ratelimiter
+	 * @param routeKey Key used internally to routify requests. Assigned by ratelimiter
+	 */
+	public constructor(public ratelimiter: Ratelimiter, public routeKey: string) {
+		super(5, 5000, 1);
+	}
+
+	/**
+	 * Check if there are any functions in the queue that haven't been executed yet
+	 */
+	public checkQueue(): void {
+		if (this.ratelimiter.global) return;
+		super.checkQueue();
+	}
+
+	/**
+	 * Reset the remaining tokens to the base limit
+	 */
+	public resetRemaining(): void {
+		if (!this.fnQueue.length) delete this.ratelimiter.buckets[this.routeKey];
+		super.resetRemaining();
 	}
 }
 
@@ -333,7 +360,7 @@ export class RequestHandler extends EventEmitter {
 	 * @param bkt Ratelimit bucket to apply the headers to
 	 * @param headers Http headers received from discord
 	 */
-	private _applyRatelimitHeaders(bkt: LocalBucket, headers: Headers): void {
+	private _applyRatelimitHeaders(bkt: GlobalBucket, headers: Headers): void {
 		const remaining = headers.get("x-ratelimit-remaining");
 		const limit = headers.get("x-ratelimit-limit");
 		const resetAfter = headers.get("x-ratelimit-reset-after");
