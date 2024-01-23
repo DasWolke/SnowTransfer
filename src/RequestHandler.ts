@@ -307,9 +307,17 @@ export class RequestHandler extends EventEmitter {
 					const before = Date.now();
 
 					let request: Response;
-					if (dataType == "json") request = await this._request(endpoint, params, method, data, extraHeaders);
-					else if (dataType == "multipart" && data) request = await this._multiPartRequest(endpoint, params, method, data);
-					else throw new Error("Forbidden dataType. Use json or multipart or ensure multipart has FormData");
+					switch (dataType) {
+					case "json":
+						request = await this._request(endpoint, params, method, data, extraHeaders);
+						break;
+					case "multipart":
+						if (!data) throw new Error("No multipart data");
+						request = await this._multiPartRequest(endpoint, params, method, data, extraHeaders);
+						break;
+					default:
+						throw new Error("Forbidden dataType. Use json or multipart or ensure multipart has FormData");
+					}
 
 					this.latency = Date.now() - before;
 

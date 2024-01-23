@@ -48,6 +48,7 @@ class InteractionMethods {
 	 *
 	 * You can access the methods listed via `client.interaction.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
+	 * @param webhooks WebhookMethods class that handles webhook related stuff
 	 */
 	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>, public webhooks: InstanceType<typeof import("./Webhooks")>) {}
 

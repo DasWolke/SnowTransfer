@@ -44,7 +44,7 @@ class StageInstanceMethods {
 	}
 
 	/**
-	 * Gets the stage instance assocuated to a stage channel if it exists
+	 * Gets the stage instance associated to a stage channel if it exists
 	 * @param channelId Id of the stage channel
 	 * @returns a [stage instance](https://discord.com/developers/docs/resources/stage-instance#auto-closing-stage-instance-structure) object
 	 *
@@ -79,6 +79,7 @@ class StageInstanceMethods {
 	/**
 	 * Delete an existing stage instance
 	 * @param channelId Id of the stage channel
+	 * @param reason Reason for deleting the stage instance
 	 * @returns a [stage instance](https://discord.com/developers/docs/resources/stage-instance#auto-closing-stage-instance-structure) object
 	 *
 	 * | Permissions needed | Condition |

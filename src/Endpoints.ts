@@ -19,6 +19,7 @@ const Endpoints = {
 	APPLICATION_GUILD_COMMAND: (appID: string, guildID: string, cmdID: string) => `${Endpoints.APPLICATION_GUILD_COMMANDS(appID, guildID)}/${cmdID}` as `${ReturnType<typeof Endpoints.APPLICATION_GUILD_COMMANDS>}/{cmd_id}`,
 	APPLICATION_GUILD_COMMANDS: (appID: string, guildID: string) => `/applications/${appID}/guilds/${guildID}/commands` as "/applications/{app_id}/guilds/{guild_id}/commands",
 	CHANNEL: (chanID: string) => `${Endpoints.CHANNELS}/${chanID}` as `${typeof Endpoints.CHANNELS}/{channel_id}`,
+	CHANNEL_ATTACHMENTS: (chanID: string) => `${Endpoints.CHANNEL(chanID)}/attachments` as `${ReturnType<typeof Endpoints.CHANNEL>}/attachments`,
 	CHANNEL_BULK_DELETE: (chanID: string) => `${Endpoints.CHANNEL_MESSAGES(chanID)}/bulk-delete` as `${ReturnType<typeof Endpoints.CHANNEL_MESSAGES>}/bulk-delete`,
 	CHANNEL_FOLLOWERS: (chanID: string) => `${Endpoints.CHANNEL(chanID)}/followers` as `${ReturnType<typeof Endpoints.CHANNEL>}/followers`,
 	CHANNEL_INVITES: (chanID: string) => `${Endpoints.CHANNEL(chanID)}/invites` as `${ReturnType<typeof Endpoints.CHANNEL>}/invites`,

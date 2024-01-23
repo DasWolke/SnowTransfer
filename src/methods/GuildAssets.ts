@@ -244,6 +244,7 @@ class GuildAssetsMethods {
 	 * Delete a guild sticker
 	 * @param guildId Id of the guild
 	 * @param stickerId Id of the sticker
+	 * @param reason Reason for deleting the sticker
 	 * @returns Resolves the Promise on successful execution
 	 *
 	 * | Permissions needed         | Condition |

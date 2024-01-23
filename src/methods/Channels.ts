@@ -1,3 +1,5 @@
+import { fetch } from "undici";
+
 import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
 
@@ -142,6 +144,7 @@ class ChannelMethods {
 	/**
 	 * Get a list of messages from a channel
 	 * @param channelId Id of the channel
+	 * @param options Options for getting channel messages
 	 * @returns Array of [discord message](https://discord.com/developers/docs/resources/channel#message-object) objects
 	 *
 	 * | Permissions needed   | Condition                                                                        |
@@ -196,9 +199,10 @@ class ChannelMethods {
 	 * Creates a new Message within a channel or thread
 	 *
 	 * **Make sure to use a filename with a proper extension (e.g. png, jpeg, etc.) when you want to upload files**
-	 * @param channelId Id of the Channel or thread to sent a message to
+	 * @param channelId Id of the Channel or thread to send a message to
 	 * @param data Data to send, if data is a string it will be used as the content of the message,
 	 * if data is not a string you should take a look at the properties below to know what you may send
+	 * @param options Options for sending this message
 	 * @returns [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
 	 *
 	 * | Permissions needed       | Condition                                                     |
@@ -243,6 +247,55 @@ class ChannelMethods {
 
 		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "multipart", Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "json", data);
+	}
+
+	/**
+	 * Creates a new voice Message within a channel or thread
+	 * @param channelId Id of the Channel or thread to send a message to
+	 * @param data Buffer of the audio file to send. Tested file types are ogg, mp3, m4a, wav, flac. Other file types work, but some can only be embedded on mobile. Try it and see:tm:
+	 * @param audioDurationSeconds The duration of the audio file in seconds
+	 * @param waveform A preview of the entire voice message, with 1 byte per datapoint encoded in base64. Clients sample the recording at most once per 100 milliseconds, but will downsample so that no more than 256 datapoints are in the waveform. If you have no clue what you're doing, leave this as an empty string
+	 * @returns non editable [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
+	 *
+	 * | Permissions needed       | Condition                                                     |
+	 * |--------------------------|---------------------------------------------------------------|
+	 * | VIEW_CHANNEL             | if channel is not a DM channel                                |
+	 * | READ_MESSAGE_HISTORY     | if channel is not a DM channel and message is a reply         |
+	 * | SEND_MESSAGES            | if channel is not a DM channel and if channel is not a thread |
+	 * | SEND_MESSAGES_IN_THREADS | if channel is a thread                                        |
+	 *
+	 * @example
+	 * // Send a voice message that has a duration of 6 seconds
+	 * const client = new SnowTransfer("TOKEN")
+	 * // fileData will be a buffer with the data of the ogg audio
+	 * const fileData = fs.readFileSync("6-second-long-audio.ogg") // You should probably use fs.promises.readFile, since it is asynchronous, synchronous methods block the thread.
+	 * client.channel.createVoiceMessage("channel id", fileData, 6)
+	 */
+	// Code for this function was provided by flazepe on Discord. Thank you <3 https://github.com/flazepe
+	public async createVoiceMessage(channelId: string, data: Buffer, audioDurationSeconds: number, waveform = ""): Promise<RESTPostAPIChannelMessageResult> {
+		// create attachment
+		const { upload_url, upload_filename } = await this.requestHandler.request(Endpoints.CHANNEL_ATTACHMENTS(channelId), {}, "post", "json", {
+			files: [{
+				id: "69420",
+				filename: "voice-message.ogg",
+				file_size: data.byteLength
+			}]
+		});
+
+		// upload file to cdn
+		await fetch(upload_url, { method: "PUT", body: data });
+
+		// Actually send the voice message
+		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "json", {
+			attachments: [{
+				id: "42069",
+				uploaded_filename: upload_filename,
+				filename: "voice-message.ogg",
+				duration_secs: audioDurationSeconds,
+				waveform
+			}],
+			flags: 1 << 13 // voice message flag
+		});
 	}
 
 	/**
@@ -400,6 +453,7 @@ class ChannelMethods {
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
 	 * @param data Data to send
+	 * @param options Options for editing this message
 	 * @returns [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
 	 *
 	 * | Permissions needed | Condition                                        |

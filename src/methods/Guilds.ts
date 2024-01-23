@@ -210,6 +210,7 @@ class GuildMethods {
 	 * Batch update the positions of channels. Only those being moved needs to be included here
 	 * @param guildId Id of the guild
 	 * @param data Positional data to send
+	 * @param reason Reason for updating the channels' positions
 	 * @returns Resolves the Promise on successful execution
 	 *
 	 * | Permissions needed | Condition |
@@ -219,7 +220,7 @@ class GuildMethods {
 	 * @example
 	 * // Sets the position of a channel to 2 under a category channel
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.guild.updateChannelPositions("guild id", [{ id: "channel id", position: 2, category_id: "category id" }], "they looked out of order")
+	 * client.guild.updateChannelPositions("guild id", [{ id: "channel id", position: 2, parent_id: "category id" }], "they looked out of order")
 	 */
 	public async updateChannelPositions(guildId: string, data: RESTPatchAPIGuildChannelPositionsJSONBody, reason?: string): Promise<RESTPatchAPIGuildChannelPositionsResult> {
 		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), {}, "patch", "json", data, reason ? { "X-Audit-Log-Reason": reason } : undefined) as RESTPatchAPIGuildChannelPositionsResult;
@@ -397,6 +398,7 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param roleId Id of the role
+	 * @param reason The reason for the role to be removed
 	 * @returns Resolves the Promise on successful execution
 	 *
 	 * | Permissions needed | Condition |
@@ -558,6 +560,7 @@ class GuildMethods {
 	 * Modify the positions of roles
 	 * @param guildId Id of the guild
 	 * @param data Role data to update
+	 * @param reason Reason for moving the roles
 	 * @returns array of [roles](https://discord.com/developers/docs/topics/permissions#role-object)
 	 *
 	 * | Permissions needed | Condition |
@@ -703,6 +706,7 @@ class GuildMethods {
 	 * Delete a guild integration
 	 * @param guildId Id of the guild
 	 * @param integrationId Id of the integration
+	 * @param reason Reason for removing the integration
 	 * @returns Resolves the Promise on successful execution
 	 *
 	 * | Permissions needed | Condition |
@@ -842,6 +846,7 @@ class GuildMethods {
 	/**
 	 * Updates a user's voice state in a stage channel
 	 * @param guildId Id of the guild
+	 * @param userId Id of the user
 	 * @param data Data of the voice state
 	 * @returns Resolves the Promise on successful execution
 	 *
