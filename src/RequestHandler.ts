@@ -163,7 +163,7 @@ export class LocalBucket {
 				this.remaining--; // ratelimiter queue call expects remaining to be --'d first
 				const result = fn(this);
 				if (!this.resetTimeout) this.makeResetTimeout(this.reset);
-				if (this.remaining !== 0) setImmediate(this.checkQueue); // run functions on separate ticks
+				if (this.remaining !== 0) setImmediate(() => this.checkQueue); // run functions on separate ticks
 				return res(result);
 			};
 			this.fnQueue.push(wrapFn);
