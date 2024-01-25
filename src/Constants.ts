@@ -13,7 +13,7 @@ const Constants = {
 	SEARCH_MEMBERS_MAX_RESULTS: 1000 as const,
 	BULK_DELETE_MESSAGES_MIN: 2 as const,
 	BULK_DELETE_MESSAGES_MAX: 100 as const,
-	OK_STATUS_CODES: [200, 201, 204, 304],
+	OK_STATUS_CODES: new Set([200, 201, 204, 304]),
 	standardMultipartHandler(data: { files: Array<{ name: string; file: Buffer | Blob | File | Readable | ReadableStream }>; data?: any; }): FormData {
 		const form = new FormData();
 

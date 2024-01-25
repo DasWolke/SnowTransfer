@@ -402,8 +402,7 @@ class ChannelMethods {
 	public async deleteReaction(channelId: string, messageId: string, emoji: string): Promise<RESTDeleteAPIChannelMessageReactionResult>;
 	public async deleteReaction(channelId: string, messageId: string, emoji: string, userId: string): Promise<RESTDeleteAPIChannelMessageUserReactionResult>;
 	public async deleteReaction(channelId: string, messageId: string, emoji: string, userId?: string): Promise<RESTDeleteAPIChannelMessageReactionResult | RESTDeleteAPIChannelMessageUserReactionResult> {
-		if (!userId) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji), {}, "delete", "json") as RESTDeleteAPIChannelMessageReactionResult;
-		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, userId), {}, "delete", "json") as RESTDeleteAPIChannelMessageUserReactionResult;
+		return this.requestHandler.request(userId ? Endpoints.CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, userId) : Endpoints.CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji), {}, "delete", "json") as never;
 	}
 
 	/**

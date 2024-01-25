@@ -19,6 +19,8 @@ const webhooksRegex = /^\/webhooks\/(\d+)\/[A-Za-z0-9-_]{64,}/;
 const isMessageEndpointRegex = /\/messages\/:id$/;
 const isGuildChannelsRegex = /\/guilds\/\d+\/channels$/;
 
+const disallowedBodyMethods = new Set(["head", "get"]);
+
 export class DiscordAPIError extends Error {
 	public code: number;
 	public httpStatus: number;
@@ -117,7 +119,7 @@ export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
 	 */
 	public queue(fn: (bucket: InstanceType<B>) => any, url: string, method: string): void {
 		const routeKey = this.routify(url, method);
-		if (!this.buckets[routeKey]) this.buckets[routeKey] = new this.BucketConstructor(this, routeKey) as InstanceType<B>;
+		this.buckets[routeKey] ??= new this.BucketConstructor(this, routeKey) as InstanceType<B>;
 		this.buckets[routeKey].queue(fn);
 	}
 }
@@ -323,7 +325,7 @@ export class RequestHandler extends EventEmitter {
 
 					this._applyRatelimitHeaders(bkt, request.headers);
 
-					if (request.status && !Constants.OK_STATUS_CODES.includes(request.status) && request.status !== 429) {
+					if (request.status && !Constants.OK_STATUS_CODES.has(request.status) && request.status !== 429) {
 						throw new DiscordAPIError(
 							endpoint,
 							{ message: await request.text() },
@@ -397,7 +399,7 @@ export class RequestHandler extends EventEmitter {
 		}
 
 		let body: string | undefined = undefined;
-		if (!["head", "get"].includes(method)) {
+		if (!disallowedBodyMethods.has(method)) {
 			if (typeof data === "object") body = JSON.stringify(data);
 			else body = String(data);
 		}
