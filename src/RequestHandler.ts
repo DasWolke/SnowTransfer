@@ -264,7 +264,7 @@ export interface RequestHandler {
  * Request Handler class
  */
 export class RequestHandler extends EventEmitter {
-	public options: { baseHost: string; baseURL: string; headers: { Authorization?: string; "User-Agent": string; } };
+	public options: { baseHost: string; baseURL: string; bypassBuckets: boolean; headers: { Authorization?: string; "User-Agent": string; } };
 	public latency: number;
 	public apiURL: string;
 
@@ -273,18 +273,20 @@ export class RequestHandler extends EventEmitter {
 	 * @param ratelimiter ratelimiter to use for ratelimiting requests
 	 * @param options options
 	 */
-	public constructor(public ratelimiter: Ratelimiter, options: { token?: string; baseHost: string; }) {
+	public constructor(public ratelimiter: Ratelimiter, options: { token?: string; baseHost: string; bypassBuckets?: boolean }) {
 		super();
 
 		this.options = {
 			baseHost: Endpoints.BASE_HOST,
 			baseURL: Endpoints.BASE_URL,
+			bypassBuckets: false,
 			headers: {
 				"User-Agent": `Discordbot (https://github.com/DasWolke/SnowTransfer, ${version}) Node.js/${process.version}`
 			}
 		};
 		if (options.token) this.options.headers.Authorization = options.token;
 		this.options.baseHost = options.baseHost;
+		if (options.bypassBuckets !== undefined) this.options.bypassBuckets = options.bypassBuckets;
 
 		this.apiURL = this.options.baseHost + Endpoints.BASE_URL;
 		this.latency = 500;
@@ -302,7 +304,7 @@ export class RequestHandler extends EventEmitter {
 	public request<T extends "json" | "multipart">(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, dataType: T = "json" as T, data?: T extends "json" ? any : FormData, extraHeaders?: Record<string, string>): Promise<any> {
 		// const stack = new Error().stack as string;
 		return new Promise(async (res, rej) => {
-			this.ratelimiter.queue(async (bkt) => {
+			const fn = async (bkt?: GlobalBucket | undefined) => {
 				const reqID = crypto.randomBytes(20).toString("hex");
 				try {
 					this.emit("request", reqID, { endpoint, method, dataType, data: data ?? {} });
@@ -324,7 +326,7 @@ export class RequestHandler extends EventEmitter {
 
 					this.latency = Date.now() - before;
 
-					this._applyRatelimitHeaders(bkt, request.headers);
+					if (bkt) this._applyRatelimitHeaders(bkt, request.headers);
 
 					if (request.status && !Constants.OK_STATUS_CODES.has(request.status) && request.status !== 429) {
 						throw new DiscordAPIError(
@@ -342,7 +344,14 @@ export class RequestHandler extends EventEmitter {
 							else this.ratelimiter.globalReset = 1000; // Should realistically never happen, but you never know
 							if (b.global !== undefined) this.ratelimiter.global = b.global;
 						}
-						this.emit("rateLimit", { timeout: bkt.reset, remaining: bkt.remaining, limit: bkt.limit, method: method, path: endpoint, route: this.ratelimiter.routify(endpoint, method) });
+						this.emit("rateLimit", {
+							timeout: bkt ? bkt.reset : 0,
+							remaining: bkt ? bkt.remaining : Infinity,
+							limit: bkt ? bkt.limit : Infinity,
+							method: method,
+							path: endpoint,
+							route: bkt ? bkt.routeKey : this.ratelimiter.routify(endpoint, method)
+						});
 						throw new DiscordAPIError(endpoint, { message: "You're being ratelimited", code: 429 }, method, request.status);
 					}
 
@@ -362,7 +371,10 @@ export class RequestHandler extends EventEmitter {
 					this.emit("requestError", reqID, error);
 					return rej(error);
 				}
-			}, endpoint, method);
+			};
+
+			if (this.options.bypassBuckets) fn();
+			else this.ratelimiter.queue(fn, endpoint, method);
 		});
 	}
 
