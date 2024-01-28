@@ -280,7 +280,7 @@ class ChannelMethods {
 				filename: "voice-message.ogg",
 				file_size: data.byteLength
 			}]
-		});
+		}).then(d => d.attachments[0]);
 
 		// upload file to cdn
 		await fetch(upload_url, { method: "PUT", body: data });
