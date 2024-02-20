@@ -1,6 +1,9 @@
 import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
 
+import type WHM = require("./Webhooks");
+import type { RequestHandler as RH } from "../RequestHandler";
+
 import type {
 	RESTDeleteAPIInteractionFollowupResult,
 	RESTDeleteAPIInteractionOriginalResponseResult,
@@ -50,7 +53,7 @@ class InteractionMethods {
 	 * @param requestHandler request handler that calls the rest api
 	 * @param webhooks WebhookMethods class that handles webhook related stuff
 	 */
-	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>, public webhooks: InstanceType<typeof import("./Webhooks")>) {}
+	public constructor(public requestHandler: RH, public webhooks: WHM) {}
 
 	/**
 	 * Fetch all global commands for your application

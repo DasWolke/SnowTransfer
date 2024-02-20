@@ -1,5 +1,7 @@
 import Endpoints = require("../Endpoints");
 
+import type { RequestHandler as RH } from "../RequestHandler";
+
 import type {
 	RESTDeleteAPIStageInstanceResult,
 	RESTGetAPIStageInstanceResult,
@@ -21,7 +23,7 @@ class StageInstanceMethods {
 	 * You can access the methods listed via `client.stageInstance.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
+	public constructor(public requestHandler: RH) {}
 
 	/**
 	 * Creates a new stage instance associated to a stage channel

@@ -1,5 +1,7 @@
 import Endpoints = require("../Endpoints");
 
+import type { RequestHandler as RH } from "../RequestHandler";
+
 import type {
 	RESTGetAPIGatewayBotResult,
 	RESTGetAPIGatewayResult
@@ -17,7 +19,7 @@ class BotMethods {
 	 * You can access the methods listed via `client.bot.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
+	public constructor(public requestHandler: RH) {}
 
 	/**
 	 * Get the gateway url to connect to

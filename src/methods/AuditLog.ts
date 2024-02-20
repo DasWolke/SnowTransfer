@@ -1,6 +1,8 @@
 import Endpoints = require("../Endpoints");
 
-import {
+import type { RequestHandler as RH } from "../RequestHandler";
+
+import type {
 	RESTGetAPIAuditLogQuery,
 	RESTGetAPIAuditLogResult
 } from "discord-api-types/v10";
@@ -17,7 +19,7 @@ class AuditLogMethods {
 	 * You can access the methods listed via `client.auditLog.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
+	public constructor(public requestHandler: RH) {}
 
 	/**
 	 * Get the audit logs of the specified guild id

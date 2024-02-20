@@ -1,5 +1,7 @@
 import { fetch } from "undici";
 
+import type { RequestHandler as RH } from "../RequestHandler";
+
 import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
 
@@ -70,7 +72,7 @@ class ChannelMethods {
 	 * @param requestHandler request handler that calls the rest api
 	 * @param disableEveryone Disable [at]everyone/[at]here on outgoing messages
 	 */
-	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>, public disableEveryone: boolean) {}
+	public constructor(public requestHandler: RH, public disableEveryone: boolean) {}
 
 	/**
 	 * Get a channel via Id

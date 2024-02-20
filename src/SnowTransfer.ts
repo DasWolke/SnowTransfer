@@ -14,6 +14,7 @@ import UserMethods = require("./methods/Users");
 import VoiceMethods = require("./methods/Voice");
 import WebhookMethods = require("./methods/Webhooks");
 import Endpoints = require("./Endpoints");
+import Constants = require("./Constants");
 
 class SnowTransfer {
 	/** Options for this SnowTransfer instance */
@@ -24,6 +25,10 @@ class SnowTransfer {
 		disableEveryone: boolean;
 		/** If rate limit buckets should be totally bypassed and functions are executed as fast as possible. Only use if you are 100% certain you wont run into issues or if you are proxying */
 		bypassBuckets: boolean;
+		/** If failed requests that can be retried should be retried, up to retryLimit times. */
+		retryRequests: boolean;
+		/** How many times requests should be retried if they fail and can be retried. */
+		retryLimit: number;
 	};
 	/** The access token to use for requests. Can be a bot or bearer token */
 	public token: string | undefined;
@@ -65,14 +70,19 @@ class SnowTransfer {
 	 * @param token Discord Bot token to use
 	 * @param options options
 	 */
-	public constructor(token?: string, options?: { baseHost?: string; disableEveryone?: boolean; bypassBuckets?: boolean }) {
+	public constructor(token?: string, options?: Partial<SnowTransfer["options"]>) {
 		if (typeof token === "string" && token === "") throw new Error("Missing token");
 		if (token && (!token.startsWith("Bot") && !token.startsWith("Bearer"))) token = `Bot ${token}`;
-		this.options = { baseHost: Endpoints.BASE_HOST, disableEveryone: false, bypassBuckets: false };
+		this.options = { baseHost: Endpoints.BASE_HOST, disableEveryone: false, bypassBuckets: false, retryRequests: false, retryLimit: Constants.DEFAULT_RETRY_LIMIT, ...options };
 		this.token = token;
-		Object.assign(this.options, options);
 		this.ratelimiter = new Ratelimiter();
-		this.requestHandler = new RequestHandler(this.ratelimiter, { token: this.token, baseHost: this.options.baseHost || Endpoints.BASE_HOST, bypassBuckets: this.options.bypassBuckets });
+		this.requestHandler = new RequestHandler(this.ratelimiter, {
+			token: this.token,
+			baseHost: this.options.baseHost,
+			bypassBuckets: this.options.bypassBuckets,
+			retryFailed: this.options.retryRequests,
+			retryLimit: this.options.retryLimit
+		});
 		this.channel = new ChannelMethods(this.requestHandler, this.options.disableEveryone);
 		this.user = new UserMethods(this.requestHandler);
 		this.guildAssets = new GuildAssetsMethods(this.requestHandler);

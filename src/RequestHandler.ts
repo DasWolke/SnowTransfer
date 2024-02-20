@@ -1,12 +1,14 @@
 /* eslint-disable no-async-promise-executor */
 
+import fs = require("fs");
+import path = require("path");
 import { EventEmitter } from "events";
 import crypto = require("crypto");
 
 import { fetch, FormData, Headers, Response } from "undici"; // Not using global.fetch yet until the Node ecosystem matures
 
 import Endpoints = require("./Endpoints");
-const { version } = require("../package.json");
+const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, "../package.json"), { encoding: "utf8" })); // otherwise, the json was included in the build
 import Constants = require("./Constants");
 
 export type HTTPMethod = "get" | "post" | "patch" | "head" | "put" | "delete" | "connect" | "options" | "trace";
@@ -264,7 +266,19 @@ export interface RequestHandler {
  * Request Handler class
  */
 export class RequestHandler extends EventEmitter {
-	public options: { baseHost: string; baseURL: string; bypassBuckets: boolean; headers: { Authorization?: string; "User-Agent": string; } };
+	public options: {
+		/** The base URL to use when making requests. Defaults to https://discord.com */
+		baseHost: string;
+		/** The base path of the base URL to use for the API. Defaults to /api/v${Constants.REST_API_VERSION} */
+		baseURL: string;
+		/** If rate limit buckets should be ignored */
+		bypassBuckets: boolean;
+		/** If failed requests that can be retried should be retried, up to retryLimit times. */
+		retryFailed: boolean;
+		/** How many times requests should be retried if they fail and can be retried. */
+		retryLimit: number;
+		headers: { Authorization?: string; "User-Agent": string; }
+	};
 	public latency: number;
 	public apiURL: string;
 
@@ -273,20 +287,20 @@ export class RequestHandler extends EventEmitter {
 	 * @param ratelimiter ratelimiter to use for ratelimiting requests
 	 * @param options options
 	 */
-	public constructor(public ratelimiter: Ratelimiter, options: { token?: string; baseHost: string; bypassBuckets?: boolean }) {
+	public constructor(public ratelimiter: Ratelimiter, options?: { token?: string; } & Partial<Omit<RequestHandler["options"], "headers">>) {
 		super();
 
 		this.options = {
-			baseHost: Endpoints.BASE_HOST,
-			baseURL: Endpoints.BASE_URL,
-			bypassBuckets: false,
+			baseHost: options?.baseHost ?? Endpoints.BASE_HOST,
+			baseURL: options?.baseURL ?? Endpoints.BASE_URL,
+			bypassBuckets: options?.bypassBuckets ?? false,
+			retryFailed: options?.retryFailed ?? false,
+			retryLimit: options?.retryLimit ?? Constants.DEFAULT_RETRY_LIMIT,
 			headers: {
 				"User-Agent": `Discordbot (https://github.com/DasWolke/SnowTransfer, ${version}) Node.js/${process.version}`
 			}
 		};
-		if (options.token) this.options.headers.Authorization = options.token;
-		this.options.baseHost = options.baseHost;
-		if (options.bypassBuckets !== undefined) this.options.bypassBuckets = options.bypassBuckets;
+		if (options?.token) this.options.headers.Authorization = options.token;
 
 		this.apiURL = this.options.baseHost + Endpoints.BASE_URL;
 		this.latency = 500;
@@ -301,7 +315,7 @@ export class RequestHandler extends EventEmitter {
 	 * @param data data to send, if any
 	 * @returns Result of the request
 	 */
-	public request<T extends "json" | "multipart">(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, dataType: T = "json" as T, data?: T extends "json" ? any : FormData, extraHeaders?: Record<string, string>): Promise<any> {
+	public request<T extends "json" | "multipart">(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, dataType: T = "json" as T, data?: T extends "json" ? any : FormData, extraHeaders?: Record<string, string>, retries = this.options.retryLimit): Promise<any> {
 		// const stack = new Error().stack as string;
 		return new Promise(async (res, rej) => {
 			const fn = async (bkt?: GlobalBucket | undefined) => {
@@ -329,6 +343,7 @@ export class RequestHandler extends EventEmitter {
 					if (bkt) this._applyRatelimitHeaders(bkt, request.headers);
 
 					if (request.status && !Constants.OK_STATUS_CODES.has(request.status) && request.status !== 429) {
+						if (this.options.retryFailed && !Constants.DO_NOT_RETRY_STATUS_CODES.has(request.status) && retries !== 0) return this.request(endpoint, params, method, dataType, data, extraHeaders, retries--).then(res).catch(rej);
 						throw new DiscordAPIError(
 							endpoint,
 							{ message: await request.text() },
@@ -404,8 +419,7 @@ export class RequestHandler extends EventEmitter {
 	 * @returns Result of the request
 	 */
 	private async _request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data?: any, extraHeaders?: Record<string, string>): Promise<Response> {
-		const headers = { ...this.options.headers };
-		if (extraHeaders) Object.assign(headers, extraHeaders);
+		const headers = { ...this.options.headers, ...extraHeaders };
 		if (typeof data !== "string" && data?.reason) {
 			headers["X-Audit-Log-Reason"] = encodeURIComponent(data.reason);
 			delete data.reason;
@@ -435,8 +449,7 @@ export class RequestHandler extends EventEmitter {
 	 * @returns Result of the request
 	 */
 	private async _multiPartRequest(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data: FormData, extraHeaders?: Record<string, string>): Promise<Response> {
-		const headers = { ...this.options.headers };
-		if (extraHeaders) Object.assign(headers, extraHeaders);
+		const headers = { ...this.options.headers, ...extraHeaders };
 
 		return fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
 			method: method.toUpperCase(),

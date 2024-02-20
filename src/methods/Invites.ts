@@ -1,5 +1,7 @@
 import Endpoints = require("../Endpoints");
 
+import type { RequestHandler as RH } from "../RequestHandler";
+
 import type {
 	RESTDeleteAPIInviteResult,
 	RESTGetAPIInviteQuery,
@@ -18,7 +20,7 @@ class InviteMethods {
 	 * You can access the methods listed via `client.invite.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
+	public constructor(public requestHandler: RH) {}
 
 	/**
 	 * Get the invite data on an invite id

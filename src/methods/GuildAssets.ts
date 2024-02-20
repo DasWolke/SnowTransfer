@@ -1,7 +1,9 @@
-import { File, FormData } from "undici";
+import { type File, FormData } from "undici";
 
 import Constants = require("../Constants");
 import Endpoints = require("../Endpoints");
+
+import type { RequestHandler as RH } from "../RequestHandler";
 
 import type {
 	RESTDeleteAPIGuildEmojiResult,
@@ -23,8 +25,8 @@ import type {
 
 import type { Blob } from "buffer";
 
-import { Readable } from "stream";
-import { ReadableStream } from "stream/web";
+import type { Readable } from "stream";
+import type { ReadableStream } from "stream/web";
 
 /**
  * Methods for interacting with emojis
@@ -38,7 +40,7 @@ class GuildAssetsMethods {
 	 * You can access the methods listed via `client.guildAssets.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
+	public constructor(public requestHandler: RH) {}
 
 	/**
 	 * Get a list of emojis of a guild

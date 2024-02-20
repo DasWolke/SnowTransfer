@@ -1,6 +1,8 @@
 import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
 
+import type { RequestHandler as RH } from "../RequestHandler";
+
 import type {
 	APIGuildMember,
 	APIGuildWidget,
@@ -77,7 +79,7 @@ class GuildMethods {
 	 * You can access the methods listed via `client.guild.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
-	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>) {}
+	public constructor(public requestHandler: RH) {}
 
 	/**
 	 * Create a new Guild, **limited to 10 guilds (you may create more if you are whitelisted)**

@@ -3,6 +3,8 @@ import Constants = require("../Constants");
 
 const mentionRegex = /@([^<>@ ]*)/gsmu;
 
+import type { RequestHandler as RH } from "../RequestHandler";
+
 import type {
 	RESTDeleteAPIWebhookResult,
 	RESTDeleteAPIWebhookWithTokenMessageResult,
@@ -46,7 +48,7 @@ class WebhookMethods {
 	 * @param requestHandler request handler that calls the rest api
 	 * @param disableEveryone Disable [at]everyone/[at]here on outgoing messages
 	 */
-	public constructor(public requestHandler: InstanceType<(typeof import("../RequestHandler"))["RequestHandler"]>, public disableEveryone: boolean) {}
+	public constructor(public requestHandler: RH, public disableEveryone: boolean) {}
 
 	/**
 	 * Create a new Webhook
