@@ -384,7 +384,7 @@ export class RequestHandler extends EventEmitter {
 				} catch (error) {
 					// if (error && error.stack) error.stack = stack;
 					this.emit("requestError", reqID, error);
-					return rej(error);
+					return rej(error as Error);
 				}
 			};
 

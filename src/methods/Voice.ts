@@ -2,7 +2,7 @@ import Endpoints = require("../Endpoints");
 
 import type { RequestHandler as RH } from "../RequestHandler";
 
-import type { RESTGetAPIVoiceRegionsResult } from "discord-api-types/v10";
+import type { RESTGetAPIVoiceRegionsResult, GatewayVoiceState } from "discord-api-types/v10";
 
 /**
  * Methods for interacting with some voice
@@ -28,6 +28,25 @@ class VoiceMethods {
 	 */
 	public async getVoiceRegions(): Promise<RESTGetAPIVoiceRegionsResult> {
 		return this.requestHandler.request(Endpoints.VOICE_REGIONS, {}, "get", "json");
+	}
+
+	/**
+	 * Get the CurrentUser's voice state for a guild
+	 * @param guildId Id of the guild
+	 * @returns A [voice state](https://discord.com/developers/docs/resources/voice#voice-state-object) object
+	 */
+	public async getCurrentUserVoiceState(guildId: string): Promise<GatewayVoiceState> {
+		return this.requestHandler.request(Endpoints.USER_GUILD_VOICE_STATE(guildId, "@me"), {}, "get", "json")
+	}
+
+	/**
+	 * Get a user's voice state for a guild
+	 * @param guildId Id of the guild
+	 * @param userId Id of the user
+	 * @returns A [voice state](https://discord.com/developers/docs/resources/voice#voice-state-object) object
+	 */
+	public async getUserVoiceState(guildId: string, userId: string): Promise<GatewayVoiceState> {
+		return this.requestHandler.request(Endpoints.USER_GUILD_VOICE_STATE(guildId, userId), {}, "get", "json")
 	}
 }
 

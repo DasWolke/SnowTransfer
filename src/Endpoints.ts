@@ -95,6 +95,7 @@ const Endpoints = {
 	USER_CONNECTIONS: (userID: string) => `${Endpoints.USER(userID)}/connections` as `${ReturnType<typeof Endpoints.USER>}/connections`,
 	USER_GUILD: (userID: string, guildID: string) => `${Endpoints.USER_GUILDS(userID)}/${guildID}` as `${ReturnType<typeof Endpoints.USER_GUILDS>}/{guild_id}`,
 	USER_GUILDS: (userID: string) => `${Endpoints.USER(userID)}/guilds` as `${ReturnType<typeof Endpoints.USER>}/guilds`,
+	USER_GUILD_VOICE_STATE: (guildID: string, userID: string) => `${Endpoints.GUILD(guildID)}/voice-states/${userID}` as `${ReturnType<typeof Endpoints.GUILD>}/voice-states/{user_id}`,
 	USERS: "/users" as const,
 	VOICE_REGIONS: "/voice/regions" as const,
 	WEBHOOK: (hookID: string) => `/webhooks/${hookID}` as "/webhooks/{hook_id}",
