@@ -195,7 +195,7 @@ class GuildMethods {
 	 * | *                  | if setting * permission in overwrites where * is any permission |
 	 *
 	 * @example
-	 * // Creates a guild voice channel with the name "nice voice channel" and with permission connect denied for the @everyone role
+	 * // Creates a guild voice channel with the name "nice voice channel" and with permission connect denied for the @ everyone role
 	 * const client = new SnowTransfer("TOKEN")
 	 * const channelData = \{
 	 * 	name: "nice voice channel",

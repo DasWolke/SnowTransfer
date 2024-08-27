@@ -18,6 +18,7 @@ const Endpoints = {
 	APPLICATION_GUILD_COMMAND_PERMISSIONS: (appID: string, guildID: string, cmdID: string) => `${Endpoints.APPLICATION_GUILD_COMMAND(appID, guildID, cmdID)}/permissions` as `${ReturnType<typeof Endpoints.APPLICATION_GUILD_COMMAND>}/permissions`,
 	APPLICATION_GUILD_COMMAND: (appID: string, guildID: string, cmdID: string) => `${Endpoints.APPLICATION_GUILD_COMMANDS(appID, guildID)}/${cmdID}` as `${ReturnType<typeof Endpoints.APPLICATION_GUILD_COMMANDS>}/{cmd_id}`,
 	APPLICATION_GUILD_COMMANDS: (appID: string, guildID: string) => `/applications/${appID}/guilds/${guildID}/commands` as "/applications/{app_id}/guilds/{guild_id}/commands",
+	ATTACHMENTS_REFRESH_URLS: `/attachments/refresh-urls` as const,
 	CHANNEL: (chanID: string) => `${Endpoints.CHANNELS}/${chanID}` as `${typeof Endpoints.CHANNELS}/{channel_id}`,
 	CHANNEL_ATTACHMENTS: (chanID: string) => `${Endpoints.CHANNEL(chanID)}/attachments` as `${ReturnType<typeof Endpoints.CHANNEL>}/attachments`,
 	CHANNEL_BULK_DELETE: (chanID: string) => `${Endpoints.CHANNEL_MESSAGES(chanID)}/bulk-delete` as `${ReturnType<typeof Endpoints.CHANNEL_MESSAGES>}/bulk-delete`,

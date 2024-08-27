@@ -23,6 +23,7 @@ import {
 	RequestHandler as RequestHandler2,
 	type HTTPMethod,
 	type HandlerEvents,
+	type RESTPostAPIAttachmentsRefreshURLsResult,
 	DiscordAPIError as DiscordAPIError2
 } from "./RequestHandler";
 
@@ -52,5 +53,6 @@ export {
 	DiscordAPIError2 as DiscordAPIError,
 
 	type HTTPMethod,
-	type HandlerEvents
+	type HandlerEvents,
+	type RESTPostAPIAttachmentsRefreshURLsResult
 };

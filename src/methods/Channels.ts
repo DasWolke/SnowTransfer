@@ -1,6 +1,6 @@
 import { fetch } from "undici";
 
-import type { RequestHandler as RH } from "../RequestHandler";
+import type { RequestHandler as RH, RESTPostAPIAttachmentsRefreshURLsResult } from "../RequestHandler";
 
 import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
@@ -930,6 +930,21 @@ class ChannelMethods {
 	 */
 	public async getChannelArchivedPrivateThreadsUser(channelId: string, options?: RESTGetAPIChannelThreadsArchivedQuery): Promise<RESTGetAPIChannelUsersThreadsArchivedResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREADS_ARCHIVED_PRIVATE_USER(channelId), options, "get", "json");
+	}
+
+	/**
+	 * Refreshes Discord CDN attachments by URL to give you non-expired links. This also works on attachments the token may not have access to through means like guild bot presence
+	 * @param attachments A list of Discord CDN attachment URLs. Does not require the URL(s) to have the expiration info parameters
+	 * @returns Object containing a list of the original URLs inputted and refreshed URLs
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const result = await client.channel.refreshAttachmentURLs("https://cdn.discordapp.com/attachments/1109362097952931840/1277799507911905280/traveler.gif")
+	 */
+	public async refreshAttachmentURLs(attachments: string | Array<string>): Promise<RESTPostAPIAttachmentsRefreshURLsResult> {
+		return this.requestHandler.request(Endpoints.ATTACHMENTS_REFRESH_URLS, {}, "post", "json", {
+			attachment_urls: Array.isArray(attachments) ? attachments : [attachments]
+		})
 	}
 }
 

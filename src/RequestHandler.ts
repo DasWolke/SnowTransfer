@@ -13,6 +13,13 @@ import Constants = require("./Constants");
 
 export type HTTPMethod = "get" | "post" | "patch" | "head" | "put" | "delete" | "connect" | "options" | "trace";
 
+export type RESTPostAPIAttachmentsRefreshURLsResult = {
+	refreshed_urls: Array<{
+		original: string;
+		refreshed: string;
+	}>
+}
+
 // const applicationJSONRegex = /application\/json/;
 const routeRegex = /\/([a-z-]+)\/(?:\d{17,19})/g;
 const reactionsRegex = /\/reactions\/[^/]+/g;
@@ -119,10 +126,10 @@ export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
 	 * @param url Endpoint of the request
 	 * @param method Http method used by the request
 	 */
-	public queue(fn: (bucket: InstanceType<B>) => any, url: string, method: string): void {
+	public queue<T>(fn: (bucket: InstanceType<B>) => T, url: string, method: string): Promise<T> {
 		const routeKey = this.routify(url, method);
 		this.buckets[routeKey] ??= new this.BucketConstructor(this, routeKey) as InstanceType<B>;
-		this.buckets[routeKey].queue(fn);
+		return this.buckets[routeKey].queue(fn);
 	}
 }
 
@@ -160,12 +167,17 @@ export class LocalBucket {
 	 * @returns Result of the function if any
 	 */
 	public queue<T>(fn: (bucket: this) => T): Promise<T> {
-		return new Promise(res => {
+		return new Promise((res, rej) => {
 			const wrapFn = () => {
 				this.remaining--; // ratelimiter queue call expects remaining to be --'d first
-				const result = fn(this);
 				if (!this.resetTimeout) this.makeResetTimeout(this.reset);
-				if (this.remaining !== 0) setImmediate(() => this.checkQueue); // run functions on separate ticks
+				if (this.remaining !== 0) setImmediate(() => this.checkQueue()); // run functions on separate ticks
+				let result;
+				try {
+					result = fn(this);
+				} catch (e) {
+					return rej(e);
+				}
 				return res(result);
 			};
 			this.fnQueue.push(wrapFn);
