@@ -42,6 +42,7 @@ import type { ReadableStream } from "stream/web";
 
 /**
  * Methods for interacting with slash command specific endpoints
+ * @since 0.3.0
  */
 class InteractionMethods {
 	/**
@@ -57,6 +58,7 @@ class InteractionMethods {
 
 	/**
 	 * Fetch all global commands for your application
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param withLocalizations Whether or not to include localizations
 	 * @returns An Array of [application command](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-structure) objects
@@ -71,6 +73,7 @@ class InteractionMethods {
 
 	/**
 	 * Create a new global command. New global commands will be available in all guilds after 1 hour
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param data The command data
 	 * @returns An [application command](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-structure) object
@@ -85,6 +88,7 @@ class InteractionMethods {
 
 	/**
 	 * Fetch a global command for your application
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param cmdId The Id of the command
 	 * @returns An [application command](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-structure) object
@@ -99,6 +103,7 @@ class InteractionMethods {
 
 	/**
 	 * Edit a global command. Updates will be available in all guilds after 1 hour
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param cmdId The Id of the command
 	 * @param data The command data
@@ -114,6 +119,7 @@ class InteractionMethods {
 
 	/**
 	 * Deletes a global command
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param cmdId The Id of the command
 	 * @returns Resolves the Promise on successful execution
@@ -129,6 +135,7 @@ class InteractionMethods {
 	/**
 	 * Takes a list of application commands, overwriting existing commands that are registered globally for this application.
 	 * Updates will be available in all guilds after 1 hour
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param data Array of commands
 	 * @returns An Array of [application command](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-structure) objects
@@ -143,6 +150,7 @@ class InteractionMethods {
 
 	/**
 	 * Fetch all of the guild commands for your application for a specific guild.
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param guildId The Id of the guild
 	 * @param withLocalizations Whether or not to include localizations
@@ -158,6 +166,7 @@ class InteractionMethods {
 
 	/**
 	 * Create a new guild command. New guild commands will be available in the guild immediately.
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param guildId The Id of the guild
 	 * @param data Command data
@@ -173,6 +182,7 @@ class InteractionMethods {
 
 	/**
 	 * Fetch a guild command for your application
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param guildId The Id of the guild
 	 * @param cmdId The Id of the command
@@ -188,6 +198,7 @@ class InteractionMethods {
 
 	/**
 	 * Edit a guild command. Updates for guild commands will be available immediately.
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param guildId The Id of the guild
 	 * @param cmdId The Id of the command
@@ -204,6 +215,7 @@ class InteractionMethods {
 
 	/**
 	 * Delete a guild command
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param guildId The Id of the guild
 	 * @param cmdId The Id of the command
@@ -219,6 +231,7 @@ class InteractionMethods {
 
 	/**
 	 * Takes a list of application commands, overwriting existing commands for the guild
+	 * @since 0.5.0
 	 * @param appId The Id of the application
 	 * @param guildId The Id of the guild
 	 * @param data Array of commands
@@ -234,6 +247,7 @@ class InteractionMethods {
 
 	/**
 	 * Fetches command permissions for all or a specific command for your application in a guild
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param guildId The Id of the guild
 	 * @param cmdId The Id of the command
@@ -258,6 +272,7 @@ class InteractionMethods {
 
 	/**
 	 * Edits command permissions for a specific command for your application in a guild. You can only add up to 10 permission overwrites for a command.
+	 * @since 0.5.0
 	 * @param appId The Id of the application
 	 * @param guildId The Id of the guild
 	 * @param cmdId The Id of the command
@@ -279,6 +294,7 @@ class InteractionMethods {
 	 * When uploading attachments to respond to message interactions, you must provide the top level files property
 	 * which needs to match attachments array length and each element needs to match the same indexes as where their filename is defined (the top level files property gets deleted before it's appended to payload_json).
 	 * Should you have a more elegant solution, possibly rewriting the interface with the request handler, please submit a PR/issue.
+	 * @since 0.3.0
 	 * @param interactionId The Id of the interaction
 	 * @param token The token of the interaction
 	 * @param data Response data
@@ -296,6 +312,7 @@ class InteractionMethods {
 
 	/**
 	 * Returns the initial Interaction response
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param token The token of the interaction
 	 * @returns A [message](https://discord.com/developers/docs/resources/channel#message-object) object
@@ -310,6 +327,7 @@ class InteractionMethods {
 
 	/**
 	 * Edits the initial Interaction response
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param token The token of the interaction
 	 * @param data New response data
@@ -325,6 +343,7 @@ class InteractionMethods {
 
 	/**
 	 * Deletes the initial Interaction response
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param token The token of the interaction
 	 * @returns Resolves the Promise on successful execution
@@ -339,6 +358,7 @@ class InteractionMethods {
 
 	/**
 	 * Create a followup message for an Interaction
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param token The token of the interaction
 	 * @param data Message data
@@ -355,6 +375,7 @@ class InteractionMethods {
 
 	/**
 	 * Get a followup message for an Interaction
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param token The token of the interaction
 	 * @param messageId The Id of the message
@@ -370,6 +391,7 @@ class InteractionMethods {
 
 	/**
 	 * Edits a followup message for an Interaction
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param token The token of the interaction
 	 * @param messageId The Id of the message
@@ -386,6 +408,7 @@ class InteractionMethods {
 
 	/**
 	 * Deletes a followup message for an Interaction
+	 * @since 0.3.0
 	 * @param appId The Id of the application
 	 * @param token The token of the interaction
 	 * @param messageId The Id of the message

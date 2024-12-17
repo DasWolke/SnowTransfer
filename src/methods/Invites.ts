@@ -10,6 +10,7 @@ import type {
 
 /**
  * Methods for interacting with invites
+ * @since 0.1.0
  */
 class InviteMethods {
 	/**
@@ -24,6 +25,7 @@ class InviteMethods {
 
 	/**
 	 * Get the invite data on an invite id
+	 * @since 0.1.0
 	 * @param inviteId Id of the invite
 	 * @param options Query params for additional metadata fields
 	 * @returns [Invite Object](https://discord.com/developers/docs/resources/invite#invite-object)
@@ -39,6 +41,7 @@ class InviteMethods {
 
 	/**
 	 * Delete an invite
+	 * @since 0.1.0
 	 * @param inviteId
 	 * @returns [Invite Object](https://discord.com/developers/docs/resources/invite#invite-object)
 	 *

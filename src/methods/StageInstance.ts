@@ -13,6 +13,7 @@ import type {
 
 /**
  * Methods for interacting with Stage instances
+ * @since 0.3.0
  */
 class StageInstanceMethods {
 	/**
@@ -27,6 +28,7 @@ class StageInstanceMethods {
 
 	/**
 	 * Creates a new stage instance associated to a stage channel
+	 * @since 0.3.0
 	 * @param data The options for creating a stage instance
 	 * @returns a [stage instance](https://discord.com/developers/docs/resources/stage-instance#auto-closing-stage-instance-structure) object
 	 *
@@ -47,6 +49,7 @@ class StageInstanceMethods {
 
 	/**
 	 * Gets the stage instance associated to a stage channel if it exists
+	 * @since 0.3.0
 	 * @param channelId Id of the stage channel
 	 * @returns a [stage instance](https://discord.com/developers/docs/resources/stage-instance#auto-closing-stage-instance-structure) object
 	 *
@@ -60,6 +63,7 @@ class StageInstanceMethods {
 
 	/**
 	 * Updates an existing stage instance
+	 * @since 0.3.0
 	 * @param channelId Id of the stage channel
 	 * @param data The new data to send
 	 * @returns a [stage instance](https://discord.com/developers/docs/resources/stage-instance#auto-closing-stage-instance-structure) object
@@ -80,6 +84,7 @@ class StageInstanceMethods {
 
 	/**
 	 * Delete an existing stage instance
+	 * @since 0.3.0
 	 * @param channelId Id of the stage channel
 	 * @param reason Reason for deleting the stage instance
 	 * @returns a [stage instance](https://discord.com/developers/docs/resources/stage-instance#auto-closing-stage-instance-structure) object

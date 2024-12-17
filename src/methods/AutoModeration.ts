@@ -13,6 +13,7 @@ import type {
 
 /**
  * Methods for interacting with guild auto moderation
+ * @since 0.7.0
  */
 class AutoModerationMethods {
 	/**
@@ -27,6 +28,7 @@ class AutoModerationMethods {
 
 	/**
 	 * Get all of the auto moderation rules from a guild
+	 * @since 0.7.0
 	 * @param guildId id of the guild
 	 * @returns A list of [auto mod rules](https://discord.com/developers/docs/resources/auto-moderation#auto-moderation-rule-object)
 	 *
@@ -45,6 +47,7 @@ class AutoModerationMethods {
 
 	/**
 	 * Get a auto moderation rules from a guild
+	 * @since 0.7.0
 	 * @param guildId id of the guild
 	 * @param ruleId id of the rule
 	 * @returns An [auto mod rule](https://discord.com/developers/docs/resources/auto-moderation#auto-moderation-rule-object)
@@ -64,6 +67,7 @@ class AutoModerationMethods {
 
 	/**
 	 * Create an auto moderation rule for a guild
+	 * @since 0.7.0
 	 * @param guildId id of the guild
 	 * @param data the data of the auto moderation rule
 	 * @returns An [auto mod rule](https://discord.com/developers/docs/resources/auto-moderation#auto-moderation-rule-object)
@@ -95,6 +99,7 @@ class AutoModerationMethods {
 
 	/**
 	 * Edit an auto moderation rule for a guild
+	 * @since 0.7.0
 	 * @param guildId id of the guild
 	 * @param ruleId id of the rule
 	 * @param data the data of the auto moderation rule
@@ -120,6 +125,7 @@ class AutoModerationMethods {
 
 	/**
 	 * Deletes an auto moderation rule for a guild
+	 * @since 0.7.0
 	 * @param guildId id of the guild
 	 * @param ruleId id of the rule
 	 * @param reason Reason for deleting the rule

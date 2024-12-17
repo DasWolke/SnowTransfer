@@ -30,6 +30,9 @@ const isGuildChannelsRegex = /\/guilds\/\d+\/channels$/;
 
 const disallowedBodyMethods = new Set(["head", "get"]);
 
+/**
+ * @since 0.3.0
+ */
 export class DiscordAPIError extends Error {
 	public code: number;
 	public httpStatus: number;
@@ -45,6 +48,7 @@ export class DiscordAPIError extends Error {
 
 /**
  * Ratelimiter used for handling the ratelimits imposed by the rest api
+ * @since 0.1.0
  * @protected
  */
 export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
@@ -101,6 +105,7 @@ export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
 	/**
 	 * Returns a key for saving ratelimits for routes
 	 * (Taken from https://github.com/abalabahaha/eris/blob/master/lib/rest/RequestHandler.js) -> I luv u abal <3
+	 * @since 0.1.0
 	 * @param url url to reduce to a key something like /channels/266277541646434305/messages/266277541646434305/
 	 * @param method method of the request, usual http methods like get, etc.
 	 * @returns reduced url: /channels/266277541646434305/messages/:id/
@@ -122,6 +127,7 @@ export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
 
 	/**
 	 * Queue a rest call to be executed
+	 * @since 0.1.0
 	 * @param fn function to call once the ratelimit is ready
 	 * @param url Endpoint of the request
 	 * @param method Http method used by the request
@@ -135,6 +141,7 @@ export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
 
 /**
  * Bucket used for saving ratelimits
+ * @since 0.1.0
  * @protected
  */
 export class LocalBucket {
@@ -163,6 +170,7 @@ export class LocalBucket {
 
 	/**
 	 * Queue a function to be executed
+	 * @since 0.1.0
 	 * @param fn function to be executed
 	 * @returns Result of the function if any
 	 */
@@ -176,7 +184,7 @@ export class LocalBucket {
 				try {
 					result = fn(this);
 				} catch (e) {
-					return rej(e);
+					return rej(e as Error);
 				}
 				return res(result);
 			};
@@ -185,13 +193,19 @@ export class LocalBucket {
 		});
 	}
 
-	public makeResetTimeout(durationMS: number) {
+	/**
+	 * Reset/make the timeout of this bucket
+	 * @since 0.8.3
+	 * @param durationMS Timeframe in milliseconds until the ratelimit resets after
+	 */
+	public makeResetTimeout(durationMS: number): void {
 		if (this.resetTimeout) clearTimeout(this.resetTimeout);
 		this.resetTimeout = setTimeout(() => this.resetRemaining(), durationMS);
 	}
 
 	/**
 	 * Check if there are any functions in the queue that haven't been executed yet
+	 * @since 0.1.0
 	 */
 	public checkQueue(): void {
 		if (this.fnQueue.length && this.remaining !== 0) {
@@ -202,6 +216,7 @@ export class LocalBucket {
 
 	/**
 	 * Reset the remaining tokens to the base limit
+	 * @since 0.1.0
 	 */
 	public resetRemaining(): void {
 		this.remaining = this.limit;
@@ -214,6 +229,7 @@ export class LocalBucket {
 
 	/**
 	 * Clear the current queue of events to be sent
+	 * @since 0.1.0
 	 */
 	public dropQueue(): void {
 		this.fnQueue.length = 0;
@@ -222,6 +238,7 @@ export class LocalBucket {
 
 /**
  * Extended bucket that respects global ratelimits
+ * @since 0.10.0
  * @protected
  */
 export class GlobalBucket extends LocalBucket {
@@ -236,6 +253,7 @@ export class GlobalBucket extends LocalBucket {
 
 	/**
 	 * Check if there are any functions in the queue that haven't been executed yet
+	 * @since 0.10.0
 	 */
 	public checkQueue(): void {
 		if (this.ratelimiter.global) return;
@@ -244,6 +262,7 @@ export class GlobalBucket extends LocalBucket {
 
 	/**
 	 * Reset the remaining tokens to the base limit
+	 * @since 0.10.0
 	 */
 	public resetRemaining(): void {
 		if (!this.fnQueue.length) delete this.ratelimiter.buckets[this.routeKey];
@@ -276,6 +295,7 @@ export interface RequestHandler {
 
 /**
  * Request Handler class
+ * @since 0.1.0
  */
 export class RequestHandler extends EventEmitter {
 	public options: {
@@ -320,6 +340,7 @@ export class RequestHandler extends EventEmitter {
 
 	/**
 	 * Request a route from the discord api
+	 * @since 0.1.0
 	 * @param endpoint endpoint to request
 	 * @param params URL query parameters to add on to the URL
 	 * @param method http method to use
@@ -407,6 +428,7 @@ export class RequestHandler extends EventEmitter {
 
 	/**
 	 * Apply the received ratelimit headers to the ratelimit bucket
+	 * @since 0.1.0
 	 * @param bkt Ratelimit bucket to apply the headers to
 	 * @param headers Http headers received from discord
 	 */
@@ -425,6 +447,7 @@ export class RequestHandler extends EventEmitter {
 
 	/**
 	 * Execute a normal json request
+	 * @since 0.1.0
 	 * @param endpoint Endpoint to use
 	 * @param params URL query parameters to add on to the URL
 	 * @param data Data to send
@@ -454,6 +477,7 @@ export class RequestHandler extends EventEmitter {
 
 	/**
 	 * Execute a multipart/form-data request
+	 * @since 0.1.0
 	 * @param endpoint Endpoint to use
 	 * @param params URL query parameters to add on to the URL
 	 * @param method Http Method to use

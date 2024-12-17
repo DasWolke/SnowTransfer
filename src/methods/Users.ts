@@ -19,6 +19,7 @@ import type {
 
 /**
  * Methods for interacting with users
+ * @since 0.1.0
  */
 class UserMethods {
 	/**
@@ -33,6 +34,7 @@ class UserMethods {
 
 	/**
 	 * Get information about the CurrentUser
+	 * @since 0.1.0
 	 * @returns A [user object](https://discord.com/developers/docs/resources/user#user-object)
 	 *
 	 * | OAUTH2 Scopes | Condition     |
@@ -50,6 +52,7 @@ class UserMethods {
 
 	/**
 	 * Get information about a user via Id
+	 * @since 0.1.0
 	 * @param userId Id of the user
 	 * @returns [user object](https://discord.com/developers/docs/resources/user#user-object)
 	 *
@@ -63,6 +66,7 @@ class UserMethods {
 
 	/**
 	 * Update the current user
+	 * @since 0.1.0
 	 * @param data The new data of the CurrentUser
 	 * @returns [user object](https://discord.com/developers/docs/resources/user#user-object)
 	 *
@@ -81,6 +85,7 @@ class UserMethods {
 
 	/**
 	 * Get guilds of the current user
+	 * @since 0.1.0
 	 * @param options Options for getting guilds
 	 * @returns Array of [partial guild objects](https://discord.com/developers/docs/resources/guild#guild-object)
 	 *
@@ -94,6 +99,7 @@ class UserMethods {
 
 	/**
 	 * Leaves a guild
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @returns Resolves the Promise on successful execution
 	 *
@@ -109,6 +115,7 @@ class UserMethods {
 	 * Create a direct message channel with another user
 	 *
 	 * **You can not create a dm with another bot**
+	 * @since 0.1.0
 	 * @param userId Id of the user to create the direct message channel with
 	 * @returns A [DM channel](https://discord.com/developers/docs/resources/channel#channel-object)
 	 *
@@ -124,7 +131,7 @@ class UserMethods {
 
 	/**
 	 * Create a group direct message channel with other users
-	 *
+	 * @since 0.7.0
 	 * @param data An object containing a list of access tokens with gdm.join and optionally, a nickname dictionary keyed by user IDs with strings as values
 	 * @returns A [DM channel](https://discord.com/developers/docs/resources/channel#channel-object)
 	 *
@@ -144,6 +151,7 @@ class UserMethods {
 
 	/**
 	 * Returns a list of connections for the current user
+	 * @since 0.7.0
 	 * @returns A list of [connections](https://discord.com/developers/docs/resources/user#connection-object)
 	 *
 	 * | OAUTH2 Scopes | Condition |
@@ -161,6 +169,7 @@ class UserMethods {
 
 	/**
 	 * Gets a role connection for the current user
+	 * @since 0.7.0
 	 * @param appId Id of the application
 	 * @returns An [Application role connection](https://discord.com/developers/docs/resources/user#application-role-connection-object)
 	 *
@@ -179,6 +188,7 @@ class UserMethods {
 
 	/**
 	 * Updates a role connection for the current user
+	 * @since 0.7.0
 	 * @param appId Id of the application
 	 * @returns An [Application role connection](https://discord.com/developers/docs/resources/user#application-role-connection-object)
 	 *

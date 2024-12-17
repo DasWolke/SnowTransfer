@@ -57,10 +57,9 @@ import type {
 import type { Readable } from "stream";
 import type { ReadableStream } from "stream/web";
 
-const mentionRegex = /@([^<>@ ]*)/gsmu;
-
 /**
  * Methods for interacting with Channels and Messages
+ * @since 0.1.0
  */
 class ChannelMethods {
 	/**
@@ -76,6 +75,7 @@ class ChannelMethods {
 
 	/**
 	 * Get a channel via Id
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @returns [discord channel](https://discord.com/developers/docs/resources/channel#channel-object) object
 	 *
@@ -89,6 +89,7 @@ class ChannelMethods {
 
 	/**
 	 * Update a guild channel or thread
+	 * @since 0.1.0
 	 * @param channelId Id of the guild channel
 	 * @param data Data to send
 	 * @returns [discord channel](https://discord.com/developers/docs/resources/channel#channel-object) object
@@ -125,6 +126,7 @@ class ChannelMethods {
 	 * When deleting a category, this does **not** delete the child channels of a category. They will just have their `parent_id` removed.
 	 *
 	 * For community guilds, the rules channel and the community updates channel cannot be deleted.
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @param reason Reason for deleting the channel
 	 * @returns [discord channel](https://discord.com/developers/docs/resources/channel#channel-object) object
@@ -145,6 +147,7 @@ class ChannelMethods {
 
 	/**
 	 * Get a list of messages from a channel
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @param options Options for getting channel messages
 	 * @returns Array of [discord message](https://discord.com/developers/docs/resources/channel#message-object) objects
@@ -179,6 +182,7 @@ class ChannelMethods {
 
 	/**
 	 * Get a single message via Id
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
 	 * @returns [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
@@ -201,6 +205,7 @@ class ChannelMethods {
 	 * Creates a new Message within a channel or thread
 	 *
 	 * **Make sure to use a filename with a proper extension (e.g. png, jpeg, etc.) when you want to upload files**
+	 * @since 0.1.0
 	 * @param channelId Id of the Channel or thread to send a message to
 	 * @param data Data to send, if data is a string it will be used as the content of the message,
 	 * if data is not a string you should take a look at the properties below to know what you may send
@@ -245,7 +250,7 @@ class ChannelMethods {
 		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message
-		if (data.content && (options.disableEveryone ?? this.disableEveryone)) data.content = data.content.replace(mentionRegex, replaceEveryone);
+		if (data.content && (options.disableEveryone ?? this.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
 
 		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "multipart", Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "json", data);
@@ -253,6 +258,7 @@ class ChannelMethods {
 
 	/**
 	 * Creates a new voice Message within a channel or thread
+	 * @since 0.10.0
 	 * @param channelId Id of the Channel or thread to send a message to
 	 * @param data Buffer of the audio file to send. Tested file types are ogg, mp3, m4a, wav, flac. Other file types work, but some can only be embedded on mobile. Try it and see:tm:
 	 * @param audioDurationSeconds The duration of the audio file in seconds
@@ -302,6 +308,7 @@ class ChannelMethods {
 
 	/**
 	 * Crosspost a message in a news channel to all following channels
+	 * @since 0.3.0
 	 * @param channelId Id of the news channel
 	 * @param messageId Id of the message
 	 * @returns [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
@@ -323,6 +330,7 @@ class ChannelMethods {
 
 	/**
 	 * Adds a reaction to a message
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
 	 * @param emoji uri encoded reaction emoji to add
@@ -352,6 +360,7 @@ class ChannelMethods {
 
 	/**
 	 * Delete a reaction added by the current user from a message
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
 	 * @param emoji reaction emoji
@@ -378,6 +387,7 @@ class ChannelMethods {
 
 	/**
 	 * Delete a reaction from a message in a guild channel
+	 * @since 0.1.0
 	 * @param channelId Id of the guild channel
 	 * @param messageId Id of the message
 	 * @param emoji reaction emoji
@@ -409,6 +419,7 @@ class ChannelMethods {
 
 	/**
 	 * Get a list of users that reacted with a certain emoji on a certain message
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
 	 * @param emoji reaction emoji
@@ -431,6 +442,7 @@ class ChannelMethods {
 
 	/**
 	 * Delete all reactions from a message in a guild channel
+	 * @since 0.1.0
 	 * @param channelId Id of the guild channel
 	 * @param messageId Id of the message
 	 * @returns Resolves the Promise on successful execution
@@ -451,6 +463,7 @@ class ChannelMethods {
 
 	/**
 	 * Edit a message sent by the current user or edit the message flags of another user's message
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
 	 * @param data Data to send
@@ -473,7 +486,7 @@ class ChannelMethods {
 		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message
-		if (data.content && (options.disableEveryone ?? this.disableEveryone)) data.content = data.content.replace(mentionRegex, replaceEveryone);
+		if (data.content && (options.disableEveryone ?? this.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
 
 		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {}, "patch", "multipart", Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {}, "patch", "json", data);
@@ -481,6 +494,7 @@ class ChannelMethods {
 
 	/**
 	 * Delete a message
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
 	 * @param reason Reason for deleting the message
@@ -502,6 +516,7 @@ class ChannelMethods {
 
 	/**
 	 * Bulk delete messages from a guild channel, messages may not be older than 2 weeks
+	 * @since 0.1.0
 	 * @param channelId Id of the guild channel
 	 * @param messages array of message ids to delete
 	 * @param reason Reason for deleting the messages
@@ -530,6 +545,7 @@ class ChannelMethods {
 
 	/**
 	 * Modify the permission overwrites of a guild channel
+	 * @since 0.1.0
 	 * @param channelId Id of the guild channel
 	 * @param permissionId Id of the permission overwrite
 	 * @param data modified [permission overwrite](https://discord.com/developers/docs/resources/channel#edit-channel-permissions-json-params) object
@@ -553,6 +569,7 @@ class ChannelMethods {
 
 	/**
 	 * Get a list of invites for a guild channel
+	 * @since 0.1.0
 	 * @param channelId Id of the guild channel
 	 * @returns Array of [invite objects](https://discord.com/developers/docs/resources/invite#invite-object) (with metadata)
 	 *
@@ -573,6 +590,7 @@ class ChannelMethods {
 	 * Create an invite for a guild channel
 	 *
 	 * If no data argument is passed, the invite will be created with the defaults
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @param data invite data (optional)
 	 * @returns [Invite object](https://discord.com/developers/docs/resources/invite#invite-object) (with metadata)
@@ -593,6 +611,7 @@ class ChannelMethods {
 
 	/**
 	 * Delete a permission overwrite from a guild channel
+	 * @since 0.1.0
 	 * @param channelId Id of the guild channel
 	 * @param permissionId Id of the permission overwrite
 	 * @param reason Reason for deleting the permission
@@ -615,8 +634,9 @@ class ChannelMethods {
 	}
 
 	/**
-	 * Follow a news channel to another channel
-	 * @param channelId The Id of the news channel
+	 * Follow an announcement channel to another channel
+	 * @since 0.7.0
+	 * @param channelId The Id of the announcement channel
 	 * @param webhookChannelId The Id of the channel messages will be sent to
 	 * @returns A [followed channel](https://discord.com/developers/docs/resources/channel#followed-channel-object) object
 	 *
@@ -637,6 +657,7 @@ class ChannelMethods {
 	 * Send an indicator that the current user is typing within a channel.
 	 *
 	 * **You should generally avoid this method unless used for longer computations (>1s)**
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @returns Resolves the Promise on successful execution
 	 *
@@ -656,6 +677,7 @@ class ChannelMethods {
 
 	/**
 	 * Get a list of pinned messages for a channel
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @returns Array of [message objects](https://discord.com/developers/docs/resources/channel#message-object)
 	 *
@@ -674,6 +696,7 @@ class ChannelMethods {
 
 	/**
 	 * Pin a message within a channel
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
 	 * @param reason Reason for pinning the message
@@ -696,6 +719,7 @@ class ChannelMethods {
 
 	/**
 	 * Remove a pinned message from a channel
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
 	 * @param reason Reason for removing the pinned message
@@ -718,6 +742,7 @@ class ChannelMethods {
 
 	/**
 	 * Creates a public thread off a message in a guild channel
+	 * @since 0.3.0
 	 * @param channelId Id of the guild channel
 	 * @param messageId Id of the message
 	 * @param options Thread meta data
@@ -739,6 +764,7 @@ class ChannelMethods {
 
 	/**
 	 * Creates a thread under a guild channel without a message
+	 * @since 0.3.0
 	 * @param channelId Id of the guild channel
 	 * @param options Thread meta data
 	 * @returns [thread channel](https://discord.com/developers/docs/resources/channel#channel-object) object
@@ -763,6 +789,7 @@ class ChannelMethods {
 
 	/**
 	 * Join a thread
+	 * @since 0.3.0
 	 * @param threadId Id of the thread
 	 * @returns Resolves the Promise on successful execution
 	 *
@@ -782,6 +809,7 @@ class ChannelMethods {
 	 * Add a user to a thread
 	 *
 	 * CurrentUser must be a member of the thread
+	 * @since 0.3.0
 	 * @param threadId Id of the thread
 	 * @param userId Id of the user to add
 	 * @returns Resolves the Promise on successful execution
@@ -801,6 +829,7 @@ class ChannelMethods {
 
 	/**
 	 * Leave a thread
+	 * @since 0.3.0
 	 * @param threadId Id of the thread
 	 * @returns Resolves the Promise on successful execution
 	 *
@@ -814,6 +843,7 @@ class ChannelMethods {
 
 	/**
 	 * Remove a user from a thread
+	 * @since 0.3.0
 	 * @param threadId Id of the thread
 	 * @param userId Id of the user to remove
 	 * @returns Resolves the Promise on successful execution
@@ -832,6 +862,7 @@ class ChannelMethods {
 
 	/**
 	 * Gets a member of a thread
+	 * @since 0.3.0
 	 * @param threadId Id of the thread
 	 * @param userId Id of the user
 	 * @param withMember If a member object should be present
@@ -851,6 +882,7 @@ class ChannelMethods {
 
 	/**
 	 * Gets all members within a thread
+	 * @since 0.3.0
 	 * @param channelId Id of the Thread
 	 * @param options Options for getting members
 	 * @returns Array of [thread members](https://discord.com/developers/docs/resources/channel#thread-member-object)
@@ -873,6 +905,7 @@ class ChannelMethods {
 
 	/**
 	 * Gets all threads that are public and archived within a guild channel
+	 * @since 0.3.0
 	 * @param channelId Id of the guild channel
 	 * @param options Options for getting threads
 	 * @returns Object containing [public threads](https://discord.com/developers/docs/resources/channel#channel-object), [thread members](https://discord.com/developers/docs/resources/channel#thread-member-object) of the CurrentUser, and if there are more results in the pagination
@@ -894,6 +927,7 @@ class ChannelMethods {
 	 * Gets all threads that are private and archived within a guild channel
 	 *
 	 * CurrentUser must be a member of the thread if they do not have MANAGE_THREADS permissions
+	 * @since 0.3.0
 	 * @param channelId Id of the Channel
 	 * @param options Options for getting threads
 	 * @returns Object containing [private threads](https://discord.com/developers/docs/resources/channel#channel-object), [thread members](https://discord.com/developers/docs/resources/channel#thread-member-object) of the CurrentUser, and if there are more results in the pagination
@@ -916,6 +950,7 @@ class ChannelMethods {
 	 * Gets all threads that are private and archived within a guild channel that the CurrentUser is apart of
 	 *
 	 * CurrentUser must be a member of the thread if they do not have MANAGE_THREADS permissions
+	 * @since 0.3.0
 	 * @param channelId Id of the Channel
 	 * @param options Option for getting threads
 	 * @returns Object containing [private threads](https://discord.com/developers/docs/resources/channel#channel-object), [thread members](https://discord.com/developers/docs/resources/channel#thread-member-object) of the CurrentUser, and if there are more results in the pagination
@@ -934,6 +969,7 @@ class ChannelMethods {
 
 	/**
 	 * Refreshes Discord CDN attachments by URL to give you non-expired links. This also works on attachments the token may not have access to through means like guild bot presence
+	 * @since 0.10.7
 	 * @param attachments A list of Discord CDN attachment URLs. Does not require the URL(s) to have the expiration info parameters
 	 * @returns Object containing a list of the original URLs inputted and refreshed URLs
 	 *
@@ -946,13 +982,6 @@ class ChannelMethods {
 			attachment_urls: Array.isArray(attachments) ? attachments : [attachments]
 		})
 	}
-}
-
-const isValidUserMentionRegex = /^[&!]?\d+$/;
-
-function replaceEveryone(_match: string, target: string): string {
-	if (isValidUserMentionRegex.test(target)) return `@${target}`;
-	else return `@\u200b${target}`;
 }
 
 export = ChannelMethods;

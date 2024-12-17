@@ -1,8 +1,6 @@
 import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
 
-const mentionRegex = /@([^<>@ ]*)/gsmu;
-
 import type { RequestHandler as RH } from "../RequestHandler";
 
 import type {
@@ -37,6 +35,7 @@ import type { ReadableStream } from "stream/web";
 
 /**
  * Methods for handling webhook interactions
+ * @since 0.1.0
  */
 class WebhookMethods {
 	/**
@@ -52,6 +51,7 @@ class WebhookMethods {
 
 	/**
 	 * Create a new Webhook
+	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @param data Object with webhook properties
 	 * @returns [Webhook Object](https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
@@ -74,6 +74,7 @@ class WebhookMethods {
 
 	/**
 	 * Get all webhooks within a channel
+	 * @since 0.5.0
 	 * @param channelId Id of the channel
 	 * @returns Array of [Webhook Objects](https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
 	 *
@@ -92,6 +93,7 @@ class WebhookMethods {
 
 	/**
 	 * Get all webhooks within a guild
+	 * @since 0.5.0
 	 * @param guildId Id of the guild
 	 * @returns Array of [Webhook Objects](https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
 	 *
@@ -110,6 +112,7 @@ class WebhookMethods {
 
 	/**
 	 * Get a single Webhook via Id
+	 * @since 0.1.0
 	 * @param webhookId Id of the webhook
 	 * @param token Webhook token
 	 * @returns [Webhook Object](https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
@@ -130,6 +133,7 @@ class WebhookMethods {
 
 	/**
 	 * Update a webhook
+	 * @since 0.1.0
 	 * @param webhookId Id of the webhook
 	 * @param data Updated Webhook properties
 	 * @param token Webhook token
@@ -156,6 +160,7 @@ class WebhookMethods {
 
 	/**
 	 * Delete a Webhook
+	 * @since 0.1.0
 	 * @param webhookId Id of the webhook
 	 * @param token Webhook token
 	 * @returns Resolves the Promise on successful execution
@@ -176,6 +181,7 @@ class WebhookMethods {
 
 	/**
 	 * Send a message via Webhook
+	 * @since 0.1.0
 	 * @param webhookId Id of the webhook
 	 * @param token webhook token
 	 * @param data Webhook data to send
@@ -194,7 +200,7 @@ class WebhookMethods {
 		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message
-		if (data.content && (options?.disableEveryone ?? this.disableEveryone)) data.content = data.content.replace(mentionRegex, replaceEveryone);
+		if (data.content && (options?.disableEveryone ?? this.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
 		if (options) delete options.disableEveryone;
 
 		if (data.files) return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN(webhookId, token)}`, options, "post", "multipart", Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
@@ -203,6 +209,7 @@ class WebhookMethods {
 
 	/**
 	 * Execute a slack style Webhook
+	 * @since 0.1.0
 	 * @param webhookId Id of the Webhook
 	 * @param token Webhook token
 	 * @param data Check [Slack's documentation](https://api.slack.com/incoming-webhooks)
@@ -221,6 +228,7 @@ class WebhookMethods {
 
 	/**
 	 * Executes a github style Webhook
+	 * @since 0.3.0
 	 * @param webhookId Id of the Webhook
 	 * @param token Webhook token
 	 * @param data Check [GitHub's documentation](https://docs.github.com/en/developers/webhooks-and-events/webhook-events-and-payloads#webhook-payload-object)
@@ -235,6 +243,7 @@ class WebhookMethods {
 
 	/**
 	 * Get a single message from a specific Webhook via Id
+	 * @since 0.3.0
 	 * @param webhookId Id of the Webhook
 	 * @param token Webhook token
 	 * @param messageId Id of the message
@@ -247,6 +256,7 @@ class WebhookMethods {
 
 	/**
 	 * Edit a message sent by a Webhook
+	 * @since 0.3.0
 	 * @param webhookId Id of the Webhook
 	 * @param token Webhook token
 	 * @param messageId Id of the message
@@ -268,6 +278,7 @@ class WebhookMethods {
 
 	/**
 	 * Delete a message sent by a Webhook
+	 * @since 0.3.0
 	 * @param webhookId Id of the Webhook
 	 * @param token Webhook token
 	 * @param messageId Id of the message
@@ -280,10 +291,3 @@ class WebhookMethods {
 }
 
 export = WebhookMethods;
-
-const isValidUserMentionRegex = /^[&!]?\d+$/;
-
-function replaceEveryone(_match: string, target: string): string {
-	if (isValidUserMentionRegex.test(target)) return `@${target}`;
-	else return `@\u200b${target}`;
-}

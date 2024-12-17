@@ -9,6 +9,7 @@ import type {
 
 /**
  * Methods for interacting with Guild Audit Logs
+ * @since 0.2.0
  */
 class AuditLogMethods {
 	/**
@@ -23,6 +24,7 @@ class AuditLogMethods {
 
 	/**
 	 * Get the audit logs of the specified guild id
+	 * @since 0.2.0
 	 * @param guildId id of a guild
 	 * @param options optional audit log filter values
 	 * @returns An object with [audit log data](https://discord.com/developers/docs/resources/audit-log#audit-log-object)

@@ -17,6 +17,7 @@ import type {
 
 /**
  * Methods for interacting with Guild Scheduled Events
+ * @since 0.3.6
  */
 class GuildScheduledEventMethods {
 	/**
@@ -31,6 +32,7 @@ class GuildScheduledEventMethods {
 
 	/**
 	 * Get all scheduled events for a guild
+	 * @since 0.3.6
 	 * @param guildId The Id of the guild
 	 * @param withCounts Include number of users subscribed to each event
 	 * @returns An array of [guild scheduled events](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-structure)
@@ -45,6 +47,7 @@ class GuildScheduledEventMethods {
 
 	/**
 	 * Create a scheduled event for a guild
+	 * @since 0.3.6
 	 * @param guildId The Id of the guild
 	 * @param data Data for the new scheduled event
 	 * @returns A [scheduled event](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-structure)
@@ -74,6 +77,7 @@ class GuildScheduledEventMethods {
 
 	/**
 	 * Get a specific scheduled event for a guild
+	 * @since 0.3.6
 	 * @param guildId The Id of the guild
 	 * @param eventId The Id of the event
 	 * @param withCounts Include number of users subscribed to this event
@@ -93,6 +97,7 @@ class GuildScheduledEventMethods {
 
 	/**
 	 * Edit the details of a scheduled event for a guild
+	 * @since 0.3.6
 	 * @param guildId The Id of the guild
 	 * @param eventId The Id of the event
 	 * @param data Edited scheduled event data
@@ -118,6 +123,7 @@ class GuildScheduledEventMethods {
 
 	/**
 	 * Delete a specific scheduled event for a guild
+	 * @since 0.3.6
 	 * @param guildId The Id of the guild
 	 * @param eventId The Id of the event
 	 * @returns Resolves the promise on successful execution
@@ -141,6 +147,7 @@ class GuildScheduledEventMethods {
 
 	/**
 	 * Get a list of users attending a specific event
+	 * @since 0.3.6
 	 * @param guildId The Id of the guild
 	 * @param eventId The Id of the event
 	 * @param options Options for how to get users

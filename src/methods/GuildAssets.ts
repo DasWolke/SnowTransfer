@@ -1,4 +1,4 @@
-import { type File, FormData } from "undici";
+import { FormData } from "undici";
 
 import Constants = require("../Constants");
 import Endpoints = require("../Endpoints");
@@ -29,7 +29,8 @@ import type { Readable } from "stream";
 import type { ReadableStream } from "stream/web";
 
 /**
- * Methods for interacting with emojis
+ * Methods for interacting with guild assets like emojis and stickers
+ * @since 0.3.0
  */
 class GuildAssetsMethods {
 	/**
@@ -44,6 +45,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Get a list of emojis of a guild
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @returns Array of [emoji objects](https://discord.com/developers/docs/resources/emoji#emoji-object)
 	 *
@@ -57,6 +59,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Get an emoji via guildId + emojiId
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @param emojiId Id of the emoji
 	 * @returns [Emoji object](https://discord.com/developers/docs/resources/emoji#emoji-object)
@@ -71,6 +74,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Create a new Emoji
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @param data Emoji data, check the example
 	 * @returns [Emoji object](https://discord.com/developers/docs/resources/emoji#emoji-object)
@@ -95,6 +99,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Update an existing emoji
+	 * @since 0.3.0
 	 * @param {string} guildId Id of the guild
 	 * @param {string} emojiId Id of the emoji
 	 * @param {object} data Emoji data
@@ -118,6 +123,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Delete an emoji
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @param emojiId Id of the emoji
 	 * @param reason Reason for deleting the emoji
@@ -138,6 +144,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Get a global sticker
+	 * @since 0.3.0
 	 * @param stickerId Id of the sticker
 	 * @returns [Sticker object](https://discord.com/developers/docs/resources/sticker#sticker-object)
 	 *
@@ -151,6 +158,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Get all guild stickers
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @returns An Array of [sticker objects](https://discord.com/developers/docs/resources/sticker#sticker-object)
 	 *
@@ -168,6 +176,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Get a guild sticker
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @param stickerId Id of the sticker
 	 * @returns A [sticker object](https://discord.com/developers/docs/resources/sticker#sticker-object)
@@ -186,6 +195,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Create a guild sticker
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @param data Sticker data
 	 * @returns A [sticker object](https://discord.com/developers/docs/resources/sticker#sticker-object)
@@ -224,6 +234,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Update a guild sticker
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @param stickerId Id of the sticker
 	 * @param data Sticker data
@@ -244,6 +255,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Delete a guild sticker
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @param stickerId Id of the sticker
 	 * @param reason Reason for deleting the sticker

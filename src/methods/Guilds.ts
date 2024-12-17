@@ -69,6 +69,7 @@ import type {
 
 /**
  * Methods for interacting with Guilds
+ * @since 0.1.0
  */
 class GuildMethods {
 	/**
@@ -84,6 +85,7 @@ class GuildMethods {
 	/**
 	 * Create a new Guild, **limited to 10 guilds (you may create more if you are whitelisted)**
 	 * Check the [discord docs](https://discord.com/developers/docs/resources/guild#create-guild) for more infos
+	 * @since 0.1.0
 	 * @param data Data for the new guild
 	 * @returns [Guild](https://discord.com/developers/docs/resources/guild#guild-object)
 	 *
@@ -103,6 +105,7 @@ class GuildMethods {
 	 * Get a guild via Id
 	 *
 	 * CurrentUser must be a member of the guild
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param withCounts when true, will return approximate member and presence counts for the guild
 	 * @returns [Guild object](https://discord.com/developers/docs/resources/guild#guild-object)
@@ -117,6 +120,7 @@ class GuildMethods {
 
 	/**
 	 * Gets a guild's preview. If the CurrentUser is not in the guild, the guild must be lurkable
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @returns [Guild preview](https://discord.com/developers/docs/resources/guild#guild-preview-object)
 	 *
@@ -130,6 +134,7 @@ class GuildMethods {
 
 	/**
 	 * Update a guild
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param data Updated guild data
 	 * @returns [Guild object](https://discord.com/developers/docs/resources/guild#guild-object)
@@ -156,6 +161,7 @@ class GuildMethods {
 	 * CurrentUser must be the owner of the guild
 	 *
 	 * **This action is irreversible, so use it with caution!**
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @returns Resolves the Promise on successful execution
 	 *
@@ -171,6 +177,7 @@ class GuildMethods {
 	 * Get a list of all channels for a guild. Does not include threads
 	 *
 	 * CurrentUser must be a member of the guild
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @returns list of [channels](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
 	 *
@@ -184,6 +191,7 @@ class GuildMethods {
 
 	/**
 	 * Create a channel within a guild
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param data channel properties
 	 * @returns [channel object](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
@@ -210,6 +218,7 @@ class GuildMethods {
 
 	/**
 	 * Batch update the positions of channels. Only those being moved needs to be included here
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param data Positional data to send
 	 * @param reason Reason for updating the channels' positions
@@ -230,6 +239,7 @@ class GuildMethods {
 
 	/**
 	 * Returns all active threads in the guild, including public and private threads. Threads are ordered by their `id`, in descending order
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @returns All active threads and member objects of the CurrentUser that the CurrentUser has access to.
 	 *
@@ -245,6 +255,7 @@ class GuildMethods {
 	 * Get a guild member via Id
 	 *
 	 * CurrentUser must be a member of the guild
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @returns [guild member](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure)
@@ -261,6 +272,7 @@ class GuildMethods {
 	 * Get a list of guild members
 	 *
 	 * CurrentUser must be a member of the guild
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param options query data
 	 * @returns list of [guild members](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure)
@@ -280,6 +292,7 @@ class GuildMethods {
 
 	/**
 	 * Get a list of guild members that match a query
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @param options query data
 	 * @returns list of [guild members](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure)
@@ -298,6 +311,7 @@ class GuildMethods {
 	 * Add a guild member to a guild via oauth2 access token
 	 *
 	 * CurrentUser must be a member of the guild
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param data object containing the needed request data
@@ -325,6 +339,7 @@ class GuildMethods {
 
 	/**
 	 * Update properties of a guild member
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param data Updated properties
@@ -354,6 +369,7 @@ class GuildMethods {
 
 	/**
 	 * Update the nick of the CurrentMember
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param data object with a nick property and optionally, a reason property
 	 * @returns Resolves the Promise on successful execution
@@ -376,6 +392,7 @@ class GuildMethods {
 
 	/**
 	 * Add a role to a guild member
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param roleId Id of the role
@@ -397,6 +414,7 @@ class GuildMethods {
 
 	/**
 	 * Remove a role from a guild member
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param roleId Id of the role
@@ -418,6 +436,7 @@ class GuildMethods {
 
 	/**
 	 * Remove a guild member (aka kick them)
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param reason Reason for kicking the member
@@ -438,6 +457,7 @@ class GuildMethods {
 
 	/**
 	 * Get bans of a guild
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param options Query string options
 	 * @returns List of [bans](https://discord.com/developers/docs/resources/guild#ban-object-ban-structure)
@@ -456,6 +476,7 @@ class GuildMethods {
 
 	/**
 	 * Get a specific ban of a guild member
+	 * @since 0.4.2
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the member
 	 * @returns [ban](https://discord.com/developers/docs/resources/guild#ban-object-ban-structure) object
@@ -476,6 +497,7 @@ class GuildMethods {
 
 	/**
 	 * Ban a guild member
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param data object with a reason and a delete_message_days property
@@ -500,6 +522,7 @@ class GuildMethods {
 
 	/**
 	 * Remove a ban of a user
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param reason Reason for removing the ban
@@ -520,6 +543,7 @@ class GuildMethods {
 
 	/**
 	 * Get a list of roles for a guild
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @returns array of [roles](https://discord.com/developers/docs/topics/permissions#role-object)
 	 *
@@ -537,6 +561,7 @@ class GuildMethods {
 
 	/**
 	 * Create a new Role
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param data data with role properties
 	 * @returns [role](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
@@ -560,6 +585,7 @@ class GuildMethods {
 
 	/**
 	 * Modify the positions of roles
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param data Role data to update
 	 * @param reason Reason for moving the roles
@@ -579,6 +605,7 @@ class GuildMethods {
 
 	/**
 	 * Update a guild role
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param roleId Id of the role
 	 * @param data updated properties of the role
@@ -601,6 +628,7 @@ class GuildMethods {
 
 	/**
 	 * Delete a role from the guild
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param roleId Id of the role
 	 * @param reason Reason for deleting the role
@@ -621,6 +649,7 @@ class GuildMethods {
 
 	/**
 	 * Get the amount of members that would be pruned when a prune with the passed amount of days would be started
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param options Object with prune data
 	 * @returns Object with a "pruned" key indicating the amount of members that would be pruned
@@ -639,6 +668,7 @@ class GuildMethods {
 
 	/**
 	 * Start a prune
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param data Object with prune data
 	 * @returns Object with a "pruned" key indicating the amount of members that were pruned
@@ -659,6 +689,7 @@ class GuildMethods {
 
 	/**
 	 * Get a list of voice regions for the guild, includes vip-regions unlike voice.getVoiceRegions
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @returns List of [voice regions](https://discord.com/developers/docs/resources/voice#voice-region-object)
 	 *
@@ -672,6 +703,7 @@ class GuildMethods {
 
 	/**
 	 * Get invites for a guild
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @returns List of [invites](https://discord.com/developers/docs/resources/invite#invite-object) (with metadata)
 	 *
@@ -689,6 +721,7 @@ class GuildMethods {
 
 	/**
 	 * Get integrations for a guild
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @returns List of [integration objects](https://discord.com/developers/docs/resources/guild#integration-object)
 	 *
@@ -706,6 +739,7 @@ class GuildMethods {
 
 	/**
 	 * Delete a guild integration
+	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @param integrationId Id of the integration
 	 * @param reason Reason for removing the integration
@@ -725,6 +759,7 @@ class GuildMethods {
 
 	/**
 	 * Get a guild widget settings object
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @returns [Guild Widget settings](https://discord.com/developers/docs/resources/guild#guild-widget-settings-object-guild-widget-settings-structure)
 	 *
@@ -742,6 +777,7 @@ class GuildMethods {
 
 	/**
 	 * Update a guild widget settings object
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @param data widget settings
 	 * @returns Updated [Guild Widget settings](https://discord.com/developers/docs/resources/guild#guild-widget-settings-object-guild-widget-settings-structure)
@@ -761,6 +797,7 @@ class GuildMethods {
 
 	/**
 	 * Gets a guild widget object
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @returns [Guild Widget](https://discord.com/developers/docs/resources/guild#guild-widget-object)
 	 *
@@ -774,6 +811,7 @@ class GuildMethods {
 
 	/**
 	 * Get a guild's vanity URL code
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @returns partial [invite object](https://discord.com/developers/docs/resources/guild#get-guild-vanity-url-example-partial-invite-object)
 	 *
@@ -791,6 +829,7 @@ class GuildMethods {
 
 	/**
 	 * Get a guild's welcome screen object
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @returns [Guild Welcome Screen](https://discord.com/developers/docs/resources/guild#welcome-screen-object)
 	 *
@@ -808,6 +847,7 @@ class GuildMethods {
 
 	/**
 	 * Update a guild welcome screen object
+	 * @since 0.3.0
 	 * @param guildId Id of guild
 	 * @param data Welcome screen data
 	 * @returns [Guild Welcome Screen](https://discord.com/developers/docs/resources/guild#welcome-screen-object)
@@ -827,6 +867,7 @@ class GuildMethods {
 
 	/**
 	 * Updates the current user's voice state in a stage channel
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @param data Data of the voice state
 	 * @returns Resolves the Promise on successful execution
@@ -847,6 +888,7 @@ class GuildMethods {
 
 	/**
 	 * Updates a user's voice state in a stage channel
+	 * @since 0.3.0
 	 * @param guildId Id of the guild
 	 * @param userId Id of the user
 	 * @param data Data of the voice state

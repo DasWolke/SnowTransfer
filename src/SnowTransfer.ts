@@ -16,6 +16,9 @@ import WebhookMethods = require("./methods/Webhooks");
 import Endpoints = require("./Endpoints");
 import Constants = require("./Constants");
 
+/**
+ * @since 0.1.0
+ */
 class SnowTransfer {
 	/** Options for this SnowTransfer instance */
 	public options: {

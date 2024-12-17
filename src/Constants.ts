@@ -1,7 +1,15 @@
-import { Blob } from "buffer";
+import { Blob, File } from "buffer";
 import { Readable } from "stream";
 import { ReadableStream } from "stream/web";
-import { File, FormData } from "undici";
+import { FormData } from "undici";
+
+const mentionRegex = /@([^<>@ ]*)/gsmu;
+const isValidUserMentionRegex = /^[&!]?\d+$/;
+
+function replaceEveryoneMatchProcessor(_match: string, target: string): string {
+	if (isValidUserMentionRegex.test(target)) return `@${target}`;
+	else return `@\u200b${target}`;
+}
 
 const Constants = {
 	REST_API_VERSION: 10 as const,
@@ -46,6 +54,9 @@ const Constants = {
 				stream: () => value instanceof ReadableStream ? Readable.fromWeb(value) : value,
 			}, filename);
 		}
+	},
+	replaceEveryone(content: string): string {
+		return content.replace(mentionRegex, replaceEveryoneMatchProcessor)
 	}
 };
 

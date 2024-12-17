@@ -9,6 +9,7 @@ import type {
 
 /**
  * Methods for interacting with bot specific endpoints
+ * @since 0.1.0
  */
 class BotMethods {
 	/**
@@ -23,6 +24,7 @@ class BotMethods {
 
 	/**
 	 * Get the gateway url to connect to
+	 * @since 0.1.0
 	 * @returns [Gateway data](https://discord.com/developers/docs/topics/gateway#get-gateway-example-response)
 	 *
 	 * @example
@@ -36,6 +38,7 @@ class BotMethods {
 
 	/**
 	 * Get the gateway url to connect to and a recommended amount of shards to use
+	 * @since 0.1.0
 	 * @returns [Gateway data](https://discord.com/developers/docs/topics/gateway#get-gateway-example-response)
 	 *
 	 * @example

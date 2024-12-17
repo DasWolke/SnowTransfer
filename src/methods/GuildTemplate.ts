@@ -17,6 +17,7 @@ import type {
 
 /**
  * Methods for interacting with Guild Templates
+ * @since 0.3.0
  */
 class GuildTemplateMethods {
 	/**
@@ -31,6 +32,7 @@ class GuildTemplateMethods {
 
 	/**
 	 * Get a guild template by code
+	 * @since 0.3.0
 	 * @param code The code for the template
 	 * @returns A [guild template](https://discord.com/developers/docs/resources/guild-template#guild-template-object-guild-template-structure)
 	 *
@@ -44,6 +46,7 @@ class GuildTemplateMethods {
 
 	/**
 	 * Creates a guild from a template. If using a bot account, the bot can only be in < 10 guilds (guild create limitation)
+	 * @since 0.3.0
 	 * @param code The code of the template
 	 * @param options Specific options for the new guild
 	 * @returns A [guild](https://discord.com/developers/docs/resources/guild#guild-object-guild-structure)
@@ -58,6 +61,7 @@ class GuildTemplateMethods {
 
 	/**
 	 * Gets all templates from a guild
+	 * @since 0.3.0
 	 * @param guildId The Id of the guild
 	 * @returns An array of [guild templates](https://discord.com/developers/docs/resources/guild-template#guild-template-object-guild-template-structure)
 	 *
@@ -75,6 +79,7 @@ class GuildTemplateMethods {
 
 	/**
 	 * Creates a template from the current state of the guild
+	 * @since 0.3.0
 	 * @param guildId The Id of the guild
 	 * @param data Metadata for the template
 	 * @returns A [guild tempalte](https://discord.com/developers/docs/resources/guild-template#guild-template-object-guild-template-structure)
@@ -93,6 +98,7 @@ class GuildTemplateMethods {
 
 	/**
 	 * Updates a guild template to match the current state of the guild
+	 * @since 0.3.0
 	 * @param guildId The Id of the guild
 	 * @param code The code of the template
 	 * @returns A [guild template](https://discord.com/developers/docs/resources/guild-template#guild-template-object-guild-template-structure)
@@ -111,6 +117,7 @@ class GuildTemplateMethods {
 
 	/**
 	 * Updates a guild template's metadata
+	 * @since 0.3.0
 	 * @param guildId The Id of the guild
 	 * @param code The code of the template
 	 * @param data Metadata for the template
@@ -130,6 +137,7 @@ class GuildTemplateMethods {
 
 	/**
 	 * Deletes a template from a guild
+	 * @since 0.3.0
 	 * @param guildId The Id of the guild
 	 * @param code The code of the template
 	 * @returns A [guild template](https://discord.com/developers/docs/resources/guild-template#guild-template-object-guild-template-structure)
