@@ -220,13 +220,13 @@ class GuildAssetsMethods {
 	 * }
 	 * const sticker = await client.guildAssets.createGuildSticker("guild id", stickerData)
 	 */
-	public createGuildSticker(guildId: string, data: RESTPostAPIGuildStickerFormDataBody & { file: Buffer | Blob | File | Readable | ReadableStream; reason?: string; }): Promise<RESTPostAPIGuildStickerResult> {
+	public async createGuildSticker(guildId: string, data: RESTPostAPIGuildStickerFormDataBody & { file: Buffer | Blob | File | Readable | ReadableStream; reason?: string; }): Promise<RESTPostAPIGuildStickerResult> {
 		const form = new FormData();
 		const reason = data.reason;
 		if (data.reason) delete data.reason;
 
 		for (const key of Object.keys(data)) {
-			Constants.standardAddToFormHandler(form, key, data[key]);
+			await Constants.standardAddToFormHandler(form, key, data[key]);
 		}
 
 		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), {}, "post", "multipart", form, reason ? { "X-Audit-Log-Reason": reason } : undefined);

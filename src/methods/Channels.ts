@@ -252,7 +252,7 @@ class ChannelMethods {
 		// Sanitize the message
 		if (data.content && (options.disableEveryone ?? this.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
 
-		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "multipart", Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
+		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "json", data);
 	}
 
@@ -488,7 +488,7 @@ class ChannelMethods {
 		// Sanitize the message
 		if (data.content && (options.disableEveryone ?? this.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
 
-		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {}, "patch", "multipart", Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
+		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {}, "patch", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {}, "patch", "json", data);
 	}
 
