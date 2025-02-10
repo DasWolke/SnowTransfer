@@ -1,5 +1,3 @@
-import { fetch } from "undici";
-
 import type { RequestHandler as RH, RESTPostAPIAttachmentsRefreshURLsResult } from "../RequestHandler";
 
 import Endpoints = require("../Endpoints");

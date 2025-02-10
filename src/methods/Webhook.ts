@@ -268,12 +268,12 @@ class WebhookMethods {
 	 * const message = await client.webhook.editWebhookMessage("webhook Id", "webhook token", "message Id", { content: "New content" })
 	 */
 	public async editWebhookMessage(webhookId: string, token: string, messageId: string, data: RESTPatchAPIWebhookWithTokenMessageJSONBody & { thread_id?: string; files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }): Promise<RESTPatchAPIWebhookWithTokenMessageResult> {
-		let threadID: string | undefined = undefined;
-		if (data.thread_id) threadID = data.thread_id;
+		let threadId: string | undefined = undefined;
+		if (data.thread_id) threadId = data.thread_id;
 		delete data.thread_id;
 
-		if (data.files) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadID }, "patch", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
-		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadID }, "patch", "json", data);
+		if (data.files) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadId }, "patch", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
+		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadId }, "patch", "json", data);
 	}
 
 	/**

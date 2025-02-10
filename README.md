@@ -6,7 +6,7 @@
 Part of the WeatherStack
 
 SnowTransfer is a small library specially made to **only** cover the REST/HTTP area of the discord api.
-It makes no assumptions about the rest of your stack, therefore you can use it anywhere as long as you use node 14 or higher.
+It makes no assumptions about the rest of your stack, therefore you can use it anywhere as long as you use node 16.15.0 or higher.
 
 ### Some of the things that make SnowTransfer awesome:
 - No requirement for other components
@@ -27,7 +27,7 @@ I've written a general whitepaper on the idea of microservice bots, which you ca
 You can find the docs at [https://daswolke.github.io/SnowTransfer/](https://daswolke.github.io/SnowTransfer/)
 
 ### Installation:
-To install SnowTransfer, make sure that you have node 14 or higher and npm installed on your computer.
+To install SnowTransfer, make sure that you have node 16.15.0 or higher and npm installed on your computer.
 
 Then run the following command in a terminal `npm install snowtransfer`
 

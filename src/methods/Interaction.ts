@@ -1,7 +1,7 @@
 import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
 
-import type WHM = require("./Webhooks");
+import type WHM = require("./Webhook");
 import type { RequestHandler as RH } from "../RequestHandler";
 
 import type {

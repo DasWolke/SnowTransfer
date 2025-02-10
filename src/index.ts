@@ -1,17 +1,19 @@
 import AuditLogMethods2 = require("./methods/AuditLog");
 import AutoModerationMethods2 = require("./methods/AutoModeration");
-import BotMethods2 = require("./methods/Bots");
-import ChannelMethods2 = require("./methods/Channels");
+import BotMethods2 = require("./methods/Bot");
+import ChannelMethods2 = require("./methods/Channel");
 import GuildAssetsMethods2 = require("./methods/GuildAssets");
-import GuildMethods2 = require("./methods/Guilds");
+import GuildMethods2 = require("./methods/Guild");
 import GuildScheduledEventMethods2 = require("./methods/GuildScheduledEvent");
 import GuildTemplateMethods2 = require("./methods/GuildTemplate");
-import InteractionMethods2 = require("./methods/Interactions");
-import InviteMethods2 = require("./methods/Invites");
+import InteractionMethods2 = require("./methods/Interaction");
+import InviteMethods2 = require("./methods/Invite");
 import StageInstanceMethods2 = require("./methods/StageInstance");
-import UserMethods2 = require("./methods/Users");
+import UserMethods2 = require("./methods/User");
 import VoiceMethods2 = require("./methods/Voice");
-import WebhookMethods2 = require("./methods/Webhooks");
+import WebhookMethods2 = require("./methods/Webhook");
+
+import tokenless2 = require("./tokenless");
 
 import Constants2 = require("./Constants");
 import Endpoints2 = require("./Endpoints");
@@ -42,6 +44,8 @@ export {
 	UserMethods2 as UserMethods,
 	VoiceMethods2 as VoiceMethods,
 	WebhookMethods2 as WebhookMethods,
+
+	tokenless2 as tokenless,
 
 	Constants2 as Constants,
 	Endpoints2 as Endpoints,

@@ -4,7 +4,8 @@ import type { RequestHandler as RH } from "../RequestHandler";
 
 import type {
 	RESTGetAPIGatewayBotResult,
-	RESTGetAPIGatewayResult
+	RESTGetAPIGatewayResult,
+	APIApplication
 } from "discord-api-types/v10";
 
 /**
@@ -48,6 +49,19 @@ class BotMethods {
 	 */
 	public getGatewayBot(): Promise<RESTGetAPIGatewayBotResult> {
 		return this.requestHandler.request(Endpoints.GATEWAY_BOT, {}, "get", "json");
+	}
+
+	/**
+	 * Get the Application Object for the CurrentUser
+	 * @since 0.11.0
+	 * @returns An [Application object](https://discord.com/developers/docs/resources/application#application-object-application-structure)
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const result = await client.bot.getApplicationInfo()
+	 */
+	public getApplicationInfo(): Promise<APIApplication> {
+		return this.requestHandler.request(Endpoints.OAUTH2_APPLICATION("@me"), {}, "get", "json")
 	}
 }
 

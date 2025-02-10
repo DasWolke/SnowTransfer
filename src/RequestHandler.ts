@@ -5,8 +5,6 @@ import path = require("path");
 import { EventEmitter } from "events";
 import crypto = require("crypto");
 
-import { fetch, FormData, Headers, Response } from "undici"; // Not using global.fetch yet until the Node ecosystem matures
-
 import Endpoints = require("./Endpoints");
 const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, "../package.json"), { encoding: "utf8" })); // otherwise, the json was included in the build
 import Constants = require("./Constants");
@@ -28,7 +26,7 @@ const webhooksRegex = /^\/webhooks\/(\d+)\/[A-Za-z0-9-_]{64,}/;
 const isMessageEndpointRegex = /\/messages\/:id$/;
 const isGuildChannelsRegex = /\/guilds\/\d+\/channels$/;
 
-const disallowedBodyMethods = new Set(["head", "get"]);
+const disallowedBodyMethods = new Set(["head", "get", "delete"]);
 
 /**
  * @since 0.3.0
@@ -113,7 +111,7 @@ export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
 	public routify(url: string, method: string): string {
 		let route = url.replace(routeRegex, function (match, p: string) {
 			return p === "channels" || p === "guilds" || p === "webhooks" ? match : `/${p}/:id`;
-		}).replace(reactionsRegex, "/reactions/:id").replace(reactionsUserRegex, "/reactions/:id/:userID").replace(webhooksRegex, "/webhooks/$1/:token");
+		}).replace(reactionsRegex, "/reactions/:id").replace(reactionsUserRegex, "/reactions/:id/:userId").replace(webhooksRegex, "/webhooks/$1/:token");
 
 		if (method.toUpperCase() === "DELETE" && isMessageEndpointRegex.test(route)) route = method + route;
 		else if (method.toUpperCase() === "GET" && isGuildChannelsRegex.test(route)) route = "/guilds/:id/channels";
@@ -348,13 +346,15 @@ export class RequestHandler extends EventEmitter {
 	 * @param data data to send, if any
 	 * @returns Result of the request
 	 */
-	public request<T extends "json" | "multipart">(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, dataType: T = "json" as T, data?: T extends "json" ? any : FormData, extraHeaders?: Record<string, string>, retries = this.options.retryLimit): Promise<any> {
+	public request(endpoint: string, params: Record<string, any> | undefined, method: HTTPMethod, dataType: "json", data?: any, extraHeaders?: Record<string, string>, retries?: number): Promise<any>
+	public request(endpoint: string, params: Record<string, any> | undefined, method: HTTPMethod, dataType: "multipart", data?: FormData, extraHeaders?: Record<string, string>, retries?: number): Promise<any>
+	public request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, dataType: "json" | "multipart", data?: any, extraHeaders?: Record<string, string>, retries = this.options.retryLimit): Promise<any> {
 		// const stack = new Error().stack as string;
 		return new Promise(async (res, rej) => {
 			const fn = async (bkt?: GlobalBucket | undefined) => {
-				const reqID = crypto.randomBytes(20).toString("hex");
+				const reqId = crypto.randomBytes(20).toString("hex");
 				try {
-					this.emit("request", reqID, { endpoint, method, dataType, data: data ?? {} });
+					this.emit("request", reqId, { endpoint, method, dataType, data: data ?? {} });
 
 					const before = Date.now();
 
@@ -376,7 +376,7 @@ export class RequestHandler extends EventEmitter {
 					if (bkt) this._applyRatelimitHeaders(bkt, request.headers);
 
 					if (request.status && !Constants.OK_STATUS_CODES.has(request.status) && request.status !== 429) {
-						if (this.options.retryFailed && !Constants.DO_NOT_RETRY_STATUS_CODES.has(request.status) && retries !== 0) return this.request(endpoint, params, method, dataType, data, extraHeaders, retries--).then(res).catch(rej);
+						if (this.options.retryFailed && !Constants.DO_NOT_RETRY_STATUS_CODES.has(request.status) && retries !== 0) return this.request(endpoint, params, method, dataType as any, data, extraHeaders, retries--).then(res).catch(rej);
 						throw new DiscordAPIError(
 							endpoint,
 							{ message: await request.text() },
@@ -403,7 +403,7 @@ export class RequestHandler extends EventEmitter {
 						throw new DiscordAPIError(endpoint, { message: "You're being ratelimited", code: 429 }, method, request.status);
 					}
 
-					this.emit("done", reqID, request);
+					this.emit("done", reqId, request);
 
 					if (request.body) {
 						let b: any;
@@ -416,7 +416,7 @@ export class RequestHandler extends EventEmitter {
 					} else return res(undefined);
 				} catch (error) {
 					// if (error && error.stack) error.stack = stack;
-					this.emit("requestError", reqID, error);
+					this.emit("requestError", reqId, error);
 					return rej(error as Error);
 				}
 			};

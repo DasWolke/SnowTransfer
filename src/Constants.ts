@@ -1,7 +1,6 @@
 import { Blob, File } from "buffer";
 import { Readable } from "stream";
 import { ReadableStream } from "stream/web";
-import { FormData, Response } from "undici";
 
 const mentionRegex = /@([^<>@ ]*)/gsmu;
 const isValidUserMentionRegex = /^[&!]?\d+$/;

@@ -1,18 +1,18 @@
 import { Ratelimiter, RequestHandler } from "./RequestHandler";
 import AuditLogMethods = require("./methods/AuditLog");
 import AutoModerationMethods = require("./methods/AutoModeration");
-import BotMethods = require("./methods/Bots");
-import ChannelMethods = require("./methods/Channels");
+import BotMethods = require("./methods/Bot");
+import ChannelMethods = require("./methods/Channel");
 import GuildAssetsMethods = require("./methods/GuildAssets");
-import GuildMethods = require("./methods/Guilds");
+import GuildMethods = require("./methods/Guild");
 import GuildScheduledEventMethods = require("./methods/GuildScheduledEvent");
 import GuildTemplateMethods = require("./methods/GuildTemplate");
-import InteractionMethods = require("./methods/Interactions");
-import InviteMethods = require("./methods/Invites");
+import InteractionMethods = require("./methods/Interaction");
+import InviteMethods = require("./methods/Invite");
 import StageInstanceMethods = require("./methods/StageInstance");
-import UserMethods = require("./methods/Users");
+import UserMethods = require("./methods/User");
 import VoiceMethods = require("./methods/Voice");
-import WebhookMethods = require("./methods/Webhooks");
+import WebhookMethods = require("./methods/Webhook");
 import Endpoints = require("./Endpoints");
 import Constants = require("./Constants");
 

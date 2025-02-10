@@ -1,5 +1,3 @@
-import { FormData } from "undici";
-
 import Constants = require("../Constants");
 import Endpoints = require("../Endpoints");
 
