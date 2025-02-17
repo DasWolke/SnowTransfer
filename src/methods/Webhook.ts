@@ -196,7 +196,7 @@ class WebhookMethods {
 	public async executeWebhook(webhookId: string, token: string, data: RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options?: RESTPostAPIWebhookWithTokenQuery & { wait?: false, disableEveryone?: boolean; }): Promise<RESTPostAPIWebhookWithTokenResult>;
 	public async executeWebhook(webhookId: string, token: string, data: RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options: RESTPostAPIWebhookWithTokenQuery & { wait: true, disableEveryone?: boolean; }): Promise<RESTPostAPIWebhookWithTokenWaitResult>;
 	public async executeWebhook(webhookId: string, token: string, data: RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options?: RESTPostAPIWebhookWithTokenQuery & { disableEveryone?: boolean; }): Promise<RESTPostAPIWebhookWithTokenResult | RESTPostAPIWebhookWithTokenWaitResult> {
-		if (typeof data !== "string" && !data?.content && !data?.embeds && !data?.components && !data?.files) throw new Error("Missing content or embeds or components or files");
+		if (typeof data !== "string" && !data.content && !data.embeds && !data.components && !data.files && !data.poll) throw new Error("Missing content, embeds, components, files, or poll");
 		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message

@@ -15,11 +15,56 @@ export type RESTPostAPIAttachmentsRefreshURLsResult = {
 	refreshed_urls: Array<{
 		original: string;
 		refreshed: string;
-	}>
+	}>;
+}
+
+export type RatelimitInfo = {
+	message: string;
+	retry_after: number;
+	global: boolean;
+	code?: number;
+}
+
+/**
+ * Interface for Queue types to implement
+ * @since 0.12.0
+ */
+export interface Queue {
+	/**
+	 * Array of functions waiting to be executed
+	 */
+	calls: Array<() => any>;
+	/**
+	 * If the queue is currently executing functions
+	 */
+	running: boolean;
+	/**
+	 * If the queue is blocked from executing functions
+	 */
+	blocked: boolean;
+
+	/**
+	 * Queue a function to be executed
+	 * @since 0.12.0
+	 * @param fn function to be executed
+	 * @returns Result of the function if any
+	 */
+	enqueue<T>(fn: () => T): Promise<T>;
+	/**
+	 * Set if this queue should be blocked from executing functions
+	 * @since 0.12.0
+	 * @param blocked If this queue should be blocked from executing functions
+	 */
+	setBlocked(blocked: boolean): void;
+	/**
+	 * @since 0.12.0
+	 * Drop the queue of functions
+	 */
+	drop(): void;
 }
 
 // const applicationJSONRegex = /application\/json/;
-const routeRegex = /\/([a-z-]+)\/(?:\d{17,19})/g;
+const routeRegex = /\/([a-z-]+)\/(?:\d+)/g;
 const reactionsRegex = /\/reactions\/[^/]+/g;
 const reactionsUserRegex = /\/reactions\/:id\/[^/]+/g;
 const webhooksRegex = /^\/webhooks\/(\d+)\/[A-Za-z0-9-_]{64,}/;
@@ -35,12 +80,71 @@ export class DiscordAPIError extends Error {
 	public code: number;
 	public httpStatus: number;
 
-	public constructor(public path: string, error: { message?: string; code?: number; }, public method: HTTPMethod, status: number) {
+	public constructor(public path: string, error: { message?: string; code?: number; }, public method: string, status: number) {
 		super();
 		this.name = "DiscordAPIError";
 		this.message = error.message ?? String(error);
 		this.code = error.code ?? 4000;
 		this.httpStatus = status;
+	}
+}
+
+/**
+ * A structure to queue (async) functions to run one at a time, waiting for each one to finish before continuing
+ * @since 0.12.0
+ * @protected
+ */
+export class AsyncSequentialQueue implements Queue {
+	public calls: Array<() => any> = [];
+
+	private _blocked = false;
+	private _running = false;
+
+	public get blocked(): boolean {
+		return this._blocked;
+	}
+
+	public get running(): boolean {
+		return this._running;
+	}
+
+	public enqueue<T>(fn: () => T): Promise<T> {
+		return new Promise((resolve, reject) => {
+			const wrapped = async () => {
+				try {
+					resolve(await fn());
+				} catch (e) {
+					reject(e as Error);
+				}
+			}
+
+			this.calls.push(wrapped);
+			this._tryRun();
+		});
+	}
+
+	public setBlocked(blocked: boolean): void {
+		this._blocked = blocked;
+		this._tryRun();
+	}
+
+	public drop(): void {
+		this.calls.length = 0;
+		this._running = false;
+	}
+
+	private _tryRun(): void {
+		if (this._blocked || this._running) return;
+		this._running = true;
+		this._next();
+	}
+
+	private async _next(): Promise<void> {
+		if (this._blocked || !this._running) return
+		const cb = this.calls.shift();
+		await cb?.();
+		if (this.calls.length && !this._blocked) setImmediate(() => this._next());
+		else this._running = false;
 	}
 }
 
@@ -51,54 +155,26 @@ export class DiscordAPIError extends Error {
  */
 export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
 	/**
-	 * An object of Buckets that store rate limit info
+	 * A Map of Buckets keyed by route keys that store rate limit info
 	 */
-	public buckets: { [routeKey: string]: InstanceType<B>; } = {};
+	public buckets = new Map<string, InstanceType<B>>();
 	/**
-	 * If you're being globally rate limited
+	 * The bucket that limits how many requests per second you can make globally
 	 */
-	private _global = false;
-	/**
-	 * Timeframe in milliseconds until when the global rate limit resets
-	 */
-	public globalReset = 0;
-	/**
-	 * Timeout that resets the global ratelimit once the timeframe has passed
-	 */
-	public globalResetTimeout: NodeJS.Timeout | null = null;
-	/**
-	 * The constructor function to call new on when creating buckets to cache and use
-	 */
-	public BucketConstructor = GlobalBucket as B;
+	public globalBucket = new LocalBucket(Constants.GLOBAL_REQUESTS_PER_SECOND, 1000);
 
 	/**
 	 * If you're being globally rate limited
 	 */
 	public get global() {
-		return this._global;
+		return this.globalBucket.remaining === 0;
 	}
 
 	/**
-	 * If you're being globally rate limited
+	 * Construct a new Ratelimiter
+	 * @param BucketConstructor The constructor function to call new on when creating buckets to cache and use
 	 */
-	public set global(value) {
-		if (value && this.globalReset !== 0) {
-			if (this.globalResetTimeout) clearTimeout(this.globalResetTimeout);
-			// eslint-disable-next-line @typescript-eslint/no-this-alias
-			const instance = this;
-			this.globalResetTimeout = setTimeout(() => {
-				instance.global = false;
-			}, this.globalReset).unref();
-		} else {
-			if (this.globalResetTimeout) clearTimeout(this.globalResetTimeout);
-			this.globalResetTimeout = null;
-			this.globalReset = 0;
-			for (const bkt of Object.values(this.buckets)) {
-				bkt.checkQueue();
-			}
-		}
-		this._global = value;
-	}
+	public constructor(public BucketConstructor: B = GlobalBucket as B) {}
 
 	/**
 	 * Returns a key for saving ratelimits for routes
@@ -113,13 +189,14 @@ export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
 			return p === "channels" || p === "guilds" || p === "webhooks" ? match : `/${p}/:id`;
 		}).replace(reactionsRegex, "/reactions/:id").replace(reactionsUserRegex, "/reactions/:id/:userId").replace(webhooksRegex, "/webhooks/$1/:token");
 
-		if (method.toUpperCase() === "DELETE" && isMessageEndpointRegex.test(route)) route = method + route;
-		else if (method.toUpperCase() === "GET" && isGuildChannelsRegex.test(route)) route = "/guilds/:id/channels";
+		if (method === "DELETE" && isMessageEndpointRegex.test(route)) route = method + route;
+		else if (method === "GET" && isGuildChannelsRegex.test(route)) route = "/guilds/:id/channels";
 
 		if (method === "PUT" || method === "DELETE") {
 			const index = route.indexOf("/reactions");
 			if (index !== -1) route = "MODIFY" + route.slice(0, index + 10);
 		}
+
 		return route;
 	}
 
@@ -132,8 +209,28 @@ export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
 	 */
 	public queue<T>(fn: (bucket: InstanceType<B>) => T, url: string, method: string): Promise<T> {
 		const routeKey = this.routify(url, method);
-		this.buckets[routeKey] ??= new this.BucketConstructor(this, routeKey) as InstanceType<B>;
-		return this.buckets[routeKey].queue(fn);
+
+		let bucket = this.buckets.get(routeKey);
+		if (!bucket) {
+			bucket = new this.BucketConstructor(this, routeKey) as InstanceType<B>;
+			this.buckets.set(routeKey, bucket);
+		}
+
+		return new Promise<T>((resolve, reject) => {
+			this.globalBucket.enqueue(() => {
+				bucket.enqueue(fn).then(resolve).catch(reject);
+			});
+		});
+	}
+
+	/**
+	 * Set if this Ratelimiter is hitting a global ratelimit for `ms` duration
+	 * @param ms How long in milliseconds this Ratelimiter is globally ratelimited for
+	 */
+	public setGlobal(ms: number): void {
+		this.globalBucket.remaining = 0;
+		this.globalBucket.queue.setBlocked(true);
+		this.globalBucket.makeResetTimeout(ms);
 	}
 }
 
@@ -144,17 +241,15 @@ export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
  */
 export class LocalBucket {
 	/**
+	 * The backing Queue of functions passed to this bucket
+	 */
+	public queue: Queue = new AsyncSequentialQueue();
+	/**
 	 * Remaining amount of executions during the current timeframe
 	 */
 	public remaining: number;
-	/**
-	 * array of functions waiting to be executed
-	 */
-	public fnQueue: Array<() => any> = [];
-	/**
-	 * Timeout that calls the reset function once the timeframe passed
-	 */
-	public resetTimeout: NodeJS.Timeout | null = null;
+
+	private resetTimeout: NodeJS.Timeout | null = null;
 
 	/**
 	 * Create a new base bucket
@@ -168,48 +263,28 @@ export class LocalBucket {
 
 	/**
 	 * Queue a function to be executed
-	 * @since 0.1.0
+	 * @since 0.12.0
 	 * @param fn function to be executed
 	 * @returns Result of the function if any
 	 */
-	public queue<T>(fn: (bucket: this) => T): Promise<T> {
-		return new Promise((res, rej) => {
-			const wrapFn = () => {
-				this.remaining--; // ratelimiter queue call expects remaining to be --'d first
-				if (!this.resetTimeout) this.makeResetTimeout(this.reset);
-				if (this.remaining !== 0) setImmediate(() => this.checkQueue()); // run functions on separate ticks
-				let result;
-				try {
-					result = fn(this);
-				} catch (e) {
-					return rej(e as Error);
-				}
-				return res(result);
-			};
-			this.fnQueue.push(wrapFn);
-			this.checkQueue();
+	public enqueue<T>(fn: (bkt: this) => T): Promise<T> {
+		return this.queue.enqueue<T>(() => {
+			this.remaining--;
+			if (this.remaining === 0) this.queue.setBlocked(true);
+			if (!this.resetTimeout) this.makeResetTimeout(this.reset);
+
+			return fn(this);
 		});
 	}
 
 	/**
 	 * Reset/make the timeout of this bucket
 	 * @since 0.8.3
-	 * @param durationMS Timeframe in milliseconds until the ratelimit resets after
+	 * @param ms Timeframe in milliseconds until the ratelimit resets after
 	 */
-	public makeResetTimeout(durationMS: number): void {
+	public makeResetTimeout(ms: number): void {
 		if (this.resetTimeout) clearTimeout(this.resetTimeout);
-		this.resetTimeout = setTimeout(() => this.resetRemaining(), durationMS);
-	}
-
-	/**
-	 * Check if there are any functions in the queue that haven't been executed yet
-	 * @since 0.1.0
-	 */
-	public checkQueue(): void {
-		if (this.fnQueue.length && this.remaining !== 0) {
-			const queuedFunc = this.fnQueue.splice(0, 1)[0];
-			queuedFunc();
-		}
+		this.resetTimeout = setTimeout(() => this.resetRemaining(), ms).unref();
 	}
 
 	/**
@@ -217,12 +292,11 @@ export class LocalBucket {
 	 * @since 0.1.0
 	 */
 	public resetRemaining(): void {
+		if (this.resetTimeout) clearTimeout(this.resetTimeout);
+		this.resetTimeout = null;
+
 		this.remaining = this.limit;
-		if (this.resetTimeout) {
-			clearTimeout(this.resetTimeout);
-			this.resetTimeout = null;
-		}
-		if (this.fnQueue.length) this.checkQueue();
+		this.queue.setBlocked(false);
 	}
 
 	/**
@@ -230,7 +304,7 @@ export class LocalBucket {
 	 * @since 0.1.0
 	 */
 	public dropQueue(): void {
-		this.fnQueue.length = 0;
+		this.queue.drop();
 	}
 }
 
@@ -245,17 +319,8 @@ export class GlobalBucket extends LocalBucket {
 	 * @param ratelimiter ratelimiter used for ratelimiting requests. Assigned by ratelimiter
 	 * @param routeKey Key used internally to routify requests. Assigned by ratelimiter
 	 */
-	public constructor(public ratelimiter: Ratelimiter, public routeKey: string) {
-		super(5, 5000, 1);
-	}
-
-	/**
-	 * Check if there are any functions in the queue that haven't been executed yet
-	 * @since 0.10.0
-	 */
-	public checkQueue(): void {
-		if (this.ratelimiter.global) return;
-		super.checkQueue();
+	public constructor(public readonly ratelimiter: Ratelimiter, public readonly routeKey: string, limit = 5, reset = 5000, remaining?: number) {
+		super(limit, reset, remaining);
 	}
 
 	/**
@@ -263,16 +328,16 @@ export class GlobalBucket extends LocalBucket {
 	 * @since 0.10.0
 	 */
 	public resetRemaining(): void {
-		if (!this.fnQueue.length) delete this.ratelimiter.buckets[this.routeKey];
+		if (!this.queue.calls.length) this.ratelimiter.buckets.delete(this.routeKey);
 		super.resetRemaining();
 	}
 }
 
 export type HandlerEvents = {
-	request: [string, { endpoint: string, method: HTTPMethod, dataType: "json" | "multipart", data: any; }];
+	request: [string, { endpoint: string, method: string, dataType: "json" | "multipart", data: any; }];
 	done: [string, Response];
 	requestError: [string, Error];
-	rateLimit: [{ timeout: number; remaining: number; limit: number; method: HTTPMethod; path: string; route: string; }];
+	rateLimit: [{ timeout: number; remaining: number; limit: number; method: string; path: string; route: string; }];
 }
 
 export interface RequestHandler {
@@ -350,22 +415,22 @@ export class RequestHandler extends EventEmitter {
 	public request(endpoint: string, params: Record<string, any> | undefined, method: HTTPMethod, dataType: "multipart", data?: FormData, extraHeaders?: Record<string, string>, retries?: number): Promise<any>
 	public request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, dataType: "json" | "multipart", data?: any, extraHeaders?: Record<string, string>, retries = this.options.retryLimit): Promise<any> {
 		// const stack = new Error().stack as string;
-		return new Promise(async (res, rej) => {
+		return new Promise(async (resolve, reject) => {
 			const fn = async (bkt?: GlobalBucket | undefined) => {
 				const reqId = crypto.randomBytes(20).toString("hex");
 				try {
-					this.emit("request", reqId, { endpoint, method, dataType, data: data ?? {} });
+					this.emit("request", reqId, { endpoint, method: method.toUpperCase(), dataType, data: data ?? {} });
 
 					const before = Date.now();
 
-					let request: Response;
+					let response: Response;
 					switch (dataType) {
 					case "json":
-						request = await this._request(endpoint, params, method, data, extraHeaders);
+						response = await this._request(endpoint, params, method, data, extraHeaders);
 						break;
 					case "multipart":
 						if (!data) throw new Error("No multipart data");
-						request = await this._multiPartRequest(endpoint, params, method, data, extraHeaders);
+						response = await this._multiPartRequest(endpoint, params, method, data, extraHeaders);
 						break;
 					default:
 						throw new Error("Forbidden dataType. Use json or multipart or ensure multipart has FormData");
@@ -373,56 +438,55 @@ export class RequestHandler extends EventEmitter {
 
 					this.latency = Date.now() - before;
 
-					if (bkt) this._applyRatelimitHeaders(bkt, request.headers);
+					if (bkt) this._applyRatelimitHeaders(bkt, response.headers);
 
-					if (request.status && !Constants.OK_STATUS_CODES.has(request.status) && request.status !== 429) {
-						if (this.options.retryFailed && !Constants.DO_NOT_RETRY_STATUS_CODES.has(request.status) && retries !== 0) return this.request(endpoint, params, method, dataType as any, data, extraHeaders, retries--).then(res).catch(rej);
+					if (response.status && !Constants.OK_STATUS_CODES.has(response.status) && response.status !== 429) {
+						if (this.options.retryFailed && !Constants.DO_NOT_RETRY_STATUS_CODES.has(response.status) && retries !== 0) return this.request(endpoint, params, method, dataType as any, data, extraHeaders, retries--).then(resolve).catch(reject);
 						throw new DiscordAPIError(
 							endpoint,
-							{ message: await request.text() },
-							method,
-							request.status
+							{ message: await response.text() },
+							method.toUpperCase(),
+							response.status
 						);
 					}
 
-					if (request.status === 429) {
-						if (!this.ratelimiter.global) {
-							const b = await request.json() as any; // Discord says it will be a JSON, so if there's an error, sucks
-							if (b.reset_after !== undefined) this.ratelimiter.globalReset = b.reset_after * 1000;
-							else this.ratelimiter.globalReset = 1000; // Should realistically never happen, but you never know
-							if (b.global !== undefined) this.ratelimiter.global = b.global;
-						}
+					if (response.status === 429) {
+						const b = await response.json() as RatelimitInfo; // Discord says it will be a JSON, so if there's an error, sucks
+						if (b.global) this.ratelimiter.setGlobal(b.retry_after * 1000);
+						else bkt?.queue.setBlocked(true);
+
 						this.emit("rateLimit", {
-							timeout: bkt ? bkt.reset : 0,
-							remaining: bkt ? bkt.remaining : Infinity,
-							limit: bkt ? bkt.limit : Infinity,
-							method: method,
+							timeout: bkt?.reset ?? b.retry_after * 1000,
+							remaining: 0,
+							limit: bkt?.limit ?? Infinity,
+							method: method.toUpperCase(),
 							path: endpoint,
-							route: bkt ? bkt.routeKey : this.ratelimiter.routify(endpoint, method)
+							route: bkt?.routeKey ?? this.ratelimiter.routify(endpoint, method.toUpperCase())
 						});
-						throw new DiscordAPIError(endpoint, { message: "You're being ratelimited", code: 429 }, method, request.status);
+
+						throw new DiscordAPIError(endpoint, { message: b.message, code: b.code ?? 429 }, method.toUpperCase(), response.status);
 					}
 
-					this.emit("done", reqId, request);
+					this.emit("done", reqId, response);
 
-					if (request.body) {
+					if (response.body) {
 						let b: any;
 						try {
-							b = await request.json();
+							b = await response.json();
 						} catch {
-							return res(undefined);
+							return resolve(undefined);
 						}
-						return res(b);
-					} else return res(undefined);
+						return resolve(b);
+					} else return resolve(undefined);
 				} catch (error) {
 					// if (error && error.stack) error.stack = stack;
 					this.emit("requestError", reqId, error);
-					return rej(error as Error);
+					return reject(error as Error);
 				}
 			};
 
 			if (this.options.bypassBuckets) fn();
-			else this.ratelimiter.queue(fn, endpoint, method);
+			else this.ratelimiter.queue(fn, endpoint, method.toUpperCase());
 		});
 	}
 

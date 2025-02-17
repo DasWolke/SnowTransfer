@@ -26,7 +26,10 @@ import {
 	type HTTPMethod,
 	type HandlerEvents,
 	type RESTPostAPIAttachmentsRefreshURLsResult,
-	DiscordAPIError as DiscordAPIError2
+	type RatelimitInfo,
+	type Queue,
+	DiscordAPIError as DiscordAPIError2,
+	AsyncSequentialQueue as AsyncSequentialQueue2
 } from "./RequestHandler";
 
 export {
@@ -55,8 +58,11 @@ export {
 	GlobalBucket2 as GlobalBucket,
 	RequestHandler2 as RequestHandler,
 	DiscordAPIError2 as DiscordAPIError,
+	AsyncSequentialQueue2 as AsyncSequentialQueue,
 
 	type HTTPMethod,
 	type HandlerEvents,
-	type RESTPostAPIAttachmentsRefreshURLsResult
+	type RESTPostAPIAttachmentsRefreshURLsResult,
+	type RatelimitInfo,
+	type Queue
 };
