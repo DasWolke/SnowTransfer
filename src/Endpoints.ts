@@ -14,6 +14,11 @@ const Endpoints = {
 
 	APPLICATION_COMMAND: (appId: string, cmdId: string) => `${Endpoints.APPLICATION_COMMANDS(appId)}/${cmdId}` as `${ReturnType<typeof Endpoints.APPLICATION_COMMANDS>}/{cmd_id}`,
 	APPLICATION_COMMANDS: (appId: string) => `/applications/${appId}/commands` as "/applications/{app_id}/commands",
+	APPLICATION_EMOJI: (appId: string, emojiId: string) => `${Endpoints.APPLICATION_EMOJIS(appId)}/${emojiId}` as `${ReturnType<typeof Endpoints.APPLICATION_EMOJIS>}/{emoji_id}`,
+	APPLICATION_EMOJIS: (appId: string) => `/applications/${appId}/emojis` as "/applications/{app_id}/emojis",
+	APPLICATION_ENTITLEMENT: (appId: string, entitlementId: string) => `${Endpoints.APPLICATION_ENTITLEMENTS(appId)}/${entitlementId}` as `${ReturnType<typeof Endpoints.APPLICATION_ENTITLEMENTS>}/{entitlement_id}`,
+	APPLICATION_ENTITLEMENT_CONSUME: (appId: string, entitlementId: string) => `${Endpoints.APPLICATION_ENTITLEMENT(appId, entitlementId)}/consume` as `${ReturnType<typeof Endpoints.APPLICATION_ENTITLEMENT>}/consume`,
+	APPLICATION_ENTITLEMENTS: (appId: string) => `/applications/${appId}/entitlements` as "/applications/{app_id}/entitlements",
 	APPLICATION_GUILD_COMMANDS_PERMISSIONS: (appId: string, guildId: string) => `${Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId)}/permissions` as `${ReturnType<typeof Endpoints.APPLICATION_GUILD_COMMANDS>}/permissions`,
 	APPLICATION_GUILD_COMMAND_PERMISSIONS: (appId: string, guildId: string, cmdId: string) => `${Endpoints.APPLICATION_GUILD_COMMAND(appId, guildId, cmdId)}/permissions` as `${ReturnType<typeof Endpoints.APPLICATION_GUILD_COMMAND>}/permissions`,
 	APPLICATION_GUILD_COMMAND: (appId: string, guildId: string, cmdId: string) => `${Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId)}/${cmdId}` as `${ReturnType<typeof Endpoints.APPLICATION_GUILD_COMMANDS>}/{cmd_id}`,

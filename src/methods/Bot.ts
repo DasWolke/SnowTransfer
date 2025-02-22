@@ -33,7 +33,7 @@ class BotMethods {
 	 * const result = await client.bot.getGateway()
 	 * // result should be something like { url: "wss://gateway.discord.gg" }
 	 */
-	public getGateway(): Promise<RESTGetAPIGatewayResult> {
+	public async getGateway(): Promise<RESTGetAPIGatewayResult> {
 		return this.requestHandler.request(Endpoints.GATEWAY, {}, "get", "json");
 	}
 
@@ -47,7 +47,7 @@ class BotMethods {
 	 * const result = await client.bot.getGatewayBot()
 	 * // result should be something like { url: "wss://gateway.discord.gg", shards: 1, session_start_limit: { total: 1000, remaining: 999, reset_after: 14400000, max_concurrency: 1 } }
 	 */
-	public getGatewayBot(): Promise<RESTGetAPIGatewayBotResult> {
+	public async getGatewayBot(): Promise<RESTGetAPIGatewayBotResult> {
 		return this.requestHandler.request(Endpoints.GATEWAY_BOT, {}, "get", "json");
 	}
 
@@ -60,7 +60,7 @@ class BotMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const result = await client.bot.getApplicationInfo()
 	 */
-	public getApplicationInfo(): Promise<APIApplication> {
+	public async getApplicationInfo(): Promise<APIApplication> {
 		return this.requestHandler.request(Endpoints.OAUTH2_APPLICATION("@me"), {}, "get", "json")
 	}
 }

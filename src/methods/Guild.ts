@@ -882,7 +882,7 @@ class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guild.updateGuildVoiceState("guildId", { channel_id: "channel id", suppress: false })
 	 */
-	public updateCurrentUserVoiceState(guildId: string, data: RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody): Promise<RESTPatchAPIGuildVoiceStateCurrentMemberResult> {
+	public async updateCurrentUserVoiceState(guildId: string, data: RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody): Promise<RESTPatchAPIGuildVoiceStateCurrentMemberResult> {
 		return this.requestHandler.request(Endpoints.GUILD_VOICE_STATE_USER(guildId, "@me"), {}, "patch", "json", data) as RESTPatchAPIGuildVoiceStateCurrentMemberResult;
 	}
 
@@ -903,7 +903,7 @@ class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guild.updateGuildVoiceState("guildId", "userId", { channel_id: "channel id", suppress: true })
 	 */
-	public updateUserVoiceState(guildId: string, userId: string, data: RESTPatchAPIGuildVoiceStateUserJSONBody): Promise<RESTPatchAPIGuildVoiceStateUserResult> {
+	public async updateUserVoiceState(guildId: string, userId: string, data: RESTPatchAPIGuildVoiceStateUserJSONBody): Promise<RESTPatchAPIGuildVoiceStateUserResult> {
 		return this.requestHandler.request(Endpoints.GUILD_VOICE_STATE_USER(guildId, userId), {}, "patch", "json", data) as RESTPatchAPIGuildVoiceStateUserResult;
 	}
 }

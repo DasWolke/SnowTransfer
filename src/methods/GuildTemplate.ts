@@ -40,7 +40,7 @@ class GuildTemplateMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const template = await client.guildTemplate.getGuildTemplate("code")
 	 */
-	public getGuildTemplate(code: string): Promise<RESTGetAPITemplateResult> {
+	public async getGuildTemplate(code: string): Promise<RESTGetAPITemplateResult> {
 		return this.requestHandler.request(Endpoints.TEMPLATE(code), {}, "get", "json");
 	}
 
@@ -55,7 +55,7 @@ class GuildTemplateMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const guild = await client.guildTemplate.createGuildFromGuildTemplate("code", { name: "Cool guild" })
 	 */
-	public createGuildFromGuildTemplate(code: string, options: RESTPostAPITemplateCreateGuildJSONBody): Promise<RESTPostAPITemplateCreateGuildResult> {
+	public async createGuildFromGuildTemplate(code: string, options: RESTPostAPITemplateCreateGuildJSONBody): Promise<RESTPostAPITemplateCreateGuildResult> {
 		return this.requestHandler.request(Endpoints.TEMPLATE(code), {}, "post", "json", options);
 	}
 
@@ -73,7 +73,7 @@ class GuildTemplateMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const templates = await client.guildTemplate.getGuildTemplates("guildId")
 	 */
-	public getGuildTemplates(guildId: string): Promise<RESTGetAPIGuildTemplatesResult> {
+	public async getGuildTemplates(guildId: string): Promise<RESTGetAPIGuildTemplatesResult> {
 		return this.requestHandler.request(Endpoints.GUILD_TEMPLATES(guildId), {}, "get", "json");
 	}
 
@@ -92,7 +92,7 @@ class GuildTemplateMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const template = await client.guildTemplate.createGuildTemplate("guildId", { name: "Cool guild template", description: "This is a cool guild template" })
 	 */
-	public createGuildTemplate(guildId: string, data: RESTPostAPIGuildTemplatesJSONBody): Promise<RESTPostAPIGuildTemplatesResult> {
+	public async createGuildTemplate(guildId: string, data: RESTPostAPIGuildTemplatesJSONBody): Promise<RESTPostAPIGuildTemplatesResult> {
 		return this.requestHandler.request(Endpoints.GUILD_TEMPLATES(guildId), {}, "post", "json", data);
 	}
 
@@ -111,7 +111,7 @@ class GuildTemplateMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const template = await client.guildTemplate.syncGuildTemplate("guildId", "code")
 	 */
-	public syncGuildTemplate(guildId: string, code: string): Promise<RESTPutAPIGuildTemplateSyncResult> {
+	public async syncGuildTemplate(guildId: string, code: string): Promise<RESTPutAPIGuildTemplateSyncResult> {
 		return this.requestHandler.request(Endpoints.GUILD_TEMPLATE(guildId, code), {}, "put", "json");
 	}
 
@@ -131,7 +131,7 @@ class GuildTemplateMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const template = await client.guildTemplate.modifyGuildTemplate("guildId", "code", { name: "Coolest guild template", description: "This is the coolest guild template hands down" })
 	 */
-	public modifyGuildTemplate(guildId: string, code: string, data: RESTPatchAPIGuildTemplateJSONBody): Promise<RESTPatchAPIGuildTemplateResult> {
+	public async modifyGuildTemplate(guildId: string, code: string, data: RESTPatchAPIGuildTemplateJSONBody): Promise<RESTPatchAPIGuildTemplateResult> {
 		return this.requestHandler.request(Endpoints.GUILD_TEMPLATE(guildId, code), {}, "patch", "json", data);
 	}
 
@@ -150,7 +150,7 @@ class GuildTemplateMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const template = await client.guildTemplate.deleteGuildTemplate("guildId", "code")
 	 */
-	public deleteGuildTemplate(guildId: string, code: string): Promise<RESTDeleteAPIGuildTemplateResult> {
+	public async deleteGuildTemplate(guildId: string, code: string): Promise<RESTDeleteAPIGuildTemplateResult> {
 		return this.requestHandler.request(Endpoints.GUILD_TEMPLATE(guildId, code), {}, "delete", "json");
 	}
 }

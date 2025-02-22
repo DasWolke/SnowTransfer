@@ -1,9 +1,10 @@
 import { Ratelimiter, RequestHandler } from "./RequestHandler";
+import AssetsMethods = require("./methods/Assets");
 import AuditLogMethods = require("./methods/AuditLog");
 import AutoModerationMethods = require("./methods/AutoModeration");
 import BotMethods = require("./methods/Bot");
 import ChannelMethods = require("./methods/Channel");
-import GuildAssetsMethods = require("./methods/GuildAssets");
+import EntitlementMethods = require("./methods/Entitlements");
 import GuildMethods = require("./methods/Guild");
 import GuildScheduledEventMethods = require("./methods/GuildScheduledEvent");
 import GuildTemplateMethods = require("./methods/GuildTemplate");
@@ -42,7 +43,7 @@ class SnowTransfer {
 	/** Methods related to users */
 	public user: UserMethods;
 	/** Methods related to stickers and emojis */
-	public guildAssets: GuildAssetsMethods;
+	public assets: AssetsMethods;
 	/** Methods related to webhooks */
 	public webhook: WebhookMethods;
 	/** Methods related to guilds */
@@ -65,6 +66,8 @@ class SnowTransfer {
 	public stageInstance: StageInstanceMethods;
 	/** Methods related to guild auto mod */
 	public autoMod: AutoModerationMethods;
+	/** Methods related to entitlements */
+	public entitlement: EntitlementMethods;
 	/** Ratelimiter used for handling the ratelimits imposed by the rest api */
 	public ratelimiter: Ratelimiter;
 
@@ -88,7 +91,7 @@ class SnowTransfer {
 		});
 		this.channel = new ChannelMethods(this.requestHandler, this.options.disableEveryone);
 		this.user = new UserMethods(this.requestHandler);
-		this.guildAssets = new GuildAssetsMethods(this.requestHandler);
+		this.assets = new AssetsMethods(this.requestHandler);
 		this.webhook = new WebhookMethods(this.requestHandler, this.options.disableEveryone);
 		this.guild = new GuildMethods(this.requestHandler);
 		this.guildScheduledEvent = new GuildScheduledEventMethods(this.requestHandler);
@@ -100,6 +103,7 @@ class SnowTransfer {
 		this.auditLog = new AuditLogMethods(this.requestHandler);
 		this.stageInstance = new StageInstanceMethods(this.requestHandler);
 		this.autoMod = new AutoModerationMethods(this.requestHandler);
+		this.entitlement = new EntitlementMethods(this.requestHandler);
 	}
 }
 

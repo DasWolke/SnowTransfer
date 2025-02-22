@@ -854,7 +854,7 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.channel.removeThreadMember("thread id", "user id")
 	 */
-	public removeThreadMember(threadId: string, userId: string): Promise<RESTDeleteAPIChannelThreadMembersResult> {
+	public async removeThreadMember(threadId: string, userId: string): Promise<RESTDeleteAPIChannelThreadMembersResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREAD_MEMBER(threadId, userId), {}, "delete", "json") as RESTDeleteAPIChannelThreadMembersResult;
 	}
 

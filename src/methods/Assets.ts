@@ -6,6 +6,8 @@ import type { RequestHandler as RH } from "../RequestHandler";
 import type {
 	RESTDeleteAPIGuildEmojiResult,
 	RESTDeleteAPIGuildStickerResult,
+	RESTGetAPIApplicationEmojisResult,
+	RESTGetAPIApplicationEmojiResult,
 	RESTGetAPIGuildEmojiResult,
 	RESTGetAPIGuildEmojisResult,
 	RESTGetAPIGuildStickerResult,
@@ -18,7 +20,12 @@ import type {
 	RESTPostAPIGuildEmojiJSONBody,
 	RESTPostAPIGuildEmojiResult,
 	RESTPostAPIGuildStickerFormDataBody,
-	RESTPostAPIGuildStickerResult
+	RESTPostAPIGuildStickerResult,
+	RESTPostAPIApplicationEmojiResult,
+	RESTPostAPIApplicationEmojiJSONBody,
+	RESTPatchAPIApplicationEmojiJSONBody,
+	RESTPatchAPIApplicationEmojiResult,
+	RESTDeleteAPIApplicationEmojiResult
 } from "discord-api-types/v10";
 
 import type { Blob } from "buffer";
@@ -27,52 +34,52 @@ import type { Readable } from "stream";
 import type { ReadableStream } from "stream/web";
 
 /**
- * Methods for interacting with guild assets like emojis and stickers
- * @since 0.3.0
+ * Methods for interacting with assets like emojis and stickers for a guild/app
+ * @since 0.13.0
  */
-class GuildAssetsMethods {
+class AssetsMethods {
 	/**
-	 * Create a new GuildAssets Method handler
+	 * Create a new Assets Method handler
 	 *
 	 * Usually SnowTransfer creates a method handler for you, this is here for completion
 	 *
-	 * You can access the methods listed via `client.guildAssets.method`, where `client` is an initialized SnowTransfer instance
+	 * You can access the methods listed via `client.assets.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
 	 */
 	public constructor(public requestHandler: RH) {}
 
 	/**
 	 * Get a list of emojis of a guild
-	 * @since 0.3.0
+	 * @since 0.13.0
 	 * @param guildId Id of the guild
 	 * @returns Array of [emoji objects](https://discord.com/developers/docs/resources/emoji#emoji-object)
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * const emojis = await client.guildAssets.getEmojis("guild id")
+	 * const emojis = await client.assets.getGuildEmojis("guild id")
 	 */
-	public async getEmojis(guildId: string): Promise<RESTGetAPIGuildEmojisResult> {
+	public async getGuildEmojis(guildId: string): Promise<RESTGetAPIGuildEmojisResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), {}, "get", "json");
 	}
 
 	/**
-	 * Get an emoji via guildId + emojiId
-	 * @since 0.3.0
+	 * Get an emoji from a guild via id
+	 * @since 0.13.0
 	 * @param guildId Id of the guild
 	 * @param emojiId Id of the emoji
 	 * @returns [Emoji object](https://discord.com/developers/docs/resources/emoji#emoji-object)
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * const emoji = await client.guildAssets.getEmoji("guild id", "emoji id")
+	 * const emoji = await client.assets.getGuildEmoji("guild id", "emoji id")
 	 */
-	public async getEmoji(guildId: string, emojiId: string): Promise<RESTGetAPIGuildEmojiResult> {
+	public async getGuildEmoji(guildId: string, emojiId: string): Promise<RESTGetAPIGuildEmojiResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), {}, "get", "json");
 	}
 
 	/**
-	 * Create a new Emoji
-	 * @since 0.3.0
+	 * Create a new Emoji in a guild
+	 * @since 0.13.0
 	 * @param guildId Id of the guild
 	 * @param data Emoji data, check the example
 	 * @returns [Emoji object](https://discord.com/developers/docs/resources/emoji#emoji-object)
@@ -89,15 +96,15 @@ class GuildAssetsMethods {
 	 * 	name: "niceEmoji",
 	 * 	image: `data:image/png;base64,${fileData.toString("base64")}` // base64 data url: data:mimetype;base64,base64String
 	 * \}
-	 * client.guildAssets.createEmoji("guild id", emojiData)
+	 * client.assets.createGuildEmoji("guild id", emojiData)
 	 */
-	public async createEmoji(guildId: string, data: RESTPostAPIGuildEmojiJSONBody & { reason?: string; }): Promise<RESTPostAPIGuildEmojiResult> {
+	public async createGuildEmoji(guildId: string, data: RESTPostAPIGuildEmojiJSONBody & { reason?: string; }): Promise<RESTPostAPIGuildEmojiResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), {}, "post", "json", data);
 	}
 
 	/**
-	 * Update an existing emoji
-	 * @since 0.3.0
+	 * Update an existing emoji from a guild
+	 * @since 0.13.0
 	 * @param {string} guildId Id of the guild
 	 * @param {string} emojiId Id of the emoji
 	 * @param {object} data Emoji data
@@ -113,15 +120,15 @@ class GuildAssetsMethods {
 	 * const emojiData = {
 	 * 	name: "niceEmote"
 	 * }
-	 * client.guildAssets.updateEmoji("guild id", "emoji id", emojiData)
+	 * client.assets.updateGuildEmoji("guild id", "emoji id", emojiData)
 	 */
-	public async updateEmoji(guildId: string, emojiId: string, data: RESTPatchAPIGuildEmojiJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildEmojiResult> {
+	public async updateGuildEmoji(guildId: string, emojiId: string, data: RESTPatchAPIGuildEmojiJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildEmojiResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), {}, "patch", "json", data);
 	}
 
 	/**
-	 * Delete an emoji
-	 * @since 0.3.0
+	 * Delete an emoji from a guild
+	 * @since 0.13.0
 	 * @param guildId Id of the guild
 	 * @param emojiId Id of the emoji
 	 * @param reason Reason for deleting the emoji
@@ -134,21 +141,21 @@ class GuildAssetsMethods {
 	 * @example
 	 * // Deletes an emoji because it wasn't nice
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.guildAssets.deleteEmoji("guild id", "emoji id", "wasn't nice")
+	 * client.assets.deleteGuildEmoji("guild id", "emoji id", "wasn't nice")
 	 */
-	public async deleteEmoji(guildId: string, emojiId: string, reason?: string): Promise<RESTDeleteAPIGuildEmojiResult> {
+	public async deleteGuildEmoji(guildId: string, emojiId: string, reason?: string): Promise<RESTDeleteAPIGuildEmojiResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), {}, "delete", "json", { reason }) as RESTDeleteAPIGuildEmojiResult;
 	}
 
 	/**
 	 * Get a global sticker
-	 * @since 0.3.0
+	 * @since 0.13.0
 	 * @param stickerId Id of the sticker
 	 * @returns [Sticker object](https://discord.com/developers/docs/resources/sticker#sticker-object)
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * const sticker = await client.guildAssets.getSticker("sticker id")
+	 * const sticker = await client.assets.getSticker("sticker id")
 	 */
 	public async getSticker(stickerId: string): Promise<RESTGetAPIStickerResult> {
 		return this.requestHandler.request(Endpoints.STICKER(stickerId), {}, "get", "json");
@@ -156,7 +163,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Get all guild stickers
-	 * @since 0.3.0
+	 * @since 0.13.0
 	 * @param guildId Id of the guild
 	 * @returns An Array of [sticker objects](https://discord.com/developers/docs/resources/sticker#sticker-object)
 	 *
@@ -166,7 +173,7 @@ class GuildAssetsMethods {
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * const stickers = await client.guildAssets.getGuildStickers("guild id")
+	 * const stickers = await client.assets.getGuildStickers("guild id")
 	 */
 	public async getGuildStickers(guildId: string): Promise<RESTGetAPIGuildStickersResult> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), {}, "get", "json");
@@ -174,7 +181,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Get a guild sticker
-	 * @since 0.3.0
+	 * @since 0.13.0
 	 * @param guildId Id of the guild
 	 * @param stickerId Id of the sticker
 	 * @returns A [sticker object](https://discord.com/developers/docs/resources/sticker#sticker-object)
@@ -185,7 +192,7 @@ class GuildAssetsMethods {
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * const sticker = await client.guildAssets.getGuildSticker("guild id", "sticker id")
+	 * const sticker = await client.assets.getGuildSticker("guild id", "sticker id")
 	 */
 	public async getGuildSticker(guildId: string, stickerId: string): Promise<RESTGetAPIGuildStickerResult> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), {}, "get", "json");
@@ -193,7 +200,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Create a guild sticker
-	 * @since 0.3.0
+	 * @since 0.13.0
 	 * @param guildId Id of the guild
 	 * @param data Sticker data
 	 * @returns A [sticker object](https://discord.com/developers/docs/resources/sticker#sticker-object)
@@ -216,7 +223,7 @@ class GuildAssetsMethods {
 	 * 	description: "A very nice sticker",
 	 * 	tags: ["nice", "sticker"],
 	 * }
-	 * const sticker = await client.guildAssets.createGuildSticker("guild id", stickerData)
+	 * const sticker = await client.assets.createGuildSticker("guild id", stickerData)
 	 */
 	public async createGuildSticker(guildId: string, data: RESTPostAPIGuildStickerFormDataBody & { file: Buffer | Blob | File | Readable | ReadableStream; reason?: string; }): Promise<RESTPostAPIGuildStickerResult> {
 		const form = new FormData();
@@ -232,7 +239,7 @@ class GuildAssetsMethods {
 
 	/**
 	 * Update a guild sticker
-	 * @since 0.3.0
+	 * @since 0.13.0
 	 * @param guildId Id of the guild
 	 * @param stickerId Id of the sticker
 	 * @param data Sticker data
@@ -245,15 +252,15 @@ class GuildAssetsMethods {
 	 * @example
 	 * // Updates a sticker's name to "nicerSticker"
 	 * const client = new SnowTransfer("TOKEN")
-	 * const sticker = await client.guildAssets.updateGuildSticker("guild id", "sticker id", { name: "nicerSticker", reason: "because it was nicer" })
+	 * const sticker = await client.assets.updateGuildSticker("guild id", "sticker id", { name: "nicerSticker", reason: "because it was nicer" })
 	 */
-	public updateGuildSticker(guildId: string, stickerId: string, data: RESTPatchAPIGuildStickerJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildStickerResult> {
+	public async updateGuildSticker(guildId: string, stickerId: string, data: RESTPatchAPIGuildStickerJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildStickerResult> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), {}, "patch", "json", data);
 	}
 
 	/**
 	 * Delete a guild sticker
-	 * @since 0.3.0
+	 * @since 0.13.0
 	 * @param guildId Id of the guild
 	 * @param stickerId Id of the sticker
 	 * @param reason Reason for deleting the sticker
@@ -266,11 +273,100 @@ class GuildAssetsMethods {
 	 * @example
 	 * // Deletes a sticker because it was too nice
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.guildAssets.deleteGuildSticker("guild id", "sticker id", "It was too nice")
+	 * client.assets.deleteGuildSticker("guild id", "sticker id", "It was too nice")
 	 */
-	public deleteGuildSticker(guildId: string, stickerId: string, reason?: string): Promise<RESTDeleteAPIGuildStickerResult> {
+	public async deleteGuildSticker(guildId: string, stickerId: string, reason?: string): Promise<RESTDeleteAPIGuildStickerResult> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), {}, "delete", "json", { reason }) as RESTDeleteAPIGuildStickerResult;
+	}
+
+	/**
+	 * Get all emojis for an app
+	 * @since 0.13.0
+	 * @param appId Id of the app
+	 * @returns An Array of [emoji objects](https://discord.com/developers/docs/resources/emoji#emoji-object)
+	 *
+	 * @example
+	 * // Gets all emojis for an app
+	 * const client = new SnowTransfer("TOKEN")
+	 * const emojis = await client.assets.getAppEmojis("app id")
+	 */
+	public async getAppEmojis(appId: string): Promise<RESTGetAPIApplicationEmojisResult> {
+		return this.requestHandler.request(Endpoints.APPLICATION_EMOJIS(appId), {}, "get", "json");
+	}
+
+	/**
+	 * Get an emoji for an app by id
+	 * @since 0.13.0
+	 * @param appId Id of the app
+	 * @param emojiId Id of the emoji
+	 * @returns [emoji object](https://discord.com/developers/docs/resources/emoji#emoji-object)
+	 *
+	 * @example
+	 * // Gets an emoji by id from an app
+	 * const client = new SnowTransfer("TOKEN")
+	 * const emoji = await client.assets.getAppEmoji("app id", "emoji id")
+	 */
+	public async getAppEmoji(appId: string, emojiId: string): Promise<RESTGetAPIApplicationEmojiResult> {
+		return this.requestHandler.request(Endpoints.APPLICATION_EMOJI(appId, emojiId), {}, "get", "json");
+	}
+
+	/**
+	 * Create an emoji for an app
+	 * @since 0.13.0
+	 * @param appId Id of the app
+	 * @param data Emoji data, check the example
+	 * @returns [emoji object](https://discord.com/developers/docs/resources/emoji#emoji-object)
+	 *
+	 * @example
+	 * // Creates an emoji for an app with a NICER name
+	 * const client = new SnowTransfer("TOKEN")
+	 * const fileData = fs.readFileSync("even_nicer_emoji.png") // You should probably use fs.promises.readFile, since it is asynchronous, synchronous methods pause the thread.
+	 * const emojiData = \{
+	 * 	name: "nicerEmoji",
+	 * 	image: `data:image/png;base64,${fileData.toString("base64")}` // base64 data url: data:mimetype;base64,base64String
+	 * \}
+	 * client.assets.createAppEmoji("app id", emojiData)
+	 */
+	public async createAppEmoji(appId: string, data: RESTPostAPIApplicationEmojiJSONBody): Promise<RESTPostAPIApplicationEmojiResult> {
+		return this.requestHandler.request(Endpoints.APPLICATION_EMOJIS(appId), {}, "post", "json", data);
+	}
+
+	/**
+	 * Updates an emoji for an app
+	 * @since 0.13.0
+	 * @param appId Id of the app
+	 * @param emojiId Id of the emoji
+	 * @param data Emoji data
+	 * @returns [emoji object](https://discord.com/developers/docs/resources/emoji#emoji-object)
+	 *
+	 * @example
+	 * // The emoji we just made is actually the nicest emoji ever. Gotta reflect that
+	 * const client = new SnowTransfer("TOKEN")
+	 * const emojiData = {
+	 * 	name: "nicestEmoji"
+	 * }
+	 * client.assets.updateAppEmoji("app id", "emoji id", emojiData)
+	 */
+	public async updateAppEmoji(appId: string, emojiId: string, data: RESTPatchAPIApplicationEmojiJSONBody): Promise<RESTPatchAPIApplicationEmojiResult> {
+		return this.requestHandler.request(Endpoints.APPLICATION_EMOJI(appId, emojiId), {}, "patch", "json", data);
+	}
+
+	/**
+	 * Delete an emoji for an app
+	 * @since 0.13.0
+	 * @param appId Id of the app
+	 * @param emojiId Id of the emoji
+	 * @returns Resolves the Promise on successful execution
+	 *
+	 * @example
+	 * // The emoji was TOO POWERFUL. WE NEED TO REMOVE IT
+	 * const client = new SnowTransfer("TOKEN")
+	 * client.assets.deleteAppEmoji("app id", "emoji id") // OH GOD THE UNIVERSE IS COLLAPSING
+	 * // We're safe. The emoji is gone. For now...
+	 */
+	public async deleteAppEmoji(appId: string, emojiId: string): Promise<RESTDeleteAPIApplicationEmojiResult> {
+		return this.requestHandler.request(Endpoints.APPLICATION_EMOJI(appId, emojiId), {}, "delete", "json") as Promise<RESTDeleteAPIApplicationEmojiResult>;
 	}
 }
 
-export = GuildAssetsMethods;
+export = AssetsMethods;

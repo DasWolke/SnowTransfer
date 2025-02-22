@@ -2,7 +2,7 @@ import AuditLogMethods2 = require("./methods/AuditLog");
 import AutoModerationMethods2 = require("./methods/AutoModeration");
 import BotMethods2 = require("./methods/Bot");
 import ChannelMethods2 = require("./methods/Channel");
-import GuildAssetsMethods2 = require("./methods/GuildAssets");
+import AssetsMethods2 = require("./methods/Assets");
 import GuildMethods2 = require("./methods/Guild");
 import GuildScheduledEventMethods2 = require("./methods/GuildScheduledEvent");
 import GuildTemplateMethods2 = require("./methods/GuildTemplate");
@@ -37,7 +37,7 @@ export {
 	AutoModerationMethods2 as AutoModerationMethods,
 	BotMethods2 as BotMethods,
 	ChannelMethods2 as ChannelMethods,
-	GuildAssetsMethods2 as GuildAssetsMethods,
+	AssetsMethods2 as AssetsMethods,
 	GuildMethods2 as GuildMethods,
 	GuildScheduledEventMethods2 as GuildScheduledEventMethods,
 	GuildTemplateMethods2 as GuildTemplateMethods,
