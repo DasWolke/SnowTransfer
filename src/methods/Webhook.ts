@@ -3,31 +3,33 @@ import Constants = require("../Constants");
 
 import type { RequestHandler as RH } from "../RequestHandler";
 
-import type {
-	RESTDeleteAPIWebhookResult,
-	RESTDeleteAPIWebhookWithTokenMessageResult,
-	RESTGetAPIChannelWebhooksResult,
-	RESTGetAPIGuildWebhooksResult,
-	RESTGetAPIWebhookResult,
-	RESTGetAPIWebhookWithTokenMessageResult,
-	RESTPatchAPIWebhookJSONBody,
-	RESTPatchAPIWebhookResult,
-	RESTPatchAPIWebhookWithTokenJSONBody,
-	RESTPatchAPIWebhookWithTokenMessageJSONBody,
-	RESTPatchAPIWebhookWithTokenMessageResult,
-	RESTPatchAPIWebhookWithTokenResult,
-	RESTPostAPIChannelWebhookJSONBody,
-	RESTPostAPIChannelWebhookResult,
-	RESTPostAPIWebhookWithTokenGitHubQuery,
-	RESTPostAPIWebhookWithTokenGitHubResult,
-	RESTPostAPIWebhookWithTokenGitHubWaitResult,
-	RESTPostAPIWebhookWithTokenJSONBody,
-	RESTPostAPIWebhookWithTokenQuery,
-	RESTPostAPIWebhookWithTokenResult,
-	RESTPostAPIWebhookWithTokenSlackQuery,
-	RESTPostAPIWebhookWithTokenSlackResult,
-	RESTPostAPIWebhookWithTokenSlackWaitResult,
-	RESTPostAPIWebhookWithTokenWaitResult
+import {
+	type RESTDeleteAPIWebhookResult,
+	type RESTDeleteAPIWebhookWithTokenMessageResult,
+	type RESTGetAPIChannelWebhooksResult,
+	type RESTGetAPIGuildWebhooksResult,
+	type RESTGetAPIWebhookResult,
+	type RESTGetAPIWebhookWithTokenMessageResult,
+	type RESTPatchAPIWebhookJSONBody,
+	type RESTPatchAPIWebhookResult,
+	type RESTPatchAPIWebhookWithTokenJSONBody,
+	type RESTPatchAPIWebhookWithTokenMessageJSONBody,
+	type RESTPatchAPIWebhookWithTokenMessageResult,
+	type RESTPatchAPIWebhookWithTokenResult,
+	type RESTPostAPIChannelWebhookJSONBody,
+	type RESTPostAPIChannelWebhookResult,
+	type RESTPostAPIWebhookWithTokenGitHubQuery,
+	type RESTPostAPIWebhookWithTokenGitHubResult,
+	type RESTPostAPIWebhookWithTokenGitHubWaitResult,
+	type RESTPostAPIWebhookWithTokenJSONBody,
+	type RESTPostAPIWebhookWithTokenQuery,
+	type RESTPostAPIWebhookWithTokenResult,
+	type RESTPostAPIWebhookWithTokenSlackQuery,
+	type RESTPostAPIWebhookWithTokenSlackResult,
+	type RESTPostAPIWebhookWithTokenSlackWaitResult,
+	type RESTPostAPIWebhookWithTokenWaitResult,
+
+	MessageFlags
 } from "discord-api-types/v10";
 
 import type { Readable } from "stream";
@@ -198,6 +200,10 @@ class WebhookMethods {
 	public async executeWebhook(webhookId: string, token: string, data: RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options?: RESTPostAPIWebhookWithTokenQuery & { disableEveryone?: boolean; }): Promise<RESTPostAPIWebhookWithTokenResult | RESTPostAPIWebhookWithTokenWaitResult> {
 		if (typeof data !== "string" && !data.content && !data.embeds && !data.components && !data.files && !data.poll) throw new Error("Missing content, embeds, components, files, or poll");
 		if (typeof data === "string") data = { content: data };
+
+		const hasComponentsV2 = (!!data.flags && (data.flags & MessageFlags.IsComponentsV2) === MessageFlags.IsComponentsV2)
+
+		if ((data.content || data.embeds) && data.flags && (hasComponentsV2)) throw new Error("The message flags was set to include IsComponentsV2, but content and embeds were also present. You can either have content/embeds or components v2, not both.");
 
 		// Sanitize the message
 		if (data.content && (options?.disableEveryone ?? this.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
