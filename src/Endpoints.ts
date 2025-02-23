@@ -92,6 +92,8 @@ const Endpoints = {
 	INVITES: (inviteId: string) => `/invites/${inviteId}` as "/invites/{invite_id}",
 	OAUTH2_APPLICATION: (appId: string) => `/oauth2/applications/${appId}` as "/oauth2/applications/{app_id}",
 	OAUTH2_TOKEN: "/api/oauth2/token" as const,
+	POLL_ANSWER: (chanId: string, msgId: string, answerId: string) => `${Endpoints.CHANNEL(chanId)}/polls/${msgId}/answers/${answerId}` as `${ReturnType<typeof Endpoints.CHANNEL>}/polls/{message_id}/answers/{answer_id}`,
+	POLL_EXPIRE: (chanId: string, msgId: string) => `${Endpoints.CHANNEL(chanId)}/polls/${msgId}/expire` as `${ReturnType<typeof Endpoints.CHANNEL>}/polls/{message_id}/expire`,
 	STAGE_INSTANCE_CHANNEL: (chanId: string) => `${Endpoints.STAGE_INSTANCES}/${chanId}` as `${typeof Endpoints.STAGE_INSTANCES}/{channel_id}`,
 	STAGE_INSTANCES: "/stage-instances" as const,
 	STICKER: (stickerId: string) => `/stickers/${stickerId}` as "/stickers/{sticker_id}",

@@ -3,53 +3,58 @@ import type { RequestHandler as RH, RESTPostAPIAttachmentsRefreshURLsResult } fr
 import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
 
-import type {
-	APITextBasedChannel,
-	APIThreadChannel,
-	ChannelType,
-	RESTDeleteAPIChannelAllMessageReactionsResult,
-	RESTDeleteAPIChannelMessageReactionResult,
-	RESTDeleteAPIChannelMessageResult,
-	RESTDeleteAPIChannelMessageUserReactionResult,
-	RESTDeleteAPIChannelPermissionResult,
-	RESTDeleteAPIChannelPinResult,
-	RESTDeleteAPIChannelResult,
-	RESTDeleteAPIChannelThreadMembersResult,
-	RESTGetAPIChannelInvitesResult,
-	RESTGetAPIChannelMessageReactionUsersQuery,
-	RESTGetAPIChannelMessageReactionUsersResult,
-	RESTGetAPIChannelMessageResult,
-	RESTGetAPIChannelMessagesQuery,
-	RESTGetAPIChannelMessagesResult,
-	RESTGetAPIChannelPinsResult,
-	RESTGetAPIChannelResult,
-	RESTGetAPIChannelThreadMemberResult,
-	RESTGetAPIChannelThreadMembersQuery,
-	RESTGetAPIChannelThreadMembersResult,
-	RESTGetAPIChannelThreadsArchivedPrivateResult,
-	RESTGetAPIChannelThreadsArchivedPublicResult,
-	RESTGetAPIChannelThreadsArchivedQuery,
-	RESTGetAPIChannelUsersThreadsArchivedResult,
-	RESTPatchAPIChannelJSONBody,
-	RESTPatchAPIChannelMessageJSONBody,
-	RESTPatchAPIChannelMessageResult,
-	RESTPatchAPIChannelResult,
-	RESTPostAPIChannelFollowersResult,
-	RESTPostAPIChannelInviteJSONBody,
-	RESTPostAPIChannelInviteResult,
-	RESTPostAPIChannelMessageCrosspostResult,
-	RESTPostAPIChannelMessageJSONBody,
-	RESTPostAPIChannelMessageResult,
-	RESTPostAPIChannelMessagesBulkDeleteResult,
-	RESTPostAPIChannelMessagesThreadsJSONBody,
-	RESTPostAPIChannelMessagesThreadsResult,
-	RESTPostAPIChannelThreadsJSONBody,
-	RESTPostAPIChannelTypingResult,
-	RESTPutAPIChannelMessageReactionResult,
-	RESTPutAPIChannelPermissionJSONBody,
-	RESTPutAPIChannelPermissionResult,
-	RESTPutAPIChannelPinResult,
-	RESTPutAPIChannelThreadMembersResult
+import {
+	type APITextBasedChannel,
+	type APIThreadChannel,
+	type ChannelType,
+	type RESTDeleteAPIChannelAllMessageReactionsResult,
+	type RESTDeleteAPIChannelMessageReactionResult,
+	type RESTDeleteAPIChannelMessageResult,
+	type RESTDeleteAPIChannelMessageUserReactionResult,
+	type RESTDeleteAPIChannelPermissionResult,
+	type RESTDeleteAPIChannelPinResult,
+	type RESTDeleteAPIChannelResult,
+	type RESTDeleteAPIChannelThreadMembersResult,
+	type RESTGetAPIChannelInvitesResult,
+	type RESTGetAPIChannelMessageReactionUsersQuery,
+	type RESTGetAPIChannelMessageReactionUsersResult,
+	type RESTGetAPIChannelMessageResult,
+	type RESTGetAPIChannelMessagesQuery,
+	type RESTGetAPIChannelMessagesResult,
+	type RESTGetAPIChannelPinsResult,
+	type RESTGetAPIChannelResult,
+	type RESTGetAPIChannelThreadMemberResult,
+	type RESTGetAPIChannelThreadMembersQuery,
+	type RESTGetAPIChannelThreadMembersResult,
+	type RESTGetAPIChannelThreadsArchivedPrivateResult,
+	type RESTGetAPIChannelThreadsArchivedPublicResult,
+	type RESTGetAPIChannelThreadsArchivedQuery,
+	type RESTGetAPIChannelUsersThreadsArchivedResult,
+	type RESTPatchAPIChannelJSONBody,
+	type RESTPatchAPIChannelMessageJSONBody,
+	type RESTPatchAPIChannelMessageResult,
+	type RESTPatchAPIChannelResult,
+	type RESTPostAPIChannelFollowersResult,
+	type RESTPostAPIChannelInviteJSONBody,
+	type RESTPostAPIChannelInviteResult,
+	type RESTPostAPIChannelMessageCrosspostResult,
+	type RESTPostAPIChannelMessageJSONBody,
+	type RESTPostAPIChannelMessageResult,
+	type RESTPostAPIChannelMessagesBulkDeleteResult,
+	type RESTPostAPIChannelMessagesThreadsJSONBody,
+	type RESTPostAPIChannelMessagesThreadsResult,
+	type RESTPostAPIChannelThreadsJSONBody,
+	type RESTPostAPIChannelTypingResult,
+	type RESTPutAPIChannelMessageReactionResult,
+	type RESTPutAPIChannelPermissionJSONBody,
+	type RESTPutAPIChannelPermissionResult,
+	type RESTPutAPIChannelPinResult,
+	type RESTPutAPIChannelThreadMembersResult,
+	type RESTGetAPIPollAnswerVotersQuery,
+	type RESTGetAPIPollAnswerVotersResult,
+	type RESTPostAPIPollExpireResult,
+
+	MessageFlags
 } from "discord-api-types/v10";
 
 import type { Readable } from "stream";
@@ -978,7 +983,41 @@ class ChannelMethods {
 	public async refreshAttachmentURLs(attachments: string | Array<string>): Promise<RESTPostAPIAttachmentsRefreshURLsResult> {
 		return this.requestHandler.request(Endpoints.ATTACHMENTS_REFRESH_URLS, {}, "post", "json", {
 			attachment_urls: Array.isArray(attachments) ? attachments : [attachments]
-		})
+		});
+	}
+
+	/**
+	 * Get a list of users that voted for this specific answer
+	 * @since 0.13.0
+	 * @param channelId Id of the channel
+	 * @param messageId Id of the message
+	 * @param answerId Id of the answer
+	 * @param options Options for getting the poll answers
+	 * @returns An [answer object](https://discord.com/developers/docs/resources/poll#get-answer-voters-response-body)
+	 *
+	 * @example
+	 * // Get whoever voted for an answer
+	 * const client = new SnowTransfer("TOKEN")
+	 * const data = await client.channel.getPollAnswerVoters("channel id", "message id", "answer id")
+	 */
+	public async getPollAnswerVoters(channelId: string, messageId: string, answerId: string, options?: RESTGetAPIPollAnswerVotersQuery): Promise<RESTGetAPIPollAnswerVotersResult> {
+		return this.requestHandler.request(Endpoints.POLL_ANSWER(channelId, messageId, answerId), options, "get", "json");
+	}
+
+	/**
+	 * Immediately ends the poll. You cannot end polls from other users
+	 * @since 0.13.0
+	 * @param channelId Id of the channel
+	 * @param messageId Id of the message
+	 * @returns A [message object](https://discord.com/developers/docs/resources/message#message-object)
+	 *
+	 * @example
+	 * // End a poll that the bot made
+	 * const client = new SnowTransfer("TOKEN")
+	 * client.channel.endPoll("channel id", "message id")
+	 */
+	public async endPoll(channelId: string, messageId: string): Promise<RESTPostAPIPollExpireResult> {
+		return this.requestHandler.request(Endpoints.POLL_EXPIRE(channelId, messageId), {}, "post", "json");
 	}
 }
 
