@@ -203,10 +203,11 @@ class WebhookMethods {
 
 		const hasComponentsV2 = (!!data.flags && (data.flags & MessageFlags.IsComponentsV2) === MessageFlags.IsComponentsV2)
 
-		if ((data.content || data.embeds) && data.flags && (hasComponentsV2)) throw new Error("The message flags was set to include IsComponentsV2, but content and embeds were also present. You can either have content/embeds or components v2, not both.");
+		if ((data.content || data.embeds) && data.flags && (hasComponentsV2)) throw new Error("The message flags was set to include IsComponentsV2, but content and/or embeds were also present. You can either have content/embeds or components v2, not both.");
 
 		// Sanitize the message
 		if (data.content && (options?.disableEveryone ?? this.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
+		if (data.components && (options?.disableEveryone ?? this.disableEveryone)) data.components = Constants.replaceEveryone(data.components);
 		if (options) delete options.disableEveryone;
 
 		if (data.files) return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN(webhookId, token)}`, options, "post", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));

@@ -252,10 +252,11 @@ class ChannelMethods {
 		if (typeof data !== "string" && !data.content && !data.embeds && !data.sticker_ids && !data.components && !data.files && !data.poll) throw new Error("Missing content, embeds, sticker_ids, components, files, or poll");
 		if (typeof data === "string") data = { content: data };
 
-		if ((data.content || data.embeds) && data.flags && (data.flags & MessageFlags.IsComponentsV2) === MessageFlags.IsComponentsV2) throw new Error("The message flags was set to include IsComponentsV2, but content and embeds were also present. You can either have content/embeds or components v2, not both.");
+		if ((data.content || data.embeds) && data.flags && (data.flags & MessageFlags.IsComponentsV2) === MessageFlags.IsComponentsV2) throw new Error("The message flags was set to include IsComponentsV2, but content and/or embeds were also present. You can either have content/embeds or components v2, not both.");
 
 		// Sanitize the message
 		if (data.content && (options.disableEveryone ?? this.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
+		if (data.components && (options.disableEveryone ?? this.disableEveryone)) data.components = Constants.replaceEveryone(data.components);
 
 		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "json", data);

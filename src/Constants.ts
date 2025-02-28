@@ -2,6 +2,12 @@ import { Blob, File } from "buffer";
 import { Readable } from "stream";
 import { ReadableStream } from "stream/web";
 
+import {
+	type APIMessageTopLevelComponent,
+
+	ComponentType
+} from "discord-api-types/v10";
+
 const mentionRegex = /@([^<>@ ]*)/gsmu;
 const isValidUserMentionRegex = /^[&!]?\d+$/;
 
@@ -51,8 +57,20 @@ const Constants = {
 			form.set(name, blob, filename);
 		} else throw new Error(`Don't know how to add ${value?.constructor?.name ?? typeof value} to form`);
 	},
-	replaceEveryone(content: string): string {
-		return content.replace(mentionRegex, replaceEveryoneMatchProcessor);
+	replaceEveryone<T extends string | Array<APIMessageTopLevelComponent> | APIMessageTopLevelComponent>(content: T): T {
+		if (typeof content === "string") return content.replace(mentionRegex, replaceEveryoneMatchProcessor) as T;
+		if (Array.isArray(content)) return content.map(comp => Constants.replaceEveryone(comp)) as T;
+		switch (content.type) {
+			case ComponentType.Section:
+				content.components = Constants.replaceEveryone(content.components);
+				break;
+			case ComponentType.TextDisplay:
+				content.content = Constants.replaceEveryone(content.content);
+				break;
+			default:
+				return content;
+		}
+		return content;
 	}
 };
 
