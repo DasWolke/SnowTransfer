@@ -54,7 +54,8 @@ import {
 	type RESTGetAPIPollAnswerVotersResult,
 	type RESTPostAPIPollExpireResult,
 
-	MessageFlags
+	MessageFlags,
+	MessageReferenceType
 } from "discord-api-types/v10";
 
 import type { Readable } from "stream";
@@ -249,7 +250,7 @@ class ChannelMethods {
 	 * client.channel.createMessage("channel id", { content: "This is a nice picture", files: [{ name: "Optional_Filename.png", file: fileData }] })
 	 */
 	public async createMessage(channelId: string, data: string | RESTPostAPIChannelMessageJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options: { disableEveryone?: boolean; } = { disableEveryone: this.disableEveryone }): Promise<RESTPostAPIChannelMessageResult> {
-		if (typeof data !== "string" && !data.content && !data.embeds && !data.sticker_ids && !data.components && !data.files && !data.poll) throw new Error("Missing content, embeds, sticker_ids, components, files, or poll");
+		if (typeof data !== "string" && !data.content && (!data.message_reference || (data.message_reference && data.message_reference.type === MessageReferenceType.Default)) && !data.embeds && !data.sticker_ids && !data.components && !data.files && !data.poll) throw new Error("Missing content, message_reference type 1, embeds, sticker_ids, components, files, or poll");
 		if (typeof data === "string") data = { content: data };
 
 		if ((data.content || data.embeds) && data.flags && (data.flags & MessageFlags.IsComponentsV2) === MessageFlags.IsComponentsV2) throw new Error("The message flags was set to include IsComponentsV2, but content and/or embeds were also present. You can either have content/embeds or components v2, not both.");
