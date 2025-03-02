@@ -2,6 +2,7 @@ import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
 
 import type { RequestHandler as RH } from "../RequestHandler";
+import type SnowTransfer = require("../SnowTransfer");
 
 import type {
 	RESTDeleteAPIWebhookResult,
@@ -45,9 +46,9 @@ class WebhookMethods {
 	 *
 	 * You can access the methods listed via `client.webhook.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
-	 * @param disableEveryone Disable [at]everyone/[at]here on outgoing messages
+	 * @param options Options for the SnowTransfer instance
 	 */
-	public constructor(public requestHandler: RH, public disableEveryone: boolean) {}
+	public constructor(public requestHandler: RH, public options: SnowTransfer.Options) {}
 
 	/**
 	 * Create a new Webhook
@@ -200,8 +201,9 @@ class WebhookMethods {
 		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message
-		if (data.content && (options?.disableEveryone ?? this.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
+		if (data.content && (options?.disableEveryone ?? this.options.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
 		if (options) delete options.disableEveryone;
+		data.allowed_mentions ??= this.options.allowed_mentions;
 
 		if (data.files) return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN(webhookId, token)}`, options, "post", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), options, "post", "json", data);
@@ -271,6 +273,8 @@ class WebhookMethods {
 		let threadId: string | undefined = undefined;
 		if (data.thread_id) threadId = data.thread_id;
 		delete data.thread_id;
+
+		data.allowed_mentions ??= this.options.allowed_mentions;
 
 		if (data.files) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadId }, "patch", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadId }, "patch", "json", data);

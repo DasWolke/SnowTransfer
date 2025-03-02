@@ -1,40 +1,42 @@
 import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
 
-import type WHM = require("./Webhook");
 import type { RequestHandler as RH } from "../RequestHandler";
+import type WHM = require("./Webhook");
+import type SnowTransfer = require("../SnowTransfer");
 
-import type {
-	RESTDeleteAPIInteractionFollowupResult,
-	RESTDeleteAPIInteractionOriginalResponseResult,
-	RESTGetAPIApplicationCommandPermissionsResult,
-	RESTGetAPIApplicationCommandResult,
-	RESTGetAPIApplicationCommandsResult,
-	RESTGetAPIApplicationGuildCommandResult,
-	RESTGetAPIApplicationGuildCommandsResult,
-	RESTGetAPIInteractionFollowupResult,
-	RESTGetAPIInteractionOriginalResponseResult,
-	RESTPatchAPIApplicationCommandJSONBody,
-	RESTPatchAPIApplicationCommandResult,
-	RESTPatchAPIApplicationGuildCommandJSONBody,
-	RESTPatchAPIApplicationGuildCommandResult,
-	RESTPatchAPIInteractionFollowupJSONBody,
-	RESTPatchAPIInteractionFollowupResult,
-	RESTPatchAPIInteractionOriginalResponseJSONBody,
-	RESTPatchAPIInteractionOriginalResponseResult,
-	RESTPostAPIApplicationCommandsJSONBody,
-	RESTPostAPIApplicationCommandsResult,
-	RESTPostAPIApplicationGuildCommandsJSONBody,
-	RESTPostAPIApplicationGuildCommandsResult,
-	RESTPostAPIInteractionCallbackJSONBody,
-	RESTPostAPIInteractionFollowupJSONBody,
-	RESTPostAPIInteractionFollowupResult,
-	RESTPutAPIApplicationCommandPermissionsJSONBody,
-	RESTPutAPIApplicationCommandPermissionsResult,
-	RESTPutAPIApplicationCommandsJSONBody,
-	RESTPutAPIApplicationCommandsResult,
-	RESTPutAPIApplicationGuildCommandsJSONBody,
-	RESTPutAPIApplicationGuildCommandsResult
+import {
+	InteractionResponseType,
+	type RESTDeleteAPIInteractionFollowupResult,
+	type RESTDeleteAPIInteractionOriginalResponseResult,
+	type RESTGetAPIApplicationCommandPermissionsResult,
+	type RESTGetAPIApplicationCommandResult,
+	type RESTGetAPIApplicationCommandsResult,
+	type RESTGetAPIApplicationGuildCommandResult,
+	type RESTGetAPIApplicationGuildCommandsResult,
+	type RESTGetAPIInteractionFollowupResult,
+	type RESTGetAPIInteractionOriginalResponseResult,
+	type RESTPatchAPIApplicationCommandJSONBody,
+	type RESTPatchAPIApplicationCommandResult,
+	type RESTPatchAPIApplicationGuildCommandJSONBody,
+	type RESTPatchAPIApplicationGuildCommandResult,
+	type RESTPatchAPIInteractionFollowupJSONBody,
+	type RESTPatchAPIInteractionFollowupResult,
+	type RESTPatchAPIInteractionOriginalResponseJSONBody,
+	type RESTPatchAPIInteractionOriginalResponseResult,
+	type RESTPostAPIApplicationCommandsJSONBody,
+	type RESTPostAPIApplicationCommandsResult,
+	type RESTPostAPIApplicationGuildCommandsJSONBody,
+	type RESTPostAPIApplicationGuildCommandsResult,
+	type RESTPostAPIInteractionCallbackJSONBody,
+	type RESTPostAPIInteractionFollowupJSONBody,
+	type RESTPostAPIInteractionFollowupResult,
+	type RESTPutAPIApplicationCommandPermissionsJSONBody,
+	type RESTPutAPIApplicationCommandPermissionsResult,
+	type RESTPutAPIApplicationCommandsJSONBody,
+	type RESTPutAPIApplicationCommandsResult,
+	type RESTPutAPIApplicationGuildCommandsJSONBody,
+	type RESTPutAPIApplicationGuildCommandsResult
 } from "discord-api-types/v10";
 
 import type { Readable } from "stream";
@@ -54,7 +56,7 @@ class InteractionMethods {
 	 * @param requestHandler request handler that calls the rest api
 	 * @param webhooks WebhookMethods class that handles webhook related stuff
 	 */
-	public constructor(public requestHandler: RH, public webhooks: WHM) {}
+	public constructor(public requestHandler: RH, public webhooks: WHM, public options: SnowTransfer.Options) {}
 
 	/**
 	 * Fetch all global commands for your application
@@ -306,6 +308,11 @@ class InteractionMethods {
 	 * client.interaction.createInteractionResponse("interactionId", "token", { type: 4, data: { content: "Hello World" } })
 	 */
 	public async createInteractionResponse(interactionId: string, token: string, data: RESTPostAPIInteractionCallbackJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }): Promise<void> {
+		if ((
+			data.type === InteractionResponseType.ChannelMessageWithSource ||
+			data.type === InteractionResponseType.UpdateMessage
+		) && data.data) data.data.allowed_mentions ??= this.options.allowed_mentions;
+
 		if (data.files) return this.requestHandler.request(Endpoints.INTERACTION_CALLBACK(interactionId, token), {}, "post", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.INTERACTION_CALLBACK(interactionId, token), {}, "post", "json", data);
 	}
