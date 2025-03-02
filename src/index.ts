@@ -3,6 +3,7 @@ import AutoModerationMethods2 = require("./methods/AutoModeration");
 import BotMethods2 = require("./methods/Bot");
 import ChannelMethods2 = require("./methods/Channel");
 import AssetsMethods2 = require("./methods/Assets");
+import EntitlementsMethods2 = require("./methods/Entitlements");
 import GuildMethods2 = require("./methods/Guild");
 import GuildScheduledEventMethods2 = require("./methods/GuildScheduledEvent");
 import GuildTemplateMethods2 = require("./methods/GuildTemplate");
@@ -38,6 +39,7 @@ export {
 	BotMethods2 as BotMethods,
 	ChannelMethods2 as ChannelMethods,
 	AssetsMethods2 as AssetsMethods,
+	EntitlementsMethods2 as EntitlementsMethods,
 	GuildMethods2 as GuildMethods,
 	GuildScheduledEventMethods2 as GuildScheduledEventMethods,
 	GuildTemplateMethods2 as GuildTemplateMethods,
