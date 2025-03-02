@@ -1,6 +1,7 @@
 import { Blob, File } from "buffer";
 import { Readable } from "stream";
 import { ReadableStream } from "stream/web";
+import { deprecate } from "util";
 
 const mentionRegex = /@([^<>@ ]*)/gsmu;
 const isValidUserMentionRegex = /^[&!]?\d+$/;
@@ -51,9 +52,9 @@ const Constants = {
 			form.set(name, blob, filename);
 		} else throw new Error(`Don't know how to add ${value?.constructor?.name ?? typeof value} to form`);
 	},
-	replaceEveryone(content: string): string {
+	replaceEveryone: deprecate(function replaceEveryone(content: string): string {
 		return content.replace(mentionRegex, replaceEveryoneMatchProcessor);
-	}
+	}, "SnowTransfer: disableEveryone option has been deprecated and will be removed in a future release. Please use allowed_mentions instead.")
 };
 
 export = Constants;

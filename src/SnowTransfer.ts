@@ -25,7 +25,8 @@ namespace SnowTransfer {
 		baseHost: string;
 		/** The default allowed_mentions object to send when creating/updating messages */
 		allowed_mentions: APIAllowedMentions | undefined;
-		/** If methods that send messages should have their content processed to remove [at]everyone and [at]here */
+		/** If methods that send messages should have their content processed to remove [at]everyone and [at]here
+		 * @deprecated Use {@link Options.allowed_mentions allowed_mentions} instead */
 		disableEveryone: boolean;
 		/** If rate limit buckets should be totally bypassed and functions are executed as fast as possible. Only use if you are 100% certain you wont run into issues or if you are proxying */
 		bypassBuckets: boolean;
