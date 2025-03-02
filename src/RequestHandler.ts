@@ -81,8 +81,10 @@ export class DiscordAPIError extends Error {
 	public path: string;
 	public code: number;
 	public httpStatus: number;
+	public request: RequestEventData;
+	public response: Response;
 
-	public constructor(error: { message?: string; code?: number; }, public request: RequestEventData, public response: Response) {
+	public constructor(error: { message?: string; code?: number; }, request: RequestEventData, response: Response) {
 		super();
 		this.name = "DiscordAPIError";
 		this.message = error.message ?? String(error);
@@ -90,6 +92,11 @@ export class DiscordAPIError extends Error {
 		this.path = request.endpoint;
 		this.code = error.code ?? 4000;
 		this.httpStatus = response.status;
+
+		Object.defineProperties(this, {
+			request: { enumerable: false, value: request },
+			response: { enumerable: false, value: response },
+		});
 	}
 }
 
