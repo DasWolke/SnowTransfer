@@ -9,6 +9,7 @@ import GuildScheduledEventMethods2 = require("./methods/GuildScheduledEvent");
 import GuildTemplateMethods2 = require("./methods/GuildTemplate");
 import InteractionMethods2 = require("./methods/Interaction");
 import InviteMethods2 = require("./methods/Invite");
+import SkuMethods2 = require("./methods/Sku");
 import StageInstanceMethods2 = require("./methods/StageInstance");
 import UserMethods2 = require("./methods/User");
 import VoiceMethods2 = require("./methods/Voice");
@@ -45,6 +46,7 @@ export {
 	GuildTemplateMethods2 as GuildTemplateMethods,
 	InteractionMethods2 as InteractionMethods,
 	InviteMethods2 as InviteMethods,
+	SkuMethods2 as SkuMethods,
 	StageInstanceMethods2 as StageInstanceMethods,
 	UserMethods2 as UserMethods,
 	VoiceMethods2 as VoiceMethods,
