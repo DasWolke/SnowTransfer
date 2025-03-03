@@ -10,6 +10,7 @@ import GuildScheduledEventMethods = require("./methods/GuildScheduledEvent");
 import GuildTemplateMethods = require("./methods/GuildTemplate");
 import InteractionMethods = require("./methods/Interaction");
 import InviteMethods = require("./methods/Invite");
+import SkuMethods = require("./methods/Sku");
 import StageInstanceMethods = require("./methods/StageInstance");
 import UserMethods = require("./methods/User");
 import VoiceMethods = require("./methods/Voice");
@@ -77,6 +78,8 @@ class SnowTransfer {
 	public autoMod: AutoModerationMethods;
 	/** Methods related to entitlements */
 	public entitlement: EntitlementMethods;
+	/** Methods related to SKUs */
+	public sku: SkuMethods;
 	/** Ratelimiter used for handling the ratelimits imposed by the rest api */
 	public ratelimiter: Ratelimiter;
 
@@ -113,6 +116,7 @@ class SnowTransfer {
 		this.stageInstance = new StageInstanceMethods(this.requestHandler);
 		this.autoMod = new AutoModerationMethods(this.requestHandler);
 		this.entitlement = new EntitlementMethods(this.requestHandler);
+		this.sku = new SkuMethods(this.requestHandler);
 	}
 }
 
