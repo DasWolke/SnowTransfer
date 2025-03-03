@@ -344,7 +344,7 @@ export class GlobalBucket extends LocalBucket {
 	}
 }
 
-type RequestEventData = {
+export type RequestEventData = {
 	endpoint: string;
 	method: string;
 	dataType: "json" | "multipart";
