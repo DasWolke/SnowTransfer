@@ -30,6 +30,7 @@ import {
 	type RESTPostAPIAttachmentsRefreshURLsResult,
 	type RatelimitInfo,
 	type Queue,
+	type RequestEventData,
 	DiscordAPIError as DiscordAPIError2,
 	AsyncSequentialQueue as AsyncSequentialQueue2
 } from "./RequestHandler";
@@ -68,5 +69,6 @@ export {
 	type HandlerEvents,
 	type RESTPostAPIAttachmentsRefreshURLsResult,
 	type RatelimitInfo,
+	type RequestEventData,
 	type Queue
 };

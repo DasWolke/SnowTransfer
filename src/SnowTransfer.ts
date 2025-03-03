@@ -88,7 +88,7 @@ class SnowTransfer {
 	 * @param token Discord Bot token to use
 	 * @param options options
 	 */
-	public constructor(token?: string, options?: Partial<SnowTransfer["options"]>) {
+	public constructor(token?: string, options?: Partial<SnowTransfer.Options>) {
 		if (typeof token === "string" && token === "") throw new Error("Missing token");
 		if (token && (!token.startsWith("Bot") && !token.startsWith("Bearer"))) token = `Bot ${token}`;
 		this.options = { baseHost: Endpoints.BASE_HOST, allowed_mentions: undefined, disableEveryone: false, bypassBuckets: false, retryRequests: false, retryLimit: Constants.DEFAULT_RETRY_LIMIT, ...options };
