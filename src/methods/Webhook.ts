@@ -2,6 +2,7 @@ import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
 
 import type { RequestHandler as RH } from "../RequestHandler";
+import type SnowTransfer = require("../SnowTransfer");
 
 import {
 	type RESTDeleteAPIWebhookResult,
@@ -47,9 +48,9 @@ class WebhookMethods {
 	 *
 	 * You can access the methods listed via `client.webhook.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
-	 * @param disableEveryone Disable [at]everyone/[at]here on outgoing messages
+	 * @param options Options for the SnowTransfer instance
 	 */
-	public constructor(public requestHandler: RH, public disableEveryone: boolean) {}
+	public constructor(public requestHandler: RH, public options: SnowTransfer.Options) {}
 
 	/**
 	 * Create a new Webhook
@@ -206,9 +207,10 @@ class WebhookMethods {
 		if ((data.content || data.embeds) && data.flags && (hasComponentsV2)) throw new Error("The message flags was set to include IsComponentsV2, but content and/or embeds were also present. You can either have content/embeds or components v2, not both.");
 
 		// Sanitize the message
-		if (data.content && (options?.disableEveryone ?? this.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
-		if (data.components && (options?.disableEveryone ?? this.disableEveryone)) data.components = Constants.replaceEveryone(data.components);
+		if (data.content && (options?.disableEveryone ?? this.options.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
+		if (data.components && (options?.disableEveryone ?? this.options.disableEveryone)) data.components = Constants.replaceEveryone(data.components);
 		if (options) delete options.disableEveryone;
+		data.allowed_mentions ??= this.options.allowed_mentions;
 
 		if (data.files) return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN(webhookId, token)}`, options, "post", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), options, "post", "json", data);
@@ -278,6 +280,8 @@ class WebhookMethods {
 		let threadId: string | undefined = undefined;
 		if (data.thread_id) threadId = data.thread_id;
 		delete data.thread_id;
+
+		data.allowed_mentions ??= this.options.allowed_mentions;
 
 		if (data.files) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadId }, "patch", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadId }, "patch", "json", data);

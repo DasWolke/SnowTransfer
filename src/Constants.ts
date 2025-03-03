@@ -1,6 +1,7 @@
 import { Blob, File } from "buffer";
 import { Readable } from "stream";
 import { ReadableStream } from "stream/web";
+import { deprecate } from "util";
 
 import {
 	type APIMessageTopLevelComponent,
@@ -57,7 +58,7 @@ const Constants = {
 			form.set(name, blob, filename);
 		} else throw new Error(`Don't know how to add ${value?.constructor?.name ?? typeof value} to form`);
 	},
-	replaceEveryone<T extends string | Array<APIMessageTopLevelComponent> | APIMessageTopLevelComponent>(content: T): T {
+	replaceEveryone: deprecate(function replaceEveryone<T extends string | Array<APIMessageTopLevelComponent> | APIMessageTopLevelComponent>(content: T): T {
 		if (typeof content === "string") return content.replace(mentionRegex, replaceEveryoneMatchProcessor) as T;
 		if (Array.isArray(content)) return content.map(comp => Constants.replaceEveryone(comp)) as T;
 		switch (content.type) {
@@ -71,7 +72,7 @@ const Constants = {
 				return content;
 		}
 		return content;
-	}
+	}, "SnowTransfer: disableEveryone option has been deprecated and will be removed in a future release. Please use allowed_mentions instead.")
 };
 
 export = Constants;

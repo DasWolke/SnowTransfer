@@ -77,15 +77,26 @@ const disallowedBodyMethods = new Set(["head", "get", "delete"]);
  * @since 0.3.0
  */
 export class DiscordAPIError extends Error {
+	public method: string;
+	public path: string;
 	public code: number;
 	public httpStatus: number;
+	public request: RequestEventData;
+	public response: Response;
 
-	public constructor(public path: string, error: { message?: string; code?: number; }, public method: string, status: number) {
+	public constructor(error: { message?: string; code?: number; }, request: RequestEventData, response: Response) {
 		super();
 		this.name = "DiscordAPIError";
 		this.message = error.message ?? String(error);
+		this.method = request.method;
+		this.path = request.endpoint;
 		this.code = error.code ?? 4000;
-		this.httpStatus = status;
+		this.httpStatus = response.status;
+
+		Object.defineProperties(this, {
+			request: { enumerable: false, value: request },
+			response: { enumerable: false, value: response },
+		});
 	}
 }
 
@@ -333,9 +344,16 @@ export class GlobalBucket extends LocalBucket {
 	}
 }
 
+export type RequestEventData = {
+	endpoint: string;
+	method: string;
+	dataType: "json" | "multipart";
+	data: any;
+};
+
 export type HandlerEvents = {
-	request: [string, { endpoint: string, method: string, dataType: "json" | "multipart", data: any; }];
-	done: [string, Response];
+	request: [string, RequestEventData];
+	done: [string, Response, RequestEventData];
 	requestError: [string, Error];
 	rateLimit: [{ timeout: number; remaining: number; limit: number; method: string; path: string; route: string; }];
 }
@@ -419,7 +437,8 @@ export class RequestHandler extends EventEmitter {
 			const fn = async (bkt?: GlobalBucket | undefined) => {
 				const reqId = crypto.randomBytes(20).toString("hex");
 				try {
-					this.emit("request", reqId, { endpoint, method: method.toUpperCase(), dataType, data: data ?? {} });
+					const request = { endpoint, method: method.toUpperCase(), dataType, data: data ?? {} };
+					this.emit("request", reqId, request);
 
 					const before = Date.now();
 
@@ -442,12 +461,7 @@ export class RequestHandler extends EventEmitter {
 
 					if (response.status && !Constants.OK_STATUS_CODES.has(response.status) && response.status !== 429) {
 						if (this.options.retryFailed && !Constants.DO_NOT_RETRY_STATUS_CODES.has(response.status) && retries !== 0) return this.request(endpoint, params, method, dataType as any, data, extraHeaders, retries--).then(resolve).catch(reject);
-						throw new DiscordAPIError(
-							endpoint,
-							{ message: await response.text() },
-							method.toUpperCase(),
-							response.status
-						);
+						throw new DiscordAPIError({ message: await response.text() }, request, response);
 					}
 
 					if (response.status === 429) {
@@ -464,10 +478,10 @@ export class RequestHandler extends EventEmitter {
 							route: bkt?.routeKey ?? this.ratelimiter.routify(endpoint, method.toUpperCase())
 						});
 
-						throw new DiscordAPIError(endpoint, { message: b.message, code: b.code ?? 429 }, method.toUpperCase(), response.status);
+						throw new DiscordAPIError({ message: b.message, code: b.code ?? 429 }, request, response);
 					}
 
-					this.emit("done", reqId, response);
+					this.emit("done", reqId, response, request);
 
 					if (response.body) {
 						let b: any;

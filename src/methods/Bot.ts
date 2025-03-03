@@ -5,7 +5,8 @@ import type { RequestHandler as RH } from "../RequestHandler";
 import type {
 	RESTGetAPIGatewayBotResult,
 	RESTGetAPIGatewayResult,
-	APIApplication
+	APIApplication,
+	RESTPatchCurrentApplicationJSONBody
 } from "discord-api-types/v10";
 
 /**
@@ -52,7 +53,7 @@ class BotMethods {
 	}
 
 	/**
-	 * Get the Application Object for the CurrentUser
+	 * Get the Application Object for the Current User
 	 * @since 0.11.0
 	 * @returns An [Application object](https://discord.com/developers/docs/resources/application#application-object-application-structure)
 	 *
@@ -61,7 +62,24 @@ class BotMethods {
 	 * const result = await client.bot.getApplicationInfo()
 	 */
 	public async getApplicationInfo(): Promise<APIApplication> {
-		return this.requestHandler.request(Endpoints.OAUTH2_APPLICATION("@me"), {}, "get", "json")
+		return this.requestHandler.request(Endpoints.OAUTH2_APPLICATION("@me"), {}, "get", "json");
+	}
+
+	/**
+	 * Update the Application Object for the Current User
+	 * @since 0.13.0
+	 * @returns An [Application object](https://discord.com/developers/docs/resources/application#application-object-application-structure)
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const appData = {
+	 * 	description: "My new bot description",
+	 * 	interactions_endpoint_url: "https://mycoolbot.example/api/interactions"
+	 * };
+	 * client.bot.updateApplicationInfo(appData)
+	 */
+	public async updateApplicationInfo(data: RESTPatchCurrentApplicationJSONBody): Promise<APIApplication> {
+		return this.requestHandler.request(Endpoints.OAUTH2_APPLICATION("@me"), {}, "patch", "json", data);
 	}
 }
 

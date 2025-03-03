@@ -1,4 +1,5 @@
 import type { RequestHandler as RH, RESTPostAPIAttachmentsRefreshURLsResult } from "../RequestHandler";
+import type SnowTransfer = require("../SnowTransfer");
 
 import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
@@ -53,9 +54,8 @@ import {
 	type RESTGetAPIPollAnswerVotersQuery,
 	type RESTGetAPIPollAnswerVotersResult,
 	type RESTPostAPIPollExpireResult,
-
-	MessageFlags,
-	MessageReferenceType
+	MessageReferenceType,
+	MessageFlags
 } from "discord-api-types/v10";
 
 import type { Readable } from "stream";
@@ -73,9 +73,9 @@ class ChannelMethods {
 	 *
 	 * You can access the methods listed via `client.channel.method`, where `client` is an initialized SnowTransfer instance
 	 * @param requestHandler request handler that calls the rest api
-	 * @param disableEveryone Disable [at]everyone/[at]here on outgoing messages
+	 * @param options Options for the SnowTransfer instance
 	 */
-	public constructor(public requestHandler: RH, public disableEveryone: boolean) {}
+	public constructor(public requestHandler: RH, public options: SnowTransfer.Options) {}
 
 	/**
 	 * Get a channel via Id
@@ -249,15 +249,16 @@ class ChannelMethods {
 	 * const fileData = fs.readFileSync("nice_picture.png") // You should probably use fs.promises.readFile, since it is asynchronous, synchronous methods block the thread.
 	 * client.channel.createMessage("channel id", { content: "This is a nice picture", files: [{ name: "Optional_Filename.png", file: fileData }] })
 	 */
-	public async createMessage(channelId: string, data: string | RESTPostAPIChannelMessageJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options: { disableEveryone?: boolean; } = { disableEveryone: this.disableEveryone }): Promise<RESTPostAPIChannelMessageResult> {
+	public async createMessage(channelId: string, data: string | RESTPostAPIChannelMessageJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options: { disableEveryone?: boolean; } = { disableEveryone: this.options.disableEveryone }): Promise<RESTPostAPIChannelMessageResult> {
 		if (typeof data !== "string" && !data.content && (!data.message_reference || (data.message_reference && data.message_reference.type === MessageReferenceType.Default)) && !data.embeds && !data.sticker_ids && !data.components && !data.files && !data.poll) throw new Error("Missing content, message_reference type 1, embeds, sticker_ids, components, files, or poll");
 		if (typeof data === "string") data = { content: data };
 
 		if ((data.content || data.embeds) && data.flags && (data.flags & MessageFlags.IsComponentsV2) === MessageFlags.IsComponentsV2) throw new Error("The message flags was set to include IsComponentsV2, but content and/or embeds were also present. You can either have content/embeds or components v2, not both.");
 
 		// Sanitize the message
-		if (data.content && (options.disableEveryone ?? this.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
-		if (data.components && (options.disableEveryone ?? this.disableEveryone)) data.components = Constants.replaceEveryone(data.components);
+		if (data.content && (options.disableEveryone ?? this.options.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
+		if (data.components && (options.disableEveryone ?? this.options.disableEveryone)) data.components = Constants.replaceEveryone(data.components);
+		data.allowed_mentions ??= this.options.allowed_mentions;
 
 		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "json", data);
@@ -489,11 +490,13 @@ class ChannelMethods {
 	 * const message = await client.channel.createMessage("channel id", "pong")
 	 * client.channel.editMessage("channel id", message.id, `pong ${Date.now() - time}ms`)
 	 */
-	public async editMessage(channelId: string, messageId: string, data: string | RESTPatchAPIChannelMessageJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options: { disableEveryone?: boolean; } = { disableEveryone: this.disableEveryone }): Promise<RESTPatchAPIChannelMessageResult> {
+	public async editMessage(channelId: string, messageId: string, data: string | RESTPatchAPIChannelMessageJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options: { disableEveryone?: boolean; } = { disableEveryone: this.options.disableEveryone }): Promise<RESTPatchAPIChannelMessageResult> {
 		if (typeof data === "string") data = { content: data };
 
 		// Sanitize the message
-		if (data.content && (options.disableEveryone ?? this.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
+		if (data.content && (options.disableEveryone ?? this.options.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
+		if (data.components && (options.disableEveryone ?? this.options.disableEveryone)) data.components = Constants.replaceEveryone(data.components);
+		if (data.content || data.components) data.allowed_mentions ??= this.options.allowed_mentions;
 
 		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {}, "patch", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {}, "patch", "json", data);
