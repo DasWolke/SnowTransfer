@@ -3,7 +3,7 @@ import Constants = require("../Constants");
 
 import type { RequestHandler as RH } from "../RequestHandler";
 import type WHM = require("./Webhook");
-import type SnowTransfer = require("../SnowTransfer");
+import type ST = require("../SnowTransfer");
 
 import {
 	InteractionResponseType,
@@ -56,7 +56,7 @@ class InteractionMethods {
 	 * @param requestHandler request handler that calls the rest api
 	 * @param webhooks WebhookMethods class that handles webhook related stuff
 	 */
-	public constructor(public requestHandler: RH, public webhooks: WHM, public options: SnowTransfer.Options) {}
+	public constructor(public requestHandler: RH, public webhooks: WHM, public options: ST.Options) {}
 
 	/**
 	 * Fetch all global commands for your application
