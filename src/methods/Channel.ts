@@ -1,5 +1,5 @@
 import type { RequestHandler as RH, RESTPostAPIAttachmentsRefreshURLsResult } from "../RequestHandler";
-import type SnowTransfer = require("../SnowTransfer");
+import type ST = require("../SnowTransfer");
 
 import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
@@ -74,7 +74,7 @@ class ChannelMethods {
 	 * @param requestHandler request handler that calls the rest api
 	 * @param options Options for the SnowTransfer instance
 	 */
-	public constructor(public requestHandler: RH, public options: SnowTransfer.Options) {}
+	public constructor(public requestHandler: RH, public options: ST.Options) {}
 
 	/**
 	 * Get a channel via Id
