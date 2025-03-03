@@ -358,27 +358,11 @@ export type HandlerEvents = {
 	rateLimit: [{ timeout: number; remaining: number; limit: number; method: string; path: string; route: string; }];
 }
 
-export interface RequestHandler {
-	addListener<E extends keyof HandlerEvents>(event: E, listener: (...args: HandlerEvents[E]) => any): this;
-	emit<E extends keyof HandlerEvents>(event: E, ...args: HandlerEvents[E]): boolean;
-	eventNames(): Array<keyof HandlerEvents>;
-	listenerCount(event: keyof HandlerEvents): number;
-	listeners(event: keyof HandlerEvents): Array<(...args: Array<any>) => any>;
-	off<E extends keyof HandlerEvents>(event: E, listener: (...args: HandlerEvents[E]) => any): this;
-	on<E extends keyof HandlerEvents>(event: E, listener: (...args: HandlerEvents[E]) => any): this;
-	once<E extends keyof HandlerEvents>(event: E, listener: (...args: HandlerEvents[E]) => any): this;
-	prependListener<E extends keyof HandlerEvents>(event: E, listener: (...args: HandlerEvents[E]) => any): this;
-	prependOnceListener<E extends keyof HandlerEvents>(event: E, listener: (...args: HandlerEvents[E]) => any): this;
-	rawListeners(event: keyof HandlerEvents): Array<(...args: Array<any>) => any>;
-	removeAllListeners(event?: keyof HandlerEvents): this;
-	removeListener<E extends keyof HandlerEvents>(event: E, listener: (...args: HandlerEvents[E]) => any): this;
-}
-
 /**
  * Request Handler class
  * @since 0.1.0
  */
-export class RequestHandler extends EventEmitter {
+export class RequestHandler extends EventEmitter<HandlerEvents> {
 	public options: {
 		/** The base URL to use when making requests. Defaults to https://discord.com */
 		baseHost: string;
