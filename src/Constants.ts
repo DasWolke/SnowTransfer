@@ -63,6 +63,7 @@ const Constants = {
 		if (Array.isArray(content)) return content.map(comp => Constants.replaceEveryone(comp)) as T;
 		switch (content.type) {
 			case ComponentType.Section:
+			case ComponentType.Container:
 				content.components = Constants.replaceEveryone(content.components);
 				break;
 			case ComponentType.TextDisplay:
