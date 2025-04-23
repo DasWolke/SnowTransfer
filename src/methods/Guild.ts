@@ -58,8 +58,6 @@ import type {
 	RESTPostAPIGuildPruneResult,
 	RESTPostAPIGuildRoleJSONBody,
 	RESTPostAPIGuildRoleResult,
-	RESTPostAPIGuildsJSONBody,
-	RESTPostAPIGuildsResult,
 	RESTPutAPIGuildBanJSONBody,
 	RESTPutAPIGuildBanResult,
 	RESTPutAPIGuildMemberJSONBody,
@@ -81,25 +79,6 @@ class GuildMethods {
 	 * @param requestHandler request handler that calls the rest api
 	 */
 	public constructor(public requestHandler: RH) {}
-
-	/**
-	 * Create a new Guild, **limited to 10 guilds (you may create more if you are whitelisted)**
-	 * Check the [discord docs](https://discord.com/developers/docs/resources/guild#create-guild) for more infos
-	 * @since 0.1.0
-	 * @param data Data for the new guild
-	 * @returns [Guild](https://discord.com/developers/docs/resources/guild#guild-object)
-	 *
-	 * @example
-	 * // Creates a simple guild with the name "Demo Guild"
-	 * const client = new SnowTransfer("TOKEN")
-	 * const guildData = {
-	 * 	name: "Demo Guild"
-	 * }
-	 * const guild = await client.guild.createGuild(guildData)
-	 */
-	public async createGuild(data: RESTPostAPIGuildsJSONBody): Promise<RESTPostAPIGuildsResult> {
-		return this.requestHandler.request(Endpoints.GUILDS, {}, "post", "json", data);
-	}
 
 	/**
 	 * Get a guild via Id

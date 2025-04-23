@@ -4,6 +4,7 @@ import fs = require("fs");
 import path = require("path");
 import { EventEmitter } from "events";
 import crypto = require("crypto");
+import util = require("util");
 
 import Endpoints = require("./Endpoints");
 const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, "../package.json"), { encoding: "utf8" })); // otherwise, the json was included in the build
@@ -87,7 +88,7 @@ export class DiscordAPIError extends Error {
 	public constructor(error: { message?: string; code?: number; }, request: RequestEventData, response: Response) {
 		super();
 		this.name = "DiscordAPIError";
-		this.message = error.message ?? String(error);
+		this.message = error.message ?? util.inspect(error);
 		this.method = request.method;
 		this.path = request.endpoint;
 		this.code = error.code ?? 4000;
