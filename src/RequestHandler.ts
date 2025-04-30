@@ -417,7 +417,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 	public request(endpoint: string, params: Record<string, any> | undefined, method: HTTPMethod, dataType: "json", data?: any, extraHeaders?: Record<string, string>, retries?: number): Promise<any>
 	public request(endpoint: string, params: Record<string, any> | undefined, method: HTTPMethod, dataType: "multipart", data?: FormData, extraHeaders?: Record<string, string>, retries?: number): Promise<any>
 	public request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, dataType: "json" | "multipart", data?: any, extraHeaders?: Record<string, string>, retries = this.options.retryLimit): Promise<any> {
-		// const stack = new Error().stack as string;
+		const stack = new Error().stack as string;
 		return new Promise(async (resolve, reject) => {
 			const fn = async (bkt?: GlobalBucket | undefined) => {
 				const reqId = crypto.randomBytes(20).toString("hex");
@@ -478,7 +478,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 						return resolve(b);
 					} else return resolve(undefined);
 				} catch (error) {
-					// if (error && error.stack) error.stack = stack;
+					if (error?.stack) error.stack = error.stack + `\n${stack.split("\n").slice(1).join("\n")}`;
 					this.emit("requestError", reqId, error);
 					return reject(error as Error);
 				}
