@@ -527,9 +527,9 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 		if (!disallowedBodyMethods.has(method)) {
 			if (typeof data === "object") body = JSON.stringify(data);
 			else body = String(data);
-		}
 
-		headers["Content-Type"] = "application/json";
+			headers["Content-Type"] = "application/json";
+		}
 
 		return fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
 			method: method.toUpperCase(),
