@@ -26,7 +26,7 @@ class InviteMethods {
 	/**
 	 * Get the invite data on an invite id
 	 * @since 0.1.0
-	 * @param inviteId Id of the invite
+	 * @param inviteId Code of the invite
 	 * @param options Query params for additional metadata fields
 	 * @returns [Invite Object](https://discord.com/developers/docs/resources/invite#invite-object)
 	 *
@@ -42,7 +42,8 @@ class InviteMethods {
 	/**
 	 * Delete an invite
 	 * @since 0.1.0
-	 * @param inviteId
+	 * @param inviteId The code of the invite to delete
+	 * @param reason The reason to show in the audit log
 	 * @returns [Invite Object](https://discord.com/developers/docs/resources/invite#invite-object)
 	 *
 	 * | Permissions needed | Condition                                     |
@@ -54,8 +55,8 @@ class InviteMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const invite = await client.invite.deleteInvite("inviteId")
 	 */
-	public async deleteInvite(inviteId: string): Promise<RESTDeleteAPIInviteResult> {
-		return this.requestHandler.request(Endpoints.INVITES(inviteId), {}, "delete", "json");
+	public async deleteInvite(inviteId: string, reason?: string): Promise<RESTDeleteAPIInviteResult> {
+		return this.requestHandler.request(Endpoints.INVITES(inviteId), {}, "delete", "json", { reason });
 	}
 }
 

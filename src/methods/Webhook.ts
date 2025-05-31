@@ -71,7 +71,7 @@ class WebhookMethods {
 	 * }
 	 * const webhook = await client.webhook.createWebhook("channel Id", webhookData)
 	 */
-	public async createWebhook(channelId: string, data: RESTPostAPIChannelWebhookJSONBody): Promise<RESTPostAPIChannelWebhookResult> {
+	public async createWebhook(channelId: string, data: RESTPostAPIChannelWebhookJSONBody & { reason?: string; }): Promise<RESTPostAPIChannelWebhookResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_WEBHOOKS(channelId), {}, "post", "json", data);
 	}
 
@@ -166,6 +166,7 @@ class WebhookMethods {
 	 * @since 0.1.0
 	 * @param webhookId Id of the webhook
 	 * @param token Webhook token
+	 * @param reason The reason to show in the audit log
 	 * @returns Resolves the Promise on successful execution
 	 *
 	 * | Permissions needed | Condition     |
@@ -177,9 +178,9 @@ class WebhookMethods {
 	 * const client = new SnowTransfer(); // No token needed if webhook token is provided
 	 * client.webhook.deleteWebhook("webhook Id", "webhook token")
 	 */
-	public async deleteWebhook(webhookId: string, token?: string): Promise<RESTDeleteAPIWebhookResult> {
-		if (token) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), {}, "delete", "json") as RESTDeleteAPIWebhookResult;
-		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), {}, "delete", "json") as RESTDeleteAPIWebhookResult;
+	public async deleteWebhook(webhookId: string, token?: string, reason?: string): Promise<RESTDeleteAPIWebhookResult> {
+		if (token) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), {}, "delete", "json", { reason }) as RESTDeleteAPIWebhookResult;
+		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), {}, "delete", "json", { reason }) as RESTDeleteAPIWebhookResult;
 	}
 
 	/**
