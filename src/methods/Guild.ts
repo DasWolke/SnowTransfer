@@ -130,7 +130,7 @@ class GuildMethods {
 	 * }
 	 * client.guild.updateGuild("guild Id", guildData)
 	 */
-	public async updateGuild(guildId: string, data: RESTPatchAPIGuildJSONBody): Promise<RESTPatchAPIGuildResult> {
+	public async updateGuild(guildId: string, data: RESTPatchAPIGuildJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildResult> {
 		return this.requestHandler.request(Endpoints.GUILD(guildId), {}, "patch", "json", data);
 	}
 
@@ -191,7 +191,7 @@ class GuildMethods {
 	 * \}
 	 * const channel = await client.guild.createGuildChannel("guild id", channelData)
 	 */
-	public async createGuildChannel(guildId: string, data: RESTPostAPIGuildChannelJSONBody): Promise<RESTPostAPIGuildChannelResult> {
+	public async createGuildChannel(guildId: string, data: RESTPostAPIGuildChannelJSONBody & { reason?: string; }): Promise<RESTPostAPIGuildChannelResult> {
 		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), {}, "post", "json", data);
 	}
 
@@ -342,7 +342,7 @@ class GuildMethods {
 	 * }
 	 * const member = await client.guild.updateGuildMember("guild Id", "memberId", memberData)
 	 */
-	public async updateGuildMember(guildId: string, memberId: string, data: RESTPatchAPIGuildMemberJSONBody): Promise<RESTPatchAPIGuildMemberResult> {
+	public async updateGuildMember(guildId: string, memberId: string, data: RESTPatchAPIGuildMemberJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildMemberResult> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), {}, "patch", "json", data);
 	}
 
@@ -601,7 +601,7 @@ class GuildMethods {
 	 * }
 	 * client.guild.updateGuildRole("guildId", "roleId", roleData)
 	 */
-	public async updateGuildRole(guildId: string, roleId: string, data: RESTPatchAPIGuildRoleJSONBody): Promise<RESTPatchAPIGuildRoleResult> {
+	public async updateGuildRole(guildId: string, roleId: string, data: RESTPatchAPIGuildRoleJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildRoleResult> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLE(guildId, roleId), {}, "patch", "json", data);
 	}
 

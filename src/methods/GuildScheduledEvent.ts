@@ -71,7 +71,7 @@ class GuildScheduledEventMethods {
 	 * }
 	 * const event = await client.guildScheduledEvent.createGuildScheduledEvent(guildId, eventData)
 	 */
-	public async createGuildScheduledEvent(guildId: string, data: RESTPostAPIGuildScheduledEventJSONBody): Promise<RESTPostAPIGuildScheduledEventResult> {
+	public async createGuildScheduledEvent(guildId: string, data: RESTPostAPIGuildScheduledEventJSONBody & { reason?: string; }): Promise<RESTPostAPIGuildScheduledEventResult> {
 		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENTS(guildId), {}, "post", "json", data);
 	}
 
@@ -117,7 +117,7 @@ class GuildScheduledEventMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const event = await client.guildScheduledEvent.editGuildScheduledEvent(guildId, eventId, { entity_type: 3, channel_id: null, entity_metadata: { location: "Brazil" }, scheduled_end_time: "2025-01-01T00:00:00.000Z" })
 	 */
-	public async editGuildScheduledEvent(guildId: string, eventId: string, data: RESTPatchAPIGuildScheduledEventJSONBody): Promise<RESTPatchAPIGuildScheduledEventResult> {
+	public async editGuildScheduledEvent(guildId: string, eventId: string, data: RESTPatchAPIGuildScheduledEventJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildScheduledEventResult> {
 		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT(guildId, eventId), {}, "patch", "json", data);
 	}
 

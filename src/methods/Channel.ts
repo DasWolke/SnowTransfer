@@ -648,6 +648,7 @@ class ChannelMethods {
 	 * @since 0.7.0
 	 * @param channelId The Id of the announcement channel
 	 * @param webhookChannelId The Id of the channel messages will be sent to
+	 * @param reason Reason to show in the audit log
 	 * @returns A [followed channel](https://discord.com/developers/docs/resources/channel#followed-channel-object) object
 	 *
 	 * | Permissions needed | Condition |
@@ -659,8 +660,8 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.channel.followAnnouncementChannel("news channel id", "text channel id")
 	 */
-	public async followAnnouncementChannel(channelId: string, webhookChannelId: string): Promise<RESTPostAPIChannelFollowersResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_FOLLOWERS(channelId), {}, "post", "json", { webhook_channel_id: webhookChannelId });
+	public async followAnnouncementChannel(channelId: string, webhookChannelId: string, reason?: string): Promise<RESTPostAPIChannelFollowersResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_FOLLOWERS(channelId), {}, "post", "json", { webhook_channel_id: webhookChannelId, reason });
 	}
 
 	/**
