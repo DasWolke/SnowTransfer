@@ -10,7 +10,6 @@ import type {
 	RESTDeleteAPIGuildIntegrationResult,
 	RESTDeleteAPIGuildMemberResult,
 	RESTDeleteAPIGuildMemberRoleResult,
-	RESTDeleteAPIGuildResult,
 	RESTDeleteAPIGuildRoleResult,
 	RESTGetAPIGuildBanResult,
 	RESTGetAPIGuildBansQuery,
@@ -132,24 +131,6 @@ class GuildMethods {
 	 */
 	public async updateGuild(guildId: string, data: RESTPatchAPIGuildJSONBody): Promise<RESTPatchAPIGuildResult> {
 		return this.requestHandler.request(Endpoints.GUILD(guildId), {}, "patch", "json", data);
-	}
-
-	/**
-	 * Delete a guild
-	 *
-	 * CurrentUser must be the owner of the guild
-	 *
-	 * **This action is irreversible, so use it with caution!**
-	 * @since 0.1.0
-	 * @param guildId Id of the guild
-	 * @returns Resolves the Promise on successful execution
-	 *
-	 * @example
-	 * const client = new SnowTransfer("TOKEN")
-	 * client.guild.deleteGuild("guild id")
-	 */
-	public async deleteGuild(guildId: string): Promise<RESTDeleteAPIGuildResult> {
-		return this.requestHandler.request(Endpoints.GUILD(guildId), {}, "delete", "json") as RESTDeleteAPIGuildResult;
 	}
 
 	/**

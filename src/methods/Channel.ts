@@ -13,7 +13,7 @@ import {
 	type RESTDeleteAPIChannelMessageResult,
 	type RESTDeleteAPIChannelMessageUserReactionResult,
 	type RESTDeleteAPIChannelPermissionResult,
-	type RESTDeleteAPIChannelPinResult,
+	type RESTDeleteAPIChannelMessagesPinResult,
 	type RESTDeleteAPIChannelResult,
 	type RESTDeleteAPIChannelThreadMembersResult,
 	type RESTGetAPIChannelInvitesResult,
@@ -22,7 +22,7 @@ import {
 	type RESTGetAPIChannelMessageResult,
 	type RESTGetAPIChannelMessagesQuery,
 	type RESTGetAPIChannelMessagesResult,
-	type RESTGetAPIChannelPinsResult,
+	type RESTGetAPIChannelMessagesPinsResult,
 	type RESTGetAPIChannelResult,
 	type RESTGetAPIChannelThreadMemberResult,
 	type RESTGetAPIChannelThreadMembersQuery,
@@ -49,11 +49,12 @@ import {
 	type RESTPutAPIChannelMessageReactionResult,
 	type RESTPutAPIChannelPermissionJSONBody,
 	type RESTPutAPIChannelPermissionResult,
-	type RESTPutAPIChannelPinResult,
+	type RESTPutAPIChannelMessagesPinResult,
 	type RESTPutAPIChannelThreadMembersResult,
 	type RESTGetAPIPollAnswerVotersQuery,
 	type RESTGetAPIPollAnswerVotersResult,
 	type RESTPostAPIPollExpireResult,
+	type RESTGetAPIChannelMessagesPinsQuery,
 	MessageReferenceType,
 	MessageFlags
 } from "discord-api-types/v10";
@@ -700,8 +701,8 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const messages = await client.channel.getPinnedMessages("channel id")
 	 */
-	public async getChannelPinnedMessages(channelId: string): Promise<RESTGetAPIChannelPinsResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_PINS(channelId), {}, "get", "json");
+	public async getChannelPinnedMessages(channelId: string, options?: RESTGetAPIChannelMessagesPinsQuery): Promise<RESTGetAPIChannelMessagesPinsResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_PINS(channelId), options, "get", "json");
 	}
 
 	/**
@@ -716,15 +717,15 @@ class ChannelMethods {
 	 * |----------------------|--------------------------------|
 	 * | VIEW_CHANNEL         | if channel is not a DM channel |
 	 * | READ_MESSAGE_HISTORY | if channel is not a DM channel |
-	 * | MANAGE_MESSAGES      | if channel is not a DM channel |
+	 * | PIN_MESSAGES         | if channel is not a DM channel |
 	 *
 	 * @example
 	 * // Pin a message because it was a good meme
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.channel.addChannelPinnedMessage("channel id", "message id", "Good meme")
 	 */
-	public async addChannelPinnedMessage(channelId: string, messageId: string, reason?: string): Promise<RESTPutAPIChannelPinResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), {}, "put", "json", { reason }) as RESTPutAPIChannelPinResult;
+	public async addChannelPinnedMessage(channelId: string, messageId: string, reason?: string): Promise<RESTPutAPIChannelMessagesPinResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), {}, "put", "json", { reason }) as RESTPutAPIChannelMessagesPinResult;
 	}
 
 	/**
@@ -739,15 +740,15 @@ class ChannelMethods {
 	 * |----------------------|--------------------------------|
 	 * | VIEW_CHANNEL         | if channel is not a DM channel |
 	 * | READ_MESSAGE_HISTORY | if channel is not a DM channel |
-	 * | MANAGE_MESSAGES      | if channel is not a DM channel |
+	 * | PIN_MESSAGES         | if channel is not a DM channel |
 	 *
 	 * @example
 	 * // Remove a pinned message because mod abuse :(
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.channel.removeChannelPinnedMessage("channel id", "message id", "Mod abuse")
 	 */
-	public async removeChannelPinnedMessage(channelId: string, messageId: string, reason?: string): Promise<RESTDeleteAPIChannelPinResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), {}, "delete", "json", { reason }) as RESTDeleteAPIChannelPinResult;
+	public async removeChannelPinnedMessage(channelId: string, messageId: string, reason?: string): Promise<RESTDeleteAPIChannelMessagesPinResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), {}, "delete", "json", { reason }) as RESTDeleteAPIChannelMessagesPinResult;
 	}
 
 	/**

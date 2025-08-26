@@ -10,8 +10,6 @@ import type {
 	RESTPatchAPIGuildTemplateResult,
 	RESTPostAPIGuildTemplatesJSONBody,
 	RESTPostAPIGuildTemplatesResult,
-	RESTPostAPITemplateCreateGuildJSONBody,
-	RESTPostAPITemplateCreateGuildResult,
 	RESTPutAPIGuildTemplateSyncResult
 } from "discord-api-types/v10";
 
@@ -42,21 +40,6 @@ class GuildTemplateMethods {
 	 */
 	public async getGuildTemplate(code: string): Promise<RESTGetAPITemplateResult> {
 		return this.requestHandler.request(Endpoints.TEMPLATE(code), {}, "get", "json");
-	}
-
-	/**
-	 * Creates a guild from a template. If using a bot account, the bot can only be in < 10 guilds (guild create limitation)
-	 * @since 0.3.0
-	 * @param code The code of the template
-	 * @param options Specific options for the new guild
-	 * @returns A [guild](https://discord.com/developers/docs/resources/guild#guild-object-guild-structure)
-	 *
-	 * @example
-	 * const client = new SnowTransfer("TOKEN")
-	 * const guild = await client.guildTemplate.createGuildFromGuildTemplate("code", { name: "Cool guild" })
-	 */
-	public async createGuildFromGuildTemplate(code: string, options: RESTPostAPITemplateCreateGuildJSONBody): Promise<RESTPostAPITemplateCreateGuildResult> {
-		return this.requestHandler.request(Endpoints.TEMPLATE(code), {}, "post", "json", options);
 	}
 
 	/**
