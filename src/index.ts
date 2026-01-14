@@ -21,7 +21,8 @@ import Constants2 = require("./Constants");
 import Endpoints2 = require("./Endpoints");
 import SnowTransfer2 = require("./SnowTransfer");
 import StateMachine2 = require("./StateMachine");
-import StateMachineGraph2 = require("./StateMachineGraph");
+import { graph } from "./StateMachineGraph";
+const graphWrapped = { graph };
 
 export * from "./Types";
 export * from "./RequestHandler";
@@ -50,5 +51,5 @@ export {
 	Endpoints2 as Endpoints,
 	SnowTransfer2 as SnowTransfer,
 	StateMachine2 as StateMachine,
-	StateMachineGraph2 as StateMachineGraph
+	graphWrapped as StateMachineGraph
 };
