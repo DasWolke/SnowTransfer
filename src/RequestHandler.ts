@@ -113,8 +113,8 @@ class Counter {
 
 	public timeUntilReset(): number {
 		const now = Date.now();
-		if (this.resetAt) return this.resetAt - now;
-		else return this.firstRequestTime + this.reset - Date.now();
+		if (this.resetAt) return Math.max(this.resetAt - now, 0);
+		else return Math.max(this.firstRequestTime + this.reset - Date.now(), 0);
 	}
 
 	public applyCount(limit: number, remaining: number, resetAfter: number): void {
