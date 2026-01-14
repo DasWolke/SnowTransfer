@@ -274,6 +274,7 @@ export class Bucket {
 
 	public resume(): void {
 		this.pauseRequested = false;
+		if (this.sm.currentStateName !== "paused") return
 		this.sm.doTransition("resume");
 	}
 
