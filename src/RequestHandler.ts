@@ -9,60 +9,9 @@ import util = require("util");
 import Endpoints = require("./Endpoints");
 const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, "../package.json"), { encoding: "utf8" })); // otherwise, the json was included in the build
 import Constants = require("./Constants");
+import StateMachine = require("./StateMachine");
 
-export type HTTPMethod = "get" | "post" | "patch" | "head" | "put" | "delete" | "connect" | "options" | "trace";
-
-export type RESTPostAPIAttachmentsRefreshURLsResult = {
-	refreshed_urls: Array<{
-		original: string;
-		refreshed: string;
-	}>;
-}
-
-export type RatelimitInfo = {
-	message: string;
-	retry_after: number;
-	global: boolean;
-	code?: number;
-}
-
-/**
- * Interface for Queue types to implement
- * @since 0.12.0
- */
-export interface Queue {
-	/**
-	 * Array of functions waiting to be executed
-	 */
-	calls: Array<() => any>;
-	/**
-	 * If the queue is currently executing functions
-	 */
-	running: boolean;
-	/**
-	 * If the queue is blocked from executing functions
-	 */
-	blocked: boolean;
-
-	/**
-	 * Queue a function to be executed
-	 * @since 0.12.0
-	 * @param fn function to be executed
-	 * @returns Result of the function if any
-	 */
-	enqueue<T>(fn: () => T): Promise<T>;
-	/**
-	 * Set if this queue should be blocked from executing functions
-	 * @since 0.12.0
-	 * @param blocked If this queue should be blocked from executing functions
-	 */
-	setBlocked(blocked: boolean): void;
-	/**
-	 * @since 0.12.0
-	 * Drop the queue of functions
-	 */
-	drop(): void;
-}
+import type { HTTPMethod, RatelimitInfo, RequestEventData, HandlerEvents } from "./Types";
 
 // const applicationJSONRegex = /application\/json/;
 const routeRegex = /\/([a-z-]+)\/(?:\d+)/g;
@@ -102,61 +51,238 @@ export class DiscordAPIError extends Error {
 }
 
 /**
- * A structure to queue (async) functions to run one at a time, waiting for each one to finish before continuing
- * @since 0.12.0
+ * @since 0.16.0
+ */
+class Counter {
+	/**
+	 * Remaining amount of executions during the current timeframe
+	 */
+	public remaining: number;
+
+	private firstRequestTime = 0;
+
+	private resetAt: number | null = null;
+
+	/**
+	 * Create a new base bucket
+	 * @param limit Number of functions that may be executed during the timeframe set in reset
+	 * @param reset Timeframe in milliseconds until the ratelimit resets after first
+	 */
+	public constructor(public limit: number, public reset: number) {
+		this.remaining = limit;
+	}
+
+	private checkReset(): void {
+		// Check if the counter has refreshed
+		const now = Date.now();
+		// If specific resetAt, use it (ignoring preset reset interval)
+		if (this.resetAt !== null) {
+			if (now > this.resetAt) {
+				this.firstRequestTime = 0;
+				this.remaining = this.limit;
+				this.resetAt = null;
+			}
+		}
+		// If no specific resetAt, count from first request and reset interval
+		else if (now > this.firstRequestTime + this.reset) {
+			this.firstRequestTime = 0;
+			this.remaining = this.limit;
+		}
+	}
+
+	/**
+	 * Like new.
+	 */
+	public hasReset(): boolean {
+		this.checkReset();
+		return this.remaining === this.limit;
+	}
+
+	/**
+	 * Returns true only if the caller is allowed to call take() and then send the request.
+	 */
+	public canTake(): boolean {
+		this.checkReset();
+		return this.remaining > 0;
+	}
+
+	public take(): boolean {
+		this.checkReset();
+		return this.remaining-- > 0;
+	}
+
+	public timeUntilReset(): number {
+		const now = Date.now();
+		if (this.resetAt) return this.resetAt - now;
+		else return this.firstRequestTime + this.reset - Date.now();
+	}
+
+	public applyCount(limit: number, remaining: number, resetAfter: number): void {
+		this.limit = limit;
+		this.remaining = remaining;
+		this.resetAt = Date.now() + resetAfter;
+	}
+}
+
+/**
+ * Bucket used for saving ratelimits
+ * @since 0.1.0
  * @protected
  */
-export class AsyncSequentialQueue implements Queue {
+export class Bucket {
+	/** Tracks the state this bucket is in (blocked, running, waiting, etc) and what operations are allowed. */
+	public sm = new StateMachine("ready");
+
+	/** Wrapped functions which always resolve (not reject) after the original function has completed and resolved. The original function may manipulate rate limit buckets in that time before it resolves. */
 	public calls: Array<() => any> = [];
 
-	private _blocked = false;
-	private _running = false;
+	public counters: Array<Counter> = [];
 
-	public get blocked(): boolean {
-		return this._blocked;
-	}
+	private pauseRequested = false;
 
-	public get running(): boolean {
-		return this._running;
-	}
+	/**
+	 * Create a new base bucket
+	 * @param limit Number of functions that may be executed during the timeframe set in reset
+	 * @param reset Timeframe in milliseconds until the ratelimit resets after first
+	 */
+	public constructor(public limit = 5, public reset = 5000, additionalCounters: Array<Counter> = []) {
+		this.counters = [
+			new Counter(limit, reset)
+		].concat(additionalCounters);
 
-	public enqueue<T>(fn: () => T): Promise<T> {
-		return new Promise((resolve, reject) => {
-			const wrapped = async () => {
-				try {
-					resolve(await fn());
-				} catch (e) {
-					reject(e as Error);
+		// nothing to do, nothing waiting for, the next request will be sent straight away
+		this.sm.defineState("ready", {
+			onEnter: [],
+			onLeave: [],
+			transitions: new Map([
+				["enqueue", {
+					destination: "check"
+				}],
+				["pause", {
+					destination: "paused"
+				}]
+			])
+		});
+
+		// trying to send a request, but should first check if there are any requests etc
+		this.sm.defineState("check", {
+			onEnter: [
+				() => {
+					if (this.pauseRequested) {
+						return this.sm.doTransition("pause");
+					}
+					if (!this.counters.every(c => c.canTake())) {
+						return this.sm.doTransition("cooldown");
+					}
+					if (this.calls.length) {
+						return this.sm.doTransition("run");
+					}
+					return this.sm.doTransition("empty");
 				}
-			}
+			],
+			onLeave: [],
+			transitions: new Map([
+				["pause", {
+					destination: "paused"
+				}],
+				["cooldown", {
+					destination: "cooldown"
+				}],
+				["run", {
+					destination: "running"
+				}],
+				["empty", {
+					destination: "ready"
+				}]
+			])
+		});
 
-			this.calls.push(wrapped);
-			this._tryRun();
+		// a request is in progress, can't do anything else until it gets back (the bucket is sequential)
+		this.sm.defineState("running", {
+			onEnter: [
+				() => {
+					// Take one from each counter
+					this.counters.forEach(c => c.take());
+					// Dequeue and run
+					const cb = this.calls.shift();
+					cb!().then(() => {
+						this.sm.doTransition("complete");
+					});
+				}
+			],
+			onLeave: [],
+			transitions: new Map([
+				["complete", {
+					destination: "check"
+				}]
+			])
+		});
+
+		// can't send more requests, waiting for rate limit reset. may or may not have pending requests
+		this.sm.defineState("cooldown", {
+			onEnter: [
+				() => {
+					this.sm.doTransitionLater("reset", Math.max(...this.counters.map(c => c.timeUntilReset())));
+				}
+			],
+			onLeave: [],
+			transitions: new Map([
+				["reset", {
+					destination: "check"
+				}]
+			])
+		});
+
+		// user has requested nothing to be sent for now
+		this.sm.defineState("paused", {
+			onEnter: [],
+			onLeave: [
+				() => {
+					this.pauseRequested = false;
+				}
+			],
+			transitions: new Map([
+				["resume", {
+					destination: "check"
+				}]
+			])
+		});
+
+		this.sm.freeze();
+	}
+
+	/**
+	 * Queue a function to be executed
+	 * @since 0.12.0
+	 * @param fn function to be executed
+	 * @returns Result of the function if any
+	 */
+	public enqueue<T>(fn: (bkt: this) => Promise<T>): Promise<T> {
+		return new Promise((resolve, reject) => {
+			this.calls.push(() => {
+				return fn(this).then(resolve).catch(reject);
+			});
+
+			if (this.sm.currentStateName === "ready") this.sm.doTransition("enqueue");
 		});
 	}
 
-	public setBlocked(blocked: boolean): void {
-		this._blocked = blocked;
-		this._tryRun();
+	public pause(): void {
+		this.pauseRequested = true;
+		if (this.sm.currentStateName === "ready") this.sm.doTransition("pause");
 	}
 
-	public drop(): void {
-		this.calls.length = 0;
-		this._running = false;
+	public resume(): void {
+		this.pauseRequested = false;
+		this.sm.doTransition("resume");
 	}
 
-	private _tryRun(): void {
-		if (this._blocked || this._running) return;
-		this._running = true;
-		this._next();
-	}
-
-	private async _next(): Promise<void> {
-		if (this._blocked || !this._running) return
-		const cb = this.calls.shift();
-		await cb?.();
-		if (this.calls.length && !this._blocked) setImmediate(() => this._next());
-		else this._running = false;
+	/**
+	 * Clear the current queue of events to be sent
+	 * @since 0.1.0
+	 */
+	public dropQueue(): void {
+		this.calls = [];
 	}
 }
 
@@ -165,28 +291,33 @@ export class AsyncSequentialQueue implements Queue {
  * @since 0.1.0
  * @protected
  */
-export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
+export class Ratelimiter {
 	/**
 	 * A Map of Buckets keyed by route keys that store rate limit info
 	 */
-	public buckets = new Map<string, InstanceType<B>>();
+	public buckets = new Map<string, Bucket>();
 	/**
 	 * The bucket that limits how many requests per second you can make globally
 	 */
-	public globalBucket = new LocalBucket(Constants.GLOBAL_REQUESTS_PER_SECOND, 1000);
+	public globalBucket = new Bucket(Constants.GLOBAL_REQUESTS_PER_SECOND, 1000);
 
 	/**
 	 * If you're being globally rate limited
 	 */
 	public get global() {
-		return this.globalBucket.remaining === 0;
+		return !this.globalBucket.counters[0].canTake();
 	}
 
-	/**
-	 * Construct a new Ratelimiter
-	 * @param BucketConstructor The constructor function to call new on when creating buckets to cache and use
-	 */
-	public constructor(public BucketConstructor: B = GlobalBucket as B) {}
+	public constructor() {
+		setInterval(() => {
+			for (const [key, value] of this.buckets.entries()) {
+				const counter = value.counters[0];
+				if (counter.hasReset()) {
+					this.buckets.delete(key);
+				}
+			}
+		}, 1*60*60*1000).unref();
+	}
 
 	/**
 	 * Returns a key for saving ratelimits for routes
@@ -197,9 +328,9 @@ export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
 	 * @returns reduced url: /channels/266277541646434305/messages/:id/
 	 */
 	public routify(url: string, method: string): string {
-		let route = url.replace(routeRegex, function (match, p: string) {
+		let route = url.replaceAll(routeRegex, function (match, p: string) {
 			return p === "channels" || p === "guilds" || p === "webhooks" ? match : `/${p}/:id`;
-		}).replace(reactionsRegex, "/reactions/:id").replace(reactionsUserRegex, "/reactions/:id/:userId").replace(webhooksRegex, "/webhooks/$1/:token");
+		}).replaceAll(reactionsRegex, "/reactions/:id").replaceAll(reactionsUserRegex, "/reactions/:id/:userId").replace(webhooksRegex, "/webhooks/$1/:token");
 
 		if (method === "DELETE" && isMessageEndpointRegex.test(route)) route = method + route;
 		else if (method === "GET" && isGuildChannelsRegex.test(route)) route = "/guilds/:id/channels";
@@ -213,26 +344,22 @@ export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
 	}
 
 	/**
-	 * Queue a rest call to be executed
+	 * Choose a bucket from the route and enqueue a rest call in it
 	 * @since 0.1.0
 	 * @param fn function to call once the ratelimit is ready
 	 * @param url Endpoint of the request
 	 * @param method Http method used by the request
 	 */
-	public queue<T>(fn: (bucket: InstanceType<B>) => T, url: string, method: string): Promise<T> {
+	public queue<T>(fn: (bucket: Bucket) => Promise<T>, url: string, method: string): Promise<T> {
 		const routeKey = this.routify(url, method);
 
 		let bucket = this.buckets.get(routeKey);
 		if (!bucket) {
-			bucket = new this.BucketConstructor(this, routeKey) as InstanceType<B>;
+			bucket = new Bucket(5, 5000, [this.globalBucket.counters[0]]);
 			this.buckets.set(routeKey, bucket);
 		}
 
-		return new Promise<T>((resolve, reject) => {
-			this.globalBucket.enqueue(() => {
-				bucket.enqueue(fn).then(resolve).catch(reject);
-			});
-		});
+		return bucket.enqueue(fn);
 	}
 
 	/**
@@ -240,123 +367,8 @@ export class Ratelimiter<B extends typeof GlobalBucket = typeof GlobalBucket> {
 	 * @param ms How long in milliseconds this Ratelimiter is globally ratelimited for
 	 */
 	public setGlobal(ms: number): void {
-		this.globalBucket.remaining = 0;
-		this.globalBucket.queue.setBlocked(true);
-		this.globalBucket.makeResetTimeout(ms);
+		this.globalBucket.counters[0].applyCount(Constants.GLOBAL_REQUESTS_PER_SECOND, 0, ms);
 	}
-}
-
-/**
- * Bucket used for saving ratelimits
- * @since 0.1.0
- * @protected
- */
-export class LocalBucket {
-	/**
-	 * The backing Queue of functions passed to this bucket
-	 */
-	public queue: Queue = new AsyncSequentialQueue();
-	/**
-	 * Remaining amount of executions during the current timeframe
-	 */
-	public remaining: number;
-
-	private resetTimeout: NodeJS.Timeout | null = null;
-
-	/**
-	 * Create a new base bucket
-	 * @param limit Number of functions that may be executed during the timeframe set in reset
-	 * @param reset Timeframe in milliseconds until the ratelimit resets after first
-	 * @param remaining Remaining amount of executions during the current timeframe
-	 */
-	public constructor(public limit = 5, public reset = 5000, remaining?: number) {
-		this.remaining = remaining ?? limit;
-	}
-
-	/**
-	 * Queue a function to be executed
-	 * @since 0.12.0
-	 * @param fn function to be executed
-	 * @returns Result of the function if any
-	 */
-	public enqueue<T>(fn: (bkt: this) => T): Promise<T> {
-		return this.queue.enqueue<T>(() => {
-			this.remaining--;
-			if (this.remaining === 0) this.queue.setBlocked(true);
-			if (!this.resetTimeout) this.makeResetTimeout(this.reset);
-
-			return fn(this);
-		});
-	}
-
-	/**
-	 * Reset/make the timeout of this bucket
-	 * @since 0.8.3
-	 * @param ms Timeframe in milliseconds until the ratelimit resets after
-	 */
-	public makeResetTimeout(ms: number): void {
-		if (this.resetTimeout) clearTimeout(this.resetTimeout);
-		this.resetTimeout = setTimeout(() => this.resetRemaining(), ms).unref();
-	}
-
-	/**
-	 * Reset the remaining tokens to the base limit
-	 * @since 0.1.0
-	 */
-	public resetRemaining(): void {
-		if (this.resetTimeout) clearTimeout(this.resetTimeout);
-		this.resetTimeout = null;
-
-		this.remaining = this.limit;
-		this.queue.setBlocked(false);
-	}
-
-	/**
-	 * Clear the current queue of events to be sent
-	 * @since 0.1.0
-	 */
-	public dropQueue(): void {
-		this.queue.drop();
-	}
-}
-
-/**
- * Extended bucket that respects global ratelimits
- * @since 0.10.0
- * @protected
- */
-export class GlobalBucket extends LocalBucket {
-	/**
-	 * Create a new bucket that respects global rate limits
-	 * @param ratelimiter ratelimiter used for ratelimiting requests. Assigned by ratelimiter
-	 * @param routeKey Key used internally to routify requests. Assigned by ratelimiter
-	 */
-	public constructor(public readonly ratelimiter: Ratelimiter, public readonly routeKey: string, limit = 5, reset = 5000, remaining?: number) {
-		super(limit, reset, remaining);
-	}
-
-	/**
-	 * Reset the remaining tokens to the base limit
-	 * @since 0.10.0
-	 */
-	public resetRemaining(): void {
-		if (!this.queue.calls.length) this.ratelimiter.buckets.delete(this.routeKey);
-		super.resetRemaining();
-	}
-}
-
-export type RequestEventData = {
-	endpoint: string;
-	method: string;
-	dataType: "json" | "multipart";
-	data: any;
-};
-
-export type HandlerEvents = {
-	request: [string, RequestEventData];
-	done: [string, Response, RequestEventData];
-	requestError: [string, Error];
-	rateLimit: [{ timeout: number; remaining: number; limit: number; method: string; path: string; route: string; }];
 }
 
 /**
@@ -375,7 +387,8 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 		retryFailed: boolean;
 		/** How many times requests should be retried if they fail and can be retried. */
 		retryLimit: number;
-		headers: { Authorization?: string; "User-Agent": string; }
+		headers: { Authorization?: string; "User-Agent": string; },
+		fetch: typeof fetch
 	};
 	public latency: number;
 	public apiURL: string;
@@ -396,7 +409,8 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 			retryLimit: options?.retryLimit ?? Constants.DEFAULT_RETRY_LIMIT,
 			headers: {
 				"User-Agent": `Discordbot (https://github.com/DasWolke/SnowTransfer, ${version}) Node.js/${process.version}`
-			}
+			},
+			fetch: options?.fetch ?? fetch
 		};
 		if (options?.token) this.options.headers.Authorization = options.token;
 
@@ -419,7 +433,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 	public request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, dataType: "json" | "multipart", data?: any, extraHeaders?: Record<string, string>, retries = this.options.retryLimit): Promise<any> {
 		const stack = new Error().stack as string;
 		return new Promise(async (resolve, reject) => {
-			const fn = async (bkt?: GlobalBucket | undefined) => {
+			const fn = async (bkt?: Bucket | undefined) => {
 				const reqId = crypto.randomBytes(20).toString("hex");
 				try {
 					const request = { endpoint, method: method.toUpperCase(), dataType, data: data ?? {} };
@@ -452,7 +466,6 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 					if (response.status === 429) {
 						const b = await response.json() as RatelimitInfo; // Discord says it will be a JSON, so if there's an error, sucks
 						if (b.global) this.ratelimiter.setGlobal(b.retry_after * 1000);
-						else bkt?.queue.setBlocked(true);
 
 						this.emit("rateLimit", {
 							timeout: bkt?.reset ?? b.retry_after * 1000,
@@ -460,7 +473,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 							limit: bkt?.limit ?? Infinity,
 							method: method.toUpperCase(),
 							path: endpoint,
-							route: bkt?.routeKey ?? this.ratelimiter.routify(endpoint, method.toUpperCase())
+							route: this.ratelimiter.routify(endpoint, method.toUpperCase())
 						});
 
 						throw new DiscordAPIError({ message: b.message, code: b.code ?? 429 }, request, response);
@@ -495,16 +508,14 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 	 * @param bkt Ratelimit bucket to apply the headers to
 	 * @param headers Http headers received from discord
 	 */
-	private _applyRatelimitHeaders(bkt: GlobalBucket, headers: Headers): void {
+	private _applyRatelimitHeaders(bkt: Bucket, headers: Headers): void {
 		const remaining = headers.get("x-ratelimit-remaining");
 		const limit = headers.get("x-ratelimit-limit");
 		const resetAfter = headers.get("x-ratelimit-reset-after");
+		const isGlobal = headers.get("x-ratelimit-global");
 
-		if (remaining) bkt.remaining = parseInt(remaining);
-		if (limit) bkt.limit = parseInt(limit);
-		if (resetAfter) {
-			bkt.reset = parseFloat(resetAfter) * 1000;
-			bkt.makeResetTimeout(bkt.reset);
+		if (remaining && limit && resetAfter && !isGlobal) {
+			bkt.counters[0].applyCount(Number.parseInt(limit), Number.parseInt(remaining), Number.parseFloat(resetAfter) * 1000);
 		}
 	}
 
@@ -531,7 +542,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 			headers["Content-Type"] = "application/json";
 		}
 
-		return fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
+		return this.options.fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
 			method: method.toUpperCase(),
 			headers,
 			body
@@ -550,7 +561,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 	private async _multiPartRequest(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data: FormData, extraHeaders?: Record<string, string>): Promise<Response> {
 		const headers = { ...this.options.headers, ...extraHeaders };
 
-		return fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
+		return this.options.fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
 			method: method.toUpperCase(),
 			headers,
 			body: data

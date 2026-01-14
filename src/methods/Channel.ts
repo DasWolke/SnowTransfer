@@ -1,4 +1,5 @@
-import type { RequestHandler as RH, RESTPostAPIAttachmentsRefreshURLsResult } from "../RequestHandler";
+import type { RequestHandler as RH } from "../RequestHandler";
+import type { RESTPostAPIAttachmentsRefreshURLsResult } from "../Types";
 import type ST = require("../SnowTransfer");
 
 import Endpoints = require("../Endpoints");

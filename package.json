@@ -1,11 +1,11 @@
 {
   "name": "snowtransfer",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "description": "Minimalistic Rest client for the Discord Api",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "engines": {
-    "node": ">=16.15.0"
+    "node": ">=22.0.0"
   },
   "keywords": [
     "discord",
@@ -18,7 +18,7 @@
     "microservice bot"
   ],
   "scripts": {
-    "build:src": "tsup src/index.ts --clean --dts --sourcemap --format cjs --target node16 --minify-whitespace --minify-syntax --treeshake && node ./sourceMapPostProcess.js",
+    "build:src": "tsup src/index.ts --clean --dts --sourcemap --format cjs --target node22 --minify-whitespace --minify-syntax --treeshake && node ./sourceMapPostProcess.js",
     "build:docs": "typedoc --name SnowTransfer --excludeExternals --sort static-first --sort alphabetical"
   },
   "repository": {
@@ -29,17 +29,17 @@
   "author": "wolke <wolke@weeb.sh>",
   "license": "MIT",
   "dependencies": {
-    "discord-api-types": "^0.38.21"
+    "discord-api-types": "^0.38.37"
   },
   "devDependencies": {
-    "@types/node": "^24.3.0",
-    "@typescript-eslint/eslint-plugin": "^8.41.0",
-    "@typescript-eslint/parser": "^8.41.0",
-    "eslint": "^9.34.0",
-    "tsup": "^8.5.0",
-    "typedoc": "^0.28.11",
-    "typedoc-plugin-mdn-links": "^5.0.9",
-    "typescript": "^5.9.2"
+    "@types/node": "^25.0.8",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
+    "@typescript-eslint/parser": "^8.53.0",
+    "eslint": "^9.39.2",
+    "tsup": "^8.5.1",
+    "typedoc": "^0.28.16",
+    "typedoc-plugin-mdn-links": "^5.0.10",
+    "typescript": "^5.9.3"
   },
   "files": [
     "dist",

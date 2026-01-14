@@ -5,7 +5,7 @@
 		"allowJs": true,
 		"checkJs": true,
 		"declaration": true,
-		"lib": ["es2019"],
+		"lib": ["es2022"],
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"noUnusedLocals": true,
@@ -17,7 +17,7 @@
 		"strictFunctionTypes": true,
 		"strictBindCallApply": true,
 		"strictNullChecks": true,
-		"target": "ES2019",
+		"target": "ES2022",
 		"types": ["node"]
 	},
 	"include": ["./src"]
