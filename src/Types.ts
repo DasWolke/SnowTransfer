@@ -17,7 +17,7 @@ export type RESTGetAPIInviteTargetUsersJobStatus = {
 	processed_users: number;
 	created_at: string;
 	completed_at: string | null;
-	error_message?: string;
+	error_message: string | null;
 }
 
 export type RatelimitInfo = {

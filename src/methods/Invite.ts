@@ -95,7 +95,7 @@ class InviteMethods {
 	 * await client.invite.updateInviteTargetUsers("inviteId", someUserArray)
 	 */
 	public async updateInviteTargetUsers(inviteId: string, userIds: Array<string>): Promise<RESTPutAPIInviteTargetUsers> {
-		const csv = `Users\n${userIds.join("\n")}`;
+		const csv = `Users\n${userIds.join(",\n")},`;
 		const form = new FormData();
 		await Constants.standardAddToFormHandler(form, "target_users_file", csv, "target_users_file.csv");
 		return this.requestHandler.request(Endpoints.INVITE_TARGET_USERS(inviteId), { target_users_file: "target_users_file.csv" }, "put", "multipart", form) as RESTPutAPIInviteTargetUsers;
