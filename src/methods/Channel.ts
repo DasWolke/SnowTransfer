@@ -1,5 +1,4 @@
 import type { RequestHandler as RH } from "../RequestHandler";
-import type { RESTPostAPIAttachmentsRefreshURLsResult } from "../Types";
 import type ST = require("../SnowTransfer");
 
 import Endpoints = require("../Endpoints");
@@ -60,7 +59,7 @@ import {
 	MessageFlags
 } from "discord-api-types/v10";
 
-import type { RESTPutAPIChannelVoiceStatus } from "../Types"
+import type { RESTPutAPIChannelVoiceStatus, RESTPostAPIAttachmentsRefreshURLsResult } from "../Types"
 
 import type { Readable } from "stream";
 import type { ReadableStream } from "stream/web";

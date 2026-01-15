@@ -13,10 +13,7 @@ function graph(stateMachine: StateMachine) {
 		for (const [transitionName, transition] of state.transitions.entries()) {
 			output += `${stateName} -> ${transition.destination}`;
 			const attrs = [`label="${transitionName}"`];
-			if (transition.onTransition?.length) {
-				attrs.push("color=blue");
-				attrs.push("fontcolor=blue");
-			}
+			if (transition.onTransition?.length) attrs.push("color=blue", "fontcolor=blue");
 			output += `[${attrs.join(" ")}]\n`;
 		}
 	}
