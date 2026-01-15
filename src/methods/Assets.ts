@@ -99,7 +99,7 @@ class AssetsMethods {
 	 * client.assets.createGuildEmoji("guild id", emojiData)
 	 */
 	public async createGuildEmoji(guildId: string, data: RESTPostAPIGuildEmojiJSONBody & { reason?: string; }): Promise<RESTPostAPIGuildEmojiResult> {
-		return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), {}, "post", "json", data);
+		return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), {}, "post", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
 	}
 
 	/**
@@ -123,7 +123,7 @@ class AssetsMethods {
 	 * client.assets.updateGuildEmoji("guild id", "emoji id", emojiData)
 	 */
 	public async updateGuildEmoji(guildId: string, emojiId: string, data: RESTPatchAPIGuildEmojiJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildEmojiResult> {
-		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), {}, "patch", "json", data);
+		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
 	}
 
 	/**
@@ -144,7 +144,7 @@ class AssetsMethods {
 	 * client.assets.deleteGuildEmoji("guild id", "emoji id", "wasn't nice")
 	 */
 	public async deleteGuildEmoji(guildId: string, emojiId: string, reason?: string): Promise<RESTDeleteAPIGuildEmojiResult> {
-		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), {}, "delete", "json", { reason }) as RESTDeleteAPIGuildEmojiResult;
+		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIGuildEmojiResult;
 	}
 
 	/**
@@ -234,7 +234,7 @@ class AssetsMethods {
 			await Constants.standardAddToFormHandler(form, key, data[key]);
 		}
 
-		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), {}, "post", "multipart", form, reason ? { "X-Audit-Log-Reason": reason } : undefined);
+		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), {}, "post", "multipart", form, Constants.reasonToXAuditLogReasonHeader(reason));
 	}
 
 	/**
@@ -255,7 +255,7 @@ class AssetsMethods {
 	 * const sticker = await client.assets.updateGuildSticker("guild id", "sticker id", { name: "nicerSticker", reason: "because it was nicer" })
 	 */
 	public async updateGuildSticker(guildId: string, stickerId: string, data: RESTPatchAPIGuildStickerJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildStickerResult> {
-		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), {}, "patch", "json", data);
+		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
 	}
 
 	/**
@@ -276,7 +276,7 @@ class AssetsMethods {
 	 * client.assets.deleteGuildSticker("guild id", "sticker id", "It was too nice")
 	 */
 	public async deleteGuildSticker(guildId: string, stickerId: string, reason?: string): Promise<RESTDeleteAPIGuildStickerResult> {
-		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), {}, "delete", "json", { reason }) as RESTDeleteAPIGuildStickerResult;
+		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIGuildStickerResult;
 	}
 
 	/**

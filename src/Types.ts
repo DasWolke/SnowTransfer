@@ -7,6 +7,19 @@ export type RESTPostAPIAttachmentsRefreshURLsResult = {
 	}>;
 }
 
+export type RESTPutAPIChannelVoiceStatus = never;
+
+export type RESTGetAPIInviteTargetUsers = Array<string>;
+export type RESTPutAPIInviteTargetUsers = never;
+export type RESTGetAPIInviteTargetUsersJobStatus = {
+	status: 0 | 1 | 2 | 3;
+	total_users: number;
+	processed_users: number;
+	created_at: string;
+	completed_at: string | null;
+	error_message?: string;
+}
+
 export type RatelimitInfo = {
 	message: string;
 	retry_after: number;

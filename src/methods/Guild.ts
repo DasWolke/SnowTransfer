@@ -129,8 +129,8 @@ class GuildMethods {
 	 * }
 	 * client.guild.updateGuild("guild Id", guildData)
 	 */
-	public async updateGuild(guildId: string, data: RESTPatchAPIGuildJSONBody): Promise<RESTPatchAPIGuildResult> {
-		return this.requestHandler.request(Endpoints.GUILD(guildId), {}, "patch", "json", data);
+	public async updateGuild(guildId: string, data: RESTPatchAPIGuildJSONBody & { reason?: string }): Promise<RESTPatchAPIGuildResult> {
+		return this.requestHandler.request(Endpoints.GUILD(guildId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
 	}
 
 	/**
@@ -172,8 +172,8 @@ class GuildMethods {
 	 * \}
 	 * const channel = await client.guild.createGuildChannel("guild id", channelData)
 	 */
-	public async createGuildChannel(guildId: string, data: RESTPostAPIGuildChannelJSONBody): Promise<RESTPostAPIGuildChannelResult> {
-		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), {}, "post", "json", data);
+	public async createGuildChannel(guildId: string, data: RESTPostAPIGuildChannelJSONBody & { reason?: string }): Promise<RESTPostAPIGuildChannelResult> {
+		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), {}, "post", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
 	}
 
 	/**
@@ -194,7 +194,7 @@ class GuildMethods {
 	 * client.guild.updateChannelPositions("guild id", [{ id: "channel id", position: 2, parent_id: "category id" }], "they looked out of order")
 	 */
 	public async updateChannelPositions(guildId: string, data: RESTPatchAPIGuildChannelPositionsJSONBody, reason?: string): Promise<RESTPatchAPIGuildChannelPositionsResult> {
-		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), {}, "patch", "json", data, reason ? { "X-Audit-Log-Reason": reason } : undefined) as RESTPatchAPIGuildChannelPositionsResult;
+		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTPatchAPIGuildChannelPositionsResult;
 	}
 
 	/**
@@ -323,8 +323,8 @@ class GuildMethods {
 	 * }
 	 * const member = await client.guild.updateGuildMember("guild Id", "memberId", memberData)
 	 */
-	public async updateGuildMember(guildId: string, memberId: string, data: RESTPatchAPIGuildMemberJSONBody): Promise<RESTPatchAPIGuildMemberResult> {
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), {}, "patch", "json", data);
+	public async updateGuildMember(guildId: string, memberId: string, data: RESTPatchAPIGuildMemberJSONBody & { reason?: string }): Promise<RESTPatchAPIGuildMemberResult> {
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
 	}
 
 	/**
@@ -347,7 +347,7 @@ class GuildMethods {
 	 * client.guild.updateSelf("guildId", nickData)
 	 */
 	public async updateSelf(guildId: string, data: RESTPatchAPICurrentGuildMemberJSONBody & { reason?: string; }): Promise<APIGuildMember> {
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, "@me"), {}, "patch", "json", data);
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, "@me"), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
 	}
 
 	/**
@@ -369,7 +369,7 @@ class GuildMethods {
 	 * client.guild.addGuildMemberRole("guildId", "memberId", "roleId", "I want to add a role")
 	 */
 	public async addGuildMemberRole(guildId: string, memberId: string, roleId: string, reason?: string): Promise<RESTPutAPIGuildMemberRoleResult> {
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), {}, "put", "json", { reason }) as RESTPutAPIGuildMemberRoleResult;
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), {}, "put", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTPutAPIGuildMemberRoleResult;
 	}
 
 	/**
@@ -391,7 +391,7 @@ class GuildMethods {
 	 * client.guild.removeGuildMemberRole("guildId", "memberId", "roleId", "I want to remove a role")
 	 */
 	public async removeGuildMemberRole(guildId: string, memberId: string, roleId: string, reason?: string): Promise<RESTDeleteAPIGuildMemberRoleResult> {
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), {}, "delete", "json", { reason }) as RESTDeleteAPIGuildMemberRoleResult;
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIGuildMemberRoleResult;
 	}
 
 	/**
@@ -412,7 +412,7 @@ class GuildMethods {
 	 * client.guild.removeGuildMember("guild Id", "memberId", "spam")
 	 */
 	public async removeGuildMember(guildId: string, memberId: string, reason?: string): Promise<RESTDeleteAPIGuildMemberResult> {
-		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), {}, "delete", "json", { reason }) as RESTDeleteAPIGuildMemberResult;
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIGuildMemberResult;
 	}
 
 	/**
@@ -477,7 +477,7 @@ class GuildMethods {
 	 * client.guild.createGuildBan("guild Id", "memberId", banData)
 	 */
 	public async createGuildBan(guildId: string, memberId: string, data?: RESTPutAPIGuildBanJSONBody & { reason?: string; }): Promise<RESTPutAPIGuildBanResult> {
-		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), {}, "put", "json", data) as RESTPutAPIGuildBanResult;
+		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), {}, "put", "json", data, Constants.reasonToXAuditLogReasonHeader(data)) as RESTPutAPIGuildBanResult;
 	}
 
 	/**
@@ -498,7 +498,7 @@ class GuildMethods {
 	 * client.guild.removeGuildBan("guildId", "memberId", "This guy was cool")
 	 */
 	public async removeGuildBan(guildId: string, memberId: string, reason?: string): Promise<RESTDeleteAPIGuildBanResult> {
-		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), {}, "delete", "json", { reason }) as RESTDeleteAPIGuildBanResult;
+		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIGuildBanResult;
 	}
 
 	/**
@@ -540,7 +540,7 @@ class GuildMethods {
 	 * client.guild.createGuildRole("guild Id", roleData)
 	 */
 	public async createGuildRole(guildId: string, data?: RESTPostAPIGuildRoleJSONBody & { reason?: string; }): Promise<RESTPostAPIGuildRoleResult> {
-		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), {}, "post", "json", data);
+		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), {}, "post", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
 	}
 
 	/**
@@ -560,7 +560,7 @@ class GuildMethods {
 	 * const roles = await client.guild.updateGuildRolePositions("guildId", [{ id: "guild id", position: 1 }, { id: "role id 2", position: 2 }])
 	 */
 	public async updateGuildRolePositions(guildId: string, data: RESTPatchAPIGuildRolePositionsJSONBody, reason?: string): Promise<RESTPatchAPIGuildRolePositionsResult> {
-		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), {}, "patch", "json", data, reason ? { "X-Audit-Log-Reason": reason } : undefined);
+		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(reason));
 	}
 
 	/**
@@ -582,8 +582,8 @@ class GuildMethods {
 	 * }
 	 * client.guild.updateGuildRole("guildId", "roleId", roleData)
 	 */
-	public async updateGuildRole(guildId: string, roleId: string, data: RESTPatchAPIGuildRoleJSONBody): Promise<RESTPatchAPIGuildRoleResult> {
-		return this.requestHandler.request(Endpoints.GUILD_ROLE(guildId, roleId), {}, "patch", "json", data);
+	public async updateGuildRole(guildId: string, roleId: string, data: RESTPatchAPIGuildRoleJSONBody & { reason?: string }): Promise<RESTPatchAPIGuildRoleResult> {
+		return this.requestHandler.request(Endpoints.GUILD_ROLE(guildId, roleId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
 	}
 
 	/**
@@ -604,7 +604,7 @@ class GuildMethods {
 	 * client.guild.deleteGuildRole("guildId", "roleId", "This role is too cool")
 	 */
 	public async removeGuildRole(guildId: string, roleId: string, reason?: string): Promise<RESTDeleteAPIGuildRoleResult> {
-		return this.requestHandler.request(Endpoints.GUILD_ROLE(guildId, roleId), {}, "delete", "json", { reason }) as RESTDeleteAPIGuildRoleResult;
+		return this.requestHandler.request(Endpoints.GUILD_ROLE(guildId, roleId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIGuildRoleResult;
 	}
 
 	/**
@@ -644,7 +644,7 @@ class GuildMethods {
 	public async startGuildPrune(guildId: string, data: RESTPostAPIGuildPruneJSONBody & { computer_prune_count: true; reason?: string; }): Promise<RESTPostAPIGuildPruneResult & { pruned: number; }>
 	public async startGuildPrune(guildId: string, data: RESTPostAPIGuildPruneJSONBody & { computer_prune_count: false; reason?: string; }): Promise<RESTPostAPIGuildPruneResult & { pruned: null; }>
 	public async startGuildPrune(guildId: string, data: RESTPostAPIGuildPruneJSONBody & { reason?: string; }): Promise<RESTPostAPIGuildPruneResult> {
-		return this.requestHandler.request(Endpoints.GUILD_PRUNE(guildId), {}, "post", "json", data);
+		return this.requestHandler.request(Endpoints.GUILD_PRUNE(guildId), {}, "post", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
 	}
 
 	/**
@@ -714,7 +714,7 @@ class GuildMethods {
 	 * await client.guild.deleteGuildIntegration("guildId", "integrationId", "Didn't need anymore")
 	 */
 	public async removeGuildIntegration(guildId: string, integrationId: string, reason?: string): Promise<RESTDeleteAPIGuildIntegrationResult> {
-		return this.requestHandler.request(Endpoints.GUILD_INTEGRATION(guildId, integrationId), {}, "delete", "json", { reason }) as RESTDeleteAPIGuildIntegrationResult;
+		return this.requestHandler.request(Endpoints.GUILD_INTEGRATION(guildId, integrationId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIGuildIntegrationResult;
 	}
 
 	/**
@@ -752,7 +752,7 @@ class GuildMethods {
 	 * const widgetSettings = await client.guild.updateGuildWidgetSettings("guildId", { enabled: false })
 	 */
 	public async updateGuildWidgetSettings(guildId: string, data: Partial<RESTPatchAPIGuildWidgetSettingsJSONBody & { reason?: string }>): Promise<RESTPatchAPIGuildWidgetSettingsResult> {
-		return this.requestHandler.request(Endpoints.GUILD_WIDGET_SETTINGS(guildId), {}, "patch", "json", data);
+		return this.requestHandler.request(Endpoints.GUILD_WIDGET_SETTINGS(guildId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
 	}
 
 	/**
@@ -822,7 +822,7 @@ class GuildMethods {
 	 * const welcomeScreen = await client.guild.updateGuildWelcomeScreen("guildId", { enabled: false })
 	 */
 	public async editGuildWelcomeScreen(guildId: string, data: RESTPatchAPIGuildWelcomeScreenJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildWelcomeScreenResult> {
-		return this.requestHandler.request(Endpoints.GUILD_WELCOME_SCREEN(guildId), {}, "patch", "json", data);
+		return this.requestHandler.request(Endpoints.GUILD_WELCOME_SCREEN(guildId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
 	}
 
 	/**

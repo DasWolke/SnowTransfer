@@ -74,7 +74,17 @@ const Constants = {
 				return content;
 		}
 		return content;
-	}, "SnowTransfer: disableEveryone option has been deprecated and will be removed in a future release. Please use allowed_mentions instead.")
+	}, "SnowTransfer: disableEveryone option has been deprecated and will be removed in a future release. Please use allowed_mentions instead."),
+	reasonToXAuditLogReasonHeader(reason?: string | { reason?: string }): { "X-Audit-Log-Reason"?: string } {
+		let r: string | undefined = undefined;
+		if (typeof reason === "string") r = reason;
+		else {
+			r = reason?.reason;
+			if (r) delete reason!.reason;
+		}
+		if (!r) return {};
+		return { "X-Audit-Log-Reason": r };
+	}
 };
 
 export = Constants;

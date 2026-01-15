@@ -427,11 +427,15 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 	 * @param method http method to use
 	 * @param dataType type of the data being sent
 	 * @param data data to send, if any
+	 * @param extraHeaders Any headers to send on top of the existing ones for this request
+	 * @param retries How many retries should be performed for this request if it fails when possible and not a bad status code is returned
+	 * @param rawResponse If the raw Response Object from fetch should be returned instead of trying to return a response.json() or undefined if no body
 	 * @returns Result of the request
 	 */
-	public request(endpoint: string, params: Record<string, any> | undefined, method: HTTPMethod, dataType: "json", data?: any, extraHeaders?: Record<string, string>, retries?: number): Promise<any>
-	public request(endpoint: string, params: Record<string, any> | undefined, method: HTTPMethod, dataType: "multipart", data?: FormData, extraHeaders?: Record<string, string>, retries?: number): Promise<any>
-	public request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, dataType: "json" | "multipart", data?: any, extraHeaders?: Record<string, string>, retries = this.options.retryLimit): Promise<any> {
+	public request(endpoint: string, params: Record<string, any> | undefined, method: HTTPMethod, dataType: "json", data?: any, extraHeaders?: Record<string, string>, retries?: number, rawResponse?: boolean): Promise<any>
+	public request(endpoint: string, params: Record<string, any> | undefined, method: HTTPMethod, dataType: "multipart", data?: FormData, extraHeaders?: Record<string, string>, retries?: number, rawResponse?: boolean): Promise<any>
+	public request(endpoint: string, params: Record<string, any> | undefined, method: HTTPMethod, dataType: "json" | "multipart", data?: any, extraHeaders?: Record<string, string>, retries?: number, rawResponse?: true): Promise<Response>
+	public request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, dataType: "json" | "multipart", data?: any, extraHeaders?: Record<string, string>, retries = this.options.retryLimit, rawResponse = false): Promise<any> {
 		const stack = new Error().stack as string;
 		return new Promise(async (resolve, reject) => {
 			const fn = async (bkt?: Bucket | undefined) => {
@@ -482,6 +486,8 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 
 					this.emit("done", reqId, response, request);
 
+					if (rawResponse) return resolve(response);
+
 					if (response.body) {
 						let b: any;
 						try {
@@ -530,10 +536,6 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 	 */
 	private async _request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data?: any, extraHeaders?: Record<string, string>): Promise<Response> {
 		const headers = { ...this.options.headers, ...extraHeaders };
-		if (typeof data !== "string" && data?.reason) {
-			headers["X-Audit-Log-Reason"] = encodeURIComponent(data.reason);
-			delete data.reason;
-		}
 
 		let body: string | undefined = undefined;
 		if (!disallowedBodyMethods.has(method)) {

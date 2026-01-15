@@ -1,12 +1,15 @@
 import Endpoints = require("../Endpoints");
+import Constants = require("../Constants");
 
 import type { RequestHandler as RH } from "../RequestHandler";
 
 import type {
 	RESTDeleteAPIInviteResult,
 	RESTGetAPIInviteQuery,
-	RESTGetAPIInviteResult
+	RESTGetAPIInviteResult,
 } from "discord-api-types/v10";
+
+import type { RESTGetAPIInviteTargetUsers, RESTGetAPIInviteTargetUsersJobStatus, RESTPutAPIInviteTargetUsers } from "../Types";
 
 /**
  * Methods for interacting with invites
@@ -42,7 +45,8 @@ class InviteMethods {
 	/**
 	 * Delete an invite
 	 * @since 0.1.0
-	 * @param inviteId
+	 * @param inviteId Id of the invite
+	 * @param reason Reason for deleting the invite
 	 * @returns [Invite Object](https://discord.com/developers/docs/resources/invite#invite-object)
 	 *
 	 * | Permissions needed | Condition                                     |
@@ -54,8 +58,58 @@ class InviteMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const invite = await client.invite.deleteInvite("inviteId")
 	 */
-	public async deleteInvite(inviteId: string): Promise<RESTDeleteAPIInviteResult> {
-		return this.requestHandler.request(Endpoints.INVITES(inviteId), {}, "delete", "json");
+	public async deleteInvite(inviteId: string, reason?: string): Promise<RESTDeleteAPIInviteResult> {
+		return this.requestHandler.request(Endpoints.INVITES(inviteId), {}, "delete", "json", undefined, Constants.reasonToXAuditLogReasonHeader(reason));
+	}
+
+	/**
+	 * Gets the users allowed to see and accept an invite
+	 * @since 0.17.0
+	 * @param inviteId Id of the invite
+	 * @returns An Array of user IDs
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const userIds = await client.invite.getInviteTargetUsers("inviteId")
+	 */
+	public async getInviteTargetUsers(inviteId: string): Promise<RESTGetAPIInviteTargetUsers> {
+		const response = await this.requestHandler.request(Endpoints.INVITE_TARGET_USERS(inviteId), {}, "get", "json", undefined, undefined, this.requestHandler.options.retryLimit, true) as Response;
+		let b: string
+		try {
+			b = await response.text();
+		} catch {
+			b = ""
+		}
+		if (!b.length) return [];
+		return b.split("\n").slice(1).map(l => l.replace(",", "").trim()); // first line is the table column names, but only Users exists
+	}
+
+	/**
+	 * Updates the users allowed to see and accept an invite
+	 * @since 0.17.0
+	 * @param inviteId Id of the invite
+	 * @returns Resolves the Promise on successful execution
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * await client.invite.updateInviteTargetUsers("inviteId", someUserArray)
+	 */
+	public async updateInviteTargetUsers(inviteId: string, userIds: Array<string>): Promise<RESTPutAPIInviteTargetUsers> {
+		const csv = `Users\n${userIds.join(",\n")},`
+		return this.requestHandler.request(Endpoints.INVITE_TARGET_USERS(inviteId), { target_users_file: encodeURIComponent(csv) }, "put", "json") as RESTPutAPIInviteTargetUsers;
+	}
+
+	/**
+	 * Gets the job status on setting target users to an invite
+	 * @param inviteId Id of the invite
+	 * @returns [Target Users Job Status Object](https://discord.com/developers/docs/resources/invite#get-target-users-job-status-example-response)
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const jobStatus = await client.invite.getInviteTargetUsersJobStatus("inviteId")
+	 */
+	public async getInviteTargetUsersJobStatus(inviteId: string): Promise<RESTGetAPIInviteTargetUsersJobStatus> {
+		return this.requestHandler.request(Endpoints.INVITE_TARGET_USERS_JOB_STATUS(inviteId), {}, "get", "json");
 	}
 }
 
