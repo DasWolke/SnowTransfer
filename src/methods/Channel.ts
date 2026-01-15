@@ -629,9 +629,7 @@ class ChannelMethods {
 			const form = new FormData();
 
 			await Constants.standardAddToFormHandler(form, "target_users_file", `Users\n${targetUsers.join(",\n")},`, "target_users_file.csv");
-			for (const [key, value] of Object.entries(data)) {
-				await Constants.standardAddToFormHandler(form, key, String(value));
-			}
+			form.append("payload_json", JSON.stringify(data));
 			return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), {}, "post", "multipart", form, Constants.reasonHeader(reason));
 		}
 
