@@ -50,7 +50,7 @@ const Constants = {
 		form.append("payload_json", JSON.stringify(data));
 		return form;
 	},
-	async standardAddToFormHandler(form: FormData, name: string, value: Buffer | Blob | File | Readable | ReadableStream, filename?: string): Promise<void> {
+	async standardAddToFormHandler(form: FormData, name: string, value: string | Buffer | Blob | File | Readable | ReadableStream, filename?: string): Promise<void> {
 		// @ts-expect-error It's a Buffer. If the user experiences an error, then let it be known that I don't care
 		if (value instanceof Buffer) form.append(name, new Blob([value]), filename);
 		else if (value instanceof Blob || value instanceof File) form.append(name, value, filename);

@@ -623,10 +623,19 @@ class ChannelMethods {
 	 * const invite = await client.channel.createChannelInvite("channel id", { max_age: 0, max_uses: 0, unique: true })
 	 */
 	public async createChannelInvite(channelId: string, data: RESTPostAPIChannelInviteJSONBody & { target_users?: Array<string>; role_ids?: Array<string> } = { max_age: 86400, max_uses: 0, temporary: false, unique: false }, reason?: string): Promise<RESTPostAPIChannelInviteResult> {
-		const targetUsers = data?.target_users
+		const targetUsers = data?.target_users;
+
 		if (targetUsers?.length) {
 			delete data.target_users;
+			const form = new FormData();
+
+			await Constants.standardAddToFormHandler(form, "target_users_file", `Users\n${targetUsers.join(",\n")},`, "target_users_file.csv");
+			for (const [key, value] of Object.entries(data)) {
+				await Constants.standardAddToFormHandler(form, key, String(value));
+			}
+			return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), {}, "post", "multipart", form, Constants.reasonHeader(reason));
 		}
+
 		return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), {}, "post", "json", data, Constants.reasonHeader(reason));
 	}
 

@@ -231,8 +231,8 @@ class AssetsMethods {
 	public async createGuildSticker(guildId: string, data: RESTPostAPIGuildStickerFormDataBody & { file: Buffer | Blob | File | Readable | ReadableStream; }, reason?: string): Promise<RESTPostAPIGuildStickerResult> {
 		const form = new FormData();
 
-		for (const key of Object.keys(data)) {
-			await Constants.standardAddToFormHandler(form, key, data[key]);
+		for (const [key, value] of Object.entries(data)) {
+			await Constants.standardAddToFormHandler(form, key, value);
 		}
 
 		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), {}, "post", "multipart", form, Constants.reasonHeader(reason));
