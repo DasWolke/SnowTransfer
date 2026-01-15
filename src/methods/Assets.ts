@@ -82,6 +82,7 @@ class AssetsMethods {
 	 * @since 0.13.0
 	 * @param guildId Id of the guild
 	 * @param data Emoji data, check the example
+	 * @param reason Reason for creating the emoji
 	 * @returns [Emoji object](https://discord.com/developers/docs/resources/emoji#emoji-object)
 	 *
 	 * | Permissions needed         | Condition |
@@ -98,16 +99,17 @@ class AssetsMethods {
 	 * \}
 	 * client.assets.createGuildEmoji("guild id", emojiData)
 	 */
-	public async createGuildEmoji(guildId: string, data: RESTPostAPIGuildEmojiJSONBody & { reason?: string; }): Promise<RESTPostAPIGuildEmojiResult> {
-		return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), {}, "post", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+	public async createGuildEmoji(guildId: string, data: RESTPostAPIGuildEmojiJSONBody, reason?: string): Promise<RESTPostAPIGuildEmojiResult> {
+		return this.requestHandler.request(Endpoints.GUILD_EMOJIS(guildId), {}, "post", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
 	 * Update an existing emoji from a guild
 	 * @since 0.13.0
-	 * @param {string} guildId Id of the guild
-	 * @param {string} emojiId Id of the emoji
-	 * @param {object} data Emoji data
+	 * @param guildId Id of the guild
+	 * @param emojiId Id of the emoji
+	 * @param data Emoji data
+	 * @param reason Reason for updating the emoji
 	 * @returns [Emoji object](https://discord.com/developers/docs/resources/emoji#emoji-object)
 	 *
 	 * | Permissions needed         | Condition |
@@ -122,8 +124,8 @@ class AssetsMethods {
 	 * }
 	 * client.assets.updateGuildEmoji("guild id", "emoji id", emojiData)
 	 */
-	public async updateGuildEmoji(guildId: string, emojiId: string, data: RESTPatchAPIGuildEmojiJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildEmojiResult> {
-		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+	public async updateGuildEmoji(guildId: string, emojiId: string, data: RESTPatchAPIGuildEmojiJSONBody, reason?: string): Promise<RESTPatchAPIGuildEmojiResult> {
+		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -144,7 +146,7 @@ class AssetsMethods {
 	 * client.assets.deleteGuildEmoji("guild id", "emoji id", "wasn't nice")
 	 */
 	public async deleteGuildEmoji(guildId: string, emojiId: string, reason?: string): Promise<RESTDeleteAPIGuildEmojiResult> {
-		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIGuildEmojiResult;
+		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), {}, "delete", "json", {}, Constants.reasonHeader(reason)) as RESTDeleteAPIGuildEmojiResult;
 	}
 
 	/**
@@ -203,6 +205,7 @@ class AssetsMethods {
 	 * @since 0.13.0
 	 * @param guildId Id of the guild
 	 * @param data Sticker data
+	 * @param reason Reason for creating the sticker
 	 * @returns A [sticker object](https://discord.com/developers/docs/resources/sticker#sticker-object)
 	 *
 	 * | Permissions needed          | Condition                                       |
@@ -225,16 +228,14 @@ class AssetsMethods {
 	 * }
 	 * const sticker = await client.assets.createGuildSticker("guild id", stickerData)
 	 */
-	public async createGuildSticker(guildId: string, data: RESTPostAPIGuildStickerFormDataBody & { file: Buffer | Blob | File | Readable | ReadableStream; reason?: string; }): Promise<RESTPostAPIGuildStickerResult> {
+	public async createGuildSticker(guildId: string, data: RESTPostAPIGuildStickerFormDataBody & { file: Buffer | Blob | File | Readable | ReadableStream; }, reason?: string): Promise<RESTPostAPIGuildStickerResult> {
 		const form = new FormData();
-		const reason = data.reason;
-		if (data.reason) delete data.reason;
 
 		for (const key of Object.keys(data)) {
 			await Constants.standardAddToFormHandler(form, key, data[key]);
 		}
 
-		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), {}, "post", "multipart", form, Constants.reasonToXAuditLogReasonHeader(reason));
+		return this.requestHandler.request(Endpoints.GUILD_STICKERS(guildId), {}, "post", "multipart", form, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -243,6 +244,7 @@ class AssetsMethods {
 	 * @param guildId Id of the guild
 	 * @param stickerId Id of the sticker
 	 * @param data Sticker data
+	 * @param reason Reason for updating the sticker
 	 * @returns A [sticker object](https://discord.com/developers/docs/resources/sticker#sticker-object)
 	 *
 	 * | Permissions needed         | Condition |
@@ -252,10 +254,10 @@ class AssetsMethods {
 	 * @example
 	 * // Updates a sticker's name to "nicerSticker"
 	 * const client = new SnowTransfer("TOKEN")
-	 * const sticker = await client.assets.updateGuildSticker("guild id", "sticker id", { name: "nicerSticker", reason: "because it was nicer" })
+	 * const sticker = await client.assets.updateGuildSticker("guild id", "sticker id", { name: "nicerSticker" }, "because it was nicer")
 	 */
-	public async updateGuildSticker(guildId: string, stickerId: string, data: RESTPatchAPIGuildStickerJSONBody & { reason?: string; }): Promise<RESTPatchAPIGuildStickerResult> {
-		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+	public async updateGuildSticker(guildId: string, stickerId: string, data: RESTPatchAPIGuildStickerJSONBody, reason?: string): Promise<RESTPatchAPIGuildStickerResult> {
+		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -276,7 +278,7 @@ class AssetsMethods {
 	 * client.assets.deleteGuildSticker("guild id", "sticker id", "It was too nice")
 	 */
 	public async deleteGuildSticker(guildId: string, stickerId: string, reason?: string): Promise<RESTDeleteAPIGuildStickerResult> {
-		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIGuildStickerResult;
+		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), {}, "delete", "json", {}, Constants.reasonHeader(reason)) as RESTDeleteAPIGuildStickerResult;
 	}
 
 	/**

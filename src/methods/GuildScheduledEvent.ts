@@ -50,6 +50,7 @@ class GuildScheduledEventMethods {
 	 * @since 0.3.6
 	 * @param guildId The Id of the guild
 	 * @param data Data for the new scheduled event
+	 * @param reason Reason for creating the scheduled event
 	 * @returns A [scheduled event](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-structure)
 	 *
 	 * | Permissions needed | Condition                        |
@@ -71,8 +72,8 @@ class GuildScheduledEventMethods {
 	 * }
 	 * const event = await client.guildScheduledEvent.createGuildScheduledEvent(guildId, eventData)
 	 */
-	public async createGuildScheduledEvent(guildId: string, data: RESTPostAPIGuildScheduledEventJSONBody & { reason?: string }): Promise<RESTPostAPIGuildScheduledEventResult> {
-		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENTS(guildId), {}, "post", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+	public async createGuildScheduledEvent(guildId: string, data: RESTPostAPIGuildScheduledEventJSONBody, reason?: string): Promise<RESTPostAPIGuildScheduledEventResult> {
+		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENTS(guildId), {}, "post", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -101,6 +102,7 @@ class GuildScheduledEventMethods {
 	 * @param guildId The Id of the guild
 	 * @param eventId The Id of the event
 	 * @param data Edited scheduled event data
+	 * @param reason Reason for editing the scheduled event
 	 * @returns A [scheduled event](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-structure)
 	 *
 	 * | Permissions needed | Condition                        |
@@ -117,8 +119,8 @@ class GuildScheduledEventMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const event = await client.guildScheduledEvent.editGuildScheduledEvent(guildId, eventId, { entity_type: 3, channel_id: null, entity_metadata: { location: "Brazil" }, scheduled_end_time: "2025-01-01T00:00:00.000Z" })
 	 */
-	public async editGuildScheduledEvent(guildId: string, eventId: string, data: RESTPatchAPIGuildScheduledEventJSONBody & { reason?: string }): Promise<RESTPatchAPIGuildScheduledEventResult> {
-		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT(guildId, eventId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+	public async editGuildScheduledEvent(guildId: string, eventId: string, data: RESTPatchAPIGuildScheduledEventJSONBody, reason?: string): Promise<RESTPatchAPIGuildScheduledEventResult> {
+		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT(guildId, eventId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**

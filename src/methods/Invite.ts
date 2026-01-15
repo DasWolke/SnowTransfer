@@ -59,7 +59,7 @@ class InviteMethods {
 	 * const invite = await client.invite.deleteInvite("inviteId")
 	 */
 	public async deleteInvite(inviteId: string, reason?: string): Promise<RESTDeleteAPIInviteResult> {
-		return this.requestHandler.request(Endpoints.INVITES(inviteId), {}, "delete", "json", undefined, Constants.reasonToXAuditLogReasonHeader(reason));
+		return this.requestHandler.request(Endpoints.INVITES(inviteId), {}, "delete", "json", undefined, Constants.reasonHeader(reason));
 	}
 
 	/**

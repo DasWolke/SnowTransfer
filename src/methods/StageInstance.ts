@@ -31,6 +31,7 @@ class StageInstanceMethods {
 	 * Creates a new stage instance associated to a stage channel
 	 * @since 0.3.0
 	 * @param data The options for creating a stage instance
+	 * @param reason Reason for creating the stage instance
 	 * @returns a [stage instance](https://discord.com/developers/docs/resources/stage-instance#auto-closing-stage-instance-structure) object
 	 *
 	 * | Permissions needed | Condition |
@@ -44,8 +45,8 @@ class StageInstanceMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const instance = await client.stageInstance.createStageInstance({ channel_id: "channel id", topic: "This My House" })
 	 */
-	public async createStageInstance(data: RESTPostAPIStageInstanceJSONBody & { reason?: string; }): Promise<RESTPostAPIStageInstanceResult> {
-		return this.requestHandler.request(Endpoints.STAGE_INSTANCES, {}, "post", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+	public async createStageInstance(data: RESTPostAPIStageInstanceJSONBody, reason?: string): Promise<RESTPostAPIStageInstanceResult> {
+		return this.requestHandler.request(Endpoints.STAGE_INSTANCES, {}, "post", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -67,6 +68,7 @@ class StageInstanceMethods {
 	 * @since 0.3.0
 	 * @param channelId Id of the stage channel
 	 * @param data The new data to send
+	 * @param reason Reason for editing the stage instance
 	 * @returns a [stage instance](https://discord.com/developers/docs/resources/stage-instance#auto-closing-stage-instance-structure) object
 	 *
 	 * | Permissions needed | Condition |
@@ -79,8 +81,8 @@ class StageInstanceMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const instance = await client.stageInstance.updateStageInstance("channel id", { topic: "This my city, this my town" })
 	 */
-	public async editStageInstance(channelId: string, data: RESTPatchAPIStageInstanceJSONBody & { reason?: string; }): Promise<RESTPatchAPIStageInstanceResult> {
-		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+	public async editStageInstance(channelId: string, data: RESTPatchAPIStageInstanceJSONBody, reason?: string): Promise<RESTPatchAPIStageInstanceResult> {
+		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -101,7 +103,7 @@ class StageInstanceMethods {
 	 * client.stageInstance.deleteStageInstance("channel id", "They already know who's house this is")
 	 */
 	public async deleteStageInstance(channelId: string, reason?: string): Promise<RESTDeleteAPIStageInstanceResult> {
-		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIStageInstanceResult;
+		return this.requestHandler.request(Endpoints.STAGE_INSTANCE_CHANNEL(channelId), {}, "delete", "json", {}, Constants.reasonHeader(reason)) as RESTDeleteAPIStageInstanceResult;
 	}
 }
 

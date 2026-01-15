@@ -99,7 +99,8 @@ class ChannelMethods {
 	 * Update a guild channel or thread
 	 * @since 0.1.0
 	 * @param channelId Id of the guild channel
-	 * @param data Data to send
+	 * @param data Data to update the channel with
+	 * @param reason Reason for updating the channel
 	 * @returns [discord channel](https://discord.com/developers/docs/resources/channel#channel-object) object
 	 *
 	 * | Permissions needed | Condition                                                                                                               |
@@ -118,10 +119,10 @@ class ChannelMethods {
 	 * }
 	 * client.channel.updateChannel("channel id", updateData)
 	 */
-	public async updateChannel(channelId: string, data: Omit<RESTPatchAPIChannelJSONBody, "archived" | "auto_archive_duration" | "locked" | "invitable"> & { reason?: string; }): Promise<Exclude<RESTPatchAPIChannelResult, APIThreadChannel>>;
-	public async updateChannel(channelId: string, data: Pick<RESTPatchAPIChannelJSONBody, "archived" | "auto_archive_duration" | "locked" | "name" | "rate_limit_per_user"> & { reason?: string; }): Promise<Extract<RESTPatchAPIChannelResult, APIThreadChannel>>;
-	public async updateChannel(channelId: string, data: RESTPatchAPIChannelJSONBody & { reason?: string; }): Promise<RESTPatchAPIChannelResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL(channelId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+	public async updateChannel(channelId: string, data: Omit<RESTPatchAPIChannelJSONBody, "archived" | "auto_archive_duration" | "locked" | "invitable">, reason?: string): Promise<Exclude<RESTPatchAPIChannelResult, APIThreadChannel>>;
+	public async updateChannel(channelId: string, data: Pick<RESTPatchAPIChannelJSONBody, "archived" | "auto_archive_duration" | "locked" | "name" | "rate_limit_per_user">, reason?: string): Promise<Extract<RESTPatchAPIChannelResult, APIThreadChannel>>;
+	public async updateChannel(channelId: string, data: RESTPatchAPIChannelJSONBody, reason?: string): Promise<RESTPatchAPIChannelResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL(channelId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -150,7 +151,7 @@ class ChannelMethods {
 	 * client.channel.deleteChannel("channel id", "No longer needed")
 	 */
 	public async deleteChannel(channelId: string, reason?: string): Promise<RESTDeleteAPIChannelResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL(channelId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason));
+		return this.requestHandler.request(Endpoints.CHANNEL(channelId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -525,7 +526,7 @@ class ChannelMethods {
 	 * client.channel.deleteMessage("channel id", "message id")
 	 */
 	public async deleteMessage(channelId: string, messageId: string, reason?: string): Promise<RESTDeleteAPIChannelMessageResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIChannelMessageResult;
+		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {}, "delete", "json", {}, Constants.reasonHeader(reason)) as RESTDeleteAPIChannelMessageResult;
 	}
 
 	/**
@@ -553,7 +554,7 @@ class ChannelMethods {
 		const forbiddenMessage = messages.find(m => BigInt(m) < oldestSnowflake);
 		if (forbiddenMessage) throw new Error(`The message ${forbiddenMessage} is older than 2 weeks and may not be deleted using the bulk delete endpoint`);
 		const data = { messages };
-		return this.requestHandler.request(Endpoints.CHANNEL_BULK_DELETE(channelId), {}, "post", "json", data, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTPostAPIChannelMessagesBulkDeleteResult;
+		return this.requestHandler.request(Endpoints.CHANNEL_BULK_DELETE(channelId), {}, "post", "json", data, Constants.reasonHeader(reason)) as RESTPostAPIChannelMessagesBulkDeleteResult;
 	}
 
 	/**
@@ -562,6 +563,7 @@ class ChannelMethods {
 	 * @param channelId Id of the guild channel
 	 * @param permissionId Id of the permission overwrite
 	 * @param data modified [permission overwrite](https://discord.com/developers/docs/resources/channel#edit-channel-permissions-json-params) object
+	 * @param reason Reason for editing the channel permission
 	 * @returns Resolves the Promise on successful execution
 	 *
 	 * | Permissions needed | Condition                  |
@@ -576,8 +578,8 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.channel.editChannelPermission("channel id", "user id", { allow: String(1 << 10), type: 1 })
 	 */
-	public async editChannelPermission(channelId: string, permissionId: string, data: RESTPutAPIChannelPermissionJSONBody & { reason?: string; }): Promise<RESTPutAPIChannelPermissionResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), {}, "put", "json", data, Constants.reasonToXAuditLogReasonHeader(data)) as RESTPutAPIChannelPermissionResult;
+	public async editChannelPermission(channelId: string, permissionId: string, data: RESTPutAPIChannelPermissionJSONBody, reason?: string): Promise<RESTPutAPIChannelPermissionResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), {}, "put", "json", data, Constants.reasonHeader(reason)) as RESTPutAPIChannelPermissionResult;
 	}
 
 	/**
@@ -606,6 +608,7 @@ class ChannelMethods {
 	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @param data invite data (optional)
+	 * @param reason Reason for creating the invite
 	 * @returns [Invite object](https://discord.com/developers/docs/resources/invite#invite-object) (with metadata)
 	 *
 	 * | Permissions needed    | Condition                                                                |
@@ -619,12 +622,12 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const invite = await client.channel.createChannelInvite("channel id", { max_age: 0, max_uses: 0, unique: true })
 	 */
-	public async createChannelInvite(channelId: string, data: RESTPostAPIChannelInviteJSONBody & { reason?: string; target_users?: Array<string>; role_ids?: Array<string> } = { max_age: 86400, max_uses: 0, temporary: false, unique: false }): Promise<RESTPostAPIChannelInviteResult> {
+	public async createChannelInvite(channelId: string, data: RESTPostAPIChannelInviteJSONBody & { target_users?: Array<string>; role_ids?: Array<string> } = { max_age: 86400, max_uses: 0, temporary: false, unique: false }, reason?: string): Promise<RESTPostAPIChannelInviteResult> {
 		const targetUsers = data?.target_users
 		if (targetUsers?.length) {
 			delete data.target_users;
 		}
-		return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), {}, "post", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+		return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), {}, "post", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -648,7 +651,7 @@ class ChannelMethods {
 	 * client.channel.deleteChannelPermission("channel id", "user id", "Abusing channel")
 	 */
 	public async deleteChannelPermission(channelId: string, permissionId: string, reason?: string): Promise<RESTDeleteAPIChannelPermissionResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIChannelPermissionResult;
+		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), {}, "delete", "json", {}, Constants.reasonHeader(reason)) as RESTDeleteAPIChannelPermissionResult;
 	}
 
 	/**
@@ -669,7 +672,7 @@ class ChannelMethods {
 	 * client.channel.followAnnouncementChannel("news channel id", "text channel id")
 	 */
 	public async followAnnouncementChannel(channelId: string, webhookChannelId: string, reason?: string): Promise<RESTPostAPIChannelFollowersResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_FOLLOWERS(channelId), {}, "post", "json", { webhook_channel_id: webhookChannelId }, Constants.reasonToXAuditLogReasonHeader(reason));
+		return this.requestHandler.request(Endpoints.CHANNEL_FOLLOWERS(channelId), {}, "post", "json", { webhook_channel_id: webhookChannelId }, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -733,7 +736,7 @@ class ChannelMethods {
 	 * client.channel.addChannelPinnedMessage("channel id", "message id", "Good meme")
 	 */
 	public async addChannelPinnedMessage(channelId: string, messageId: string, reason?: string): Promise<RESTPutAPIChannelMessagesPinResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), {}, "put", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTPutAPIChannelMessagesPinResult;
+		return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), {}, "put", "json", {}, Constants.reasonHeader(reason)) as RESTPutAPIChannelMessagesPinResult;
 	}
 
 	/**
@@ -756,7 +759,7 @@ class ChannelMethods {
 	 * client.channel.removeChannelPinnedMessage("channel id", "message id", "Mod abuse")
 	 */
 	public async removeChannelPinnedMessage(channelId: string, messageId: string, reason?: string): Promise<RESTDeleteAPIChannelMessagesPinResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIChannelMessagesPinResult;
+		return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), {}, "delete", "json", {}, Constants.reasonHeader(reason)) as RESTDeleteAPIChannelMessagesPinResult;
 	}
 
 	/**
@@ -765,6 +768,7 @@ class ChannelMethods {
 	 * @param channelId Id of the guild channel
 	 * @param messageId Id of the message
 	 * @param data Thread meta data
+	 * @param reason Reason for creating the thread
 	 * @returns [thread channel](https://discord.com/developers/docs/resources/channel#channel-object) object
 	 *
 	 * | Permissions needed    | Condition |
@@ -775,10 +779,10 @@ class ChannelMethods {
 	 * @example
 	 * // Create a thread off a cool art piece to discuss
 	 * const client = new SnowTransfer("TOKEN")
-	 * const thread = await client.channel.createThreadWithMessage("channel id", "message id", { name: "cool-art", reason: "I wanna talk about it!" })
+	 * const thread = await client.channel.createThreadWithMessage("channel id", "message id", { name: "cool-art", }, "I wanna talk about it!")
 	 */
-	public async createThreadWithMessage(channelId: string, messageId: string, data: RESTPostAPIChannelMessagesThreadsJSONBody & { reason?: string; }): Promise<RESTPostAPIChannelMessagesThreadsResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_THREADS(channelId, messageId), {}, "post", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+	public async createThreadWithMessage(channelId: string, messageId: string, data: RESTPostAPIChannelMessagesThreadsJSONBody, reason?: string): Promise<RESTPostAPIChannelMessagesThreadsResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_THREADS(channelId, messageId), {}, "post", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -786,6 +790,7 @@ class ChannelMethods {
 	 * @since 0.3.0
 	 * @param channelId Id of the guild channel
 	 * @param data Thread meta data
+	 * @param reason Reason for creating the thread
 	 * @returns [thread channel](https://discord.com/developers/docs/resources/channel#channel-object) object
 	 *
 	 * | Permissions needed     | Condition                    |
@@ -797,13 +802,13 @@ class ChannelMethods {
 	 * @example
 	 * // Creates a private thread that's invitable to talk about someone's birthday
 	 * const client = new SnowTransfer("TOKEN")
-	 * const thread = await client.channel.createThreadWithoutMessage("channel id", { name: "persons-birthday", type: 12, invitable: true, reason: "Shh! It's a surprise" })
+	 * const thread = await client.channel.createThreadWithoutMessage("channel id", { name: "persons-birthday", type: 12, invitable: true }, "Shh! It's a surprise")
 	 */
-	public async createThreadWithoutMessage(channelId: string, data: Omit<RESTPostAPIChannelThreadsJSONBody, "type"> & { type: 10; reason?: string; }): Promise<APITextBasedChannel<ChannelType.AnnouncementThread>>;
-	public async createThreadWithoutMessage(channelId: string, data: Omit<RESTPostAPIChannelThreadsJSONBody, "type"> & { type: 11; reason?: string; }): Promise<APITextBasedChannel<ChannelType.PublicThread>>;
-	public async createThreadWithoutMessage(channelId: string, data: Omit<RESTPostAPIChannelThreadsJSONBody, "type"> & { type: 12; reason?: string; }): Promise<APITextBasedChannel<ChannelType.PrivateThread>>;
-	public async createThreadWithoutMessage(channelId: string, data: RESTPostAPIChannelThreadsJSONBody & { reason?: string; }): Promise<APITextBasedChannel<ChannelType.PublicThread | ChannelType.PrivateThread | ChannelType.AnnouncementThread>> {
-		return this.requestHandler.request(Endpoints.CHANNEL_THREADS(channelId), {}, "post", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+	public async createThreadWithoutMessage(channelId: string, data: Omit<RESTPostAPIChannelThreadsJSONBody, "type"> & { type: 10; }, reason?: string): Promise<APITextBasedChannel<ChannelType.AnnouncementThread>>;
+	public async createThreadWithoutMessage(channelId: string, data: Omit<RESTPostAPIChannelThreadsJSONBody, "type"> & { type: 11; }, reason?: string): Promise<APITextBasedChannel<ChannelType.PublicThread>>;
+	public async createThreadWithoutMessage(channelId: string, data: Omit<RESTPostAPIChannelThreadsJSONBody, "type"> & { type: 12; }, reason?: string): Promise<APITextBasedChannel<ChannelType.PrivateThread>>;
+	public async createThreadWithoutMessage(channelId: string, data: RESTPostAPIChannelThreadsJSONBody, reason?: string): Promise<APITextBasedChannel<ChannelType.PublicThread | ChannelType.PrivateThread | ChannelType.AnnouncementThread>> {
+		return this.requestHandler.request(Endpoints.CHANNEL_THREADS(channelId), {}, "post", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**

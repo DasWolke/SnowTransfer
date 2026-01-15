@@ -57,6 +57,7 @@ class WebhookMethods {
 	 * @since 0.1.0
 	 * @param channelId Id of the channel
 	 * @param data Object with webhook properties
+	 * @param reason Reason for creating the webhook
 	 * @returns [Webhook Object](https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
 	 *
 	 * | Permissions needed | Condition |
@@ -71,8 +72,8 @@ class WebhookMethods {
 	 * }
 	 * const webhook = await client.webhook.createWebhook("channel Id", webhookData)
 	 */
-	public async createWebhook(channelId: string, data: RESTPostAPIChannelWebhookJSONBody & { reason?: string }): Promise<RESTPostAPIChannelWebhookResult> {
-		return this.requestHandler.request(Endpoints.CHANNEL_WEBHOOKS(channelId), {}, "post", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+	public async createWebhook(channelId: string, data: RESTPostAPIChannelWebhookJSONBody, reason?: string): Promise<RESTPostAPIChannelWebhookResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_WEBHOOKS(channelId), {}, "post", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -135,30 +136,48 @@ class WebhookMethods {
 	}
 
 	/**
-	 * Update a webhook
+	 * Update a webhook without a token
 	 * @since 0.1.0
 	 * @param webhookId Id of the webhook
 	 * @param data Updated Webhook properties
-	 * @param token Webhook token
+	 * @param reason Reason for updating the webhook
 	 * @returns Updated [Webhook Object](https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
 	 *
-	 * | Permissions needed | Condition     |
-	 * |--------------------|---------------|
-	 * | MANAGE_WEBHOOKS    | without token |
+	 * | Permissions needed | Condition |
+	 * |--------------------|-----------|
+	 * | MANAGE_WEBHOOKS    | always    |
 	 *
 	 * @example
-	 * // Rename a webhook to "Captain Hook" with a webhook token
-	 * const client = new SnowTransfer(); // No token needed if webhook token is provided
+	 * // Rename a webhook to "Captain Hook" without a webhook token
+	 * const client = new SnowTransfer("TOKEN")
 	 * const webhookData = {
 	 * 	name: "Captain Hook"
 	 * }
-	 * const webhook = await client.webhook.updateWebhook("webhook Id", webhookData, "webhook token")
+	 * const webhook = await client.webhook.updateWebhook("webhook Id", webhookData)
 	 */
-	public async updateWebhook(webhookId: string, data: RESTPatchAPIWebhookWithTokenJSONBody & { reason?: string; }, token: string): Promise<RESTPatchAPIWebhookWithTokenResult>
-	public async updateWebhook(webhookId: string, data: RESTPatchAPIWebhookJSONBody & { reason?: string; }): Promise<RESTPatchAPIWebhookResult>
-	public async updateWebhook(webhookId: string, data: (RESTPatchAPIWebhookWithTokenJSONBody | RESTPatchAPIWebhookJSONBody) & { reason?: string; }, token?: string): Promise<RESTPatchAPIWebhookWithTokenResult | RESTPatchAPIWebhookResult> {
-		if (token) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), {}, "patch", "json", data);
-		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+	public async updateWebhook(webhookId: string, data: RESTPatchAPIWebhookJSONBody, reason?: string): Promise<RESTPatchAPIWebhookResult> {
+		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), {}, "patch", "json", data, Constants.reasonHeader(reason));
+	}
+
+	/**
+	 * Update a webhook with a token
+	 * @since 0.17.0
+	 * @param webhookId Id of the webhook
+	 * @param token Token of the webhook
+	 * @param data Updated webhook properties
+	 * @param reason Reason for updating the webhook
+	 * @returns Updated [Webhook Object](https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
+	 *
+	 * @example
+	 * // Rename a webhook to "Captain Hook" with a webhook token
+	 * const client = new SnowTransfer() // No token needed if webhook token is provided
+	 * const webhookData = {
+	 * 	name: "Captain Hook"
+	 * }
+	 * const webhook = await client.webhook.updateWebhook("webhook Id", "webhook token" webhookData)
+	 */
+	public async updateWebhookToken(webhookId: string, token: string, data: RESTPatchAPIWebhookWithTokenJSONBody, reason?: string): Promise<RESTPatchAPIWebhookWithTokenResult> {
+		return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -178,7 +197,7 @@ class WebhookMethods {
 	 * client.webhook.deleteWebhook("webhook Id")
 	 */
 	public async deleteWebhook(webhookId: string, reason?: string): Promise<RESTDeleteAPIWebhookResult> {
-		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), {}, "delete", "json", undefined, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIWebhookResult;
+		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), {}, "delete", "json", undefined, Constants.reasonHeader(reason)) as RESTDeleteAPIWebhookResult;
 	}
 
 	/**
@@ -194,7 +213,7 @@ class WebhookMethods {
 	 * client.webhook.deleteWebhookToken("webhook Id", "webhook token")
 	 */
 	public async deleteWebhookToken(webhookId: string, token: string, reason?: string): Promise<RESTDeleteAPIWebhookResult> {
-		return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), {}, "delete", "json", undefined, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIWebhookResult;
+		return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), {}, "delete", "json", undefined, Constants.reasonHeader(reason)) as RESTDeleteAPIWebhookResult;
 	}
 
 	/**

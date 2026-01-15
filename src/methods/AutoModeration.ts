@@ -71,6 +71,7 @@ class AutoModerationMethods {
 	 * @since 0.7.0
 	 * @param guildId id of the guild
 	 * @param data the data of the auto moderation rule
+	 * @param reason Reason for creating the auto moderation rule
 	 * @returns An [auto mod rule](https://discord.com/developers/docs/resources/auto-moderation#auto-moderation-rule-object)
 	 *
 	 * | Permissions needed | Condition |
@@ -94,8 +95,8 @@ class AutoModerationMethods {
 	 * }
 	 * const newRule = await client.autoMod.createAutoModerationRule("guild id", data)
 	 */
-	public async createAutoModerationRule(guildId: string, data: RESTPostAPIAutoModerationRuleJSONBody & { reason?: string }): Promise<RESTPostAPIAutoModerationRuleResult> {
-		return this.requestHandler.request(Endpoints.GUILD_AUTO_MOD_RULES(guildId), {}, "post", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+	public async createAutoModerationRule(guildId: string, data: RESTPostAPIAutoModerationRuleJSONBody, reason?: string): Promise<RESTPostAPIAutoModerationRuleResult> {
+		return this.requestHandler.request(Endpoints.GUILD_AUTO_MOD_RULES(guildId), {}, "post", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -104,6 +105,7 @@ class AutoModerationMethods {
 	 * @param guildId id of the guild
 	 * @param ruleId id of the rule
 	 * @param data the data of the auto moderation rule
+	 * @param reason Reason for editing the auto moderation rule
 	 * @returns An [auto mod rule](https://discord.com/developers/docs/resources/auto-moderation#auto-moderation-rule-object)
 	 *
 	 * | Permissions needed | Condition |
@@ -116,12 +118,11 @@ class AutoModerationMethods {
 	 * const data = {
 	 * 	name: "mention_spam_prevention",
 	 * 	enabled: true,
-	 * 	reason: "It's turned off by default and I forgor"
 	 * }
-	 * const updatedRule = await client.autoMod.editAutoModerationRule("guild id", "rule id", data)
+	 * const updatedRule = await client.autoMod.editAutoModerationRule("guild id", "rule id", data, "It's turned off by default and I forgor")
 	 */
-	public async editAutoModerationRule(guildId: string, ruleId: string, data: RESTPatchAPIAutoModerationRuleJSONBody & { reason?: string }): Promise<RESTPatchAPIAutoModerationRuleResult> {
-		return this.requestHandler.request(Endpoints.GUILD_AUTO_MOD_RULE(guildId, ruleId), {}, "patch", "json", data, Constants.reasonToXAuditLogReasonHeader(data));
+	public async editAutoModerationRule(guildId: string, ruleId: string, data: RESTPatchAPIAutoModerationRuleJSONBody, reason?: string): Promise<RESTPatchAPIAutoModerationRuleResult> {
+		return this.requestHandler.request(Endpoints.GUILD_AUTO_MOD_RULE(guildId, ruleId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -141,7 +142,7 @@ class AutoModerationMethods {
 	 * client.autoMod.deleteAutoModerationRules("guild id", "rule id", "was useless")
 	 */
 	public async deleteAutoModerationRule(guildId: string, ruleId: string, reason?: string): Promise<RESTDeleteAPIAutoModerationRuleResult> {
-		return this.requestHandler.request(Endpoints.GUILD_AUTO_MOD_RULE(guildId, ruleId), {}, "delete", "json", {}, Constants.reasonToXAuditLogReasonHeader(reason)) as RESTDeleteAPIAutoModerationRuleResult;
+		return this.requestHandler.request(Endpoints.GUILD_AUTO_MOD_RULE(guildId, ruleId), {}, "delete", "json", {}, Constants.reasonHeader(reason)) as RESTDeleteAPIAutoModerationRuleResult;
 	}
 }
 
