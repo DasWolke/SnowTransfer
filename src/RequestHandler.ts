@@ -50,10 +50,20 @@ export class DiscordAPIError extends Error {
 	}
 }
 
+export interface Counter {
+	id: string;
+	hasReset(): boolean;
+	canTake(): boolean;
+	take(): boolean;
+	timeUntilReset(): number;
+	responseReceived(): void;
+	applyCount(limit: number | null, remaining: number, resetAfter: number): void;
+}
+
 /**
  * @since 0.16.0
  */
-class Counter {
+export class IntervalCounter implements Counter {
 	/**
 	 * Remaining amount of executions during the current timeframe
 	 */
@@ -62,6 +72,8 @@ class Counter {
 	private firstRequestTime = 0;
 
 	private resetAt: number | null = null;
+
+	public id = Array(3).fill(0).map(() => String.fromCharCode(Math.floor(Math.random()*26+65))).join("")
 
 	/**
 	 * Create a new base bucket
@@ -81,12 +93,14 @@ class Counter {
 				this.firstRequestTime = 0;
 				this.remaining = this.limit;
 				this.resetAt = null;
+				console.log(`${new Date().toISOString()} [itrv] [${this.id}] informed reset: ${this.remaining}/${this.limit}`)
 			}
 		}
 		// If no specific resetAt, count from first request and reset interval
 		else if (now > this.firstRequestTime + this.reset) {
 			this.firstRequestTime = 0;
 			this.remaining = this.limit;
+			console.log(`${new Date().toISOString()} [itrv] [${this.id}] predicted reset: ${this.remaining}/${this.limit}`)
 		}
 	}
 
@@ -108,19 +122,96 @@ class Counter {
 
 	public take(): boolean {
 		this.checkReset();
+		if (this.remaining === this.limit) this.firstRequestTime = Date.now();
+		let ok = this.remaining > 0;
+		this.remaining--;
+		console.log(`${new Date().toISOString()} [itrv] [${this.id}] took: ${this.remaining} left (ok: ${ok})`);
+		return ok;
+	}
+
+	public timeUntilReset(): number {
+		const now = Date.now();
+		if (this.resetAt) return Math.max(this.resetAt - now + 1, 0);
+		else return Math.max(this.firstRequestTime + this.reset - Date.now() + 1, 0);
+	}
+
+	// update the firstRequestTime to represent the *response* time to avoid getting fucked by slight network latency inconsistencies after a bucket refresh
+	public responseReceived(): void {
+		if (this.remaining === this.limit-1 && this.firstRequestTime) this.firstRequestTime = Date.now()
+	}
+
+	public applyCount(limit: number | null, remaining: number, resetAfter: number): void {
+		if (limit != null) this.limit = limit;
+		this.remaining = remaining;
+		this.resetAt = Date.now() + resetAfter;
+		console.log(`${new Date().toISOString()} [itrv] [${this.id}] applied: ${remaining}/${limit} - wait another ${resetAfter}`)
+	}
+}
+
+export class LeakyCounter implements Counter {
+	/**
+	 * Remaining amount of executions during the current timeframe
+	 */
+	public remaining: number;
+
+	private resetAt: number | null = null;
+
+	public id = Array(3).fill(0).map(() => String.fromCharCode(Math.floor(Math.random()*26+65))).join("")
+
+	/**
+	 * Create a new base bucket
+	 * @param limit Number of functions that may be executed until some are reset
+	 */
+	public constructor(public limit: number) {
+		this.remaining = limit;
+	}
+
+	private checkReset(): void {
+		// Check if the counter has refreshed
+		const now = Date.now();
+		if (this.resetAt && now > this.resetAt) {
+			this.remaining = Math.min(this.limit, this.remaining + 1); // only restore one when it resets
+			this.resetAt = null;
+			console.log(`${new Date().toISOString()} [leak] [${this.id}] restore one: ${this.remaining}/${this.limit}`)
+		}
+	}
+
+	/**
+	 * Like new.
+	 */
+	public hasReset(): boolean {
+		this.checkReset();
+		return this.remaining === this.limit;
+	}
+
+	/**
+	 * Returns true only if the caller is allowed to call take() and then send the request.
+	 */
+	public canTake(): boolean {
+		this.checkReset();
+		return this.remaining > 0;
+	}
+
+	public take(): boolean {
+		this.checkReset();
+		console.log(`${new Date().toISOString()} [leak] [${this.id}] took: ${this.remaining-1} left`)
 		return this.remaining-- > 0;
 	}
 
 	public timeUntilReset(): number {
 		const now = Date.now();
-		if (this.resetAt) return Math.max(this.resetAt - now, 0);
-		else return Math.max(this.firstRequestTime + this.reset - Date.now(), 0);
+		if (this.resetAt) return Math.max(this.resetAt - now + 1, 0);
+		else return 0;
 	}
 
-	public applyCount(limit: number, remaining: number, resetAfter: number): void {
-		this.limit = limit;
+	public responseReceived(): void {
+	}
+
+	public applyCount(limit: number | null, remaining: number, resetAfter: number): void {
+		if (limit != null) this.limit = limit;
 		this.remaining = remaining;
 		this.resetAt = Date.now() + resetAfter;
+		console.log(`${new Date().toISOString()} [leak] [${this.id}] applied: ${remaining}/${limit} - wait another ${resetAfter}`)
 	}
 }
 
@@ -141,14 +232,10 @@ export class Bucket {
 	private pauseRequested = false;
 
 	/**
-	 * Create a new base bucket
-	 * @param limit Number of functions that may be executed during the timeframe set in reset
-	 * @param reset Timeframe in milliseconds until the ratelimit resets after first
+	 * Create a new bucket
 	 */
-	public constructor(public limit = 5, public reset = 5000, additionalCounters: Array<Counter> = []) {
-		this.counters = [
-			new Counter(limit, reset)
-		].concat(additionalCounters);
+	public constructor(counters: Array<Counter>) {
+		this.counters = counters;
 
 		// nothing to do, nothing waiting for, the next request will be sent straight away
 		this.sm.defineState("ready", {
@@ -300,7 +387,7 @@ export class Ratelimiter {
 	/**
 	 * The bucket that limits how many requests per second you can make globally
 	 */
-	public globalBucket = new Bucket(Constants.GLOBAL_REQUESTS_PER_SECOND, 1000);
+	public globalBucket = new Bucket([new IntervalCounter(Constants.GLOBAL_REQUESTS_PER_SECOND, 1000)]);
 
 	/**
 	 * If you're being globally rate limited
@@ -356,7 +443,11 @@ export class Ratelimiter {
 
 		let bucket = this.buckets.get(routeKey);
 		if (!bucket) {
-			bucket = new Bucket(5, 5000, [this.globalBucket.counters[0]]);
+			if (method === "DELETE" && url.match(/\/messages\/[0-9]+$/)) {
+				bucket = new Bucket([new LeakyCounter(1), new IntervalCounter(5, 5000), this.globalBucket.counters[0]]);
+			} else {
+				bucket = new Bucket([new LeakyCounter(1), this.globalBucket.counters[0]]);
+			}
 			this.buckets.set(routeKey, bucket);
 		}
 
@@ -460,6 +551,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 					}
 
 					this.latency = Date.now() - before;
+					bkt?.counters.forEach(c => c.responseReceived());
 
 					if (bkt) this._applyRatelimitHeaders(bkt, response.headers);
 
@@ -472,14 +564,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 						const b = await response.json() as RatelimitInfo; // Discord says it will be a JSON, so if there's an error, sucks
 						if (b.global) this.ratelimiter.setGlobal(b.retry_after * 1000);
 
-						this.emit("rateLimit", {
-							timeout: bkt?.reset ?? b.retry_after * 1000,
-							remaining: 0,
-							limit: bkt?.limit ?? Infinity,
-							method: method.toUpperCase(),
-							path: endpoint,
-							route: this.ratelimiter.routify(endpoint, method.toUpperCase())
-						});
+						console.log(`${new Date().toISOString()} [rate] [${bkt?.counters[0].id}] !! 429 - guess there was 0 remaining, wait another ${b.retry_after*1000} (route: ${this.ratelimiter.routify(endpoint, method.toUpperCase())})`)
 
 						throw new DiscordAPIError({ message: b.message, code: b.code ?? 429 }, request, response);
 					}
