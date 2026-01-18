@@ -241,8 +241,6 @@ class WebhookMethods {
 		if ((data.content || data.embeds) && data.flags && (hasComponentsV2)) throw new Error("The message flags was set to include IsComponentsV2, but content and/or embeds were also present. You can either have content/embeds or components v2, not both.");
 
 		// Sanitize the message
-		if (data.content && (options?.disableEveryone ?? this.options.disableEveryone)) data.content = Constants.replaceEveryone(data.content);
-		if (data.components && (options?.disableEveryone ?? this.options.disableEveryone)) data.components = Constants.replaceEveryone(data.components);
 		if (options) delete options.disableEveryone;
 		data.allowed_mentions ??= this.options.allowed_mentions;
 

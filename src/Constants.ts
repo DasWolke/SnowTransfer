@@ -1,21 +1,6 @@
 import { Blob, File } from "buffer";
 import { Readable } from "stream";
 import { ReadableStream } from "stream/web";
-import { deprecate } from "util";
-
-import {
-	type APIMessageTopLevelComponent,
-
-	ComponentType
-} from "discord-api-types/v10";
-
-const mentionRegex = /@([^<>@ ]*)/gsmu;
-const isValidUserMentionRegex = /^[&!]?\d+$/;
-
-function replaceEveryoneMatchProcessor(_match: string, target: string): string {
-	if (isValidUserMentionRegex.test(target)) return `@${target}`;
-	else return `@\u200b${target}`;
-}
 
 const Constants = {
 	REST_API_VERSION: 10 as const,
@@ -59,22 +44,6 @@ const Constants = {
 			form.set(name, blob, filename);
 		} else throw new Error(`Don't know how to add ${value?.constructor?.name ?? typeof value} to form`);
 	},
-	replaceEveryone: deprecate(function replaceEveryone<T extends string | Array<APIMessageTopLevelComponent> | APIMessageTopLevelComponent>(content: T): T {
-		if (typeof content === "string") return content.replace(mentionRegex, replaceEveryoneMatchProcessor) as T;
-		if (Array.isArray(content)) return content.map(comp => Constants.replaceEveryone(comp)) as T;
-		switch (content.type) {
-			case ComponentType.Section:
-			case ComponentType.Container:
-				content.components = Constants.replaceEveryone(content.components);
-				break;
-			case ComponentType.TextDisplay:
-				content.content = Constants.replaceEveryone(content.content);
-				break;
-			default:
-				return content;
-		}
-		return content;
-	}, "SnowTransfer: disableEveryone option has been deprecated and will be removed in a future release. Please use allowed_mentions instead."),
 	reasonHeader(reason?: string): { "X-Audit-Log-Reason"?: string } { return reason ? { "X-Audit-Log-Reason": reason } : {}; }
 };
 

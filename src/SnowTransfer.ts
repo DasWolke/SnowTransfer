@@ -26,9 +26,6 @@ namespace SnowTransfer {
 		baseHost: string;
 		/** The default allowed_mentions object to send when creating/updating messages */
 		allowed_mentions: APIAllowedMentions | undefined;
-		/** If methods that send messages should have their content processed to remove [at]everyone and [at]here
-		 * @deprecated Use {@link Options.allowed_mentions allowed_mentions} instead */
-		disableEveryone: boolean;
 		/** If rate limit buckets should be totally bypassed and functions are executed as fast as possible. Only use if you are 100% certain you wont run into issues or if you are proxying */
 		bypassBuckets: boolean;
 		/** If failed requests that can be retried should be retried, up to retryLimit times. */
@@ -91,7 +88,7 @@ class SnowTransfer {
 	public constructor(token?: string, options?: Partial<SnowTransfer.Options>) {
 		if (typeof token === "string" && token === "") throw new Error("Missing token");
 		if (token && (!token.startsWith("Bot") && !token.startsWith("Bearer"))) token = `Bot ${token}`;
-		this.options = { baseHost: Endpoints.BASE_HOST, allowed_mentions: undefined, disableEveryone: false, bypassBuckets: false, retryRequests: false, retryLimit: Constants.DEFAULT_RETRY_LIMIT, ...options };
+		this.options = { baseHost: Endpoints.BASE_HOST, allowed_mentions: undefined, bypassBuckets: false, retryRequests: false, retryLimit: Constants.DEFAULT_RETRY_LIMIT, ...options };
 		this.token = token;
 		this.ratelimiter = new Ratelimiter();
 		this.requestHandler = new RequestHandler(this.ratelimiter, {
