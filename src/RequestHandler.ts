@@ -469,7 +469,7 @@ export class Ratelimiter {
 	}
 }
 
-namespace RequestHandler {
+export namespace RequestHandler {
 	export type Options = {
 		/** The base URL to use when making requests. Defaults to https://discord.com */
 		baseHost: string;
