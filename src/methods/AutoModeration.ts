@@ -15,6 +15,7 @@ import type {
 /**
  * Methods for interacting with guild auto moderation
  * @since 0.7.0
+ * @protected
  */
 class AutoModerationMethods {
 	/**

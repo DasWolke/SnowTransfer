@@ -67,6 +67,7 @@ import type {
 /**
  * Methods for interacting with Guilds
  * @since 0.1.0
+ * @protected
  */
 class GuildMethods {
 	/**

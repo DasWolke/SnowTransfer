@@ -10,6 +10,7 @@ import type {
 /**
  * Methods for interacting with Guild Audit Logs
  * @since 0.2.0
+ * @protected
  */
 class AuditLogMethods {
 	/**

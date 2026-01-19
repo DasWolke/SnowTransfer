@@ -14,6 +14,7 @@ import type {
 /**
  * Methods for interacting with Entitelements
  * @since 0.13.0
+ * @protected
  */
 class EntitlementMethods {
 	/**

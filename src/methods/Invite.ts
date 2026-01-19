@@ -14,6 +14,7 @@ import type { RESTGetAPIInviteTargetUsers, RESTGetAPIInviteTargetUsersJobStatus,
 /**
  * Methods for interacting with invites
  * @since 0.1.0
+ * @protected
  */
 class InviteMethods {
 	/**

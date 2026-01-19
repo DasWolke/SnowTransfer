@@ -7,6 +7,7 @@ import type { RESTGetAPIVoiceRegionsResult, APIVoiceState } from "discord-api-ty
 /**
  * Methods for interacting with some voice
  * @since 0.1.0
+ * @protected
  */
 class VoiceMethods {
 	/**

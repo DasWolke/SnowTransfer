@@ -12,6 +12,7 @@ import type {
 /**
  * Methods for interacting with bot specific endpoints
  * @since 0.1.0
+ * @protected
  */
 class BotMethods {
 	/**

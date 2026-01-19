@@ -16,6 +16,7 @@ import type {
 /**
  * Methods for interacting with Guild Templates
  * @since 0.3.0
+ * @protected
  */
 class GuildTemplateMethods {
 	/**

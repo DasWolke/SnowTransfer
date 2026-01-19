@@ -37,6 +37,7 @@ namespace SnowTransfer {
 
 /**
  * @since 0.1.0
+ * @protected
  */
 class SnowTransfer {
 	/** Options for this SnowTransfer instance */

@@ -39,6 +39,7 @@ import type { ReadableStream } from "stream/web";
 /**
  * Methods for handling webhook interactions
  * @since 0.1.0
+ * @protected
  */
 class WebhookMethods {
 	/**

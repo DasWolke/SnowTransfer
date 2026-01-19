@@ -45,6 +45,7 @@ import type { ReadableStream } from "stream/web";
 /**
  * Methods for interacting with slash command specific endpoints
  * @since 0.3.0
+ * @protected
  */
 class InteractionMethods {
 	/**

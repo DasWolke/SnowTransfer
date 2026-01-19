@@ -26,6 +26,7 @@ const disallowedBodyMethods = new Set(["head", "get", "delete"]);
 
 /**
  * @since 0.3.0
+ * @protected
  */
 export class DiscordAPIError extends Error {
 	public method: string;
@@ -220,7 +221,6 @@ export class LeakyCounter implements Counter {
 /**
  * Bucket used for saving ratelimits
  * @since 0.1.0
- * @protected
  */
 export class Bucket {
 	/** Tracks the state this bucket is in (blocked, running, waiting, etc) and what operations are allowed. */
@@ -489,6 +489,7 @@ export namespace RequestHandler {
 /**
  * Request Handler class
  * @since 0.1.0
+ * @protected
  */
 export class RequestHandler extends EventEmitter<HandlerEvents> {
 	public options: RequestHandler.Options;

@@ -36,6 +36,7 @@ import type { ReadableStream } from "stream/web";
 /**
  * Methods for interacting with assets like emojis and stickers for a guild/app
  * @since 0.13.0
+ * @protected
  */
 class AssetsMethods {
 	/**

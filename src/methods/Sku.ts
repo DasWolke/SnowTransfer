@@ -12,6 +12,7 @@ import type {
 /**
  * Methods for interacting with SKUs
  * @since 0.13.0
+ * @protected
  */
 class SkuMethods {
 	/**

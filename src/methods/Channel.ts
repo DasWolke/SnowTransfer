@@ -67,6 +67,7 @@ import type { ReadableStream } from "stream/web";
 /**
  * Methods for interacting with Channels and Messages
  * @since 0.1.0
+ * @protected
  */
 class ChannelMethods {
 	/**

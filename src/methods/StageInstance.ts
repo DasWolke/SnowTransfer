@@ -15,6 +15,7 @@ import type {
 /**
  * Methods for interacting with Stage instances
  * @since 0.3.0
+ * @protected
  */
 class StageInstanceMethods {
 	/**

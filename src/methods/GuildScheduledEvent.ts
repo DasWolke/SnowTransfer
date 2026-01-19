@@ -18,6 +18,7 @@ import type {
 /**
  * Methods for interacting with Guild Scheduled Events
  * @since 0.3.6
+ * @protected
  */
 class GuildScheduledEventMethods {
 	/**

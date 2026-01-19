@@ -20,6 +20,7 @@ import type {
 /**
  * Methods for interacting with users
  * @since 0.1.0
+ * @protected
  */
 class UserMethods {
 	/**
