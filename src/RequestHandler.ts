@@ -20,6 +20,7 @@ const reactionsUserRegex = /\/reactions\/:id\/[^/]+/g;
 const webhooksRegex = /^\/webhooks\/(\d+)\/[A-Za-z0-9-_]{64,}/;
 const isMessageEndpointRegex = /\/messages\/:id$/;
 const isGuildChannelsRegex = /\/guilds\/\d+\/channels$/;
+const messagesRegex = /\/messages\/\d+$/;
 
 const disallowedBodyMethods = new Set(["head", "get", "delete"]);
 
@@ -50,18 +51,36 @@ export class DiscordAPIError extends Error {
 	}
 }
 
+/**
+ * @since 0.17.0
+ */
 export interface Counter {
 	id: string;
+	/**
+	 * Like new.
+	 * @since 0.17.0
+	 */
 	hasReset(): boolean;
+	/**
+	 * Returns true only if the caller is allowed to call take() and then consume a function.
+	 * @since 0.17.0
+	 */
 	canTake(): boolean;
+	/**
+	 * Take a use out of the counter
+	 * @since 0.17.0
+	 */
 	take(): boolean;
+	/** @since 0.17.0 */
 	timeUntilReset(): number;
+	/** @since 0.17.0 */
 	responseReceived(): void;
+	/** @since 0.17.0 */
 	applyCount(limit: number | null, remaining: number, resetAfter: number): void;
 }
 
 /**
- * @since 0.16.0
+ * @since 0.17.0
  */
 export class IntervalCounter implements Counter {
 	/**
@@ -73,7 +92,7 @@ export class IntervalCounter implements Counter {
 
 	private resetAt: number | null = null;
 
-	public id = Array(3).fill(0).map(() => String.fromCharCode(Math.floor(Math.random()*26+65))).join("")
+	public id = new Array(3).fill(0).map(() => String.fromCodePoint(Math.floor(Math.random()*26+65))).join("");
 
 	/**
 	 * Create a new base bucket
@@ -93,28 +112,20 @@ export class IntervalCounter implements Counter {
 				this.firstRequestTime = 0;
 				this.remaining = this.limit;
 				this.resetAt = null;
-				console.log(`${new Date().toISOString()} [itrv] [${this.id}] informed reset: ${this.remaining}/${this.limit}`)
 			}
 		}
 		// If no specific resetAt, count from first request and reset interval
 		else if (now > this.firstRequestTime + this.reset) {
 			this.firstRequestTime = 0;
 			this.remaining = this.limit;
-			console.log(`${new Date().toISOString()} [itrv] [${this.id}] predicted reset: ${this.remaining}/${this.limit}`)
 		}
 	}
 
-	/**
-	 * Like new.
-	 */
 	public hasReset(): boolean {
 		this.checkReset();
 		return this.remaining === this.limit;
 	}
 
-	/**
-	 * Returns true only if the caller is allowed to call take() and then send the request.
-	 */
 	public canTake(): boolean {
 		this.checkReset();
 		return this.remaining > 0;
@@ -125,7 +136,6 @@ export class IntervalCounter implements Counter {
 		if (this.remaining === this.limit) this.firstRequestTime = Date.now();
 		let ok = this.remaining > 0;
 		this.remaining--;
-		console.log(`${new Date().toISOString()} [itrv] [${this.id}] took: ${this.remaining} left (ok: ${ok})`);
 		return ok;
 	}
 
@@ -144,10 +154,12 @@ export class IntervalCounter implements Counter {
 		if (limit != null) this.limit = limit;
 		this.remaining = remaining;
 		this.resetAt = Date.now() + resetAfter;
-		console.log(`${new Date().toISOString()} [itrv] [${this.id}] applied: ${remaining}/${limit} - wait another ${resetAfter}`)
 	}
 }
 
+/**
+ * @since 0.17.0
+ */
 export class LeakyCounter implements Counter {
 	/**
 	 * Remaining amount of executions during the current timeframe
@@ -156,7 +168,7 @@ export class LeakyCounter implements Counter {
 
 	private resetAt: number | null = null;
 
-	public id = Array(3).fill(0).map(() => String.fromCharCode(Math.floor(Math.random()*26+65))).join("")
+	public id = new Array(3).fill(0).map(() => String.fromCodePoint(Math.floor(Math.random()*26+65))).join("");
 
 	/**
 	 * Create a new base bucket
@@ -172,21 +184,14 @@ export class LeakyCounter implements Counter {
 		if (this.resetAt && now > this.resetAt) {
 			this.remaining = Math.min(this.limit, this.remaining + 1); // only restore one when it resets
 			this.resetAt = null;
-			console.log(`${new Date().toISOString()} [leak] [${this.id}] restore one: ${this.remaining}/${this.limit}`)
 		}
 	}
 
-	/**
-	 * Like new.
-	 */
 	public hasReset(): boolean {
 		this.checkReset();
 		return this.remaining === this.limit;
 	}
 
-	/**
-	 * Returns true only if the caller is allowed to call take() and then send the request.
-	 */
 	public canTake(): boolean {
 		this.checkReset();
 		return this.remaining > 0;
@@ -194,7 +199,6 @@ export class LeakyCounter implements Counter {
 
 	public take(): boolean {
 		this.checkReset();
-		console.log(`${new Date().toISOString()} [leak] [${this.id}] took: ${this.remaining-1} left`)
 		return this.remaining-- > 0;
 	}
 
@@ -204,14 +208,12 @@ export class LeakyCounter implements Counter {
 		else return 0;
 	}
 
-	public responseReceived(): void {
-	}
+	public responseReceived(): void {}
 
 	public applyCount(limit: number | null, remaining: number, resetAfter: number): void {
 		if (limit != null) this.limit = limit;
 		this.remaining = remaining;
 		this.resetAt = Date.now() + resetAfter;
-		console.log(`${new Date().toISOString()} [leak] [${this.id}] applied: ${remaining}/${limit} - wait another ${resetAfter}`)
 	}
 }
 
@@ -223,10 +225,9 @@ export class LeakyCounter implements Counter {
 export class Bucket {
 	/** Tracks the state this bucket is in (blocked, running, waiting, etc) and what operations are allowed. */
 	public sm = new StateMachine("ready");
-
 	/** Wrapped functions which always resolve (not reject) after the original function has completed and resolved. The original function may manipulate rate limit buckets in that time before it resolves. */
 	public calls: Array<() => any> = [];
-
+	/** The backing counters of the bucket that determine how many functions can be consumed in a timeframe. */
 	public counters: Array<Counter> = [];
 
 	private pauseRequested = false;
@@ -354,11 +355,19 @@ export class Bucket {
 		});
 	}
 
+	/**
+	 * Pause the bucket from consuming more functions until resumed
+	 * @since 0.16.0
+	 */
 	public pause(): void {
 		this.pauseRequested = true;
 		if (this.sm.currentStateName === "ready") this.sm.doTransition("pause");
 	}
 
+	/**
+	 * If the bucket is paused, resume it
+	 * @since 0.16.0
+	 */
 	public resume(): void {
 		this.pauseRequested = false;
 		if (this.sm.currentStateName !== "paused") return
@@ -400,9 +409,7 @@ export class Ratelimiter {
 		setInterval(() => {
 			for (const [key, value] of this.buckets.entries()) {
 				const counter = value.counters[0];
-				if (counter.hasReset()) {
-					this.buckets.delete(key);
-				}
+				if (counter.hasReset()) this.buckets.delete(key);
 			}
 		}, 1*60*60*1000).unref();
 	}
@@ -443,11 +450,9 @@ export class Ratelimiter {
 
 		let bucket = this.buckets.get(routeKey);
 		if (!bucket) {
-			if (method === "DELETE" && url.match(/\/messages\/[0-9]+$/)) {
+			if (method === "DELETE" && messagesRegex.test(url)) {
 				bucket = new Bucket([new LeakyCounter(1), new IntervalCounter(5, 5000), this.globalBucket.counters[0]]);
-			} else {
-				bucket = new Bucket([new LeakyCounter(1), this.globalBucket.counters[0]]);
-			}
+			} else bucket = new Bucket([new LeakyCounter(1), this.globalBucket.counters[0]]);
 			this.buckets.set(routeKey, bucket);
 		}
 
@@ -456,6 +461,7 @@ export class Ratelimiter {
 
 	/**
 	 * Set if this Ratelimiter is hitting a global ratelimit for `ms` duration
+	 * @since 0.12.0
 	 * @param ms How long in milliseconds this Ratelimiter is globally ratelimited for
 	 */
 	public setGlobal(ms: number): void {
@@ -463,12 +469,8 @@ export class Ratelimiter {
 	}
 }
 
-/**
- * Request Handler class
- * @since 0.1.0
- */
-export class RequestHandler extends EventEmitter<HandlerEvents> {
-	public options: {
+namespace RequestHandler {
+	export type Options = {
 		/** The base URL to use when making requests. Defaults to https://discord.com */
 		baseHost: string;
 		/** The base path of the base URL to use for the API. Defaults to /api/v${Constants.REST_API_VERSION} */
@@ -481,7 +483,15 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 		retryLimit: number;
 		headers: { Authorization?: string; "User-Agent": string; },
 		fetch: typeof fetch
-	};
+	}
+}
+
+/**
+ * Request Handler class
+ * @since 0.1.0
+ */
+export class RequestHandler extends EventEmitter<HandlerEvents> {
+	public options: RequestHandler.Options;
 	public latency: number;
 	public apiURL: string;
 
@@ -490,7 +500,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 	 * @param ratelimiter ratelimiter to use for ratelimiting requests
 	 * @param options options
 	 */
-	public constructor(public ratelimiter: Ratelimiter, options?: { token?: string; } & Partial<Omit<RequestHandler["options"], "headers">>) {
+	public constructor(public ratelimiter: Ratelimiter, options?: { token?: string; } & Partial<Omit<RequestHandler.Options, "headers">>) {
 		super();
 
 		this.options = {
@@ -563,8 +573,11 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 					if (response.status === 429) {
 						const b = await response.json() as RatelimitInfo; // Discord says it will be a JSON, so if there's an error, sucks
 						if (b.global) this.ratelimiter.setGlobal(b.retry_after * 1000);
-
-						console.log(`${new Date().toISOString()} [rate] [${bkt?.counters[0].id}] !! 429 - guess there was 0 remaining, wait another ${b.retry_after*1000} (route: ${this.ratelimiter.routify(endpoint, method.toUpperCase())})`)
+						this.emit("rateLimit", {
+							method: method.toUpperCase(),
+							path: endpoint,
+							route: this.ratelimiter.routify(endpoint, method.toUpperCase())
+						});
 
 						throw new DiscordAPIError({ message: b.message, code: b.code ?? 429 }, request, response);
 					}

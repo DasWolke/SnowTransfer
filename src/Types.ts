@@ -38,7 +38,7 @@ export type HandlerEvents = {
 	request: [string, RequestEventData];
 	done: [string, Response, RequestEventData];
 	requestError: [string, Error];
-	rateLimit: [{ timeout: number; remaining: number; limit: number; method: string; path: string; route: string; }];
+	rateLimit: [{ method: string; path: string; route: string; }];
 }
 
 export type SMState = {
