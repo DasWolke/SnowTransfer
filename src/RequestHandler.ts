@@ -113,12 +113,14 @@ export class IntervalCounter implements Counter {
 				this.firstRequestTime = 0;
 				this.remaining = this.limit;
 				this.resetAt = null;
+				if (globalThis.snowtransferDebugLogging) console.log(`${new Date().toISOString()} [itrv] [${this.id}] informed reset: ${this.remaining}/${this.limit}`);
 			}
 		}
 		// If no specific resetAt, count from first request and reset interval
 		else if (now > this.firstRequestTime + this.reset) {
 			this.firstRequestTime = 0;
 			this.remaining = this.limit;
+			if (globalThis.snowtransferDebugLogging) console.log(`${new Date().toISOString()} [itrv] [${this.id}] predicted reset: ${this.remaining}/${this.limit}`);
 		}
 	}
 
@@ -185,6 +187,7 @@ export class LeakyCounter implements Counter {
 		if (this.resetAt && now > this.resetAt) {
 			this.remaining = Math.min(this.limit, this.remaining + 1); // only restore one when it resets
 			this.resetAt = null;
+			if (globalThis.snowtransferDebugLogging) console.log(`${new Date().toISOString()} [leak] [${this.id}] restore one: ${this.remaining}/${this.limit}`);
 		}
 	}
 
@@ -200,6 +203,7 @@ export class LeakyCounter implements Counter {
 
 	public take(): boolean {
 		this.checkReset();
+		if (globalThis.snowtransferDebugLogging) console.log(`${new Date().toISOString()} [leak] [${this.id}] took: ${this.remaining-1} left`);
 		return this.remaining-- > 0;
 	}
 
@@ -215,6 +219,7 @@ export class LeakyCounter implements Counter {
 		if (limit != null) this.limit = limit;
 		this.remaining = remaining;
 		this.resetAt = Date.now() + resetAfter;
+		if (globalThis.snowtransferDebugLogging) console.log(`${new Date().toISOString()} [leak] [${this.id}] applied: ${remaining}/${limit} - wait another ${resetAfter}`);
 	}
 }
 
@@ -574,6 +579,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 					if (response.status === 429) {
 						const b = await response.json() as RatelimitInfo; // Discord says it will be a JSON, so if there's an error, sucks
 						if (b.global) this.ratelimiter.setGlobal(b.retry_after * 1000);
+						if (globalThis.snowtransferDebugLogging) console.log(`${new Date().toISOString()} [rate] [${bkt?.counters[0].id}] !! 429 - guess there was 0 remaining, wait another ${b.retry_after*1000} (route: ${this.ratelimiter.routify(endpoint, method.toUpperCase())})`);
 						this.emit("rateLimit", {
 							method: method.toUpperCase(),
 							path: endpoint,
