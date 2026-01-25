@@ -9,7 +9,7 @@ import util = require("util");
 import Endpoints = require("./Endpoints");
 const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, "../package.json"), { encoding: "utf8" })); // otherwise, the json was included in the build
 import Constants = require("./Constants");
-import StateMachine = require("./StateMachine");
+import SM = require("./StateMachine");
 
 import type { HTTPMethod, RatelimitInfo, RequestEventData, HandlerEvents } from "./Types";
 
@@ -229,7 +229,7 @@ export class LeakyCounter implements Counter {
  */
 export class Bucket {
 	/** Tracks the state this bucket is in (blocked, running, waiting, etc) and what operations are allowed. */
-	public sm = new StateMachine("ready");
+	public sm = new SM("ready");
 	/** Wrapped functions which always resolve (not reject) after the original function has completed and resolved. The original function may manipulate rate limit buckets in that time before it resolves. */
 	public calls: Array<() => any> = [];
 	/** The backing counters of the bucket that determine how many functions can be consumed in a timeframe. */
@@ -625,6 +625,11 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 		const limit = headers.get("x-ratelimit-limit");
 		const resetAfter = headers.get("x-ratelimit-reset-after");
 		const isGlobal = headers.get("x-ratelimit-global");
+
+		if (remaining === null && !bkt.counters[0].canTake() && !isGlobal) {
+			// have to reset it now, or it'll never reset again
+			bkt.counters[0].applyCount(null, 1, 0);
+		}
 
 		if (remaining && limit && resetAfter && !isGlobal) {
 			bkt.counters[0].applyCount(Number.parseInt(limit), Number.parseInt(remaining), Number.parseFloat(resetAfter) * 1000);

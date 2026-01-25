@@ -1,6 +1,6 @@
 {
   "name": "snowtransfer",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "description": "Minimalistic Rest client for the Discord Api",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -32,13 +32,13 @@
     "discord-api-types": "^0.38.37"
   },
   "devDependencies": {
-    "@types/node": "^25.0.9",
+    "@types/node": "^25.0.10",
     "@typescript-eslint/eslint-plugin": "^8.53.1",
     "@typescript-eslint/parser": "^8.53.1",
     "eslint": "^9.39.2",
     "tsup": "^8.5.1",
     "typedoc": "^0.28.16",
-    "typedoc-plugin-mdn-links": "^5.1.0",
+    "typedoc-plugin-mdn-links": "^5.1.1",
     "typescript": "^5.9.3"
   },
   "files": [

@@ -1,6 +1,6 @@
-import StateMachine = require("./StateMachine");
+import SM = require("./StateMachine");
 
-function graph(stateMachine: StateMachine) {
+function graph(stateMachine: SM) {
 	stateMachine.guardNotEditable();
 	let output = "digraph {\n";
 	output += "rankdir=LR\n";
