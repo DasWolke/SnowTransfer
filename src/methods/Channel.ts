@@ -1077,7 +1077,7 @@ class ChannelMethods {
 	 * Sets a voice channel's "vibe" as Discord calls it, but it's actually just an image over all participants of a channel others in and not in the channel can see
 	 * @since 0.17.6
 	 * @param channelId Id of the channel
-	 * @param iamgeUrl URL of an image to display
+	 * @param imageUrl URL of an image to display
 	 * @param reason Reason for changing the image
 	 * @returns A [Guild Voice Channel](https://discord.com/developers/docs/resources/channel#channel-object)
 	 *
