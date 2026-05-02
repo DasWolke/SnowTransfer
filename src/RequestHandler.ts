@@ -13,6 +13,10 @@ import SM = require("./StateMachine");
 
 import type { HTTPMethod, RatelimitInfo, RequestEventData, HandlerEvents } from "./Types";
 
+declare global {
+	var snowtransferDebugLogging: boolean
+}
+
 // const applicationJSONRegex = /application\/json/;
 const routeRegex = /\/([a-z-]+)\/(?:\d+)/g;
 const reactionsRegex = /\/reactions\/[^/]+/g;
@@ -33,7 +37,9 @@ export class DiscordAPIError extends Error {
 	public path: string;
 	public code: number;
 	public httpStatus: number;
+	// @ts-expect-error
 	public request: RequestEventData;
+	// @ts-expect-error
 	public response: Response;
 
 	public constructor(error: { message?: string; code?: number; }, request: RequestEventData, response: Response) {
@@ -604,7 +610,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 						}
 						return resolve(b);
 					} else return resolve(undefined);
-				} catch (error) {
+				} catch (error: any) {
 					if (error?.stack) error.stack = error.stack + `\n${stack.split("\n").slice(1).join("\n")}`;
 					this.emit("requestError", reqId, error);
 					return reject(error as Error);
@@ -647,7 +653,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 	 * @returns Result of the request
 	 */
 	private async _request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data?: any, extraHeaders?: Record<string, string>): Promise<Response> {
-		const headers = { ...this.options.headers, ...extraHeaders };
+		const headers: Record<string, string> = { ...this.options.headers, ...extraHeaders };
 
 		let body: string | undefined = undefined;
 		if (!disallowedBodyMethods.has(method)) {

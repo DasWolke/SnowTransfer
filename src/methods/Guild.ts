@@ -876,6 +876,26 @@ class GuildMethods {
 	public async updateUserVoiceState(guildId: string, userId: string, data: RESTPatchAPIGuildVoiceStateUserJSONBody): Promise<void> {
 		return this.requestHandler.request(Endpoints.GUILD_VOICE_STATE_USER(guildId, userId), {}, "patch", "json", data);
 	}
+
+	/**
+	 * Searches a guild for messages that match a query
+	 * @since 0.17.6
+	 * @param guildId Id of the guild
+	 * @param query Options for the search
+	 * @returns An Array of [Messages](https://docs.discord.com/developers/resources/message#message-object)
+	 *
+	 * | Permissions needed   | Condition |
+	 * |----------------------|-----------|
+	 * | READ_MESSAGE_HISTORY | Always    |
+	 *
+	 * @example
+	 * // Finds messages that have the word "poggers" in their content
+	 * const client = new SnowTransfer("TOKEN")
+	 * const messages = await client.guild.searchGuildMessages("guildId", { content: "poggers" })
+	 */
+	public async searchGuildMessages(guildId: string, query?: Record<string, any>): Promise<any> {
+		return this.requestHandler.request(Endpoints.GUILD_MESSAGES_SEARCH(guildId), query, "get", "json");
+	}
 }
 
 export = GuildMethods;

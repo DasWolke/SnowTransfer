@@ -55,6 +55,7 @@ import {
 	type RESTGetAPIPollAnswerVotersResult,
 	type RESTPostAPIPollExpireResult,
 	type RESTGetAPIChannelMessagesPinsQuery,
+	type APIGuildVoiceChannel,
 	MessageReferenceType,
 	MessageFlags
 } from "discord-api-types/v10";
@@ -1050,12 +1051,14 @@ class ChannelMethods {
 	 * @since 0.17.0
 	 * @param channelId Id of the channel
 	 * @param status The new status of the voice channel
+	 * @param reason Reason for changing the status
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | VIEW_CHANNEL       | always    |
-	 * | MANAGE_CHANNELS    | always    |
+	 * | Permissions needed       | Condition                             |
+	 * |--------------------------|---------------------------------------|
+	 * | VIEW_CHANNEL             | always                                |
+	 * | SET_VOICE_CHANNEL_STATUS | always                                |
+	 * | MANAGE_CHANNELS          | if CurrentUser isn't in voice channel |
 	 *
 	 * @example
 	 * // Sets the status to poggers
@@ -1066,8 +1069,35 @@ class ChannelMethods {
 	 * // clears the status
 	 * client.channel.setVoiceChannelStatus("channel id", "")
 	 */
-	public async setVoiceChannelStatus(channelId: string, status: string): Promise<void> {
-		return this.requestHandler.request(Endpoints.CHANNEL_VOICE_STATUS(channelId), {}, "put", "json", { status });
+	public async setVoiceChannelStatus(channelId: string, status: string, reason?: string): Promise<void> {
+		return this.requestHandler.request(Endpoints.CHANNEL_VOICE_STATUS(channelId), {}, "put", "json", { status }, Constants.reasonHeader(reason));
+	}
+
+	/**
+	 * Sets a voice channel's "vibe" as Discord calls it, but it's actually just an image over all participants of a channel others in and not in the channel can see
+	 * @since 0.17.6
+	 * @param channelId Id of the channel
+	 * @param iamgeUrl URL of an image to display
+	 * @param reason Reason for changing the image
+	 * @returns A [Guild Voice Channel](https://discord.com/developers/docs/resources/channel#channel-object)
+	 *
+	 * | Permissions needed       | Condition                             |
+	 * |--------------------------|---------------------------------------|
+	 * | VIEW_CHANNEL             | always                                |
+	 * | SET_VOICE_CHANNEL_STATUS | always                                |
+	 * | MANAGE_CHANNELS          | if CurrentUser isn't in voice channel |
+	 *
+	 * @example
+	 * // Sets the "vibe" image of the voice channel to Rick
+	 * const client = new SnowTransfer("TOKEN")
+	 * client.channel.setVoiceChannelHangout("channel id", "https://i3.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg")
+	 *
+	 * @example
+	 * // clears the image
+	 * client.channel.setVoiceChannelHangout("channel id", "")
+	 */
+	public async setVoiceChannelHangout(channelId: string, imageUrl: string, reason?: string): Promise<APIGuildVoiceChannel> {
+		return this.requestHandler.request(Endpoints.CHANNEL_VOICE_HANGOUT(channelId), {}, "put", "json", { url: imageUrl }, Constants.reasonHeader(reason));
 	}
 }
 

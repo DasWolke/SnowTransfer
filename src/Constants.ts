@@ -24,13 +24,13 @@ const Constants = {
 			for (const file of data.files) {
 				await Constants.standardAddToFormHandler(form, `files[${index}]`, file.file, file.name);
 
-				// @ts-ignore
+				// @ts-expect-error
 				delete file.file;
 				index++;
 			}
 		}
 
-		// @ts-ignore
+		// @ts-expect-error
 		if (data.data) delete data.files; // Interactions responses are weird, but I need to support it
 		form.append("payload_json", JSON.stringify(data));
 		return form;

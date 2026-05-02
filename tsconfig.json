@@ -1,13 +1,11 @@
 {
 	"compilerOptions": {
-		"allowSyntheticDefaultImports": false,
-		"esModuleInterop": false,
 		"allowJs": true,
 		"checkJs": true,
 		"declaration": true,
 		"lib": ["es2022"],
-		"module": "commonjs",
-		"moduleResolution": "node",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
 		"noUnusedLocals": true,
 		"outDir": "./dist",
 		"pretty": true,
@@ -18,7 +16,8 @@
 		"strictBindCallApply": true,
 		"strictNullChecks": true,
 		"target": "ES2022",
-		"types": ["node"]
+		"types": ["node"],
+		"rootDir": "./src"
 	},
 	"include": ["./src"]
 }

@@ -79,11 +79,11 @@ class InviteMethods {
 	 */
 	public async getInviteTargetUsers(inviteId: string): Promise<RESTGetAPIInviteTargetUsers> {
 		const response = await this.requestHandler.request(Endpoints.INVITE_TARGET_USERS(inviteId), {}, "get", "json", undefined, undefined, this.requestHandler.options.retryLimit, true) as Response;
-		let b: string
+		let b: string;
 		try {
 			b = await response.text();
 		} catch {
-			b = ""
+			b = "";
 		}
 		if (!b.length) return [];
 		return b.split("\n").slice(1).map(l => l.replace(",", "").trim()); // first line is the table column names, but only Users exists
