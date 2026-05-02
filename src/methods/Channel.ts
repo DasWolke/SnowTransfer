@@ -1097,7 +1097,7 @@ class ChannelMethods {
 	 * client.channel.setVoiceChannelHangout("channel id", "")
 	 */
 	public async setVoiceChannelHangout(channelId: string, imageUrl: string, reason?: string): Promise<APIGuildVoiceChannel> {
-		return this.requestHandler.request(Endpoints.CHANNEL_VOICE_HANGOUT(channelId), {}, "put", "json", { url: imageUrl }, Constants.reasonHeader(reason));
+		return this.requestHandler.request(Endpoints.CHANNEL_VOICE_HANGOUT(channelId), {}, "post", "json", { url: imageUrl }, Constants.reasonHeader(reason));
 	}
 }
 
