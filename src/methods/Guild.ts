@@ -818,7 +818,7 @@ class GuildMethods {
 
 	/**
 	 * Update a guild welcome screen object
-	 * @since 0.3.0
+	 * @since 0.18.0
 	 * @param guildId Id of guild
 	 * @param data Welcome screen data
 	 * @param reason Reason for editing the welcome screen
@@ -831,7 +831,7 @@ class GuildMethods {
 	 * @example
 	 * // Disabled the welcome screen
 	 * const client = new SnowTransfer("TOKEN")
-	 * const welcomeScreen = await client.guild.updateGuildWelcomeScreen("guildId", { enabled: false })
+	 * const welcomeScreen = await client.guild.editGuildWelcomeScreen("guildId", { enabled: false })
 	 */
 	public async editGuildWelcomeScreen(guildId: string, data: RESTPatchAPIGuildWelcomeScreenJSONBody, reason?: string): Promise<RESTPatchAPIGuildWelcomeScreenResult> {
 		return this.requestHandler.request(Endpoints.GUILD_WELCOME_SCREEN(guildId), {}, "patch", "json", data, Constants.reasonHeader(reason));

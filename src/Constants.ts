@@ -16,10 +16,12 @@ const Constants = {
 	GLOBAL_REQUESTS_PER_SECOND: 50,
 	async standardMultipartHandler(data: { files: Array<{ name: string; file: Buffer | Blob | File | Readable | ReadableStream }>; data?: any; }): Promise<FormData> {
 		const form = new FormData();
+		const payload = { ...data };
+		payload.files = payload.files?.map(f => ({ ...f }));
 
-		if (data.files && Array.isArray(data.files) && data.files.every(f => !!f.name && !!f.file)) {
+		if (payload.files && Array.isArray(payload.files) && payload.files.every(f => !!f.name && !!f.file)) {
 			let index = 0;
-			for (const file of data.files) {
+			for (const file of payload.files) {
 				await Constants.standardAddToFormHandler(form, `files[${index}]`, file.file, file.name);
 
 				// @ts-expect-error Cannot delete non optional, but I have to
@@ -29,8 +31,8 @@ const Constants = {
 		}
 
 		// @ts-expect-error Cannot delete non optional, but I have to
-		if (data.data) delete data.files; // Interactions responses are weird, but I need to support it
-		form.append("payload_json", JSON.stringify(data));
+		if (payload.data) delete payload.files; // Interactions responses are weird, but I need to support it
+		form.append("payload_json", JSON.stringify(payload));
 		return form;
 	},
 	async standardAddToFormHandler(form: FormData, name: string, value: string | Buffer | Blob | File | Readable | ReadableStream, filename?: string): Promise<void> {

@@ -132,7 +132,7 @@ class StateMachine extends EventEmitter<StateMachineEvents> {
 	 *
 	 * Will throw an Error if there is no transition from the current state to another based off the event.
 	 * @since 0.16.0
-	 * @param event The event that occured.
+	 * @param event The event that occurred.
 	 * @param args Arguments to pass to the callback of the transition's onTransition functions if any.
 	 */
 	public doTransition(event: string, ...args: any[]): void {

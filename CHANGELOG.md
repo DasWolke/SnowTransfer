@@ -2,20 +2,18 @@
 First entry in this changelog. This is a major one - possibly the biggest one save for the js -> ts rewrite. We'll start with the most interesting/impactful.
 
 - Consistency changes across the board. This includes method names, code formatting, etc. (I finally updated eslint to v10)
-	- This is quite a few breaking changes and makes up a good chunk of this update. The original method names didnt get a redirect to the new ones. Sorry in advance for the migration struggle.
+	- This is quite a few breaking changes and makes up a good chunk of this update. The original method names didn't get a redirect to the new ones. Sorry in advance for the migration struggle.
 	- I had to struggle migrating Discord.js a few times, don't think this library is safe from the same struggles >:D jk. I think this will be the only time this kinda thing happens.
-	- PATCH methods have been changed from a mix of update/edit/??? prefixes to just edit* preferrably. Some methods are special snowflakes.
+	- PATCH methods have been changed from a mix of update/edit/??? prefixes to just edit* preferably. Some methods are special snowflakes.
 	- DELETE methods have been changed to prefix with delete*
 	- Bulk methods like channel bulk delete messages was simplified to deleteMessages. There were more though.
 	- SkuMethods#getSkus was SkuMethods#GetSkus (PascalCase instead of camelCase like literally every other method)
 - Found and fixed some actual bugs.
-	- GuildScheduledEventMethods#getGuildScheduledEvent was accidentally passing the query string params to the JSON body param for the request.
-	- UserMethods#getGuilds was accidentally passing the query string params to the JSON body param for the request.
+	- GuildScheduledEventMethods#getGuildScheduledEvent and UserMethods#getGuild was accidentally passing the query string params to the JSON body param for the request.
 	- IntervalCounter#take would continue to decrement remaining past 0 into the negatives. It would still return false regardless, but this could probably have been problematic in external use cases outside of this lib.
 	- request retry logic would go indefinitely instead of decrementing the remaining amount.
 - Removed some types being exported from the package.
 	- These types were actually just straight up deleted as discord-api-types added them.
-- Methods that have you pass in an Object no longer mutate the Object you pass, allowing you to reuse them if you so desire.
 - Added a generateWaveform function to Constants.
 	- This function is supposed to be used for ChannelMethods#createVoiceMessage, but it doesn't do the whole thing for you. Please read the JSDoc for it!
 	- Huge thank you to @Lulalaby for her original C# implementation.
@@ -24,7 +22,7 @@ First entry in this changelog. This is a major one - possibly the biggest one sa
 	- Some of it was spelling related.
 	- Some docs entries had invalid JS in it, so anyone who copy pasted and saw an error... Oops! My bad.
 - Changed some method return types to be from discord-api-types.
-	- Previously for HTTP 204 routes, the return type was be never, which was incorrect and made some design patterns, specifically mock test writing annoying as you cannot naturally return the type never in JS without unconditionally throwing an Error or calling process.exit()
+	- Previously for HTTP 204 routes, the return type was never, which was incorrect and made some design patterns, specifically mock test writing annoying as you cannot naturally return the type never in JS without unconditionally throwing an Error or calling process.exit()
 	- A PR from yours truly changed it to undefined. I had changed them to void locally for a bit and commented out the types from dapi types, but now that's fixed so they're back.
 - VSCode settings deprecated the setting originally used to specify the TS version in editor, so the path was changed.
 - Deleted the old travis.yml
