@@ -27,16 +27,16 @@ class SkuMethods {
 
 	/**
 	 * Returns all SKUs for a given application.
-	 * @since 0.13.0
+	 * @since 0.18.0
 	 * @param appId Id of the app
 	 * @returns Array of [SKU objects](https://discord.com/developers/docs/resources/sku#sku-object)
 	 *
 	 * @example
 	 * // Get all SKUs for an app
 	 * const client = new SnowTransfer("TOKEN")
-	 * const skus = await client.sku.GetSkus("app id")
+	 * const skus = await client.sku.getSkus("app id")
 	 */
-	public async GetSkus(appId: string): Promise<RESTGetAPISKUsResult> {
+	public async getSkus(appId: string): Promise<RESTGetAPISKUsResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_SKUS(appId), {}, "get", "json");
 	}
 

@@ -2,11 +2,12 @@ import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
 
 import type { RequestHandler as RH } from "../RequestHandler";
-import type ST = require("../SnowTransfer");
+import type { SnowTransferOptions } from "../Types";
 
 import {
-//	type RESTDeleteAPIWebhookResult,
-//	type RESTDeleteAPIWebhookWithTokenMessageResult,
+	type RESTDeleteAPIWebhookResult,
+	type RESTDeleteAPIWebhookWithTokenResult,
+	type RESTDeleteAPIWebhookWithTokenMessageResult,
 	type RESTGetAPIChannelWebhooksResult,
 	type RESTGetAPIGuildWebhooksResult,
 	type RESTGetAPIWebhookResult,
@@ -33,8 +34,7 @@ import {
 	MessageFlags
 } from "discord-api-types/v10";
 
-import type { Readable } from "stream";
-import type { ReadableStream } from "stream/web";
+import type { Readable } from "node:stream";
 
 /**
  * Methods for handling webhook interactions
@@ -51,7 +51,7 @@ class WebhookMethods {
 	 * @param requestHandler request handler that calls the rest api
 	 * @param options Options for the SnowTransfer instance
 	 */
-	public constructor(public readonly requestHandler: RH, public options: ST.Options) {}
+	public constructor(public readonly requestHandler: RH, public options: SnowTransferOptions) {}
 
 	/**
 	 * Create a new Webhook
@@ -138,7 +138,7 @@ class WebhookMethods {
 
 	/**
 	 * Update a webhook without a token
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param webhookId Id of the webhook
 	 * @param data Updated Webhook properties
 	 * @param reason Reason for updating the webhook
@@ -154,15 +154,15 @@ class WebhookMethods {
 	 * const webhookData = {
 	 * 	name: "Captain Hook"
 	 * }
-	 * const webhook = await client.webhook.updateWebhook("webhook Id", webhookData)
+	 * const webhook = await client.webhook.editWebhook("webhook Id", webhookData)
 	 */
-	public async updateWebhook(webhookId: string, data: RESTPatchAPIWebhookJSONBody, reason?: string): Promise<RESTPatchAPIWebhookResult> {
+	public async editWebhook(webhookId: string, data: RESTPatchAPIWebhookJSONBody, reason?: string): Promise<RESTPatchAPIWebhookResult> {
 		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
 	 * Update a webhook with a token
-	 * @since 0.17.0
+	 * @since 0.18.0
 	 * @param webhookId Id of the webhook
 	 * @param token Token of the webhook
 	 * @param data Updated webhook properties
@@ -175,9 +175,9 @@ class WebhookMethods {
 	 * const webhookData = {
 	 * 	name: "Captain Hook"
 	 * }
-	 * const webhook = await client.webhook.updateWebhook("webhook Id", "webhook token" webhookData)
+	 * const webhook = await client.webhook.editWebhookToken("webhook Id", "webhook token", webhookData)
 	 */
-	public async updateWebhookToken(webhookId: string, token: string, data: RESTPatchAPIWebhookWithTokenJSONBody, reason?: string): Promise<RESTPatchAPIWebhookWithTokenResult> {
+	public async editWebhookToken(webhookId: string, token: string, data: RESTPatchAPIWebhookWithTokenJSONBody, reason?: string): Promise<RESTPatchAPIWebhookWithTokenResult> {
 		return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
@@ -197,7 +197,7 @@ class WebhookMethods {
 	 * const client = new SnowTransfer("TOKEN");
 	 * client.webhook.deleteWebhook("webhook Id")
 	 */
-	public async deleteWebhook(webhookId: string, reason?: string): Promise<void> {
+	public async deleteWebhook(webhookId: string, reason?: string): Promise<RESTDeleteAPIWebhookResult> {
 		return this.requestHandler.request(Endpoints.WEBHOOK(webhookId), {}, "delete", "json", undefined, Constants.reasonHeader(reason));
 	}
 
@@ -213,7 +213,7 @@ class WebhookMethods {
 	 * const client = new SnowTransfer(); // No token needed if webhook token is provided
 	 * client.webhook.deleteWebhookToken("webhook Id", "webhook token")
 	 */
-	public async deleteWebhookToken(webhookId: string, token: string, reason?: string): Promise<void> {
+	public async deleteWebhookToken(webhookId: string, token: string, reason?: string): Promise<RESTDeleteAPIWebhookWithTokenResult> {
 		return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), {}, "delete", "json", undefined, Constants.reasonHeader(reason));
 	}
 
@@ -231,22 +231,25 @@ class WebhookMethods {
 	 * const client = new SnowTransfer()
 	 * client.webhook.executeWebhook("webhook Id", "webhook token", { content: "Hi from my webhook" })
 	 */
-	public async executeWebhook(webhookId: string, token: string, data: RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options?: RESTPostAPIWebhookWithTokenQuery & { wait?: false, disableEveryone?: boolean; }): Promise<RESTPostAPIWebhookWithTokenResult>;
-	public async executeWebhook(webhookId: string, token: string, data: RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options: RESTPostAPIWebhookWithTokenQuery & { wait: true, disableEveryone?: boolean; }): Promise<RESTPostAPIWebhookWithTokenWaitResult>;
-	public async executeWebhook(webhookId: string, token: string, data: RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options?: RESTPostAPIWebhookWithTokenQuery & { disableEveryone?: boolean; }): Promise<RESTPostAPIWebhookWithTokenResult | RESTPostAPIWebhookWithTokenWaitResult> {
+	public async executeWebhook(webhookId: string, token: string, data: RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options?: RESTPostAPIWebhookWithTokenQuery & { wait?: false, }): Promise<RESTPostAPIWebhookWithTokenResult>;
+	public async executeWebhook(webhookId: string, token: string, data: RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options: RESTPostAPIWebhookWithTokenQuery & { wait: true, }): Promise<RESTPostAPIWebhookWithTokenWaitResult>;
+	public async executeWebhook(webhookId: string, token: string, data: RESTPostAPIWebhookWithTokenJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }, options?: RESTPostAPIWebhookWithTokenQuery): Promise<RESTPostAPIWebhookWithTokenResult | RESTPostAPIWebhookWithTokenWaitResult> {
 		if (typeof data !== "string" && !data.content && !data.embeds && !data.components && !data.files && !data.poll) throw new Error("Missing content, embeds, components, files, or poll");
 		if (typeof data === "string") data = { content: data };
+		const payload = { ...data };
+		const opts = { ...options };
 
-		const hasComponentsV2 = (!!data.flags && (data.flags & MessageFlags.IsComponentsV2) === MessageFlags.IsComponentsV2)
-
-		if ((data.content || data.embeds) && data.flags && (hasComponentsV2)) throw new Error("The message flags was set to include IsComponentsV2, but content and/or embeds were also present. You can either have content/embeds or components v2, not both.");
+		if (
+			(payload.content || payload.embeds) &&
+			payload.flags &&
+			(payload.flags & MessageFlags.IsComponentsV2) === MessageFlags.IsComponentsV2
+		) throw new Error("The message flags was set to include IsComponentsV2, but content and/or embeds were also present. You can either have content/embeds or components v2, not both.");
 
 		// Sanitize the message
-		if (options) delete options.disableEveryone;
-		data.allowed_mentions ??= this.options.allowed_mentions;
+		payload.allowed_mentions ??= this.options.allowed_mentions;
 
-		if (data.files) return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN(webhookId, token)}`, options, "post", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
-		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), options, "post", "json", data);
+		if (payload.files) return this.requestHandler.request(`${Endpoints.WEBHOOK_TOKEN(webhookId, token)}`, opts, "post", "multipart", await Constants.standardMultipartHandler(payload as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
+		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN(webhookId, token), opts, "post", "json", payload);
 	}
 
 	/**
@@ -312,11 +315,12 @@ class WebhookMethods {
 	public async editWebhookMessage(webhookId: string, token: string, messageId: string, data: RESTPatchAPIWebhookWithTokenMessageJSONBody & { thread_id?: string; files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }): Promise<RESTPatchAPIWebhookWithTokenMessageResult> {
 		let threadId: string | undefined = undefined;
 		if (data.thread_id) threadId = data.thread_id;
-		delete data.thread_id;
+		const payload = { ...data };
+		delete payload.thread_id;
 
-		data.allowed_mentions ??= this.options.allowed_mentions;
+		payload.allowed_mentions ??= this.options.allowed_mentions;
 
-		if (data.files) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadId }, "patch", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
+		if (payload.files) return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadId }, "patch", "multipart", await Constants.standardMultipartHandler(payload as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
 		else return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadId }, "patch", "json", data);
 	}
 
@@ -329,7 +333,7 @@ class WebhookMethods {
 	 * @param threadId Id of the thread the message was sent in
 	 * @returns Resolves the Promise on successful execution
 	 */
-	public async deleteWebhookMessage(webhookId: string, token: string, messageId: string, threadId?: string): Promise<void> {
+	public async deleteWebhookMessage(webhookId: string, token: string, messageId: string, threadId?: string): Promise<RESTDeleteAPIWebhookWithTokenMessageResult> {
 		return this.requestHandler.request(Endpoints.WEBHOOK_TOKEN_MESSAGE(webhookId, token, messageId), { thread_id: threadId }, "delete", "json");
 	}
 }

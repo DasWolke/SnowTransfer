@@ -6,14 +6,10 @@ import type { RequestHandler as RH } from "../RequestHandler";
 import type {
 	RESTDeleteAPIInviteResult,
 	RESTGetAPIInviteQuery,
-	RESTGetAPIInviteResult
+	RESTGetAPIInviteResult,
+	RESTGetAPIInviteTargetUsersJobStatusResult,
+	RESTPutAPIInviteTargetUsersResult
 } from "discord-api-types/v10";
-
-import type {
-	RESTGetAPIInviteTargetUsers,
-	RESTGetAPIInviteTargetUsersJobStatus,
-//	RESTPutAPIInviteTargetUsers
-} from "../Types";
 
 /**
  * Methods for interacting with invites
@@ -77,7 +73,7 @@ class InviteMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const userIds = await client.invite.getInviteTargetUsers("inviteId")
 	 */
-	public async getInviteTargetUsers(inviteId: string): Promise<RESTGetAPIInviteTargetUsers> {
+	public async getInviteTargetUsers(inviteId: string): Promise<Array<string>> {
 		const response = await this.requestHandler.request(Endpoints.INVITE_TARGET_USERS(inviteId), {}, "get", "json", undefined, undefined, this.requestHandler.options.retryLimit, true) as Response;
 		let b: string;
 		try {
@@ -91,15 +87,15 @@ class InviteMethods {
 
 	/**
 	 * Updates the users allowed to see and accept an invite
-	 * @since 0.17.0
+	 * @since 0.18.0
 	 * @param inviteId Id of the invite
 	 * @returns Resolves the Promise on successful execution
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * await client.invite.updateInviteTargetUsers("inviteId", someUserArray)
+	 * await client.invite.editInviteTargetUsers("inviteId", someUserArray)
 	 */
-	public async updateInviteTargetUsers(inviteId: string, userIds: Array<string>): Promise<void> {
+	public async editInviteTargetUsers(inviteId: string, userIds: Array<string>): Promise<RESTPutAPIInviteTargetUsersResult> {
 		const csv = `Users\n${userIds.join(",\n")},`;
 		const form = new FormData();
 		await Constants.standardAddToFormHandler(form, "target_users_file", csv, "target_users_file.csv");
@@ -115,7 +111,7 @@ class InviteMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const jobStatus = await client.invite.getInviteTargetUsersJobStatus("inviteId")
 	 */
-	public async getInviteTargetUsersJobStatus(inviteId: string): Promise<RESTGetAPIInviteTargetUsersJobStatus> {
+	public async getInviteTargetUsersJobStatus(inviteId: string): Promise<RESTGetAPIInviteTargetUsersJobStatusResult> {
 		return this.requestHandler.request(Endpoints.INVITE_TARGET_USERS_JOB_STATUS(inviteId), {}, "get", "json");
 	}
 }

@@ -1,5 +1,3 @@
-"use strict";
-
 import Constants = require("./Constants");
 
 /**
@@ -24,7 +22,7 @@ const Endpoints = {
 	APPLICATION_GUILD_COMMAND: (appId: string, guildId: string, cmdId: string) => `${Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId)}/${cmdId}` as `${ReturnType<typeof Endpoints.APPLICATION_GUILD_COMMANDS>}/{cmd_id}`,
 	APPLICATION_GUILD_COMMANDS: (appId: string, guildId: string) => `/applications/${appId}/guilds/${guildId}/commands` as "/applications/{app_id}/guilds/{guild_id}/commands",
 	APPLICATION_SKUS: (appId: string) => `/applications/${appId}/skus` as "/applications/{app_id}/skus",
-	ATTACHMENTS_REFRESH_URLS: `/attachments/refresh-urls` as const,
+	ATTACHMENTS_REFRESH_URLS: "/attachments/refresh-urls" as const,
 	CHANNEL: (chanId: string) => `${Endpoints.CHANNELS}/${chanId}` as `${typeof Endpoints.CHANNELS}/{channel_id}`,
 	CHANNEL_ATTACHMENTS: (chanId: string) => `${Endpoints.CHANNEL(chanId)}/attachments` as `${ReturnType<typeof Endpoints.CHANNEL>}/attachments`,
 	CHANNEL_BULK_DELETE: (chanId: string) => `${Endpoints.CHANNEL_MESSAGES(chanId)}/bulk-delete` as `${ReturnType<typeof Endpoints.CHANNEL_MESSAGES>}/bulk-delete`,

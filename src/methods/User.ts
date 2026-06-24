@@ -3,7 +3,7 @@ import Endpoints = require("../Endpoints");
 import type { RequestHandler as RH } from "../RequestHandler";
 
 import type {
-//	RESTDeleteAPICurrentUserGuildResult,
+	RESTDeleteAPICurrentUserGuildResult,
 	RESTGetAPICurrentUserApplicationRoleConnectionResult,
 	RESTGetAPICurrentUserConnectionsResult,
 	RESTGetAPICurrentUserGuildsQuery,
@@ -67,7 +67,7 @@ class UserMethods {
 
 	/**
 	 * Update the current user
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param data The new data of the CurrentUser
 	 * @returns [user object](https://discord.com/developers/docs/resources/user#user-object)
 	 *
@@ -78,9 +78,9 @@ class UserMethods {
 	 * const updateData = \{
 	 * 	avatar: `data:image/png;base64,${fileData.toString("base64")}` // base64 data url: data:mimetype;base64,base64String
 	 * \}
-	 * client.user.updateSelf(updateData)
+	 * client.user.editSelf(updateData)
 	 */
-	public async updateSelf(data: RESTPatchAPICurrentUserJSONBody): Promise<RESTPatchAPICurrentUserResult> {
+	public async editSelf(data: RESTPatchAPICurrentUserJSONBody): Promise<RESTPatchAPICurrentUserResult> {
 		return this.requestHandler.request(Endpoints.USER("@me"), {}, "patch", "json", data);
 	}
 
@@ -95,7 +95,7 @@ class UserMethods {
 	 * const guilds = await client.user.getGuilds()
 	 */
 	public async getGuilds(options?: RESTGetAPICurrentUserGuildsQuery): Promise<RESTGetAPICurrentUserGuildsResult> {
-		return this.requestHandler.request(Endpoints.USER_GUILDS("@me"), {}, "get", "json", options);
+		return this.requestHandler.request(Endpoints.USER_GUILDS("@me"), options ?? {}, "get", "json");
 	}
 
 	/**
@@ -108,7 +108,7 @@ class UserMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.user.leaveGuild("guildId")
 	 */
-	public async leaveGuild(guildId: string): Promise<void> {
+	public async leaveGuild(guildId: string): Promise<RESTDeleteAPICurrentUserGuildResult> {
 		return this.requestHandler.request(Endpoints.USER_GUILD("@me", guildId), {}, "delete", "json");
 	}
 
@@ -143,7 +143,7 @@ class UserMethods {
 	 * @example
 	 * // Create a group dm channel and send "hi" to it
 	 * const client = new SnowTransfer("TOKEN")
-	 * const channel = await client.user.createGroupDirectMessageChannel({ access_tokens: ["user 1 access token", "user 2 access token"], { "320067006521147393": "Brad", "128392910574977024": "Wolke" } })
+	 * const channel = await client.user.createGroupDirectMessageChannel({ access_tokens: ["user 1 access token", "user 2 access token"], nicks: { "320067006521147393": "Brad", "128392910574977024": "Wolke" } })
 	 * client.channel.createMessage(channel.id, "hi")
 	 */
 	public async createGroupDirectMessageChannel(data: { access_tokens: Array<string>; nicks?: { [userId: string]: string } }): Promise<RESTPostAPICurrentUserCreateDMChannelResult> {
@@ -189,7 +189,7 @@ class UserMethods {
 
 	/**
 	 * Updates a role connection for the current user
-	 * @since 0.7.0
+	 * @since 0.18.0
 	 * @param appId Id of the application
 	 * @returns An [Application role connection](https://discord.com/developers/docs/resources/user#application-role-connection-object)
 	 *
@@ -200,9 +200,9 @@ class UserMethods {
 	 * @example
 	 * // Updates a role connection for an app
 	 * const client = new SnowTransfer("TOKEN")
-	 * const connection = await client.user.updateApplicationRoleConnection("app id", { platform_name: "some platform", platform_username: "Cool user 22" })
+	 * const connection = await client.user.editApplicationRoleConnection("app id", { platform_name: "some platform", platform_username: "Cool user 22" })
 	 */
-	public async updateApplicationRoleConnection(appId: string, data: RESTPutAPICurrentUserApplicationRoleConnectionJSONBody): Promise<RESTPutAPICurrentUserApplicationRoleConnectionResult> {
+	public async editApplicationRoleConnection(appId: string, data: RESTPutAPICurrentUserApplicationRoleConnectionJSONBody): Promise<RESTPutAPICurrentUserApplicationRoleConnectionResult> {
 		return this.requestHandler.request(Endpoints.USER_APPLICATION_ROLE_CONNECTION("@me", appId), {}, "put", "json", data);
 	}
 }

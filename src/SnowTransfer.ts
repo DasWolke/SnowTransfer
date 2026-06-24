@@ -18,22 +18,7 @@ import WebhookMethods = require("./methods/Webhook");
 import Endpoints = require("./Endpoints");
 import Constants = require("./Constants");
 
-import type { APIAllowedMentions } from 'discord-api-types/v10';
-
-namespace SnowTransfer {
-	export type Options = {
-		/** The URL to start requests from. eg: https://discord.com */
-		baseHost: string;
-		/** The default allowed_mentions object to send when creating/updating messages */
-		allowed_mentions: APIAllowedMentions | undefined;
-		/** If rate limit buckets should be totally bypassed and functions are executed as fast as possible. Only use if you are 100% certain you wont run into issues or if you are proxying */
-		bypassBuckets: boolean;
-		/** If failed requests that can be retried should be retried, up to retryLimit times. */
-		retryRequests: boolean;
-		/** How many times requests should be retried if they fail and can be retried. */
-		retryLimit: number;
-	};
-}
+import type { SnowTransferOptions } from "./Types";
 
 /**
  * @since 0.1.0
@@ -41,7 +26,7 @@ namespace SnowTransfer {
  */
 class SnowTransfer {
 	/** Options for this SnowTransfer instance */
-	public options: SnowTransfer.Options;
+	public options: SnowTransferOptions;
 	/** The access token to use for requests. Can be a bot or bearer token */
 	public token: string | undefined;
 	/** Methods related to channels */
@@ -86,7 +71,7 @@ class SnowTransfer {
 	 * @param token Discord Bot token to use
 	 * @param options options
 	 */
-	public constructor(token?: string, options?: Partial<SnowTransfer.Options>) {
+	public constructor(token?: string, options?: Partial<SnowTransferOptions>) {
 		if (typeof token === "string" && token === "") throw new Error("Missing token");
 		if (token && (!token.startsWith("Bot") && !token.startsWith("Bearer"))) token = `Bot ${token}`;
 		this.options = { baseHost: Endpoints.BASE_HOST, allowed_mentions: undefined, bypassBuckets: false, retryRequests: false, retryLimit: Constants.DEFAULT_RETRY_LIMIT, ...options };

@@ -1,11 +1,13 @@
+import type { Readable } from "node:stream";
+
 import Constants = require("../Constants");
 import Endpoints = require("../Endpoints");
 
 import type { RequestHandler as RH } from "../RequestHandler";
 
 import type {
-//	RESTDeleteAPIGuildEmojiResult,
-//	RESTDeleteAPIGuildStickerResult,
+	RESTDeleteAPIGuildEmojiResult,
+	RESTDeleteAPIGuildStickerResult,
 	RESTGetAPIApplicationEmojisResult,
 	RESTGetAPIApplicationEmojiResult,
 	RESTGetAPIGuildEmojiResult,
@@ -25,13 +27,8 @@ import type {
 	RESTPostAPIApplicationEmojiJSONBody,
 	RESTPatchAPIApplicationEmojiJSONBody,
 	RESTPatchAPIApplicationEmojiResult,
-//	RESTDeleteAPIApplicationEmojiResult
+	RESTDeleteAPIApplicationEmojiResult
 } from "discord-api-types/v10";
-
-import type { Blob } from "buffer";
-
-import type { Readable } from "stream";
-import type { ReadableStream } from "stream/web";
 
 /**
  * Methods for interacting with assets like emojis and stickers for a guild/app
@@ -106,7 +103,7 @@ class AssetsMethods {
 
 	/**
 	 * Update an existing emoji from a guild
-	 * @since 0.13.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param emojiId Id of the emoji
 	 * @param data Emoji data
@@ -123,9 +120,9 @@ class AssetsMethods {
 	 * const emojiData = {
 	 * 	name: "niceEmote"
 	 * }
-	 * client.assets.updateGuildEmoji("guild id", "emoji id", emojiData)
+	 * client.assets.editGuildEmoji("guild id", "emoji id", emojiData)
 	 */
-	public async updateGuildEmoji(guildId: string, emojiId: string, data: RESTPatchAPIGuildEmojiJSONBody, reason?: string): Promise<RESTPatchAPIGuildEmojiResult> {
+	public async editGuildEmoji(guildId: string, emojiId: string, data: RESTPatchAPIGuildEmojiJSONBody, reason?: string): Promise<RESTPatchAPIGuildEmojiResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
@@ -146,7 +143,7 @@ class AssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.assets.deleteGuildEmoji("guild id", "emoji id", "wasn't nice")
 	 */
-	public async deleteGuildEmoji(guildId: string, emojiId: string, reason?: string): Promise<void> {
+	public async deleteGuildEmoji(guildId: string, emojiId: string, reason?: string): Promise<RESTDeleteAPIGuildEmojiResult> {
 		return this.requestHandler.request(Endpoints.GUILD_EMOJI(guildId, emojiId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
 	}
 
@@ -241,7 +238,7 @@ class AssetsMethods {
 
 	/**
 	 * Update a guild sticker
-	 * @since 0.13.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param stickerId Id of the sticker
 	 * @param data Sticker data
@@ -255,9 +252,9 @@ class AssetsMethods {
 	 * @example
 	 * // Updates a sticker's name to "nicerSticker"
 	 * const client = new SnowTransfer("TOKEN")
-	 * const sticker = await client.assets.updateGuildSticker("guild id", "sticker id", { name: "nicerSticker" }, "because it was nicer")
+	 * const sticker = await client.assets.editGuildSticker("guild id", "sticker id", { name: "nicerSticker" }, "because it was nicer")
 	 */
-	public async updateGuildSticker(guildId: string, stickerId: string, data: RESTPatchAPIGuildStickerJSONBody, reason?: string): Promise<RESTPatchAPIGuildStickerResult> {
+	public async editGuildSticker(guildId: string, stickerId: string, data: RESTPatchAPIGuildStickerJSONBody, reason?: string): Promise<RESTPatchAPIGuildStickerResult> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
@@ -278,7 +275,7 @@ class AssetsMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.assets.deleteGuildSticker("guild id", "sticker id", "It was too nice")
 	 */
-	public async deleteGuildSticker(guildId: string, stickerId: string, reason?: string): Promise<void> {
+	public async deleteGuildSticker(guildId: string, stickerId: string, reason?: string): Promise<RESTDeleteAPIGuildStickerResult> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
 	}
 
@@ -336,7 +333,7 @@ class AssetsMethods {
 
 	/**
 	 * Updates an emoji for an app
-	 * @since 0.13.0
+	 * @since 0.18.0
 	 * @param appId Id of the app
 	 * @param emojiId Id of the emoji
 	 * @param data Emoji data
@@ -348,9 +345,9 @@ class AssetsMethods {
 	 * const emojiData = {
 	 * 	name: "nicestEmoji"
 	 * }
-	 * client.assets.updateAppEmoji("app id", "emoji id", emojiData)
+	 * client.assets.editAppEmoji("app id", "emoji id", emojiData)
 	 */
-	public async updateAppEmoji(appId: string, emojiId: string, data: RESTPatchAPIApplicationEmojiJSONBody): Promise<RESTPatchAPIApplicationEmojiResult> {
+	public async editAppEmoji(appId: string, emojiId: string, data: RESTPatchAPIApplicationEmojiJSONBody): Promise<RESTPatchAPIApplicationEmojiResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_EMOJI(appId, emojiId), {}, "patch", "json", data);
 	}
 
@@ -367,7 +364,7 @@ class AssetsMethods {
 	 * client.assets.deleteAppEmoji("app id", "emoji id") // OH GOD THE UNIVERSE IS COLLAPSING
 	 * // We're safe. The emoji is gone. For now...
 	 */
-	public async deleteAppEmoji(appId: string, emojiId: string): Promise<void> {
+	public async deleteAppEmoji(appId: string, emojiId: string): Promise<RESTDeleteAPIApplicationEmojiResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_EMOJI(appId, emojiId), {}, "delete", "json");
 	}
 }

@@ -3,12 +3,12 @@ import Constants = require("../Constants");
 
 import type { RequestHandler as RH } from "../RequestHandler";
 import type WHM = require("./Webhook");
-import type ST = require("../SnowTransfer");
+import type { SnowTransferOptions } from "../Types";
 
 import {
 	InteractionResponseType,
-//	type RESTDeleteAPIInteractionFollowupResult,
-//	type RESTDeleteAPIInteractionOriginalResponseResult,
+	type RESTDeleteAPIInteractionFollowupResult,
+	type RESTDeleteAPIInteractionOriginalResponseResult,
 	type RESTGetAPIApplicationCommandPermissionsResult,
 	type RESTGetAPIApplicationCommandResult,
 	type RESTGetAPIApplicationCommandsResult,
@@ -39,8 +39,7 @@ import {
 	type RESTPutAPIApplicationGuildCommandsResult
 } from "discord-api-types/v10";
 
-import type { Readable } from "stream";
-import type { ReadableStream } from "stream/web";
+import type { Readable } from "node:stream";
 
 /**
  * Methods for interacting with slash command specific endpoints
@@ -57,7 +56,7 @@ class InteractionMethods {
 	 * @param requestHandler request handler that calls the rest api
 	 * @param webhooks WebhookMethods class that handles webhook related stuff
 	 */
-	public constructor(public readonly requestHandler: RH, public readonly webhooks: WHM, public options: ST.Options) {}
+	public constructor(public readonly requestHandler: RH, public readonly webhooks: WHM, public options: SnowTransferOptions) {}
 
 	/**
 	 * Fetch all global commands for your application
@@ -138,16 +137,16 @@ class InteractionMethods {
 	/**
 	 * Takes a list of application commands, overwriting existing commands that are registered globally for this application.
 	 * Updates will be available in all guilds after 1 hour
-	 * @since 0.3.0
+	 * @since 0.18.0
 	 * @param appId The Id of the application
 	 * @param data Array of commands
 	 * @returns An Array of [application command](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-structure) objects
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * const commands = await client.interaction.bulkOverwriteApplicationCommands("appId", [{ name: "test", description: "testing 1, 2, 3" }])
+	 * const commands = await client.interaction.editApplicationCommands("appId", [{ name: "test", description: "testing 1, 2, 3" }])
 	 */
-	public async bulkOverwriteApplicationCommands(appId: string, data: RESTPutAPIApplicationCommandsJSONBody): Promise<RESTPutAPIApplicationCommandsResult> {
+	public async editApplicationCommands(appId: string, data: RESTPutAPIApplicationCommandsJSONBody): Promise<RESTPutAPIApplicationCommandsResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_COMMANDS(appId), {}, "put", "json", data);
 	}
 
@@ -234,7 +233,7 @@ class InteractionMethods {
 
 	/**
 	 * Takes a list of application commands, overwriting existing commands for the guild
-	 * @since 0.5.0
+	 * @since 0.18.0
 	 * @param appId The Id of the application
 	 * @param guildId The Id of the guild
 	 * @param data Array of commands
@@ -242,9 +241,9 @@ class InteractionMethods {
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * const commands = await client.interaction.bulkOverwriteGuildApplicationCommands("appId", "guildId", [{ name: "test", description: "testing 1, 2, 3" }])
+	 * const commands = await client.interaction.editGuildApplicationCommands("appId", "guildId", [{ name: "test", description: "testing 1, 2, 3" }])
 	 */
-	public async bulkOverwriteGuildApplicationCommands(appId: string, guildId: string, data: RESTPutAPIApplicationGuildCommandsJSONBody): Promise<RESTPutAPIApplicationGuildCommandsResult> {
+	public async editGuildApplicationCommands(appId: string, guildId: string, data: RESTPutAPIApplicationGuildCommandsJSONBody): Promise<RESTPutAPIApplicationGuildCommandsResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_GUILD_COMMANDS(appId, guildId), {}, "put", "json", data);
 	}
 
@@ -360,7 +359,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * client.interaction.deleteOriginalInteractionResponse("appId", "token")
 	 */
-	public async deleteOriginalInteractionResponse(appId: string, token: string): Promise<void> {
+	public async deleteOriginalInteractionResponse(appId: string, token: string): Promise<RESTDeleteAPIInteractionOriginalResponseResult> {
 		return this.webhooks.deleteWebhookMessage(appId, token, "@original");
 	}
 
@@ -426,7 +425,7 @@ class InteractionMethods {
 	 * const client = new SnowTransfer() // This endpoint does not require a Bot token. The interaction token alone will suffice
 	 * client.interaction.deleteFollowupMessage("appId", "token", "messageId")
 	 */
-	public async deleteFollowupMessage(appId: string, token: string, messageId: string): Promise<void> {
+	public async deleteFollowupMessage(appId: string, token: string, messageId: string): Promise<RESTDeleteAPIInteractionFollowupResult> {
 		return this.webhooks.deleteWebhookMessage(appId, token, messageId);
 	}
 }

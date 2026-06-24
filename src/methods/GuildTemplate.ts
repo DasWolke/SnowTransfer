@@ -66,7 +66,7 @@ class GuildTemplateMethods {
 	 * @since 0.3.0
 	 * @param guildId The Id of the guild
 	 * @param data Metadata for the template
-	 * @returns A [guild tempalte](https://discord.com/developers/docs/resources/guild-template#guild-template-object-guild-template-structure)
+	 * @returns A [guild template](https://discord.com/developers/docs/resources/guild-template#guild-template-object-guild-template-structure)
 	 *
 	 * | Permissions needed | Condition |
 	 * |--------------------|-----------|
@@ -101,7 +101,7 @@ class GuildTemplateMethods {
 
 	/**
 	 * Updates a guild template's metadata
-	 * @since 0.3.0
+	 * @since 0.18.0
 	 * @param guildId The Id of the guild
 	 * @param code The code of the template
 	 * @param data Metadata for the template
@@ -113,9 +113,9 @@ class GuildTemplateMethods {
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * const template = await client.guildTemplate.modifyGuildTemplate("guildId", "code", { name: "Coolest guild template", description: "This is the coolest guild template hands down" })
+	 * const template = await client.guildTemplate.editGuildTemplate("guildId", "code", { name: "Coolest guild template", description: "This is the coolest guild template hands down" })
 	 */
-	public async modifyGuildTemplate(guildId: string, code: string, data: RESTPatchAPIGuildTemplateJSONBody): Promise<RESTPatchAPIGuildTemplateResult> {
+	public async editGuildTemplate(guildId: string, code: string, data: RESTPatchAPIGuildTemplateJSONBody): Promise<RESTPatchAPIGuildTemplateResult> {
 		return this.requestHandler.request(Endpoints.GUILD_TEMPLATE(guildId, code), {}, "patch", "json", data);
 	}
 

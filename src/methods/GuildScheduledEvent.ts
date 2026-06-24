@@ -4,7 +4,7 @@ import Constants = require("../Constants");
 import type { RequestHandler as RH } from "../RequestHandler";
 
 import type {
-//	RESTDeleteAPIGuildScheduledEventResult,
+	RESTDeleteAPIGuildScheduledEventResult,
 	RESTGetAPIGuildScheduledEventResult,
 	RESTGetAPIGuildScheduledEventUsersQuery,
 	RESTGetAPIGuildScheduledEventUsersResult,
@@ -94,7 +94,7 @@ class GuildScheduledEventMethods {
 	 * const event = await client.guildScheduledEvent.getGuildScheduledEvent(guildId, eventId)
 	 */
 	public async getGuildScheduledEvent(guildId: string, eventId: string, withCounts?: boolean): Promise<RESTGetAPIGuildScheduledEventResult> {
-		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT(guildId, eventId), {}, "get", "json", { with_user_count: withCounts });
+		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT(guildId, eventId), { with_user_count: withCounts }, "get", "json");
 	}
 
 	/**
@@ -144,7 +144,7 @@ class GuildScheduledEventMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guildScheduledEvent.deleteGuildScheduledEvent(guildId, eventId)
 	 */
-	public async deleteGuildScheduledEvent(guildId: string, eventId: string): Promise<void> {
+	public async deleteGuildScheduledEvent(guildId: string, eventId: string): Promise<RESTDeleteAPIGuildScheduledEventResult> {
 		return this.requestHandler.request(Endpoints.GUILD_SCHEDULED_EVENT(guildId, eventId), {}, "delete", "json");
 	}
 

@@ -26,6 +26,8 @@ I've written a general whitepaper on the idea of microservice bots, which you ca
 ### Documentation:
 You can find the docs at [https://daswolke.github.io/SnowTransfer/](https://daswolke.github.io/SnowTransfer/)
 
+For a changelog, read here: [Changelog](./CHANGELOG.md)
+
 ### Installation:
 To install SnowTransfer, make sure that you have node 22.0.0 or higher and npm installed on your computer.
 
@@ -35,11 +37,8 @@ Then run the following command in a terminal `npm install snowtransfer`
 ```js
 const { SnowTransfer } = require('snowtransfer');
 const client = new SnowTransfer('DISCORD BOT TOKEN');
-const request = async () => {
-	const message = await client.channel.createMessage('channel id', 'hi there');
-	console.log(message);
-};
-request().then(() => {
+
+client.channel.createMessage('channel id', 'hi there').then(() => {
 	// message was sent to discord
 }).catch(e => {
 	// an error occurred

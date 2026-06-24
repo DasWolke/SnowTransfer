@@ -9,7 +9,7 @@ import type {
 	RESTPostAPIAutoModerationRuleResult,
 	RESTPatchAPIAutoModerationRuleJSONBody,
 	RESTPatchAPIAutoModerationRuleResult,
-//	RESTDeleteAPIAutoModerationRuleResult
+	RESTDeleteAPIAutoModerationRuleResult
 } from "discord-api-types/v10";
 
 /**
@@ -140,9 +140,9 @@ class AutoModerationMethods {
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.autoMod.deleteAutoModerationRules("guild id", "rule id", "was useless")
+	 * client.autoMod.deleteAutoModerationRule("guild id", "rule id", "was useless")
 	 */
-	public async deleteAutoModerationRule(guildId: string, ruleId: string, reason?: string): Promise<void> {
+	public async deleteAutoModerationRule(guildId: string, ruleId: string, reason?: string): Promise<RESTDeleteAPIAutoModerationRuleResult> {
 		return this.requestHandler.request(Endpoints.GUILD_AUTO_MOD_RULE(guildId, ruleId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
 	}
 }

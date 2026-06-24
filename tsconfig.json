@@ -2,22 +2,25 @@
 	"compilerOptions": {
 		"allowJs": true,
 		"checkJs": true,
-		"declaration": true,
-		"lib": ["es2022"],
+		"declaration": false,
+		"lib": ["es2024", "dom"],
 		"module": "nodenext",
 		"moduleResolution": "nodenext",
 		"noUnusedLocals": true,
-		"outDir": "./dist",
 		"pretty": true,
-		"removeComments": false,
-		"resolveJsonModule": false,
-		"sourceMap": false,
+		"removeComments": true,
+		"resolveJsonModule": true,
+		"sourceMap": true,
+		"skipLibCheck": true,
 		"strictFunctionTypes": true,
 		"strictBindCallApply": true,
 		"strictNullChecks": true,
-		"target": "ES2022",
+		"alwaysStrict": true,
+		"target": "ES2024",
 		"types": ["node"],
+		"outDir": "./dist",
 		"rootDir": "./src"
 	},
-	"include": ["./src"]
+	"include": ["./src"],
+	"exclude": ["node_modules"]
 }

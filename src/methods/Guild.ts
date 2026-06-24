@@ -6,11 +6,11 @@ import type { RequestHandler as RH } from "../RequestHandler";
 import type {
 	APIGuildMember,
 	APIGuildWidget,
-//	RESTDeleteAPIGuildBanResult,
-//	RESTDeleteAPIGuildIntegrationResult,
-//	RESTDeleteAPIGuildMemberResult,
-//	RESTDeleteAPIGuildMemberRoleResult,
-//	RESTDeleteAPIGuildRoleResult,
+	RESTDeleteAPIGuildBanResult,
+	RESTDeleteAPIGuildIntegrationResult,
+	RESTDeleteAPIGuildMemberResult,
+	RESTDeleteAPIGuildMemberRoleResult,
+	RESTDeleteAPIGuildRoleResult,
 	RESTGetAPIGuildBanResult,
 	RESTGetAPIGuildBansQuery,
 	RESTGetAPIGuildBansResult,
@@ -22,6 +22,8 @@ import type {
 	RESTGetAPIGuildMembersResult,
 	RESTGetAPIGuildMembersSearchQuery,
 	RESTGetAPIGuildMembersSearchResult,
+	RESTGetAPIGuildMessagesSearchQuery,
+	RESTGetAPIGuildMessagesSearchResult,
 	RESTGetAPIGuildPreviewResult,
 	RESTGetAPIGuildPruneCountQuery,
 	RESTGetAPIGuildPruneCountResult,
@@ -34,7 +36,7 @@ import type {
 	RESTGetAPIGuildWidgetSettingsResult,
 	RESTPatchAPICurrentGuildMemberJSONBody,
 	RESTPatchAPIGuildChannelPositionsJSONBody,
-//	RESTPatchAPIGuildChannelPositionsResult,
+	RESTPatchAPIGuildChannelPositionsResult,
 	RESTPatchAPIGuildJSONBody,
 	RESTPatchAPIGuildMemberJSONBody,
 	RESTPatchAPIGuildMemberResult,
@@ -44,9 +46,9 @@ import type {
 	RESTPatchAPIGuildRolePositionsResult,
 	RESTPatchAPIGuildRoleResult,
 	RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody,
-//	RESTPatchAPIGuildVoiceStateCurrentMemberResult,
+	RESTPatchAPIGuildVoiceStateCurrentMemberResult,
 	RESTPatchAPIGuildVoiceStateUserJSONBody,
-//	RESTPatchAPIGuildVoiceStateUserResult,
+	RESTPatchAPIGuildVoiceStateUserResult,
 	RESTPatchAPIGuildWelcomeScreenJSONBody,
 	RESTPatchAPIGuildWelcomeScreenResult,
 	RESTPatchAPIGuildWidgetSettingsJSONBody,
@@ -58,10 +60,10 @@ import type {
 	RESTPostAPIGuildRoleJSONBody,
 	RESTPostAPIGuildRoleResult,
 	RESTPutAPIGuildBanJSONBody,
-//	RESTPutAPIGuildBanResult,
+	RESTPutAPIGuildBanResult,
 	RESTPutAPIGuildMemberJSONBody,
 	RESTPutAPIGuildMemberResult,
-//	RESTPutAPIGuildMemberRoleResult
+	RESTPutAPIGuildMemberRoleResult
 } from "discord-api-types/v10";
 
 /**
@@ -113,7 +115,7 @@ class GuildMethods {
 
 	/**
 	 * Update a guild
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param data Updated guild data
 	 * @param reason Reason for updating the guild
@@ -129,9 +131,9 @@ class GuildMethods {
 	 * const guildData = {
 	 * 	name: "Nice Guild"
 	 * }
-	 * client.guild.updateGuild("guild Id", guildData)
+	 * client.guild.editGuild("guild Id", guildData)
 	 */
-	public async updateGuild(guildId: string, data: RESTPatchAPIGuildJSONBody, reason?: string): Promise<RESTPatchAPIGuildResult> {
+	public async editGuild(guildId: string, data: RESTPatchAPIGuildJSONBody, reason?: string): Promise<RESTPatchAPIGuildResult> {
 		return this.requestHandler.request(Endpoints.GUILD(guildId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
@@ -181,7 +183,7 @@ class GuildMethods {
 
 	/**
 	 * Batch update the positions of channels. Only those being moved needs to be included here
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param data Positional data to send
 	 * @param reason Reason for updating the channels' positions
@@ -194,9 +196,9 @@ class GuildMethods {
 	 * @example
 	 * // Sets the position of a channel to 2 under a category channel
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.guild.updateChannelPositions("guild id", [{ id: "channel id", position: 2, parent_id: "category id" }], "they looked out of order")
+	 * client.guild.editChannelPositions("guild id", [{ id: "channel id", position: 2, parent_id: "category id" }], "they looked out of order")
 	 */
-	public async updateChannelPositions(guildId: string, data: RESTPatchAPIGuildChannelPositionsJSONBody, reason?: string): Promise<void> {
+	public async editChannelPositions(guildId: string, data: RESTPatchAPIGuildChannelPositionsJSONBody, reason?: string): Promise<RESTPatchAPIGuildChannelPositionsResult> {
 		return this.requestHandler.request(Endpoints.GUILD_CHANNELS(guildId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
@@ -302,7 +304,7 @@ class GuildMethods {
 
 	/**
 	 * Update properties of a guild member
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param data Updated properties
@@ -325,15 +327,15 @@ class GuildMethods {
 	 * const memberData = {
 	 * 	nick: "" // You can reset nicknames by providing an empty string as the value of data.nick
 	 * }
-	 * const member = await client.guild.updateGuildMember("guild Id", "memberId", memberData)
+	 * const member = await client.guild.editGuildMember("guild Id", "memberId", memberData)
 	 */
-	public async updateGuildMember(guildId: string, memberId: string, data: RESTPatchAPIGuildMemberJSONBody, reason?: string): Promise<RESTPatchAPIGuildMemberResult> {
+	public async editGuildMember(guildId: string, memberId: string, data: RESTPatchAPIGuildMemberJSONBody, reason?: string): Promise<RESTPatchAPIGuildMemberResult> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
 	 * Update the nick of the CurrentMember
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param data Data to update self with
 	 * @param reason Reason for updating self
@@ -349,9 +351,9 @@ class GuildMethods {
 	 * const nickData = {
 	 * 	nick: "Nice Nick"
 	 * }
-	 * client.guild.updateSelf("guildId", nickData)
+	 * client.guild.editSelf("guildId", nickData)
 	 */
-	public async updateSelf(guildId: string, data: RESTPatchAPICurrentGuildMemberJSONBody, reason?: string): Promise<APIGuildMember> {
+	public async editSelf(guildId: string, data: RESTPatchAPICurrentGuildMemberJSONBody, reason?: string): Promise<APIGuildMember> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, "@me"), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
@@ -373,13 +375,13 @@ class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guild.addGuildMemberRole("guildId", "memberId", "roleId", "I want to add a role")
 	 */
-	public async addGuildMemberRole(guildId: string, memberId: string, roleId: string, reason?: string): Promise<void> {
+	public async addGuildMemberRole(guildId: string, memberId: string, roleId: string, reason?: string): Promise<RESTPutAPIGuildMemberRoleResult> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), {}, "put", "json", {}, Constants.reasonHeader(reason));
 	}
 
 	/**
 	 * Remove a role from a guild member
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param roleId Id of the role
@@ -393,15 +395,15 @@ class GuildMethods {
 	 * @example
 	 * // remove a role from a member with a reason of "I want to remove a role"
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.guild.removeGuildMemberRole("guildId", "memberId", "roleId", "I want to remove a role")
+	 * client.guild.deleteGuildMemberRole("guildId", "memberId", "roleId", "I want to remove a role")
 	 */
-	public async removeGuildMemberRole(guildId: string, memberId: string, roleId: string, reason?: string): Promise<void> {
+	public async deleteGuildMemberRole(guildId: string, memberId: string, roleId: string, reason?: string): Promise<RESTDeleteAPIGuildMemberRoleResult> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER_ROLE(guildId, memberId, roleId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
 	}
 
 	/**
 	 * Remove a guild member (aka kick them)
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param reason Reason for kicking the member
@@ -414,9 +416,9 @@ class GuildMethods {
 	 * @example
 	 * // Kick a member with a reason of "spam"
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.guild.removeGuildMember("guild Id", "memberId", "spam")
+	 * client.guild.deleteGuildMember("guild Id", "memberId", "spam")
 	 */
-	public async removeGuildMember(guildId: string, memberId: string, reason?: string): Promise<void> {
+	public async deleteGuildMember(guildId: string, memberId: string, reason?: string): Promise<RESTDeleteAPIGuildMemberResult> {
 		return this.requestHandler.request(Endpoints.GUILD_MEMBER(guildId, memberId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
 	}
 
@@ -477,17 +479,17 @@ class GuildMethods {
 	 * // Ban a user with a reason and delete the last 2 days of their messages
 	 * const client = new SnowTransfer("TOKEN")
 	 * const banData = {
-	 * 	delete_message_days":2
+	 * 	delete_message_days: 2
 	 * }
 	 * client.guild.createGuildBan("guild Id", "memberId", banData, "Memes were not good enough")
 	 */
-	public async createGuildBan(guildId: string, memberId: string, data?: RESTPutAPIGuildBanJSONBody, reason?: string): Promise<void> {
+	public async createGuildBan(guildId: string, memberId: string, data?: RESTPutAPIGuildBanJSONBody, reason?: string): Promise<RESTPutAPIGuildBanResult> {
 		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), {}, "put", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
 	 * Remove a ban of a user
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param memberId Id of the guild member
 	 * @param reason Reason for removing the ban
@@ -500,9 +502,9 @@ class GuildMethods {
 	 * @example
 	 * // Remove a ban of a user with a reason
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.guild.removeGuildBan("guildId", "memberId", "This guy was cool")
+	 * client.guild.deleteGuildBan("guildId", "memberId", "This guy was cool")
 	 */
-	public async removeGuildBan(guildId: string, memberId: string, reason?: string): Promise<void> {
+	public async deleteGuildBan(guildId: string, memberId: string, reason?: string): Promise<RESTDeleteAPIGuildBanResult> {
 		return this.requestHandler.request(Endpoints.GUILD_BAN(guildId, memberId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
 	}
 
@@ -551,7 +553,7 @@ class GuildMethods {
 
 	/**
 	 * Modify the positions of roles
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param data Role data to update
 	 * @param reason Reason for moving the roles
@@ -563,15 +565,15 @@ class GuildMethods {
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * const roles = await client.guild.updateGuildRolePositions("guildId", [{ id: "guild id", position: 1 }, { id: "role id 2", position: 2 }])
+	 * const roles = await client.guild.editGuildRolePositions("guildId", [{ id: "guild id", position: 1 }, { id: "role id 2", position: 2 }])
 	 */
-	public async updateGuildRolePositions(guildId: string, data: RESTPatchAPIGuildRolePositionsJSONBody, reason?: string): Promise<RESTPatchAPIGuildRolePositionsResult> {
+	public async editGuildRolePositions(guildId: string, data: RESTPatchAPIGuildRolePositionsJSONBody, reason?: string): Promise<RESTPatchAPIGuildRolePositionsResult> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
 	 * Update a guild role
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param roleId Id of the role
 	 * @param data updated properties of the role
@@ -587,15 +589,15 @@ class GuildMethods {
 	 * const roleData = {
 	 * 	name: "Nicer Role",
 	 * }
-	 * client.guild.updateGuildRole("guildId", "roleId", roleData)
+	 * client.guild.editGuildRole("guildId", "roleId", roleData)
 	 */
-	public async updateGuildRole(guildId: string, roleId: string, data: RESTPatchAPIGuildRoleJSONBody, reason?: string): Promise<RESTPatchAPIGuildRoleResult> {
+	public async editGuildRole(guildId: string, roleId: string, data: RESTPatchAPIGuildRoleJSONBody, reason?: string): Promise<RESTPatchAPIGuildRoleResult> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLE(guildId, roleId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
 	/**
 	 * Delete a role from the guild
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param roleId Id of the role
 	 * @param reason Reason for deleting the role
@@ -610,7 +612,7 @@ class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.guild.deleteGuildRole("guildId", "roleId", "This role is too cool")
 	 */
-	public async removeGuildRole(guildId: string, roleId: string, reason?: string): Promise<void> {
+	public async deleteGuildRole(guildId: string, roleId: string, reason?: string): Promise<RESTDeleteAPIGuildRoleResult> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLE(guildId, roleId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
 	}
 
@@ -707,7 +709,7 @@ class GuildMethods {
 
 	/**
 	 * Delete a guild integration
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param integrationId Id of the integration
 	 * @param reason Reason for removing the integration
@@ -721,7 +723,7 @@ class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * await client.guild.deleteGuildIntegration("guildId", "integrationId", "Didn't need anymore")
 	 */
-	public async removeGuildIntegration(guildId: string, integrationId: string, reason?: string): Promise<void> {
+	public async deleteGuildIntegration(guildId: string, integrationId: string, reason?: string): Promise<RESTDeleteAPIGuildIntegrationResult> {
 		return this.requestHandler.request(Endpoints.GUILD_INTEGRATION(guildId, integrationId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
 	}
 
@@ -745,7 +747,7 @@ class GuildMethods {
 
 	/**
 	 * Update a guild widget settings object
-	 * @since 0.3.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param data widget settings
 	 * @param reason Reason for updating the guild widget settings
@@ -758,9 +760,9 @@ class GuildMethods {
 	 * @example
 	 * // Sets a widget as disabled
 	 * const client = new SnowTransfer("TOKEN")
-	 * const widgetSettings = await client.guild.updateGuildWidgetSettings("guildId", { enabled: false })
+	 * const widgetSettings = await client.guild.editGuildWidgetSettings("guildId", { enabled: false })
 	 */
-	public async updateGuildWidgetSettings(guildId: string, data: Partial<RESTPatchAPIGuildWidgetSettingsJSONBody>, reason?: string): Promise<RESTPatchAPIGuildWidgetSettingsResult> {
+	public async editGuildWidgetSettings(guildId: string, data: Partial<RESTPatchAPIGuildWidgetSettingsJSONBody>, reason?: string): Promise<RESTPatchAPIGuildWidgetSettingsResult> {
 		return this.requestHandler.request(Endpoints.GUILD_WIDGET_SETTINGS(guildId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
@@ -837,7 +839,7 @@ class GuildMethods {
 
 	/**
 	 * Updates the current user's voice state in a stage channel
-	 * @since 0.3.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param data Data of the voice state
 	 * @returns Resolves the Promise on successful execution
@@ -850,15 +852,15 @@ class GuildMethods {
 	 * @example
 	 * // Unsuppresses the CurrentUser in the stage channel they're in
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.guild.updateGuildVoiceState("guildId", { channel_id: "channel id", suppress: false })
+	 * client.guild.editCurrentUserVoiceState("guildId", { channel_id: "channel id", suppress: false })
 	 */
-	public async updateCurrentUserVoiceState(guildId: string, data: RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody): Promise<void> {
+	public async editCurrentUserVoiceState(guildId: string, data: RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody): Promise<RESTPatchAPIGuildVoiceStateCurrentMemberResult> {
 		return this.requestHandler.request(Endpoints.GUILD_VOICE_STATE_USER(guildId, "@me"), {}, "patch", "json", data);
 	}
 
 	/**
 	 * Updates a user's voice state in a stage channel
-	 * @since 0.3.0
+	 * @since 0.18.0
 	 * @param guildId Id of the guild
 	 * @param userId Id of the user
 	 * @param data Data of the voice state
@@ -871,9 +873,9 @@ class GuildMethods {
 	 * @example
 	 * // Suppresses the user in the stage channel they're in
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.guild.updateGuildVoiceState("guildId", "userId", { channel_id: "channel id", suppress: true })
+	 * client.guild.editUserVoiceState("guildId", "userId", { channel_id: "channel id", suppress: true })
 	 */
-	public async updateUserVoiceState(guildId: string, userId: string, data: RESTPatchAPIGuildVoiceStateUserJSONBody): Promise<void> {
+	public async editUserVoiceState(guildId: string, userId: string, data: RESTPatchAPIGuildVoiceStateUserJSONBody): Promise<RESTPatchAPIGuildVoiceStateUserResult> {
 		return this.requestHandler.request(Endpoints.GUILD_VOICE_STATE_USER(guildId, userId), {}, "patch", "json", data);
 	}
 
@@ -881,8 +883,8 @@ class GuildMethods {
 	 * Searches a guild for messages that match a query
 	 * @since 0.17.6
 	 * @param guildId Id of the guild
-	 * @param query Options for the search
-	 * @returns An Array of [Messages](https://docs.discord.com/developers/resources/message#message-object)
+	 * @param options Options for the search
+	 * @returns A [search result](https://docs.discord.com/developers/resources/message#search-guild-messages-response-body) containing the matched messages, or an index-not-ready response if the guild hasn't finished indexing yet
 	 *
 	 * | Permissions needed   | Condition |
 	 * |----------------------|-----------|
@@ -893,8 +895,8 @@ class GuildMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const messages = await client.guild.searchGuildMessages("guildId", { content: "poggers" })
 	 */
-	public async searchGuildMessages(guildId: string, query?: Record<string, any>): Promise<any> {
-		return this.requestHandler.request(Endpoints.GUILD_MESSAGES_SEARCH(guildId), query, "get", "json");
+	public async searchGuildMessages(guildId: string, options?: RESTGetAPIGuildMessagesSearchQuery): Promise<RESTGetAPIGuildMessagesSearchResult> {
+		return this.requestHandler.request(Endpoints.GUILD_MESSAGES_SEARCH(guildId), options, "get", "json");
 	}
 }
 

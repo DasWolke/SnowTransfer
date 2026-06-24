@@ -68,7 +68,7 @@ class BotMethods {
 
 	/**
 	 * Update the Application Object for the Current User
-	 * @since 0.13.0
+	 * @since 0.18.0
 	 * @returns An [Application object](https://discord.com/developers/docs/resources/application#application-object-application-structure)
 	 *
 	 * @example
@@ -77,9 +77,9 @@ class BotMethods {
 	 * 	description: "My new bot description",
 	 * 	interactions_endpoint_url: "https://mycoolbot.example/api/interactions"
 	 * };
-	 * client.bot.updateApplicationInfo(appData)
+	 * client.bot.editApplicationInfo(appData)
 	 */
-	public async updateApplicationInfo(data: RESTPatchCurrentApplicationJSONBody): Promise<APIApplication> {
+	public async editApplicationInfo(data: RESTPatchCurrentApplicationJSONBody): Promise<APIApplication> {
 		return this.requestHandler.request(Endpoints.OAUTH2_APPLICATION("@me"), {}, "patch", "json", data);
 	}
 }

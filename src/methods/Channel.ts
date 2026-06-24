@@ -1,5 +1,4 @@
 import type { RequestHandler as RH } from "../RequestHandler";
-import type ST = require("../SnowTransfer");
 
 import Endpoints = require("../Endpoints");
 import Constants = require("../Constants");
@@ -8,14 +7,15 @@ import {
 	type APITextBasedChannel,
 	type APIThreadChannel,
 	type ChannelType,
-//	type RESTDeleteAPIChannelAllMessageReactionsResult,
-//	type RESTDeleteAPIChannelMessageReactionResult,
-//	type RESTDeleteAPIChannelMessageResult,
-//	type RESTDeleteAPIChannelMessageUserReactionResult,
-//	type RESTDeleteAPIChannelPermissionResult,
-//	type RESTDeleteAPIChannelMessagesPinResult,
+	type RESTDeleteAPIChannelAllMessageReactionsResult,
+	type RESTDeleteAPIChannelMessageReactionResult,
+	type RESTDeleteAPIChannelMessageOwnReactionResult,
+	type RESTDeleteAPIChannelMessageResult,
+	type RESTDeleteAPIChannelMessageUserReactionResult,
+	type RESTDeleteAPIChannelPermissionResult,
+	type RESTDeleteAPIChannelMessagesPinResult,
 	type RESTDeleteAPIChannelResult,
-//	type RESTDeleteAPIChannelThreadMembersResult,
+	type RESTDeleteAPIChannelThreadMembersResult,
 	type RESTGetAPIChannelInvitesResult,
 	type RESTGetAPIChannelMessageReactionUsersQuery,
 	type RESTGetAPIChannelMessageReactionUsersResult,
@@ -41,32 +41,30 @@ import {
 	type RESTPostAPIChannelMessageCrosspostResult,
 	type RESTPostAPIChannelMessageJSONBody,
 	type RESTPostAPIChannelMessageResult,
-//	type RESTPostAPIChannelMessagesBulkDeleteResult,
+	type RESTPostAPIChannelMessagesBulkDeleteResult,
 	type RESTPostAPIChannelMessagesThreadsJSONBody,
 	type RESTPostAPIChannelMessagesThreadsResult,
 	type RESTPostAPIChannelThreadsJSONBody,
-//	type RESTPostAPIChannelTypingResult,
-//	type RESTPutAPIChannelMessageReactionResult,
+	type RESTPostAPIChannelTypingResult,
+	type RESTPutAPIChannelMessageReactionResult,
 	type RESTPutAPIChannelPermissionJSONBody,
-//	type RESTPutAPIChannelPermissionResult,
-//	type RESTPutAPIChannelMessagesPinResult,
-//	type RESTPutAPIChannelThreadMembersResult,
+	type RESTPutAPIChannelPermissionResult,
+	type RESTPutAPIChannelMessagesPinResult,
+	type RESTPutAPIChannelThreadMembersResult,
 	type RESTGetAPIPollAnswerVotersQuery,
 	type RESTGetAPIPollAnswerVotersResult,
 	type RESTPostAPIPollExpireResult,
 	type RESTGetAPIChannelMessagesPinsQuery,
 	type APIGuildVoiceChannel,
+	type RESTPutAPIChannelVoiceStatusResult,
+
 	MessageReferenceType,
 	MessageFlags
 } from "discord-api-types/v10";
 
-import type {
-//	RESTPutAPIChannelVoiceStatus,
-	RESTPostAPIAttachmentsRefreshURLsResult
-} from "../Types"
+import type { RESTPostAPIAttachmentsRefreshURLsResult, SnowTransferOptions } from "../Types";
 
-import type { Readable } from "stream";
-import type { ReadableStream } from "stream/web";
+import type { Readable } from "node:stream";
 
 /**
  * Methods for interacting with Channels and Messages
@@ -83,7 +81,7 @@ class ChannelMethods {
 	 * @param requestHandler request handler that calls the rest api
 	 * @param options Options for the SnowTransfer instance
 	 */
-	public constructor(public readonly requestHandler: RH, public options: ST.Options) {}
+	public constructor(public readonly requestHandler: RH, public options: SnowTransferOptions) {}
 
 	/**
 	 * Get a channel via Id
@@ -101,7 +99,7 @@ class ChannelMethods {
 
 	/**
 	 * Update a guild channel or thread
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param channelId Id of the guild channel
 	 * @param data Data to update the channel with
 	 * @param reason Reason for updating the channel
@@ -121,11 +119,11 @@ class ChannelMethods {
 	 * 	name: "New Name",
 	 * 	topic: "Look at this cool topic"
 	 * }
-	 * client.channel.updateChannel("channel id", updateData)
+	 * client.channel.editChannel("channel id", updateData)
 	 */
-	public async updateChannel(channelId: string, data: Omit<RESTPatchAPIChannelJSONBody, "archived" | "auto_archive_duration" | "locked" | "invitable">, reason?: string): Promise<Exclude<RESTPatchAPIChannelResult, APIThreadChannel>>;
-	public async updateChannel(channelId: string, data: Pick<RESTPatchAPIChannelJSONBody, "archived" | "auto_archive_duration" | "locked" | "name" | "rate_limit_per_user">, reason?: string): Promise<Extract<RESTPatchAPIChannelResult, APIThreadChannel>>;
-	public async updateChannel(channelId: string, data: RESTPatchAPIChannelJSONBody, reason?: string): Promise<RESTPatchAPIChannelResult> {
+	public async editChannel(channelId: string, data: Omit<RESTPatchAPIChannelJSONBody, "archived" | "auto_archive_duration" | "locked" | "invitable">, reason?: string): Promise<Exclude<RESTPatchAPIChannelResult, APIThreadChannel>>;
+	public async editChannel(channelId: string, data: Pick<RESTPatchAPIChannelJSONBody, "archived" | "auto_archive_duration" | "locked" | "name" | "rate_limit_per_user">, reason?: string): Promise<Extract<RESTPatchAPIChannelResult, APIThreadChannel>>;
+	public async editChannel(channelId: string, data: RESTPatchAPIChannelJSONBody, reason?: string): Promise<RESTPatchAPIChannelResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL(channelId), {}, "patch", "json", data, Constants.reasonHeader(reason));
 	}
 
@@ -179,18 +177,19 @@ class ChannelMethods {
 	 * const messages = await client.channel.getChannelMessages("channel id", options)
 	 */
 	public async getChannelMessages(channelId: string, options: RESTGetAPIChannelMessagesQuery = { limit: 50 }): Promise<RESTGetAPIChannelMessagesResult> {
-		if (options.around) {
-			delete options.before;
-			delete options.after;
-		} else if (options.before) {
-			delete options.around;
-			delete options.after;
-		} else if (options.after) {
-			delete options.before;
-			delete options.around;
+		const query = { ...options };
+		if (query.around) {
+			delete query.before;
+			delete query.after;
+		} else if (query.before) {
+			delete query.around;
+			delete query.after;
+		} else if (query.after) {
+			delete query.before;
+			delete query.around;
 		}
-		if (options.limit !== undefined && (options.limit < Constants.GET_CHANNEL_MESSAGES_MIN_RESULTS || options.limit > Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS)) throw new RangeError(`Amount of messages that may be requested has to be between ${Constants.GET_CHANNEL_MESSAGES_MIN_RESULTS} and ${Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS}`);
-		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), options, "get", "json");
+		if (query.limit !== undefined && (query.limit < Constants.GET_CHANNEL_MESSAGES_MIN_RESULTS || query.limit > Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS)) throw new RangeError(`Amount of messages that may be requested has to be between ${Constants.GET_CHANNEL_MESSAGES_MIN_RESULTS} and ${Constants.GET_CHANNEL_MESSAGES_MAX_RESULTS}`);
+		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), query, "get", "json");
 	}
 
 	/**
@@ -259,16 +258,30 @@ class ChannelMethods {
 	 * client.channel.createMessage("channel id", { content: "This is a nice picture", files: [{ name: "Optional_Filename.png", file: fileData }] })
 	 */
 	public async createMessage(channelId: string, data: string | RESTPostAPIChannelMessageJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }): Promise<RESTPostAPIChannelMessageResult> {
-		if (typeof data !== "string" && !data.content && (!data.message_reference || (data.message_reference && data.message_reference.type === MessageReferenceType.Default)) && !data.embeds && !data.sticker_ids && !data.components && !data.files && !data.poll) throw new Error("Missing content, message_reference type 1, embeds, sticker_ids, components, files, or poll");
+		if (
+			typeof data !== "string" &&
+			!data.content &&
+			(!data.message_reference || (data.message_reference?.type !== MessageReferenceType.Forward)) &&
+			!data.embeds?.length &&
+			!data.sticker_ids?.length &&
+			!data.components?.length &&
+			!data.files?.length &&
+			!data.poll
+		) throw new Error("Missing content, message_reference type 1, embeds, sticker_ids, components, files, or poll");
 		if (typeof data === "string") data = { content: data };
+		const payload = { ...data };
 
-		if ((data.content || data.embeds) && data.flags && (data.flags & MessageFlags.IsComponentsV2) === MessageFlags.IsComponentsV2) throw new Error("The message flags was set to include IsComponentsV2, but content and/or embeds were also present. You can either have content/embeds or components v2, not both.");
+		if (
+			(payload.content || payload.embeds) &&
+			payload.flags &&
+			(payload.flags & MessageFlags.IsComponentsV2) === MessageFlags.IsComponentsV2
+		) throw new Error("The message flags was set to include IsComponentsV2, but content and/or embeds were also present. You can either have content/embeds or components v2, not both.");
 
 		// Sanitize the message
-		data.allowed_mentions ??= this.options.allowed_mentions;
+		payload.allowed_mentions ??= this.options.allowed_mentions;
 
-		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
-		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "json", data);
+		if (payload.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "multipart", await Constants.standardMultipartHandler(payload as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
+		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGES(channelId), {}, "post", "json", payload);
 	}
 
 	/**
@@ -277,7 +290,10 @@ class ChannelMethods {
 	 * @param channelId Id of the Channel or thread to send a message to
 	 * @param data Buffer of the audio file to send. Tested file types are ogg, mp3, m4a, wav, flac. Other file types work, but some can only be embedded on mobile. Try it and see:tm:
 	 * @param audioDurationSeconds The duration of the audio file in seconds
-	 * @param waveform A preview of the entire voice message, with 1 byte per datapoint encoded in base64. Clients sample the recording at most once per 100 milliseconds, but will downsample so that no more than 256 datapoints are in the waveform. If you have no clue what you're doing, leave this as an empty string
+	 * @param waveform A preview of the entire voice message, with 1 byte per datapoint encoded in base64.
+	 * Official clients sample the recording at most once per 100 milliseconds, but will downsample so that no more than 256 datapoints are in the waveform.
+	 * If you have no clue what you're doing or don't want to mess with audio processing, leave this as an empty string (default).
+	 * Refer to Constants.generateWaveform for guidance on computing it yourself.
 	 * @returns non editable [discord message](https://discord.com/developers/docs/resources/channel#message-object) object
 	 *
 	 * | Permissions needed       | Condition                                                     |
@@ -305,7 +321,7 @@ class ChannelMethods {
 			}]
 		}).then(d => d.attachments[0]);
 
-		// upload file to cdn
+		// @ts-expect-error A Buffer is compatible as BodyInit. Trust. upload file to cdn
 		await fetch(upload_url, { method: "PUT", body: data });
 
 		// Actually send the voice message
@@ -369,7 +385,7 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.channel.createReaction("channel Id", "message Id", encodeURIComponent("😀"))
 	 */
-	public async createReaction(channelId: string, messageId: string, emoji: string): Promise<void> {
+	public async createReaction(channelId: string, messageId: string, emoji: string): Promise<RESTPutAPIChannelMessageReactionResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, "@me"), {}, "put", "json");
 	}
 
@@ -396,7 +412,7 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.channel.deleteReactionSelf("channel Id", "message Id", encodeURIComponent("😀"))
 	 */
-	public async deleteReactionSelf(channelId: string, messageId: string, emoji: string): Promise<void> {
+	public async deleteReactionSelf(channelId: string, messageId: string, emoji: string): Promise<RESTDeleteAPIChannelMessageOwnReactionResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, "@me"), {}, "delete", "json");
 	}
 
@@ -426,7 +442,7 @@ class ChannelMethods {
 	 * // If a user Id is not supplied, the emoji from that message will be removed for all users
 	 * client.channel.deleteReaction("channel Id", "message Id", encodeURIComponent("😀"))
 	 */
-	public async deleteReaction(channelId: string, messageId: string, emoji: string, userId?: string): Promise<void> {
+	public async deleteReaction(channelId: string, messageId: string, emoji: string, userId?: string): Promise<RESTDeleteAPIChannelMessageUserReactionResult | RESTDeleteAPIChannelMessageReactionResult> {
 		return this.requestHandler.request(userId ? Endpoints.CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, userId) : Endpoints.CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji), {}, "delete", "json");
 	}
 
@@ -470,7 +486,7 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.channel.deleteAllReactions("channel Id", "message Id")
 	 */
-	public async deleteAllReactions(channelId: string, messageId: string): Promise<void> {
+	public async deleteAllReactions(channelId: string, messageId: string): Promise<RESTDeleteAPIChannelAllMessageReactionsResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE_REACTIONS(channelId, messageId), {}, "delete", "json");
 	}
 
@@ -497,12 +513,19 @@ class ChannelMethods {
 	 */
 	public async editMessage(channelId: string, messageId: string, data: string | RESTPatchAPIChannelMessageJSONBody & { files?: Array<{ name: string; file: Buffer | Readable | ReadableStream; }> }): Promise<RESTPatchAPIChannelMessageResult> {
 		if (typeof data === "string") data = { content: data };
+		const payload = { ...data };
+
+		if (
+			(payload.content || payload.embeds) &&
+			payload.flags &&
+			(payload.flags & MessageFlags.IsComponentsV2) === MessageFlags.IsComponentsV2
+		) throw new Error("The message flags was set to include IsComponentsV2, but content and/or embeds were also present. You can either have content/embeds or components v2, not both.");
 
 		// Sanitize the message
-		if (data.content || data.components) data.allowed_mentions ??= this.options.allowed_mentions;
+		payload.allowed_mentions ??= this.options.allowed_mentions;
 
-		if (data.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {}, "patch", "multipart", await Constants.standardMultipartHandler(data as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
-		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {}, "patch", "json", data);
+		if (payload.files) return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {}, "patch", "multipart", await Constants.standardMultipartHandler(payload as Parameters<typeof Constants["standardMultipartHandler"]>["0"]));
+		else return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {}, "patch", "json", payload);
 	}
 
 	/**
@@ -523,13 +546,13 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.channel.deleteMessage("channel id", "message id")
 	 */
-	public async deleteMessage(channelId: string, messageId: string, reason?: string): Promise<void> {
+	public async deleteMessage(channelId: string, messageId: string, reason?: string): Promise<RESTDeleteAPIChannelMessageResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_MESSAGE(channelId, messageId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
 	}
 
 	/**
 	 * Bulk delete messages from a guild channel, messages may not be older than 2 weeks
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param channelId Id of the guild channel
 	 * @param messages array of message ids to delete
 	 * @param reason Reason for deleting the messages
@@ -543,9 +566,9 @@ class ChannelMethods {
 	 * @example
 	 * // Bulk deletes 2 messages with a reason of "spam"
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.channel.bulkDeleteMessages("channel id", ["message id 1", "message id 2"], "spam")
+	 * client.channel.deleteMessages("channel id", ["message id 1", "message id 2"], "spam")
 	 */
-	public async bulkDeleteMessages(channelId: string, messages: Array<string>, reason?: string): Promise<void> {
+	public async deleteMessages(channelId: string, messages: Array<string>, reason?: string): Promise<RESTPostAPIChannelMessagesBulkDeleteResult> {
 		if (messages.length < Constants.BULK_DELETE_MESSAGES_MIN || messages.length > Constants.BULK_DELETE_MESSAGES_MAX) throw new RangeError(`Amount of messages to be deleted has to be between ${Constants.BULK_DELETE_MESSAGES_MIN} and ${Constants.BULK_DELETE_MESSAGES_MAX}`);
 		// (Current date - (discord epoch + 2 weeks)) * (2**22) weird constant that everybody seems to use
 		const oldestSnowflake = BigInt(Date.now() - 1421280000000) * (BigInt(2) ** BigInt(22));
@@ -576,7 +599,7 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.channel.editChannelPermission("channel id", "user id", { allow: String(1 << 10), type: 1 })
 	 */
-	public async editChannelPermission(channelId: string, permissionId: string, data: RESTPutAPIChannelPermissionJSONBody, reason?: string): Promise<void> {
+	public async editChannelPermission(channelId: string, permissionId: string, data: RESTPutAPIChannelPermissionJSONBody, reason?: string): Promise<RESTPutAPIChannelPermissionResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), {}, "put", "json", data, Constants.reasonHeader(reason));
 	}
 
@@ -622,17 +645,18 @@ class ChannelMethods {
 	 */
 	public async createChannelInvite(channelId: string, data: RESTPostAPIChannelInviteJSONBody & { target_users?: Array<string>; role_ids?: Array<string> } = { max_age: 86400, max_uses: 0, temporary: false, unique: false }, reason?: string): Promise<RESTPostAPIChannelInviteResult> {
 		const targetUsers = data?.target_users;
+		const payload = { ...data };
 
 		if (targetUsers?.length) {
-			delete data.target_users;
+			delete payload.target_users;
 			const form = new FormData();
 
 			await Constants.standardAddToFormHandler(form, "target_users_file", `Users\n${targetUsers.join(",\n")},`, "target_users_file.csv");
-			form.append("payload_json", JSON.stringify(data));
+			form.append("payload_json", JSON.stringify(payload));
 			return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), {}, "post", "multipart", form, Constants.reasonHeader(reason));
 		}
 
-		return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), {}, "post", "json", data, Constants.reasonHeader(reason));
+		return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), {}, "post", "json", payload, Constants.reasonHeader(reason));
 	}
 
 	/**
@@ -655,7 +679,7 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.channel.deleteChannelPermission("channel id", "user id", "Abusing channel")
 	 */
-	public async deleteChannelPermission(channelId: string, permissionId: string, reason?: string): Promise<void> {
+	public async deleteChannelPermission(channelId: string, permissionId: string, reason?: string): Promise<RESTDeleteAPIChannelPermissionResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
 	}
 
@@ -696,9 +720,9 @@ class ChannelMethods {
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.channel.sendChannelTyping("channel id")
+	 * client.channel.startChannelTyping("channel id")
 	 */
-	public async startChannelTyping(channelId: string): Promise<void> {
+	public async startChannelTyping(channelId: string): Promise<RESTPostAPIChannelTypingResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_TYPING(channelId), {}, "post", "json");
 	}
 
@@ -715,7 +739,7 @@ class ChannelMethods {
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * const messages = await client.channel.getPinnedMessages("channel id")
+	 * const messages = await client.channel.getChannelPinnedMessages("channel id")
 	 */
 	public async getChannelPinnedMessages(channelId: string, options?: RESTGetAPIChannelMessagesPinsQuery): Promise<RESTGetAPIChannelMessagesPinsResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_PINS(channelId), options, "get", "json");
@@ -723,7 +747,7 @@ class ChannelMethods {
 
 	/**
 	 * Pin a message within a channel
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
 	 * @param reason Reason for pinning the message
@@ -738,15 +762,15 @@ class ChannelMethods {
 	 * @example
 	 * // Pin a message because it was a good meme
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.channel.addChannelPinnedMessage("channel id", "message id", "Good meme")
+	 * client.channel.createChannelPinnedMessage("channel id", "message id", "Good meme")
 	 */
-	public async addChannelPinnedMessage(channelId: string, messageId: string, reason?: string): Promise<void> {
+	public async createChannelPinnedMessage(channelId: string, messageId: string, reason?: string): Promise<RESTPutAPIChannelMessagesPinResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), {}, "put", "json", {}, Constants.reasonHeader(reason));
 	}
 
 	/**
 	 * Remove a pinned message from a channel
-	 * @since 0.1.0
+	 * @since 0.18.0
 	 * @param channelId Id of the channel
 	 * @param messageId Id of the message
 	 * @param reason Reason for removing the pinned message
@@ -761,9 +785,9 @@ class ChannelMethods {
 	 * @example
 	 * // Remove a pinned message because mod abuse :(
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.channel.removeChannelPinnedMessage("channel id", "message id", "Mod abuse")
+	 * client.channel.deleteChannelPinnedMessage("channel id", "message id", "Mod abuse")
 	 */
-	public async removeChannelPinnedMessage(channelId: string, messageId: string, reason?: string): Promise<void> {
+	public async deleteChannelPinnedMessage(channelId: string, messageId: string, reason?: string): Promise<RESTDeleteAPIChannelMessagesPinResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_PIN(channelId, messageId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
 	}
 
@@ -830,7 +854,7 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.channel.joinThread("thread id")
 	 */
-	public async joinThread(threadId: string): Promise<void> {
+	public async joinThread(threadId: string): Promise<RESTPutAPIChannelThreadMembersResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREAD_MEMBER(threadId, "@me"), {}, "put", "json");
 	}
 
@@ -838,7 +862,7 @@ class ChannelMethods {
 	 * Add a user to a thread
 	 *
 	 * CurrentUser must be a member of the thread
-	 * @since 0.3.0
+	 * @since 0.18.0
 	 * @param threadId Id of the thread
 	 * @param userId Id of the user to add
 	 * @returns Resolves the Promise on successful execution
@@ -850,9 +874,9 @@ class ChannelMethods {
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.channel.addThreadMember("thread id", "user id")
+	 * client.channel.joinThreadMember("thread id", "user id")
 	 */
-	public async addThreadMember(threadId: string, userId: string): Promise<void> {
+	public async joinThreadMember(threadId: string, userId: string): Promise<RESTPutAPIChannelThreadMembersResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREAD_MEMBER(threadId, userId), {}, "put", "json");
 	}
 
@@ -866,13 +890,13 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.channel.leaveThread("thread id")
 	 */
-	public async leaveThread(threadId: string): Promise<void> {
+	public async leaveThread(threadId: string): Promise<RESTDeleteAPIChannelThreadMembersResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREAD_MEMBER(threadId, "@me"), {}, "delete", "json");
 	}
 
 	/**
 	 * Remove a user from a thread
-	 * @since 0.3.0
+	 * @since 0.18.0
 	 * @param threadId Id of the thread
 	 * @param userId Id of the user to remove
 	 * @returns Resolves the Promise on successful execution
@@ -883,9 +907,9 @@ class ChannelMethods {
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
-	 * client.channel.removeThreadMember("thread id", "user id")
+	 * client.channel.deleteThreadMember("thread id", "user id")
 	 */
-	public async removeThreadMember(threadId: string, userId: string): Promise<void> {
+	public async deleteThreadMember(threadId: string, userId: string): Promise<RESTDeleteAPIChannelThreadMembersResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_THREAD_MEMBER(threadId, userId), {}, "delete", "json");
 	}
 
@@ -1069,7 +1093,7 @@ class ChannelMethods {
 	 * // clears the status
 	 * client.channel.setVoiceChannelStatus("channel id", "")
 	 */
-	public async setVoiceChannelStatus(channelId: string, status: string, reason?: string): Promise<void> {
+	public async setVoiceChannelStatus(channelId: string, status: string, reason?: string): Promise<RESTPutAPIChannelVoiceStatusResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_VOICE_STATUS(channelId), {}, "put", "json", { status }, Constants.reasonHeader(reason));
 	}
 

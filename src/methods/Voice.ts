@@ -5,7 +5,7 @@ import type { RequestHandler as RH } from "../RequestHandler";
 import type { RESTGetAPIVoiceRegionsResult, APIVoiceState } from "discord-api-types/v10";
 
 /**
- * Methods for interacting with some voice
+ * Methods for interacting with voice
  * @since 0.1.0
  * @protected
  */
@@ -40,7 +40,7 @@ class VoiceMethods {
 	 * @returns A [voice state](https://discord.com/developers/docs/resources/voice#voice-state-object) object
 	 */
 	public async getCurrentUserVoiceState(guildId: string): Promise<APIVoiceState> {
-		return this.requestHandler.request(Endpoints.USER_GUILD_VOICE_STATE(guildId, "@me"), {}, "get", "json")
+		return this.requestHandler.request(Endpoints.USER_GUILD_VOICE_STATE(guildId, "@me"), {}, "get", "json");
 	}
 
 	/**
@@ -51,7 +51,7 @@ class VoiceMethods {
 	 * @returns A [voice state](https://discord.com/developers/docs/resources/voice#voice-state-object) object
 	 */
 	public async getUserVoiceState(guildId: string, userId: string): Promise<APIVoiceState> {
-		return this.requestHandler.request(Endpoints.USER_GUILD_VOICE_STATE(guildId, userId), {}, "get", "json")
+		return this.requestHandler.request(Endpoints.USER_GUILD_VOICE_STATE(guildId, userId), {}, "get", "json");
 	}
 }
 

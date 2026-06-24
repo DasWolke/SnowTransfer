@@ -1,10 +1,10 @@
 /* eslint-disable no-async-promise-executor */
 
-import fs = require("fs");
-import path = require("path");
-import { EventEmitter } from "events";
-import crypto = require("crypto");
-import util = require("util");
+import fs = require("node:fs");
+import path = require("node:path");
+import { EventEmitter } from "node:events";
+import util = require("node:util");
+import nodeCrypto = require("node:crypto");
 
 import Endpoints = require("./Endpoints");
 const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, "../package.json"), { encoding: "utf8" })); // otherwise, the json was included in the build
@@ -14,7 +14,7 @@ import SM = require("./StateMachine");
 import type { HTTPMethod, RatelimitInfo, RequestEventData, HandlerEvents } from "./Types";
 
 declare global {
-	var snowtransferDebugLogging: boolean
+	var snowtransferDebugLogging: boolean;
 }
 
 // const applicationJSONRegex = /application\/json/;
@@ -37,9 +37,9 @@ export class DiscordAPIError extends Error {
 	public path: string;
 	public code: number;
 	public httpStatus: number;
-	// @ts-expect-error
+	// @ts-expect-error Is assigned by Object.defineProperties
 	public request: RequestEventData;
-	// @ts-expect-error
+	// @ts-expect-error Is assigned by Object.defineProperties
 	public response: Response;
 
 	public constructor(error: { message?: string; code?: number; }, request: RequestEventData, response: Response) {
@@ -143,9 +143,9 @@ export class IntervalCounter implements Counter {
 	public take(): boolean {
 		this.checkReset();
 		if (this.remaining === this.limit) this.firstRequestTime = Date.now();
-		let ok = this.remaining > 0;
+		if (this.remaining <= 0) return false;
 		this.remaining--;
-		return ok;
+		return true;
 	}
 
 	public timeUntilReset(): number {
@@ -156,7 +156,7 @@ export class IntervalCounter implements Counter {
 
 	// update the firstRequestTime to represent the *response* time to avoid getting fucked by slight network latency inconsistencies after a bucket refresh
 	public responseReceived(): void {
-		if (this.remaining === this.limit-1 && this.firstRequestTime) this.firstRequestTime = Date.now()
+		if (this.remaining === this.limit-1 && this.firstRequestTime) this.firstRequestTime = Date.now();
 	}
 
 	public applyCount(limit: number | null, remaining: number, resetAfter: number): void {
@@ -210,7 +210,9 @@ export class LeakyCounter implements Counter {
 	public take(): boolean {
 		this.checkReset();
 		if (globalThis.snowtransferDebugLogging) console.log(`${new Date().toISOString()} [leak] [${this.id}] took: ${this.remaining-1} left`);
-		return this.remaining-- > 0;
+		if (this.remaining <= 0) return false;
+		this.remaining--;
+		return true;
 	}
 
 	public timeUntilReset(): number {
@@ -381,7 +383,7 @@ export class Bucket {
 	 */
 	public resume(): void {
 		this.pauseRequested = false;
-		if (this.sm.currentStateName !== "paused") return
+		if (this.sm.currentStateName !== "paused") return;
 		this.sm.doTransition("resume");
 	}
 
@@ -480,22 +482,25 @@ export class Ratelimiter {
 	}
 }
 
-export namespace RequestHandler {
-	export type Options = {
-		/** The base URL to use when making requests. Defaults to https://discord.com */
-		baseHost: string;
-		/** The base path of the base URL to use for the API. Defaults to /api/v${Constants.REST_API_VERSION} */
-		baseURL: string;
-		/** If rate limit buckets should be ignored */
-		bypassBuckets: boolean;
-		/** If failed requests that can be retried should be retried, up to retryLimit times. */
-		retryFailed: boolean;
-		/** How many times requests should be retried if they fail and can be retried. */
-		retryLimit: number;
-		headers: { Authorization?: string; "User-Agent": string; },
-		fetch: typeof fetch
-	}
+export type RequestHandlerOptions = {
+	/** The base URL to use when making requests. Defaults to https://discord.com */
+	baseHost: string;
+	/** The base path of the base URL to use for the API. Defaults to /api/v${Constants.REST_API_VERSION} */
+	baseURL: string;
+	/** If rate limit buckets should be ignored */
+	bypassBuckets: boolean;
+	/** If failed requests that can be retried should be retried, up to retryLimit times. */
+	retryFailed: boolean;
+	/** How many times requests should be retried if they fail and can be retried. */
+	retryLimit: number;
+	headers: {
+		Authorization?: string;
+		"User-Agent": string;
+		[header: string]: string | undefined;
+	},
+	fetch: typeof fetch
 }
+
 
 /**
  * Request Handler class
@@ -503,7 +508,7 @@ export namespace RequestHandler {
  * @protected
  */
 export class RequestHandler extends EventEmitter<HandlerEvents> {
-	public options: RequestHandler.Options;
+	public options: RequestHandlerOptions;
 	public latency: number;
 	public apiURL: string;
 
@@ -512,7 +517,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 	 * @param ratelimiter ratelimiter to use for ratelimiting requests
 	 * @param options options
 	 */
-	public constructor(public ratelimiter: Ratelimiter, options?: { token?: string; } & Partial<Omit<RequestHandler.Options, "headers">>) {
+	public constructor(public ratelimiter: Ratelimiter, options?: { token?: string; } & Partial<Omit<RequestHandlerOptions, "headers">>) {
 		super();
 
 		this.options = {
@@ -552,7 +557,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 		const stack = new Error().stack as string;
 		return new Promise(async (resolve, reject) => {
 			const fn = async (bkt?: Bucket | undefined) => {
-				const reqId = crypto.randomBytes(20).toString("hex");
+				const reqId = nodeCrypto.randomBytes(20).toString("hex");
 				try {
 					const request = { endpoint, method: method.toUpperCase(), dataType, data: data ?? {} };
 					this.emit("request", reqId, request);
@@ -578,7 +583,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 					if (bkt) this._applyRatelimitHeaders(bkt, response.headers);
 
 					if (response.status && !Constants.OK_STATUS_CODES.has(response.status) && response.status !== 429) {
-						if (this.options.retryFailed && !Constants.DO_NOT_RETRY_STATUS_CODES.has(response.status) && retries !== 0) return this.request(endpoint, params, method, dataType, data, extraHeaders, retries--).then(resolve).catch(reject);
+						if (this.options.retryFailed && !Constants.DO_NOT_RETRY_STATUS_CODES.has(response.status) && retries !== 0) return this.request(endpoint, params, method, dataType, data, extraHeaders, retries - 1).then(resolve).catch(reject);
 						throw new DiscordAPIError({ message: await response.text() }, request, response);
 					}
 
@@ -653,7 +658,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 	 * @returns Result of the request
 	 */
 	private async _request(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data?: any, extraHeaders?: Record<string, string>): Promise<Response> {
-		const headers: Record<string, string> = { ...this.options.headers, ...extraHeaders };
+		const headers = { ...this.options.headers, ...extraHeaders } as Record<string, string>;
 
 		let body: string | undefined = undefined;
 		if (!disallowedBodyMethods.has(method)) {
@@ -680,7 +685,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 	 * @returns Result of the request
 	 */
 	private async _multiPartRequest(endpoint: string, params: Record<string, any> = {}, method: HTTPMethod, data: FormData, extraHeaders?: Record<string, string>): Promise<Response> {
-		const headers = { ...this.options.headers, ...extraHeaders };
+		const headers = { ...this.options.headers, ...extraHeaders } as Record<string, string>;
 
 		return this.options.fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
 			method: method.toUpperCase(),

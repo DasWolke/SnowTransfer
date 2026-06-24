@@ -5,14 +5,14 @@ import Endpoints = require("../Endpoints");
 import type {
 	RESTGetAPIEntitlementsResult,
 	RESTGetAPIEntitlementResult,
-//	RESTPostAPIEntitlementConsumeResult,
+	RESTPostAPIEntitlementConsumeResult,
 	RESTPostAPIEntitlementJSONBody,
 	RESTPostAPIEntitlementResult,
-//	RESTDeleteAPIEntitlementResult
+	RESTDeleteAPIEntitlementResult
 } from "discord-api-types/v10";
 
 /**
- * Methods for interacting with Entitelements
+ * Methods for interacting with Entitlements
  * @since 0.13.0
  * @protected
  */
@@ -70,7 +70,7 @@ class EntitlementMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.entitlement.consumeEntitlement("app id", "entitlement id")
 	 */
-	public async consumeEntitlement(appId: string, entitlementId: string): Promise<void> {
+	public async consumeEntitlement(appId: string, entitlementId: string): Promise<RESTPostAPIEntitlementConsumeResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_ENTITLEMENT_CONSUME(appId, entitlementId), {}, "post", "json");
 	}
 
@@ -106,7 +106,7 @@ class EntitlementMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * client.entitlement.deleteTestEntitlement("app id", "entitlement id")
 	 */
-	public async deleteTestEntitlement(appId: string, entitlementId: string): Promise<void> {
+	public async deleteTestEntitlement(appId: string, entitlementId: string): Promise<RESTDeleteAPIEntitlementResult> {
 		return this.requestHandler.request(Endpoints.APPLICATION_ENTITLEMENT(appId, entitlementId), {}, "delete", "json");
 	}
 }
