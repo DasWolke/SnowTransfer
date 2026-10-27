@@ -93,6 +93,19 @@ test("rawResponse is preserved across retries", async () => {
 	assert.ok(result instanceof Response, "expected the raw Response object after a retry");
 });
 
+test("a request that fails without a response doesn't deadlock the bucket", { timeout: 2000 }, async () => {
+	const { handler, callCount } = makeHandler((url, init, call) => {
+		if (call === 1) throw new TypeError("fetch failed");
+		return apiResponse(200, { ok: true });
+	});
+
+	await assert.rejects(handler.request("/channels/123/messages", {}, "get", "json"), TypeError);
+	// No headers ever came back to refill the counter, so this used to hang forever with the bucket always in cooldown
+	const again = await handler.request("/channels/123/messages", {}, "get", "json");
+	assert.deepEqual(again, { ok: true });
+	assert.equal(callCount(), 2);
+});
+
 test("a 429 is retried after the bucket cooldown when retryFailed is set", async () => {
 	const { handler, callCount } = makeHandler(
 		(url, init, call) => call === 1

@@ -115,6 +115,28 @@ test("file factories are invoked per materialization, letting payloads with stre
 	assert.equal(await part2.text(), "stream 2", "each materialization must consume a fresh stream");
 });
 
+test("path params are encoded exactly once, pre-encoded input still works, and dot segments are rejected", async () => {
+	const { client, requests } = makeClient();
+
+	await client.channel.createReaction("1", "2", "😀");
+	await client.channel.createReaction("1", "2", encodeURIComponent("😀"));
+	assert.equal(requests[0].url, "https://discord.com/api/v10/channels/1/messages/2/reactions/%F0%9F%98%80/@me");
+	assert.equal(requests[1].url, requests[0].url);
+
+	await assert.rejects(client.guild.deleteGuildMemberRole("1", "..", "2"));
+	await assert.rejects(client.guild.deleteGuildMemberRole("1", "%2E%2E", "2"));
+	// Discord decodes %2F into a real slash (since we encode path segments), so this kick would turn into removing role 456 from member 123
+	await assert.rejects(client.guild.deleteGuildMember("1", "123/roles/456"));
+	await assert.rejects(client.guild.deleteGuildMember("1", "123%2Froles%2F456"));
+	assert.equal(requests.length, 2);
+});
+
+test("audit log reasons are URL encoded so non latin1 text doesn't make fetch throw", async () => {
+	const { client, requests } = makeClient();
+	await client.guild.createGuildBan("1", "2", {}, "スパム 100%");
+	assert.equal(new Headers(requests[0].init?.headers).get("X-Audit-Log-Reason"), "%E3%82%B9%E3%83%91%E3%83%A0%20100%25");
+});
+
 // ---------------------------------------------------------------------------
 // Client-side validation (throws before any network call)
 // ---------------------------------------------------------------------------

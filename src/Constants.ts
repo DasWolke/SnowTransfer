@@ -73,7 +73,7 @@ const Constants = {
 		else throw new Error(`Don't know how to add ${value?.constructor?.name ?? typeof value} to form`);
 	},
 	reasonHeader(reason?: string): { "X-Audit-Log-Reason"?: string } {
-		return reason ? { "X-Audit-Log-Reason": reason } : {};
+		return reason ? { "X-Audit-Log-Reason": encodeURIComponent(reason) } : {};
 	},
 	/**
 	 * Generates a waveform from mono PCM samples

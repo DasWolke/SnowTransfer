@@ -93,7 +93,7 @@ class UserMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const guilds = await client.user.getGuilds()
 	 */
-	public async getGuilds(options?: RESTGetAPICurrentUserGuildsQuery): Promise<RESTGetAPICurrentUserGuildsResult> {
+	public async getGuilds(options?: RESTGetAPICurrentUserGuildsQuery & { shard?: number }): Promise<RESTGetAPICurrentUserGuildsResult> {
 		return this.requestHandler.request(Endpoints.USER_GUILDS("@me"), options ?? {}, "get", "json");
 	}
 

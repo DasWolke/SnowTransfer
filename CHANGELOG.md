@@ -1,3 +1,11 @@
+# 0.19.1
+Security, bug fixes and route changes
+- Audit log reasons are now URL encoded. Reasons with non latin1 characters (Japanese, emoji, etc) should work now. Sorry about that.
+- Fixed a request that failed without getting a response (ECONNRESET, DNS failure, etc) permanently deadlocking its route's rate limit bucket, which also kept the process from exiting.
+- Fixed every Ratelimiter being kept alive forever by its hourly bucket sweep.
+- Changed ChannelMethods#createChannelInvite target_users uploading a csv with the now officially supported target_user_ids JSON body property. The old target_users value SnowTransfer stubbed in for convenience will still be supported for now, but is deprecated and will be removed in a later release.
+- Added support for the shard query param in UserMethods#getGuilds which is now required for large bots.
+
 # 0.19.0
 Idk why I didn't make 0.18.1 this version number. Anyways, the StateMachine now queues doTransition calls so that ones pushed on the same tick dont go in a confusing order.
 i.e. doTransition from inside of a transition callback.

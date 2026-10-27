@@ -120,4 +120,21 @@ const Endpoints = {
 	WEBHOOK_TOKEN_SLACK: (hookId: string, token: string) => `${Endpoints.WEBHOOK_TOKEN(hookId, token)}/slack` as `${ReturnType<typeof Endpoints.WEBHOOK_TOKEN>}/slack`,
 };
 
-export = Endpoints;
+const bannedSegments = new Set(["", ".", ".."]);
+
+function encodeSegment(segment: string): string {
+	// keep pre-encoded input working
+	const decoded = decodeURIComponent(segment);
+	if (bannedSegments.has(decoded) || decoded.includes("/")) throw new Error(`"${segment}" is not a valid path segment`);
+	return encodeURIComponent(decoded)
+		.replaceAll("%40", "@"); // retain @me / @original / others
+}
+
+const Escaped = { ...Endpoints };
+for (const [key, fn] of Object.entries(Endpoints)) {
+	if (typeof fn !== "function") continue;
+	// @ts-expect-error
+	Escaped[key] = (...args: string[]) => fn(...args.map(encodeSegment));
+}
+
+export = Escaped;

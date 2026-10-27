@@ -418,10 +418,13 @@ export class Ratelimiter {
 	}
 
 	public constructor() {
-		setInterval(() => {
-			for (const [key, value] of this.buckets.entries()) {
+		const ref = new WeakRef(this);
+		const sweep = setInterval(() => {
+			const self = ref.deref();
+			if (!self) return clearInterval(sweep);
+			for (const [key, value] of self.buckets.entries()) {
 				const counter = value.counters[0];
-				if (value.sm.currentStateName === "ready" && value.calls.length === 0 && counter.hasReset()) this.buckets.delete(key);
+				if (value.sm.currentStateName === "ready" && value.calls.length === 0 && counter.hasReset()) self.buckets.delete(key);
 			}
 		}, 1*60*60*1000).unref();
 	}
@@ -556,13 +559,13 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 		return new Promise(async (resolve, reject) => {
 			const fn = async (bkt?: Bucket | undefined) => {
 				const reqId = nodeCrypto.randomBytes(20).toString("hex");
+				let response: Response | undefined;
 				try {
 					const request = { endpoint, method: method.toUpperCase(), dataType, data: data ?? {} };
 					this.emit("request", reqId, request);
 
 					const before = Date.now();
 
-					let response: Response;
 					switch (dataType) {
 					case "json":
 						response = await this._request(endpoint, params, method, data, extraHeaders);
@@ -614,6 +617,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 						return resolve(b);
 					} else return resolve(undefined);
 				} catch (error: any) {
+					if (bkt && !response) this._applyRatelimitHeaders(bkt, new Headers());
 					if (error?.stack) error.stack = error.stack + `\n${stack.split("\n").slice(1).join("\n")}`;
 					this.emit("requestError", reqId, error);
 					return reject(error as Error);

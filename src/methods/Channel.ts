@@ -646,18 +646,10 @@ class ChannelMethods {
 	 * const client = new SnowTransfer("TOKEN")
 	 * const invite = await client.channel.createChannelInvite("channel id", { max_age: 0, max_uses: 0, unique: true })
 	 */
-	public async createChannelInvite(channelId: string, data?: RESTPostAPIChannelInviteJSONBody & { target_users?: Array<string>; role_ids?: Array<string> }, reason?: string): Promise<RESTPostAPIChannelInviteResult> {
+	public async createChannelInvite(channelId: string, data?: RESTPostAPIChannelInviteJSONBody & { target_users?: Array<string>; target_user_ids?: Array<string>; }, reason?: string): Promise<RESTPostAPIChannelInviteResult> {
 		const payload: Exclude<typeof data, undefined> = { max_age: 86400, max_uses: 0, temporary: false, unique: false, ...data };
-		const targetUsers = payload?.target_users;
-
-		if (targetUsers?.length) {
-			delete payload.target_users;
-			const form = new FormData();
-
-			await Constants.standardAddToFormHandler(form, "target_users_file", `Users\n${targetUsers.join(",\n")},`, "target_users_file.csv");
-			form.append("payload_json", JSON.stringify(payload));
-			return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), {}, "post", "multipart", form, Constants.reasonHeader(reason));
-		}
+		if (payload.target_users && !payload.target_user_ids) payload.target_user_ids = payload.target_users;
+		delete payload.target_users;
 
 		return this.requestHandler.request(Endpoints.CHANNEL_INVITES(channelId), {}, "post", "json", payload, Constants.reasonHeader(reason));
 	}
