@@ -37,6 +37,10 @@ class GuildScheduledEventMethods {
 	 * @param withCounts Include number of users subscribed to each event
 	 * @returns An array of [guild scheduled events](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-structure)
 	 *
+	 * | Permissions needed | Condition                                 |
+	 * |--------------------|-------------------------------------------|
+	 * | VIEW_CHANNEL       | if entity_type is STAGE_INSTANCE or VOICE |
+	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
 	 * const events = await client.guildScheduledEvent.listGuildScheduledEvents(guildId)
@@ -55,12 +59,12 @@ class GuildScheduledEventMethods {
 	 *
 	 * | Permissions needed | Condition                        |
 	 * |--------------------|----------------------------------|
-	 * | MANAGE_EVENTS      | always                           |
-	 * | MANAGE_CHANNELS    | If entity_type is STAGE_INSTANCE |
-	 * | MUTE_MEMBERS       | If entity_type is STAGE_INSTANCE |
-	 * | MOVE_MEMBERS       | If entity_type is STAGE_INSTANCE |
-	 * | VIEW_CHANNEL       | If entity_type is VOICE          |
-	 * | CONNECT            | If entity_type is VOICE          |
+	 * | CREATE_EVENTS      | always                           |
+	 * | MANAGE_CHANNELS    | if entity_type is STAGE_INSTANCE |
+	 * | MUTE_MEMBERS       | if entity_type is STAGE_INSTANCE |
+	 * | MOVE_MEMBERS       | if entity_type is STAGE_INSTANCE |
+	 * | VIEW_CHANNEL       | if entity_type is VOICE          |
+	 * | CONNECT            | if entity_type is VOICE          |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -105,14 +109,15 @@ class GuildScheduledEventMethods {
 	 * @param reason Reason for editing the scheduled event
 	 * @returns A [scheduled event](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-structure)
 	 *
-	 * | Permissions needed | Condition                        |
-	 * |--------------------|----------------------------------|
-	 * | MANAGE_EVENTS      | always                           |
-	 * | MANAGE_CHANNELS    | If entity_type is STAGE_INSTANCE |
-	 * | MUTE_MEMBERS       | If entity_type is STAGE_INSTANCE |
-	 * | MOVE_MEMBERS       | If entity_type is STAGE_INSTANCE |
-	 * | VIEW_CHANNEL       | If entity_type is VOICE          |
-	 * | CONNECT            | If entity_type is VOICE          |
+	 * | Permissions needed             | Condition                                  |
+	 * |--------------------------------|--------------------------------------------|
+	 * | CREATE_EVENTS or MANAGE_EVENTS | if the event was created by CurrentUser    |
+	 * | MANAGE_EVENTS                  | if the event wasn't created by CurrentUser |
+	 * | MANAGE_CHANNELS                | if entity_type is STAGE_INSTANCE           |
+	 * | MUTE_MEMBERS                   | if entity_type is STAGE_INSTANCE           |
+	 * | MOVE_MEMBERS                   | if entity_type is STAGE_INSTANCE           |
+	 * | VIEW_CHANNEL                   | if entity_type is VOICE                    |
+	 * | CONNECT                        | if entity_type is VOICE                    |
 	 *
 	 * @example
 	 * // Updates a scheduled event to be an external event that will take place in Brazil and end in 2025
@@ -130,14 +135,15 @@ class GuildScheduledEventMethods {
 	 * @param eventId The Id of the event
 	 * @returns Resolves the promise on successful execution
 	 *
-	 * | Permissions needed | Condition                        |
-	 * |--------------------|----------------------------------|
-	 * | MANAGE_EVENTS      | always                           |
-	 * | MANAGE_CHANNELS    | If entity_type is STAGE_INSTANCE |
-	 * | MUTE_MEMBERS       | If entity_type is STAGE_INSTANCE |
-	 * | MOVE_MEMBERS       | If entity_type is STAGE_INSTANCE |
-	 * | VIEW_CHANNEL       | If entity_type is VOICE          |
-	 * | CONNECT            | If entity_type is VOICE          |
+	 * | Permissions needed             | Condition                                  |
+	 * |--------------------------------|--------------------------------------------|
+	 * | CREATE_EVENTS or MANAGE_EVENTS | if the event was created by CurrentUser    |
+	 * | MANAGE_EVENTS                  | if the event wasn't created by CurrentUser |
+	 * | MANAGE_CHANNELS                | if entity_type is STAGE_INSTANCE           |
+	 * | MUTE_MEMBERS                   | if entity_type is STAGE_INSTANCE           |
+	 * | MOVE_MEMBERS                   | if entity_type is STAGE_INSTANCE           |
+	 * | VIEW_CHANNEL                   | if entity_type is VOICE                    |
+	 * | CONNECT                        | if entity_type is VOICE                    |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")

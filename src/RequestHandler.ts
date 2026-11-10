@@ -238,7 +238,7 @@ export class Bucket {
 	/** Tracks the state this bucket is in (blocked, running, waiting, etc) and what operations are allowed. */
 	public readonly sm = new SM("ready");
 	/** Wrapped functions which always resolve (not reject) after the original function has completed and resolved. The original function may manipulate rate limit buckets in that time before it resolves. */
-	public readonly calls: Array<() => any> = [];
+	public readonly calls: Array<(drop?: boolean) => any> = [];
 	/** The backing counters of the bucket that determine how many functions can be consumed in a timeframe. */
 	public readonly counters: Array<Counter> = [];
 
@@ -360,7 +360,8 @@ export class Bucket {
 	 */
 	public enqueue<T>(fn: (bkt: this) => Promise<T>): Promise<T> {
 		return new Promise((resolve, reject) => {
-			this.calls.push(() => {
+			this.calls.push((drop?: boolean) => {
+				if (drop) return reject(new Error("Bucket queue was dropped"));
 				return fn(this).then(resolve).catch(reject);
 			});
 
@@ -392,7 +393,9 @@ export class Bucket {
 	 * @since 0.1.0
 	 */
 	public dropQueue(): void {
-		this.calls.length = 0;
+		for (const call of this.calls.splice(0)) {
+			call(true);
+		}
 	}
 }
 
@@ -584,7 +587,10 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 					if (bkt) this._applyRatelimitHeaders(bkt, response.headers);
 
 					if (response.status && !Constants.OK_STATUS_CODES.has(response.status) && response.status !== 429) {
-						if (this.options.retryFailed && !Constants.DO_NOT_RETRY_STATUS_CODES.has(response.status) && retries !== 0) return resolve(this.request(endpoint, params, method, dataType, data, extraHeaders, retries - 1, rawResponse ? true : undefined));
+						if (this.options.retryFailed && !Constants.DO_NOT_RETRY_STATUS_CODES.has(response.status) && retries !== 0) {
+							await response.body?.cancel();
+							return resolve(this.request(endpoint, params, method, dataType, data, extraHeaders, retries - 1, rawResponse ? true : undefined));
+						}
 						throw new DiscordAPIError(parseErrorBody(await response.text()), request, response);
 					}
 
@@ -641,14 +647,12 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 		const resetAfter = headers.get("x-ratelimit-reset-after");
 		const isGlobal = headers.get("x-ratelimit-global");
 
-		if (remaining === null && !bkt.counters[0].canTake() && !isGlobal) {
-			// have to reset it now, or it'll never reset again
-			bkt.counters[0].applyCount(null, 1, 0);
-		}
-
 		if (remaining && limit && resetAfter && !isGlobal) {
 			bkt.counters[0].applyCount(Number.parseInt(limit), Number.parseInt(remaining), Number.parseFloat(resetAfter) * 1000);
 		}
+
+		// Global 429s and partial headers leave nothing to refill the route counter, so it'd never reset again
+		if (!bkt.counters[0].canTake() && bkt.counters[0].timeUntilReset() === 0) bkt.counters[0].applyCount(null, 1, 0);
 	}
 
 	/**

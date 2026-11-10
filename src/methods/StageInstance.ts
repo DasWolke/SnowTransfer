@@ -34,11 +34,12 @@ class StageInstanceMethods {
 	 * @param reason Reason for creating the stage instance
 	 * @returns a [stage instance](https://discord.com/developers/docs/resources/stage-instance#auto-closing-stage-instance-structure) object
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_CHANNELS    | always    |
-	 * | MUTE_MEMBERS       | always    |
-	 * | MOVE_MEMBERS       | always    |
+	 * | Permissions needed | Condition                          |
+	 * |--------------------|------------------------------------|
+	 * | MANAGE_CHANNELS    | always                             |
+	 * | MUTE_MEMBERS       | always                             |
+	 * | MOVE_MEMBERS       | always                             |
+	 * | MENTION_EVERYONE   | if send_start_notification is true |
 	 *
 	 * @example
 	 * // Create a new stage instance for channel id and the topic "This My House"

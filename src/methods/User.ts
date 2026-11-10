@@ -89,6 +89,10 @@ class UserMethods {
 	 * @param options Options for getting guilds
 	 * @returns Array of [partial guild objects](https://discord.com/developers/docs/resources/guild#guild-object)
 	 *
+	 * | OAUTH2 Scopes | Condition |
+	 * |---------------|-----------|
+	 * | guilds        | always    |
+	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
 	 * const guilds = await client.user.getGuilds()

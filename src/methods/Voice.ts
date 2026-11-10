@@ -48,6 +48,10 @@ class VoiceMethods {
 	 * @param guildId Id of the guild
 	 * @param userId Id of the user
 	 * @returns A [voice state](https://discord.com/developers/docs/resources/voice#voice-state-object) object
+	 *
+	 * | Permissions needed | Condition                         |
+	 * |--------------------|-----------------------------------|
+	 * | CONNECT            | if the user is in a voice channel |
 	 */
 	public async getUserVoiceState(guildId: string, userId: string): Promise<APIVoiceState> {
 		return this.requestHandler.request(Endpoints.USER_GUILD_VOICE_STATE(guildId, userId), {}, "get", "json");

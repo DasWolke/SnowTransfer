@@ -26,6 +26,7 @@ async function getOauth2Token(clientId: string, redirectURI: string, clientSecre
 			redirect_uri: redirectURI
 		})
 	});
+	if (!response.ok) throw new Error(`Failed to get oauth2 token (${response.status}): ${await response.text()}`);
 	return response.json() as Promise<RESTPostOAuth2AccessTokenResult>;
 }
 

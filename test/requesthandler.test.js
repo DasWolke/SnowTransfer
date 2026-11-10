@@ -155,6 +155,24 @@ test("a global 429 blocks requests to other routes until it expires", async () =
 	assert.ok(elapsed >= 45, `second route should have waited for the global reset, only waited ${elapsed}ms`);
 });
 
+test("a global 429 without route headers does not wedge its own route", { timeout: 2000 }, async () => {
+	// Shape from Discord's docs: global responses carry no x-ratelimit-limit/remaining/reset-after
+	const { handler, callCount } = makeHandler(
+		(url, init, call) => call === 1
+			? new Response(JSON.stringify({ message: "You are being rate limited.", retry_after: 0.05, global: true }), {
+				status: 429,
+				headers: { "content-type": "application/json", "retry-after": "1", "x-ratelimit-global": "true", "x-ratelimit-scope": "global" }
+			})
+			: apiResponse(200, { ok: true }),
+		{ retryFailed: true, retryLimit: 3 }
+	);
+
+	const result = await handler.request("/channels/111/messages", {}, "get", "json");
+	assert.deepEqual(result, { ok: true });
+	assert.deepEqual(await handler.request("/channels/111/messages", {}, "get", "json"), { ok: true });
+	assert.equal(callCount(), 3);
+});
+
 test("cooldown only waits for exhausted counters, not the global counter's full window", async () => {
 	const { handler, callCount } = makeHandler(
 		() => apiResponse(200, { ok: true }, { "x-ratelimit-remaining": "0", "x-ratelimit-reset-after": "0.03" })
@@ -295,4 +313,18 @@ test("a paused bucket holds queued calls and resume releases them", async () => 
 	bucket.resume();
 	assert.equal(await done, "value");
 	assert.equal(ran, true);
+});
+
+test("dropQueue rejects the calls it drops instead of leaving them pending", { timeout: 2000 }, async () => {
+	const bucket = new Bucket([new LeakyCounter(5)]);
+	bucket.pause();
+
+	let ran = false;
+	const done = bucket.enqueue(async () => {
+		ran = true;
+	});
+
+	bucket.dropQueue();
+	await assert.rejects(done, /dropped/);
+	assert.equal(ran, false);
 });

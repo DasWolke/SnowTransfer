@@ -27,11 +27,21 @@ import type {
 	RESTPostAPIApplicationEmojiJSONBody,
 	RESTPatchAPIApplicationEmojiJSONBody,
 	RESTPatchAPIApplicationEmojiResult,
-	RESTDeleteAPIApplicationEmojiResult
+	RESTDeleteAPIApplicationEmojiResult,
+	RESTDeleteAPIGuildSoundboardSoundResult,
+	RESTGetAPIGuildSoundboardSoundResult,
+	RESTGetAPIGuildSoundboardSoundsResult,
+	RESTGetAPISoundboardDefaultSoundsResult,
+	RESTGetAPIStickerPackResult,
+	RESTGetStickerPacksResult,
+	RESTPatchAPIGuildSoundboardSoundJSONBody,
+	RESTPatchAPIGuildSoundboardSoundResult,
+	RESTPostAPIGuildSoundboardSoundJSONBody,
+	RESTPostAPIGuildSoundboardSoundResult
 } from "discord-api-types/v10";
 
 /**
- * Methods for interacting with assets like emojis and stickers for a guild/app
+ * Methods for interacting with assets like emojis, stickers and soundboard sounds for a guild/app
  * @since 0.13.0
  */
 class AssetsMethods {
@@ -51,6 +61,10 @@ class AssetsMethods {
 	 * @param guildId Id of the guild
 	 * @returns Array of [emoji objects](https://discord.com/developers/docs/resources/emoji#emoji-object)
 	 *
+	 * | Permissions needed                                   | Condition                                   |
+	 * |------------------------------------------------------|---------------------------------------------|
+	 * | CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS | if the CurrentUser desires the `user` field |
+	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
 	 * const emojis = await client.assets.getGuildEmojis("guild id")
@@ -65,6 +79,11 @@ class AssetsMethods {
 	 * @param guildId Id of the guild
 	 * @param emojiId Id of the emoji
 	 * @returns [Emoji object](https://discord.com/developers/docs/resources/emoji#emoji-object)
+	 *
+	 * | Permissions needed       | Condition                                                         |
+	 * |--------------------------|-------------------------------------------------------------------|
+	 * | MANAGE_GUILD_EXPRESSIONS | if the CurrentUser desires the `user` field                       |
+	 * | CREATE_GUILD_EXPRESSIONS | if the CurrentUser desires the `user` field and created the emoji |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -82,9 +101,9 @@ class AssetsMethods {
 	 * @param reason Reason for creating the emoji
 	 * @returns [Emoji object](https://discord.com/developers/docs/resources/emoji#emoji-object)
 	 *
-	 * | Permissions needed         | Condition |
-	 * |----------------------------|-----------|
-	 * | MANAGE_EMOJIS_AND_STICKERS | always    |
+	 * | Permissions needed       | Condition |
+	 * |--------------------------|-----------|
+	 * | CREATE_GUILD_EXPRESSIONS | always    |
 	 *
 	 * @example
 	 * // upload a simple png emoji with a name of "niceEmoji"
@@ -109,9 +128,10 @@ class AssetsMethods {
 	 * @param reason Reason for updating the emoji
 	 * @returns [Emoji object](https://discord.com/developers/docs/resources/emoji#emoji-object)
 	 *
-	 * | Permissions needed         | Condition |
-	 * |----------------------------|-----------|
-	 * | MANAGE_EMOJIS_AND_STICKERS | always    |
+	 * | Permissions needed                                   | Condition                                  |
+	 * |------------------------------------------------------|--------------------------------------------|
+	 * | CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS | if the emoji was created by CurrentUser    |
+	 * | MANAGE_GUILD_EXPRESSIONS                             | if the emoji wasn't created by CurrentUser |
 	 *
 	 * @example
 	 * // Change the name of an existing emoji to "niceEmote"
@@ -133,9 +153,10 @@ class AssetsMethods {
 	 * @param reason Reason for deleting the emoji
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed         | Condition |
-	 * |----------------------------|-----------|
-	 * | MANAGE_EMOJIS_AND_STICKERS | always    |
+	 * | Permissions needed                                   | Condition                                  |
+	 * |------------------------------------------------------|--------------------------------------------|
+	 * | CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS | if the emoji was created by CurrentUser    |
+	 * | MANAGE_GUILD_EXPRESSIONS                             | if the emoji wasn't created by CurrentUser |
 	 *
 	 * @example
 	 * // Deletes an emoji because it wasn't nice
@@ -166,9 +187,9 @@ class AssetsMethods {
 	 * @param guildId Id of the guild
 	 * @returns An Array of [sticker objects](https://discord.com/developers/docs/resources/sticker#sticker-object)
 	 *
-	 * | Permissions needed         | Condition                                   |
-	 * |----------------------------|---------------------------------------------|
-	 * | MANAGE_EMOJIS_AND_STICKERS | if the CurrentUser desires the `user` field |
+	 * | Permissions needed                                   | Condition                                   |
+	 * |------------------------------------------------------|---------------------------------------------|
+	 * | CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS | if the CurrentUser desires the `user` field |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -185,9 +206,9 @@ class AssetsMethods {
 	 * @param stickerId Id of the sticker
 	 * @returns A [sticker object](https://discord.com/developers/docs/resources/sticker#sticker-object)
 	 *
-	 * | Permissions needed         | Condition                                   |
-	 * |----------------------------|---------------------------------------------|
-	 * | MANAGE_EMOJIS_AND_STICKERS | if the CurrentUser desires the `user` field |
+	 * | Permissions needed                                   | Condition                                   |
+	 * |------------------------------------------------------|---------------------------------------------|
+	 * | CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS | if the CurrentUser desires the `user` field |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -205,9 +226,9 @@ class AssetsMethods {
 	 * @param reason Reason for creating the sticker
 	 * @returns A [sticker object](https://discord.com/developers/docs/resources/sticker#sticker-object)
 	 *
-	 * | Permissions needed          | Condition                                       |
-	 * |-----------------------------|-------------------------------------------------|
-	 * | MANAGE_EMOJIS_AND_STICKERS  | always                                          |
+	 * | Permissions needed       | Condition |
+	 * |--------------------------|-----------|
+	 * | CREATE_GUILD_EXPRESSIONS | always    |
 	 *
 	 * | Guild Features needed | Condition                                       |
 	 * |-----------------------|-------------------------------------------------|
@@ -244,9 +265,10 @@ class AssetsMethods {
 	 * @param reason Reason for updating the sticker
 	 * @returns A [sticker object](https://discord.com/developers/docs/resources/sticker#sticker-object)
 	 *
-	 * | Permissions needed         | Condition |
-	 * |----------------------------|-----------|
-	 * | MANAGE_EMOJIS_AND_STICKERS | always    |
+	 * | Permissions needed                                   | Condition                                    |
+	 * |------------------------------------------------------|----------------------------------------------|
+	 * | CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS | if the sticker was created by CurrentUser    |
+	 * | MANAGE_GUILD_EXPRESSIONS                             | if the sticker wasn't created by CurrentUser |
 	 *
 	 * @example
 	 * // Updates a sticker's name to "nicerSticker"
@@ -265,9 +287,10 @@ class AssetsMethods {
 	 * @param reason Reason for deleting the sticker
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed         | Condition |
-	 * |----------------------------|-----------|
-	 * | MANAGE_EMOJIS_AND_STICKERS | always    |
+	 * | Permissions needed                                   | Condition                                    |
+	 * |------------------------------------------------------|----------------------------------------------|
+	 * | CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS | if the sticker was created by CurrentUser    |
+	 * | MANAGE_GUILD_EXPRESSIONS                             | if the sticker wasn't created by CurrentUser |
 	 *
 	 * @example
 	 * // Deletes a sticker because it was too nice
@@ -276,6 +299,152 @@ class AssetsMethods {
 	 */
 	public async deleteGuildSticker(guildId: string, stickerId: string, reason?: string): Promise<RESTDeleteAPIGuildStickerResult> {
 		return this.requestHandler.request(Endpoints.GUILD_STICKER(guildId, stickerId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
+	}
+
+	/**
+	 * Get all sticker packs available to Nitro users
+	 * @since 0.20.0
+	 * @returns An object with a sticker_packs Array of [sticker pack objects](https://docs.discord.com/developers/resources/sticker#sticker-pack-object)
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const { sticker_packs } = await client.assets.getStickerPacks()
+	 */
+	public async getStickerPacks(): Promise<RESTGetStickerPacksResult> {
+		return this.requestHandler.request(Endpoints.STICKER_PACKS, {}, "get", "json");
+	}
+
+	/**
+	 * Get a sticker pack
+	 * @since 0.20.0
+	 * @param packId Id of the sticker pack
+	 * @returns A [sticker pack object](https://docs.discord.com/developers/resources/sticker#sticker-pack-object)
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const pack = await client.assets.getStickerPack("pack id")
+	 */
+	public async getStickerPack(packId: string): Promise<RESTGetAPIStickerPackResult> {
+		return this.requestHandler.request(Endpoints.STICKER_PACK(packId), {}, "get", "json");
+	}
+
+	/**
+	 * Get the soundboard sounds every user can use
+	 * @since 0.20.0
+	 * @returns An Array of [soundboard sound objects](https://docs.discord.com/developers/resources/soundboard#soundboard-sound-object)
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const sounds = await client.assets.getDefaultSoundboardSounds()
+	 */
+	public async getDefaultSoundboardSounds(): Promise<RESTGetAPISoundboardDefaultSoundsResult> {
+		return this.requestHandler.request(Endpoints.SOUNDBOARD_DEFAULT_SOUNDS, {}, "get", "json");
+	}
+
+	/**
+	 * Get all soundboard sounds of a guild
+	 * @since 0.20.0
+	 * @param guildId Id of the guild
+	 * @returns An object with an items Array of [soundboard sound objects](https://docs.discord.com/developers/resources/soundboard#soundboard-sound-object)
+	 *
+	 * | Permissions needed                                   | Condition                                   |
+	 * |------------------------------------------------------|---------------------------------------------|
+	 * | CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS | if the CurrentUser desires the `user` field |
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const { items } = await client.assets.getGuildSoundboardSounds("guild id")
+	 */
+	public async getGuildSoundboardSounds(guildId: string): Promise<RESTGetAPIGuildSoundboardSoundsResult> {
+		return this.requestHandler.request(Endpoints.GUILD_SOUNDBOARD_SOUNDS(guildId), {}, "get", "json");
+	}
+
+	/**
+	 * Get a soundboard sound of a guild
+	 * @since 0.20.0
+	 * @param guildId Id of the guild
+	 * @param soundId Id of the sound
+	 * @returns A [soundboard sound object](https://docs.discord.com/developers/resources/soundboard#soundboard-sound-object)
+	 *
+	 * | Permissions needed                                   | Condition                                   |
+	 * |------------------------------------------------------|---------------------------------------------|
+	 * | CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS | if the CurrentUser desires the `user` field |
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const sound = await client.assets.getGuildSoundboardSound("guild id", "sound id")
+	 */
+	public async getGuildSoundboardSound(guildId: string, soundId: string): Promise<RESTGetAPIGuildSoundboardSoundResult> {
+		return this.requestHandler.request(Endpoints.GUILD_SOUNDBOARD_SOUND(guildId, soundId), {}, "get", "json");
+	}
+
+	/**
+	 * Create a soundboard sound in a guild. Sounds can be up to 512kb and 5.2 seconds long
+	 * @since 0.20.0
+	 * @param guildId Id of the guild
+	 * @param data Sound data, check the example
+	 * @param reason Reason for creating the sound
+	 * @returns A [soundboard sound object](https://docs.discord.com/developers/resources/soundboard#soundboard-sound-object)
+	 *
+	 * | Permissions needed       | Condition |
+	 * |--------------------------|-----------|
+	 * | CREATE_GUILD_EXPRESSIONS | always    |
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const fileData = await fs.promises.readFile("bonk.mp3")
+	 * const soundData = \{
+	 * 	name: "bonk",
+	 * 	sound: `data:audio/mpeg;base64,${fileData.toString("base64")}`, // base64 data url, mp3 or ogg
+	 * 	volume: 0.5
+	 * \}
+	 * const sound = await client.assets.createGuildSoundboardSound("guild id", soundData)
+	 */
+	public async createGuildSoundboardSound(guildId: string, data: RESTPostAPIGuildSoundboardSoundJSONBody, reason?: string): Promise<RESTPostAPIGuildSoundboardSoundResult> {
+		return this.requestHandler.request(Endpoints.GUILD_SOUNDBOARD_SOUNDS(guildId), {}, "post", "json", data, Constants.reasonHeader(reason));
+	}
+
+	/**
+	 * Update a soundboard sound in a guild
+	 * @since 0.20.0
+	 * @param guildId Id of the guild
+	 * @param soundId Id of the sound
+	 * @param data Sound data
+	 * @param reason Reason for updating the sound
+	 * @returns A [soundboard sound object](https://docs.discord.com/developers/resources/soundboard#soundboard-sound-object)
+	 *
+	 * | Permissions needed                                   | Condition                                  |
+	 * |------------------------------------------------------|--------------------------------------------|
+	 * | CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS | if the sound was created by CurrentUser    |
+	 * | MANAGE_GUILD_EXPRESSIONS                             | if the sound wasn't created by CurrentUser |
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const sound = await client.assets.editGuildSoundboardSound("guild id", "sound id", { name: "bonk2", volume: 1 })
+	 */
+	public async editGuildSoundboardSound(guildId: string, soundId: string, data: RESTPatchAPIGuildSoundboardSoundJSONBody, reason?: string): Promise<RESTPatchAPIGuildSoundboardSoundResult> {
+		return this.requestHandler.request(Endpoints.GUILD_SOUNDBOARD_SOUND(guildId, soundId), {}, "patch", "json", data, Constants.reasonHeader(reason));
+	}
+
+	/**
+	 * Delete a soundboard sound from a guild
+	 * @since 0.20.0
+	 * @param guildId Id of the guild
+	 * @param soundId Id of the sound
+	 * @param reason Reason for deleting the sound
+	 * @returns Resolves the Promise on successful execution
+	 *
+	 * | Permissions needed                                   | Condition                                  |
+	 * |------------------------------------------------------|--------------------------------------------|
+	 * | CREATE_GUILD_EXPRESSIONS or MANAGE_GUILD_EXPRESSIONS | if the sound was created by CurrentUser    |
+	 * | MANAGE_GUILD_EXPRESSIONS                             | if the sound wasn't created by CurrentUser |
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * client.assets.deleteGuildSoundboardSound("guild id", "sound id", "too loud")
+	 */
+	public async deleteGuildSoundboardSound(guildId: string, soundId: string, reason?: string): Promise<RESTDeleteAPIGuildSoundboardSoundResult> {
+		return this.requestHandler.request(Endpoints.GUILD_SOUNDBOARD_SOUND(guildId, soundId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
 	}
 
 	/**

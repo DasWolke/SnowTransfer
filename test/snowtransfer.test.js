@@ -212,3 +212,8 @@ test("generateWaveform produces one byte per time slice, capped at 256 points", 
 	const capped = Buffer.from(Constants.generateWaveform(new Array(48000).fill(1000), 600), "base64");
 	assert.equal(capped.length, 256);
 });
+
+test("standardMultipartHandler throws on a malformed files entry instead of silently dropping every file", async () => {
+	const data = { content: "hi", files: [{ name: "good.png", file: Buffer.from("a") }, { file: Buffer.from("b") }] };
+	await assert.rejects(Constants.standardMultipartHandler(data), /files\[1\]/);
+});

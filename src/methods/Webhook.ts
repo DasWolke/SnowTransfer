@@ -119,9 +119,9 @@ class WebhookMethods {
 	 * @param token Webhook token
 	 * @returns [Webhook Object](https://discord.com/developers/docs/resources/webhook#webhook-object-webhook-structure)
 	 *
-	 * | Permissions needed | Condition     |
-	 * |--------------------|---------------|
-	 * | MANAGE_WEBHOOKS    | without token |
+	 * | Permissions needed | Condition                                                      |
+	 * |--------------------|----------------------------------------------------------------|
+	 * | MANAGE_WEBHOOKS    | if no token is passed, unless the application owns the webhook |
 	 *
 	 * @example
 	 * // Get a webhook via Id providing a webhook token

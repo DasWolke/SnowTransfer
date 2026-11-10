@@ -22,12 +22,16 @@ import type {
 	RESTGetAPIGuildMembersResult,
 	RESTGetAPIGuildMembersSearchQuery,
 	RESTGetAPIGuildMembersSearchResult,
+	RESTGetAPIGuildMemberPermissionsResult,
 	RESTGetAPIGuildMessagesSearchQuery,
 	RESTGetAPIGuildMessagesSearchResult,
+	RESTGetAPIGuildOnboardingResult,
 	RESTGetAPIGuildPreviewResult,
 	RESTGetAPIGuildPruneCountQuery,
 	RESTGetAPIGuildPruneCountResult,
 	RESTGetAPIGuildResult,
+	RESTGetAPIGuildRoleMemberCountsResult,
+	RESTGetAPIGuildRolePermissionsResult,
 	RESTGetAPIGuildRolesResult,
 	RESTGetAPIGuildThreadsResult,
 	RESTGetAPIGuildVanityUrlResult,
@@ -53,6 +57,8 @@ import type {
 	RESTPatchAPIGuildWelcomeScreenResult,
 	RESTPatchAPIGuildWidgetSettingsJSONBody,
 	RESTPatchAPIGuildWidgetSettingsResult,
+	RESTPostAPIGuildBulkBanJSONBody,
+	RESTPostAPIGuildBulkBanResult,
 	RESTPostAPIGuildChannelJSONBody,
 	RESTPostAPIGuildChannelResult,
 	RESTPostAPIGuildPruneJSONBody,
@@ -61,9 +67,13 @@ import type {
 	RESTPostAPIGuildRoleResult,
 	RESTPutAPIGuildBanJSONBody,
 	RESTPutAPIGuildBanResult,
+	RESTPutAPIGuildIncidentActionsJSONBody,
+	RESTPutAPIGuildIncidentActionsResult,
 	RESTPutAPIGuildMemberJSONBody,
 	RESTPutAPIGuildMemberResult,
-	RESTPutAPIGuildMemberRoleResult
+	RESTPutAPIGuildMemberRoleResult,
+	RESTPutAPIGuildOnboardingJSONBody,
+	RESTPutAPIGuildOnboardingResult
 } from "discord-api-types/v10";
 
 /**
@@ -120,9 +130,10 @@ class GuildMethods {
 	 * @param reason Reason for updating the guild
 	 * @returns [Guild object](https://discord.com/developers/docs/resources/guild#guild-object)
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_GUILD       | always    |
+	 * | Permissions needed | Condition                                   |
+	 * |--------------------|---------------------------------------------|
+	 * | MANAGE_GUILD       | always                                      |
+	 * | ADMINISTRATOR      | if adding or removing the COMMUNITY feature |
 	 *
 	 * @example
 	 * // Update the name of a guild to "Nice Guild"
@@ -143,6 +154,10 @@ class GuildMethods {
 	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @returns list of [channels](https://discord.com/developers/docs/resources/channel#channel-object-channel-structure)
+	 *
+	 * | Permissions needed | Condition                                                              |
+	 * |--------------------|------------------------------------------------------------------------|
+	 * | VIEW_CHANNEL       | per channel. Channels without it are omitted starting November 16 2026 |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -188,9 +203,11 @@ class GuildMethods {
 	 * @param reason Reason for updating the channels' positions
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_CHANNELS    | always    |
+	 * | Permissions needed | Condition                   |
+	 * |--------------------|-----------------------------|
+	 * | MANAGE_CHANNELS    | always                      |
+	 * | VIEW_CHANNEL       | if changing parent_id       |
+	 * | MANAGE_ROLES       | if setting lock_permissions |
 	 *
 	 * @example
 	 * // Sets the position of a channel to 2 under a category channel
@@ -281,9 +298,13 @@ class GuildMethods {
 	 * @param data object containing the needed request data
 	 * @returns [guild member](https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-structure) or void if the member is already in the guild
 	 *
-	 * | Permissions needed    | Condition |
-	 * |-----------------------|-----------|
-	 * | CREATE_INSTANT_INVITE | always    |
+	 * | Permissions needed    | Condition        |
+	 * |-----------------------|------------------|
+	 * | CREATE_INSTANT_INVITE | always           |
+	 * | MANAGE_NICKNAMES      | if setting nick  |
+	 * | MANAGE_ROLES          | if setting roles |
+	 * | MUTE_MEMBERS          | if setting mute  |
+	 * | DEAFEN_MEMBERS        | if setting deaf  |
 	 *
 	 * | OAUTH2 Scopes |
 	 * |---------------|
@@ -310,15 +331,16 @@ class GuildMethods {
 	 * @param reason Reason for updating the guild member
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed | Condition    |
-	 * |--------------------|--------------|
-	 * | MANAGE_NICKNAMES   | Nick Updates |
-	 * | MANAGE_ROLES       | Role Updates |
-	 * | MUTE_MEMBERS       | Mute Updates |
-	 * | DEAFEN_MEMBERS     | Deaf Updates |
-	 * | MOVE_MEMBERS       | Voice Move   |
-	 * | CONNECT						| Voice Move   |
-	 * | MODERATE_MEMBERS   | Timeouts     |
+	 * | Permissions needed                                                                  | Condition    |
+	 * |-------------------------------------------------------------------------------------|--------------|
+	 * | MANAGE_NICKNAMES                                                                    | Nick Updates |
+	 * | MANAGE_ROLES                                                                        | Role Updates |
+	 * | MUTE_MEMBERS                                                                        | Mute Updates |
+	 * | DEAFEN_MEMBERS                                                                      | Deaf Updates |
+	 * | MOVE_MEMBERS                                                                        | Voice Move   |
+	 * | CONNECT                                                                             | Voice Move   |
+	 * | MODERATE_MEMBERS                                                                    | Timeouts     |
+	 * | MANAGE_GUILD or MANAGE_ROLES or (MODERATE_MEMBERS and KICK_MEMBERS and BAN_MEMBERS) | Flag Updates |
 	 *
 	 * @example
 	 * // Reset the nickname of a guild member
@@ -428,9 +450,9 @@ class GuildMethods {
 	 * @param options Query string options
 	 * @returns List of [bans](https://discord.com/developers/docs/resources/guild#ban-object-ban-structure)
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | BAN_MEMBERS        | always    |
+	 * | Permissions needed            | Condition |
+	 * |-------------------------------|-----------|
+	 * | BAN_MEMBERS or VIEW_AUDIT_LOG | always    |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -449,9 +471,9 @@ class GuildMethods {
 	 *
 	 * @throws a `DiscordAPIError` if the member is not banned
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | BAN_MEMBERS        | always    |
+	 * | Permissions needed            | Condition |
+	 * |-------------------------------|-----------|
+	 * | BAN_MEMBERS or VIEW_AUDIT_LOG | always    |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -508,14 +530,34 @@ class GuildMethods {
 	}
 
 	/**
+	 * Ban up to 200 users at once
+	 * @since 0.20.0
+	 * @param guildId Id of the guild
+	 * @param data Ids of the users to ban and optionally how many seconds of their messages to delete
+	 * @param reason Reason for banning the users
+	 * @returns Object with banned_users and failed_users Arrays of user ids
+	 *
+	 * @throws a `DiscordAPIError` if none of the users could be banned
+	 *
+	 * | Permissions needed | Condition |
+	 * |--------------------|-----------|
+	 * | BAN_MEMBERS        | always    |
+	 * | MANAGE_GUILD       | always    |
+	 *
+	 * @example
+	 * // Ban 2 users and delete the last hour of their messages
+	 * const client = new SnowTransfer("TOKEN")
+	 * const result = await client.guild.createGuildBans("guildId", { user_ids: ["userId1", "userId2"], delete_message_seconds: 3600 }, "Raid")
+	 */
+	public async createGuildBans(guildId: string, data: RESTPostAPIGuildBulkBanJSONBody, reason?: string): Promise<RESTPostAPIGuildBulkBanResult> {
+		return this.requestHandler.request(Endpoints.GUILD_BULK_BAN(guildId), {}, "post", "json", data, Constants.reasonHeader(reason));
+	}
+
+	/**
 	 * Get a list of roles for a guild
 	 * @since 0.1.0
 	 * @param guildId Id of the guild
 	 * @returns array of [roles](https://discord.com/developers/docs/topics/permissions#role-object)
-	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_ROLES       | always    |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -523,6 +565,52 @@ class GuildMethods {
 	 */
 	public async getGuildRoles(guildId: string): Promise<RESTGetAPIGuildRolesResult> {
 		return this.requestHandler.request(Endpoints.GUILD_ROLES(guildId), {}, "get", "json");
+	}
+
+	/**
+	 * Get how many members have each role. Doesn't include the everyone role
+	 * @since 0.20.0
+	 * @param guildId Id of the guild
+	 * @returns Object of role ids to member counts
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const counts = await client.guild.getGuildRoleMemberCounts("guildId")
+	 * // counts should be something like { "roleId": 69 }
+	 */
+	public async getGuildRoleMemberCounts(guildId: string): Promise<RESTGetAPIGuildRoleMemberCountsResult> {
+		return this.requestHandler.request(Endpoints.GUILD_ROLES_MEMBER_COUNTS(guildId), {}, "get", "json");
+	}
+
+	/**
+	 * Get a member's computed guild permissions from their roles and the everyone role
+	 * @since 0.20.0
+	 * @param guildId Id of the guild
+	 * @param memberId Id of the member
+	 * @returns Object with a permissions bitfield string
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const { permissions } = await client.guild.getGuildMemberPermissions("guildId", "memberId")
+	 * const canBan = (BigInt(permissions) & PermissionFlagsBits.BanMembers) !== 0n
+	 */
+	public async getGuildMemberPermissions(guildId: string, memberId: string): Promise<RESTGetAPIGuildMemberPermissionsResult> {
+		return this.requestHandler.request(Endpoints.GUILD_MEMBER_PERMISSIONS(guildId, memberId), {}, "get", "json");
+	}
+
+	/**
+	 * Get the guild permissions of a role combined with the everyone role
+	 * @since 0.20.0
+	 * @param guildId Id of the guild
+	 * @param roleId Id of the role
+	 * @returns Object with a permissions bitfield string
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const { permissions } = await client.guild.getGuildRolePermissions("guildId", "roleId")
+	 */
+	public async getGuildRolePermissions(guildId: string, roleId: string): Promise<RESTGetAPIGuildRolePermissionsResult> {
+		return this.requestHandler.request(Endpoints.GUILD_ROLE_PERMISSIONS(guildId, roleId), {}, "get", "json");
 	}
 
 	/**
@@ -622,9 +710,11 @@ class GuildMethods {
 	 * @param options Object with prune data
 	 * @returns Object with a "pruned" key indicating the amount of members that would be pruned
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | KICK_MEMBERS       | always    |
+	 * | Permissions needed | Condition                                                  |
+	 * |--------------------|------------------------------------------------------------|
+	 * | MANAGE_GUILD       | if the guild doesn't have the PRUNE_REQUIRES_ADMIN feature |
+	 * | KICK_MEMBERS       | if the guild doesn't have the PRUNE_REQUIRES_ADMIN feature |
+	 * | ADMINISTRATOR      | if the guild has the PRUNE_REQUIRES_ADMIN feature          |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -642,9 +732,11 @@ class GuildMethods {
 	 * @param reason Reason for starting the prune
 	 * @returns Object with a "pruned" key indicating the amount of members that were pruned
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | KICK_MEMBERS       | always    |
+	 * | Permissions needed | Condition                                                  |
+	 * |--------------------|------------------------------------------------------------|
+	 * | MANAGE_GUILD       | if the guild doesn't have the PRUNE_REQUIRES_ADMIN feature |
+	 * | KICK_MEMBERS       | if the guild doesn't have the PRUNE_REQUIRES_ADMIN feature |
+	 * | ADMINISTRATOR      | if the guild has the PRUNE_REQUIRES_ADMIN feature          |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -676,9 +768,10 @@ class GuildMethods {
 	 * @param guildId Id of the guild
 	 * @returns List of [invites](https://discord.com/developers/docs/resources/invite#invite-object) (with metadata)
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_GUILD       | always    |
+	 * | Permissions needed             | Condition                                  |
+	 * |--------------------------------|--------------------------------------------|
+	 * | MANAGE_GUILD or VIEW_AUDIT_LOG | always                                     |
+	 * | MANAGE_GUILD                   | if the CurrentUser desires invite metadata |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -887,7 +980,11 @@ class GuildMethods {
 	 *
 	 * | Permissions needed   | Condition |
 	 * |----------------------|-----------|
-	 * | READ_MESSAGE_HISTORY | Always    |
+	 * | READ_MESSAGE_HISTORY | always    |
+	 *
+	 * | Intents         |
+	 * |-----------------|
+	 * | MESSAGE_CONTENT |
 	 *
 	 * @example
 	 * // Finds messages that have the word "poggers" in their content
@@ -896,6 +993,62 @@ class GuildMethods {
 	 */
 	public async searchGuildMessages(guildId: string, options?: RESTGetAPIGuildMessagesSearchQuery): Promise<RESTGetAPIGuildMessagesSearchResult> {
 		return this.requestHandler.request(Endpoints.GUILD_MESSAGES_SEARCH(guildId), options, "get", "json");
+	}
+
+	/**
+	 * Get a guild's onboarding settings
+	 * @since 0.20.0
+	 * @param guildId Id of the guild
+	 * @returns [Guild Onboarding](https://docs.discord.com/developers/resources/guild#guild-onboarding-object)
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const onboarding = await client.guild.getGuildOnboarding("guildId")
+	 */
+	public async getGuildOnboarding(guildId: string): Promise<RESTGetAPIGuildOnboardingResult> {
+		return this.requestHandler.request(Endpoints.GUILD_ONBOARDING(guildId), {}, "get", "json");
+	}
+
+	/**
+	 * Update a guild's onboarding settings. When enabled, there must be at least 7 default channels and at least 5 of them must let the everyone role send messages
+	 * @since 0.20.0
+	 * @param guildId Id of the guild
+	 * @param data Onboarding data
+	 * @param reason Reason for updating the onboarding
+	 * @returns [Guild Onboarding](https://docs.discord.com/developers/resources/guild#guild-onboarding-object)
+	 *
+	 * | Permissions needed | Condition |
+	 * |--------------------|-----------|
+	 * | MANAGE_GUILD       | always    |
+	 * | MANAGE_ROLES       | always    |
+	 *
+	 * @example
+	 * // Disables onboarding
+	 * const client = new SnowTransfer("TOKEN")
+	 * const onboarding = await client.guild.editGuildOnboarding("guildId", { enabled: false })
+	 */
+	public async editGuildOnboarding(guildId: string, data: RESTPutAPIGuildOnboardingJSONBody, reason?: string): Promise<RESTPutAPIGuildOnboardingResult> {
+		return this.requestHandler.request(Endpoints.GUILD_ONBOARDING(guildId), {}, "put", "json", data, Constants.reasonHeader(reason));
+	}
+
+	/**
+	 * Pause invites and/or DMs in a guild for up to 24 hours. Pass null to a field to unpause it
+	 * @since 0.20.0
+	 * @param guildId Id of the guild
+	 * @param data ISO8601 timestamps for when invites/DMs come back
+	 * @returns [Incidents Data](https://docs.discord.com/developers/resources/guild#incidents-data-object)
+	 *
+	 * | Permissions needed | Condition |
+	 * |--------------------|-----------|
+	 * | MANAGE_GUILD       | always    |
+	 *
+	 * @example
+	 * // Pause invites for an hour during a raid
+	 * const client = new SnowTransfer("TOKEN")
+	 * const incidents = await client.guild.editGuildIncidentActions("guildId", { invites_disabled_until: new Date(Date.now() + 3600000).toISOString() })
+	 */
+	public async editGuildIncidentActions(guildId: string, data: RESTPutAPIGuildIncidentActionsJSONBody): Promise<RESTPutAPIGuildIncidentActionsResult> {
+		return this.requestHandler.request(Endpoints.GUILD_INCIDENT_ACTIONS(guildId), {}, "put", "json", data);
 	}
 }
 

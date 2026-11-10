@@ -68,6 +68,10 @@ class InviteMethods {
 	 * @param inviteId Id of the invite
 	 * @returns An Array of user IDs
 	 *
+	 * | Permissions needed             | Condition                        |
+	 * |--------------------------------|----------------------------------|
+	 * | MANAGE_GUILD or VIEW_AUDIT_LOG | if CurrentUser isn't the inviter |
+	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
 	 * const userIds = await client.invite.getInviteTargetUsers("inviteId")
@@ -90,6 +94,10 @@ class InviteMethods {
 	 * @param inviteId Id of the invite
 	 * @returns Resolves the Promise on successful execution
 	 *
+	 * | Permissions needed | Condition                        |
+	 * |--------------------|----------------------------------|
+	 * | MANAGE_GUILD       | if CurrentUser isn't the inviter |
+	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
 	 * await client.invite.editInviteTargetUsers("inviteId", someUserArray)
@@ -106,12 +114,92 @@ class InviteMethods {
 	 * @param inviteId Id of the invite
 	 * @returns [Target Users Job Status Object](https://discord.com/developers/docs/resources/invite#get-target-users-job-status-example-response)
 	 *
+	 * | Permissions needed             | Condition                        |
+	 * |--------------------------------|----------------------------------|
+	 * | MANAGE_GUILD or VIEW_AUDIT_LOG | if CurrentUser isn't the inviter |
+	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
 	 * const jobStatus = await client.invite.getInviteTargetUsersJobStatus("inviteId")
 	 */
 	public async getInviteTargetUsersJobStatus(inviteId: string): Promise<RESTGetAPIInviteTargetUsersJobStatusResult> {
 		return this.requestHandler.request(Endpoints.INVITE_TARGET_USERS_JOB_STATUS(inviteId), {}, "get", "json");
+	}
+
+	/**
+	 * Adds a user to the users allowed to see and accept an invite
+	 * @since 0.20.0
+	 * @param inviteId Id of the invite
+	 * @param userId Id of the user
+	 * @returns Resolves the Promise on successful execution
+	 *
+	 * | Permissions needed | Condition                        |
+	 * |--------------------|----------------------------------|
+	 * | MANAGE_GUILD       | if CurrentUser isn't the inviter |
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * await client.invite.addInviteTargetUser("inviteId", "userId")
+	 */
+	public async addInviteTargetUser(inviteId: string, userId: string): Promise<void> {
+		return this.requestHandler.request(Endpoints.INVITE_TARGET_USER(inviteId, userId), {}, "put", "json");
+	}
+
+	/**
+	 * Removes a user from the users allowed to see and accept an invite
+	 * @since 0.20.0
+	 * @param inviteId Id of the invite
+	 * @param userId Id of the user
+	 * @returns Resolves the Promise on successful execution
+	 *
+	 * | Permissions needed | Condition                        |
+	 * |--------------------|----------------------------------|
+	 * | MANAGE_GUILD       | if CurrentUser isn't the inviter |
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * await client.invite.deleteInviteTargetUser("inviteId", "userId")
+	 */
+	public async deleteInviteTargetUser(inviteId: string, userId: string): Promise<void> {
+		return this.requestHandler.request(Endpoints.INVITE_TARGET_USER(inviteId, userId), {}, "delete", "json");
+	}
+
+	/**
+	 * Adds up to 1000 users to the users allowed to see and accept an invite
+	 * @since 0.20.0
+	 * @param inviteId Id of the invite
+	 * @param userIds Ids of the users
+	 * @returns Resolves the Promise on successful execution
+	 *
+	 * | Permissions needed | Condition                        |
+	 * |--------------------|----------------------------------|
+	 * | MANAGE_GUILD       | if CurrentUser isn't the inviter |
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * await client.invite.addInviteTargetUsers("inviteId", ["userId1", "userId2"])
+	 */
+	public async addInviteTargetUsers(inviteId: string, userIds: Array<string>): Promise<void> {
+		return this.requestHandler.request(Endpoints.INVITE_TARGET_USERS_BULK_ADD(inviteId), {}, "post", "json", { user_ids: userIds });
+	}
+
+	/**
+	 * Removes up to 1000 users from the users allowed to see and accept an invite
+	 * @since 0.20.0
+	 * @param inviteId Id of the invite
+	 * @param userIds Ids of the users
+	 * @returns Resolves the Promise on successful execution
+	 *
+	 * | Permissions needed | Condition                        |
+	 * |--------------------|----------------------------------|
+	 * | MANAGE_GUILD       | if CurrentUser isn't the inviter |
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * await client.invite.deleteInviteTargetUsers("inviteId", ["userId1", "userId2"])
+	 */
+	public async deleteInviteTargetUsers(inviteId: string, userIds: Array<string>): Promise<void> {
+		return this.requestHandler.request(Endpoints.INVITE_TARGET_USERS_BULK_DELETE(inviteId), {}, "post", "json", { user_ids: userIds });
 	}
 }
 

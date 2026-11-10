@@ -44,14 +44,15 @@ const Constants = {
 		// Cloned so the deletes below can't spend the caller's payload. File contents are shared by reference, not copied
 		const payload = Constants.cloneUserInput(data);
 
-		if (payload.files && Array.isArray(payload.files) && payload.files.every(f => !!f.name && !!f.file)) {
-			let index = 0;
-			for (const file of payload.files) {
+		if (payload.files && Array.isArray(payload.files)) {
+			// Checked up front so a bad entry can't consume earlier single use streams before throwing
+			const bad = payload.files.findIndex(f => !f?.name || !f?.file);
+			if (bad !== -1) throw new Error(`files[${bad}] needs both a name and a file`);
+			for (const [index, file] of payload.files.entries()) {
 				await Constants.standardAddToFormHandler(form, `files[${index}]`, file.file, file.name);
 
 				// @ts-expect-error Cannot delete non optional, but I have to
 				delete file.file;
-				index++;
 			}
 		}
 

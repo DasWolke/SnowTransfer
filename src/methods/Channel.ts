@@ -57,6 +57,12 @@ import {
 	type RESTGetAPIChannelMessagesPinsQuery,
 	type APIGuildVoiceChannel,
 	type RESTPutAPIChannelVoiceStatusResult,
+	type RESTGetAPIChannelMemberPermissionsQuery,
+	type RESTGetAPIChannelMemberPermissionsResult,
+	type RESTGetAPIChannelRolePermissionsQuery,
+	type RESTGetAPIChannelRolePermissionsResult,
+	type RESTPostAPISoundboardSendSoundJSONBody,
+	type RESTPostAPISendSoundboardSoundResult,
 
 	MessageReferenceType,
 	MessageFlags
@@ -102,12 +108,12 @@ class ChannelMethods {
 	 * @param reason Reason for updating the channel
 	 * @returns [discord channel](https://discord.com/developers/docs/resources/channel#channel-object) object
 	 *
-	 * | Permissions needed | Condition                                                                                                               |
-	 * |--------------------|-------------------------------------------------------------------------------------------------------------------------|
-	 * | MANAGE_CHANNELS    | always                                                                                                                  |
-	 * | MANAGE_ROLES       | If modifying permission overwrites                                                                                      |
-	 * | SEND_MESSAGES      | When editing a Thread to change the name, archived, auto_archive_duration, rate_limit_per_user or locked fields         |
-	 * | MANAGE_THREADS     | When editing a Thread and not modifying the name, archived, auto_archive_duration, rate_limit_per_user or locked fields |
+	 * | Permissions needed | Condition                                                            |
+	 * |--------------------|----------------------------------------------------------------------|
+	 * | MANAGE_CHANNELS    | if channel is not a thread                                           |
+	 * | MANAGE_ROLES       | if modifying permission overwrites                                   |
+	 * | SEND_MESSAGES      | if channel is a thread and only setting archived and locked to false |
+	 * | MANAGE_THREADS     | if channel is a thread and doing anything else                       |
 	 *
 	 * @example
 	 * // This example updates a channel with the passed id to use "New Name" as its name and "Look at this cool topic" as the topic
@@ -163,6 +169,7 @@ class ChannelMethods {
 	 * | Permissions needed   | Condition                                                                        |
 	 * |----------------------|----------------------------------------------------------------------------------|
 	 * | VIEW_CHANNEL         | if channel is not a DM channel                                                   |
+	 * | CONNECT              | if channel is a voice channel                                                    |
 	 * | READ_MESSAGE_HISTORY | if channel is not a DM channel, unless you want the API to return an empty Array |
 	 *
 	 * @example
@@ -204,6 +211,7 @@ class ChannelMethods {
 	 * | Permissions needed   | Condition                      |
 	 * |----------------------|--------------------------------|
 	 * | VIEW_CHANNEL         | if channel is not a DM channel |
+	 * | CONNECT              | if channel is a voice channel  |
 	 * | READ_MESSAGE_HISTORY | if channel is not a DM channel |
 	 *
 	 * @example
@@ -400,7 +408,7 @@ class ChannelMethods {
 	 * @param emoji reaction emoji
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permission           | Condition                      |
+	 * | Permissions needed   | Condition                      |
 	 * |----------------------|--------------------------------|
 	 * | VIEW_CHANNEL         | if channel is not a DM channel |
 	 * | READ_MESSAGE_HISTORY | if channel is not a DM channel |
@@ -428,7 +436,7 @@ class ChannelMethods {
 	 * @param userId Id of the user
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permission           | Condition |
+	 * | Permissions needed   | Condition |
 	 * |----------------------|-----------|
 	 * | MANAGE_MESSAGES      | always    |
 	 * | VIEW_CHANNEL         | always    |
@@ -590,12 +598,10 @@ class ChannelMethods {
 	 * @param reason Reason for editing the channel permission
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed | Condition                  |
-	 * |--------------------|----------------------------|
-	 * | MANAGE_CHANNELS    | if channel is not a thread |
-	 * | MANAGE_THREADS     | if channel is a thread     |
-	 * | MANAGE_ROLES       | always                     |
-	 * | VIEW_CHANNEL       | always                     |
+	 * | Permissions needed | Condition |
+	 * |--------------------|-----------|
+	 * | MANAGE_ROLES       | always    |
+	 * | VIEW_CHANNEL       | always    |
 	 *
 	 * @example
 	 * // Edits the permissions of a user to allow viewing the channel only
@@ -662,12 +668,10 @@ class ChannelMethods {
 	 * @param reason Reason for deleting the permission
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed | Condition                  |
-	 * |--------------------|----------------------------|
-	 * | MANAGE_CHANNELS    | if channel is not a thread |
-	 * | MANAGE_THREADS     | if channel is a thread     |
-	 * | MANAGE_ROLES       | always                     |
-	 * | VIEW_CHANNEL       | always                     |
+	 * | Permissions needed | Condition |
+	 * |--------------------|-----------|
+	 * | MANAGE_ROLES       | always    |
+	 * | VIEW_CHANNEL       | always    |
 	 *
 	 * @example
 	 * // Deletes the permission overwrite of a user
@@ -676,6 +680,49 @@ class ChannelMethods {
 	 */
 	public async deleteChannelPermission(channelId: string, permissionId: string, reason?: string): Promise<RESTDeleteAPIChannelPermissionResult> {
 		return this.requestHandler.request(Endpoints.CHANNEL_PERMISSION(channelId, permissionId), {}, "delete", "json", {}, Constants.reasonHeader(reason));
+	}
+
+	/**
+	 * Get a member's computed permissions in a channel, including their roles and overwrites. Threads use their parent's overwrites
+	 * @since 0.20.0
+	 * @param channelId Id of the guild channel
+	 * @param userId Id of the member
+	 * @param options Query params. implicit (default true) masks out permissions the member can't use without VIEW_CHANNEL/CONNECT. Never applied to bots
+	 * @returns Object with a permissions bitfield string
+	 *
+	 * | Permissions needed | Condition                           |
+	 * |--------------------|-------------------------------------|
+	 * | VIEW_CHANNEL       | always                              |
+	 * | CONNECT            | if channel is a voice/stage channel |
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const { permissions } = await client.channel.getChannelMemberPermissions("channel id", "user id")
+	 * const canSend = (BigInt(permissions) & PermissionFlagsBits.SendMessages) !== 0n
+	 */
+	public async getChannelMemberPermissions(channelId: string, userId: string, options?: RESTGetAPIChannelMemberPermissionsQuery): Promise<RESTGetAPIChannelMemberPermissionsResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_MEMBER_PERMISSIONS(channelId, userId), options, "get", "json");
+	}
+
+	/**
+	 * Get the permissions a role combined with the everyone role has in a channel, including their overwrites. Other roles and member overwrites aren't included. Threads use their parent's overwrites
+	 * @since 0.20.0
+	 * @param channelId Id of the guild channel
+	 * @param roleId Id of the role
+	 * @param options Query params. implicit (default true) masks out permissions the role can't use without VIEW_CHANNEL/CONNECT
+	 * @returns Object with a permissions bitfield string
+	 *
+	 * | Permissions needed | Condition                           |
+	 * |--------------------|-------------------------------------|
+	 * | VIEW_CHANNEL       | always                              |
+	 * | CONNECT            | if channel is a voice/stage channel |
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * const { permissions } = await client.channel.getChannelRolePermissions("channel id", "role id")
+	 */
+	public async getChannelRolePermissions(channelId: string, roleId: string, options?: RESTGetAPIChannelRolePermissionsQuery): Promise<RESTGetAPIChannelRolePermissionsResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_ROLE_PERMISSIONS(channelId, roleId), options, "get", "json");
 	}
 
 	/**
@@ -727,10 +774,10 @@ class ChannelMethods {
 	 * @param channelId Id of the channel
 	 * @returns Array of [message objects](https://discord.com/developers/docs/resources/channel#message-object)
 	 *
-	 * | Permissions needed   | Condition                      |
-	 * |----------------------|--------------------------------|
-	 * | VIEW_CHANNEL         | if channel is not a DM channel |
-	 * | READ_MESSAGE_HISTORY | if channel is not a DM channel |
+	 * | Permissions needed   | Condition                                                                        |
+	 * |----------------------|----------------------------------------------------------------------------------|
+	 * | VIEW_CHANNEL         | if channel is not a DM channel                                                   |
+	 * | READ_MESSAGE_HISTORY | if channel is not a DM channel, unless you want the API to return an empty Array |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -862,10 +909,9 @@ class ChannelMethods {
 	 * @param userId Id of the user to add
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed          | Condition |
-	 * |-----------------------------|-----------|
-	 * | CurrentUser added to Thread | always    |
-	 * | SEND_MESSAGES_IN_THREADS    | always    |
+	 * | Permissions needed       | Condition |
+	 * |--------------------------|-----------|
+	 * | SEND_MESSAGES_IN_THREADS | always    |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -896,9 +942,9 @@ class ChannelMethods {
 	 * @param userId Id of the user to remove
 	 * @returns Resolves the Promise on successful execution
 	 *
-	 * | Permissions needed | Condition                                            |
-	 * |--------------------|------------------------------------------------------|
-	 * | MANAGE_THREADS     | if the current user is not the creator of the thread |
+	 * | Permissions needed | Condition                                                   |
+	 * |--------------------|-------------------------------------------------------------|
+	 * | MANAGE_THREADS     | unless the thread is private and was created by CurrentUser |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -973,18 +1019,16 @@ class ChannelMethods {
 
 	/**
 	 * Gets all threads that are private and archived within a guild channel
-	 *
-	 * CurrentUser must be a member of the thread if they do not have MANAGE_THREADS permissions
 	 * @since 0.3.0
 	 * @param channelId Id of the Channel
 	 * @param options Options for getting threads
 	 * @returns Object containing [private threads](https://discord.com/developers/docs/resources/channel#channel-object), [thread members](https://discord.com/developers/docs/resources/channel#thread-member-object) of the CurrentUser, and if there are more results in the pagination
 	 *
-	 * | Permissions needed   | Condition                            |
-	 * |----------------------|--------------------------------------|
-	 * | VIEW_CHANNEL         | always                               |
-	 * | READ_MESSAGE_HISTORY | always                               |
-	 * | MANAGE_THREADS       | if CurrentUser isn't added to Thread |
+	 * | Permissions needed   | Condition |
+	 * |----------------------|-----------|
+	 * | VIEW_CHANNEL         | always    |
+	 * | READ_MESSAGE_HISTORY | always    |
+	 * | MANAGE_THREADS       | always    |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -1003,9 +1047,10 @@ class ChannelMethods {
 	 * @param options Option for getting threads
 	 * @returns Object containing [private threads](https://discord.com/developers/docs/resources/channel#channel-object), [thread members](https://discord.com/developers/docs/resources/channel#thread-member-object) of the CurrentUser, and if there are more results in the pagination
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | VIEW_CHANNEL       | always    |
+	 * | Permissions needed   | Condition |
+	 * |----------------------|-----------|
+	 * | VIEW_CHANNEL         | always    |
+	 * | READ_MESSAGE_HISTORY | always    |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -1117,6 +1162,27 @@ class ChannelMethods {
 	 */
 	public async setVoiceChannelHangout(channelId: string, imageUrl: string, reason?: string): Promise<APIGuildVoiceChannel> {
 		return this.requestHandler.request(Endpoints.CHANNEL_VOICE_HANGOUT(channelId), {}, "post", "json", { url: imageUrl }, Constants.reasonHeader(reason));
+	}
+
+	/**
+	 * Play a soundboard sound in a voice channel. CurrentUser must be connected to it and not be deafened, muted or suppressed
+	 * @since 0.20.0
+	 * @param channelId Id of the voice channel
+	 * @param data Id of the sound and the guild it's from if it's from a different guild
+	 * @returns Resolves the Promise on successful execution
+	 *
+	 * | Permissions needed  | Condition                              |
+	 * |---------------------|----------------------------------------|
+	 * | SPEAK               | always                                 |
+	 * | USE_SOUNDBOARD      | always                                 |
+	 * | USE_EXTERNAL_SOUNDS | if the sound is from a different guild |
+	 *
+	 * @example
+	 * const client = new SnowTransfer("TOKEN")
+	 * client.channel.sendSoundboardSound("channel id", { sound_id: "sound id" })
+	 */
+	public async sendSoundboardSound(channelId: string, data: RESTPostAPISoundboardSendSoundJSONBody): Promise<RESTPostAPISendSoundboardSoundResult> {
+		return this.requestHandler.request(Endpoints.CHANNEL_SEND_SOUNDBOARD_SOUND(channelId), {}, "post", "json", data);
 	}
 }
 

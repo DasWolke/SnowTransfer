@@ -271,13 +271,22 @@ class InteractionMethods {
 	}
 
 	/**
-	 * Edits command permissions for a specific command for your application in a guild. You can only add up to 10 permission overwrites for a command.
+	 * Edits command permissions for a specific command for your application in a guild. You can only add up to 100 permission overwrites for a command.
 	 * @since 0.5.0
 	 * @param appId The Id of the application
 	 * @param guildId The Id of the guild
 	 * @param cmdId The Id of the command
 	 * @param permissions New application command permissions data
 	 * @returns A [guild application command permission](https://discord.com/developers/docs/interactions/application-commands#application-command-permissions-object-guild-application-command-permissions-structure) object
+	 *
+	 * | Permissions needed | Condition                                    |
+	 * |--------------------|----------------------------------------------|
+	 * | MANAGE_GUILD       | always, on the user who authorized the token |
+	 * | MANAGE_ROLES       | always, on the user who authorized the token |
+	 *
+	 * | OAUTH2 Scopes                            | Condition |
+	 * |------------------------------------------|-----------|
+	 * | applications.commands.permissions.update | always    |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")

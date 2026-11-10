@@ -74,9 +74,10 @@ class AutoModerationMethods {
 	 * @param reason Reason for creating the auto moderation rule
 	 * @returns An [auto mod rule](https://discord.com/developers/docs/resources/auto-moderation#auto-moderation-rule-object)
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_GUILD       | always    |
+	 * | Permissions needed | Condition               |
+	 * |--------------------|-------------------------|
+	 * | MANAGE_GUILD       | always                  |
+	 * | MODERATE_MEMBERS   | if an action is TIMEOUT |
 	 *
 	 * @example
 	 * const client = new SnowTransfer("TOKEN")
@@ -108,9 +109,10 @@ class AutoModerationMethods {
 	 * @param reason Reason for editing the auto moderation rule
 	 * @returns An [auto mod rule](https://discord.com/developers/docs/resources/auto-moderation#auto-moderation-rule-object)
 	 *
-	 * | Permissions needed | Condition |
-	 * |--------------------|-----------|
-	 * | MANAGE_GUILD       | always    |
+	 * | Permissions needed | Condition               |
+	 * |--------------------|-------------------------|
+	 * | MANAGE_GUILD       | always                  |
+	 * | MODERATE_MEMBERS   | if an action is TIMEOUT |
 	 *
 	 * @example
 	 * // Turn on the rule I forgot was disabled by default

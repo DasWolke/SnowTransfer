@@ -1,3 +1,17 @@
+# 0.20.0
+- Fixed BotMethods#editApplicationInfo sending its PATCH to /oauth2/applications/@me instead of /applications/@me
+- Added a bunch of endpoints that I missed over time or that are new:
+	- GuildMethods: createGuildBans, getGuildMemberPermissions, getGuildRolePermissions, getGuildRoleMemberCounts, getGuildOnboarding, editGuildOnboarding, editGuildIncidentActions
+	- ChannelMethods: getChannelMemberPermissions, getChannelRolePermissions, sendSoundboardSound
+	- AssetsMethods: soundboard sounds (getDefaultSoundboardSounds, getGuildSoundboardSounds, getGuildSoundboardSound, createGuildSoundboardSound, editGuildSoundboardSound, deleteGuildSoundboardSound) and sticker packs (getStickerPacks, getStickerPack)
+	- InviteMethods: addInviteTargetUser, deleteInviteTargetUser, addInviteTargetUsers, deleteInviteTargetUsers
+	- BotMethods: getApplicationRoleConnectionMetadata, editApplicationRoleConnectionMetadata, getActivityInstance
+- Emoji/sticker JSDoc permission tables updated to match current names for permissions and also what's actually required as per the docs.
+- General JSDoc corrections.
+- Fixed dropped buckets leaving pending Promises instead of rejecting them.
+- Fixed malformed multipart form data files entries causing all files to be dropped.
+- Throw an error on tokenless.getOauth2Token if the response status is non ok.
+
 # 0.19.1
 Security, bug fixes and route changes
 - Audit log reasons are now URL encoded. Reasons with non latin1 characters (Japanese, emoji, etc) should work now. Sorry about that.
