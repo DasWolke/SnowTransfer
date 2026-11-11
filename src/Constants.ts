@@ -1,5 +1,7 @@
 import { Readable } from "node:stream";
 
+import { MessageFlags } from "discord-api-types/v10";
+
 import type { FileInput } from "./Types";
 
 const Constants = {
@@ -15,6 +17,7 @@ const Constants = {
 	OK_STATUS_CODES: new Set([200, 201, 204, 304]),
 	DO_NOT_RETRY_STATUS_CODES: new Set([400, 401, 403, 404, 405, 411, 413]),
 	DEFAULT_RETRY_LIMIT: 3,
+	DEFAULT_REQUEST_TIMEOUT: 60000,
 	GLOBAL_REQUESTS_PER_SECOND: 50,
 	/**
 	 * Deep clones arrays and plain objects, passing everything else (Buffers, Blobs, streams, class instances) through by reference.
@@ -72,6 +75,13 @@ const Constants = {
 		else if (value instanceof Readable) form.set(name, new Blob(await value.toArray()), filename);
 		else if (value instanceof ReadableStream) form.set(name, await new Response(value).blob(), filename);
 		else throw new Error(`Don't know how to add ${value?.constructor?.name ?? typeof value} to form`);
+	},
+	assertNotComponentsV2WithContent(payload: { content?: string | null; embeds?: Array<unknown> | null; flags?: number | null; }): void {
+		if (
+			(payload.content || payload.embeds?.length) &&
+			payload.flags &&
+			(payload.flags & MessageFlags.IsComponentsV2) === MessageFlags.IsComponentsV2
+		) throw new Error("The message flags was set to include IsComponentsV2, but content and/or embeds were also present. You can either have content/embeds or components v2, not both.");
 	},
 	reasonHeader(reason?: string): { "X-Audit-Log-Reason"?: string } {
 		return reason ? { "X-Audit-Log-Reason": encodeURIComponent(reason) } : {};

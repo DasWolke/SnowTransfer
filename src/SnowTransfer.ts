@@ -73,7 +73,7 @@ class SnowTransfer {
 	public constructor(token?: string, options?: Partial<SnowTransferOptions>) {
 		if (typeof token === "string" && token === "") throw new Error("Missing token");
 		if (token && (!token.startsWith("Bot ") && !token.startsWith("Bearer "))) token = `Bot ${token}`;
-		this.options = { baseHost: Endpoints.BASE_HOST, baseURL: Endpoints.BASE_URL, fetch: globalThis.fetch, allowed_mentions: undefined, bypassBuckets: false, retryRequests: false, retryLimit: Constants.DEFAULT_RETRY_LIMIT, ...options };
+		this.options = { baseHost: Endpoints.BASE_HOST, baseURL: Endpoints.BASE_URL, fetch: globalThis.fetch, allowed_mentions: undefined, bypassBuckets: false, retryRequests: false, retryLimit: Constants.DEFAULT_RETRY_LIMIT, requestTimeout: Constants.DEFAULT_REQUEST_TIMEOUT, ...options };
 		this.token = token;
 		this.ratelimiter = new Ratelimiter();
 		this.requestHandler = new RequestHandler(this.ratelimiter, {
@@ -83,6 +83,7 @@ class SnowTransfer {
 			bypassBuckets: this.options.bypassBuckets,
 			retryFailed: this.options.retryRequests,
 			retryLimit: this.options.retryLimit,
+			requestTimeout: this.options.requestTimeout,
 			fetch: this.options.fetch
 		});
 		this.channel = new ChannelMethods(this.requestHandler, this.options);

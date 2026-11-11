@@ -217,3 +217,11 @@ test("standardMultipartHandler throws on a malformed files entry instead of sile
 	const data = { content: "hi", files: [{ name: "good.png", file: Buffer.from("a") }, { file: Buffer.from("b") }] };
 	await assert.rejects(Constants.standardMultipartHandler(data), /files\[1\]/);
 });
+
+test("an empty embeds array does not count as embeds for the ComponentsV2 check", async () => {
+	const { client, requests } = makeClient();
+
+	// The normal way to turn an old embed message into a components v2 one
+	await client.channel.editMessage("123", "456", { embeds: [], flags: MessageFlags.IsComponentsV2, components: [] });
+	assert.equal(requests.length, 1);
+});

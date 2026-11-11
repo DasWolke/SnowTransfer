@@ -221,9 +221,15 @@ test("routify produces the documented route keys", () => {
 	assert.equal(rl.routify("/channels/123/messages/456/reactions/%F0%9F%98%80/@me", "PUT"), "MODIFY/channels/123/messages/:id/reactions");
 	assert.equal(rl.routify("/channels/123/messages/456/reactions/name%3A123456/@me", "DELETE"), "MODIFY/channels/123/messages/:id/reactions");
 
-	// Webhook tokens are collapsed so one webhook = one bucket
-	const token = "a".repeat(68);
-	assert.equal(rl.routify(`/webhooks/123/${token}`, "POST"), "/webhooks/123/:token");
+	// One bucket per webhook token. Interaction followups all use the app id as the webhook id, and Discord limits them per token
+	const tokenA = "a".repeat(68);
+	const tokenB = "b".repeat(68);
+	assert.equal(rl.routify(`/webhooks/123/${tokenA}`, "POST"), rl.routify(`/webhooks/123/${tokenA}`, "POST"));
+	assert.notEqual(rl.routify(`/webhooks/123/${tokenA}`, "POST"), rl.routify(`/webhooks/123/${tokenB}`, "POST"));
+	assert.ok(!rl.routify(`/webhooks/123/${tokenA}/messages/@original`, "PATCH").includes(tokenA), "tokens must not end up in route keys");
+
+	// Interaction callbacks have no limit of their own, so each interaction gets its own key without the token in it
+	assert.equal(rl.routify(`/interactions/456/${tokenA}/callback`, "POST"), "/interactions/456/:token/callback");
 
 	// Guild channel list GET is special-cased
 	assert.equal(rl.routify("/guilds/123/channels", "GET"), "/guilds/:id/channels");
@@ -327,4 +333,77 @@ test("dropQueue rejects the calls it drops instead of leaving them pending", { t
 	bucket.dropQueue();
 	await assert.rejects(done, /dropped/);
 	assert.equal(ran, false);
+});
+
+test("dropQueue rejects requests waiting in request() instead of crashing or hanging", { timeout: 2000 }, async () => {
+	/** @type {(res: Response) => void} */
+	let release = () => {};
+	const { handler } = makeHandler((url, init, call) => call === 1 ? new Promise(res => { release = res; }) : apiResponse(200, {}));
+
+	const first = handler.request("/channels/123/messages", {}, "get", "json");
+	const second = handler.request("/channels/123/messages", {}, "get", "json");
+	await new Promise(res => setImmediate(res));
+
+	handler.ratelimiter.buckets.get("/channels/123/messages")?.dropQueue();
+	await assert.rejects(second, /dropped/);
+
+	release(apiResponse(200, { ok: true }));
+	assert.deepEqual(await first, { ok: true });
+});
+
+// ---------------------------------------------------------------------------
+// Things that only hurt after the process has been up for a while
+// ---------------------------------------------------------------------------
+
+test("the hourly sweep removes idle buckets that were left partially used", async t => {
+	t.mock.timers.enable({ apis: ["setInterval", "Date"] });
+	const { handler } = makeHandler(() => apiResponse(200, {})); // leaves the route at 4/5
+
+	await handler.request("/channels/123/messages", {}, "get", "json");
+	await new Promise(res => setImmediate(res));
+	assert.equal(handler.ratelimiter.buckets.size, 1);
+
+	// A used counter only ever climbs back to 4/5, which used to never count as idle
+	t.mock.timers.tick(60 * 60 * 1000);
+	assert.equal(handler.ratelimiter.buckets.size, 0);
+});
+
+test("an exhausted bucket with nothing queued goes idle instead of holding a timer", async () => {
+	const { handler } = makeHandler(() => apiResponse(200, {}, { "x-ratelimit-remaining": "0", "x-ratelimit-reset-after": "600" }));
+
+	await handler.request("/channels/123/messages", {}, "get", "json");
+	await new Promise(res => setImmediate(res));
+	// Sitting in cooldown here kept one-off scripts alive until the limit reset (10 minutes for channel renames)
+	assert.equal(handler.ratelimiter.buckets.get("/channels/123/messages")?.sm.currentStateName, "ready");
+});
+
+test("a negative retryLimit does not retry forever", async () => {
+	const { handler, callCount } = makeHandler(
+		() => apiResponse(500, { message: "oops" }),
+		{ retryFailed: true, retryLimit: -1 }
+	);
+
+	await assert.rejects(handler.request("/channels/123/messages", {}, "get", "json"), DiscordAPIError);
+	assert.equal(callCount(), 1);
+});
+
+test("a 429 with a non JSON body (Cloudflare ban page) still rejects with a DiscordAPIError", async () => {
+	const { handler } = makeHandler(() => new Response("<html>banned</html>", { status: 429, headers: { "content-type": "text/html" } }));
+
+	await assert.rejects(
+		handler.request("/channels/123/messages", {}, "get", "json"),
+		err => err instanceof DiscordAPIError && err.httpStatus === 429
+	);
+});
+
+test("a request that never answers is aborted after requestTimeout and frees its bucket", { timeout: 2000 }, async () => {
+	const { handler } = makeHandler(
+		(url, init, call) => call === 1
+			? new Promise((res, rej) => init?.signal?.addEventListener("abort", () => rej(init.signal?.reason)))
+			: apiResponse(200, { ok: true }),
+		{ requestTimeout: 30 }
+	);
+
+	await assert.rejects(handler.request("/channels/123/messages", {}, "get", "json"), { name: "TimeoutError" });
+	assert.deepEqual(await handler.request("/channels/123/messages", {}, "get", "json"), { ok: true });
 });

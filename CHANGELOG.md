@@ -9,8 +9,25 @@
 - Emoji/sticker JSDoc permission tables updated to match current names for permissions and also what's actually required as per the docs.
 - General JSDoc corrections.
 - Fixed dropped buckets leaving pending Promises instead of rejecting them.
+	- Requests made through RequestHandler#request (so, all of them) are covered too now. Before, the rejection had nobody listening to it, which takes down the process by default, and your request Promise would still hang forever. Double whammy.
 - Fixed malformed multipart form data files entries causing all files to be dropped.
 - Throw an error on tokenless.getOauth2Token if the response status is non ok.
+- Rate limit buckets for interactions and webhooks got reworked after actually checking what Discord does instead of guessing.
+	- Interaction followups/edits are limited per interaction token (5 per 2 seconds), but every single one of them across the whole bot was being shoved through one bucket, one at a time. Each token gets its own bucket now. 20 followups for 20 different interactions that took ~2 seconds now take about as long as 1.
+	- Interaction callbacks had the whole interaction token sitting in the bucket key. It's keyed by the interaction id now.
+	- Webhook route keys changed from /webhooks/id/:token to /webhooks/id/hash-of-the-token. Tokens stay out of the keys and out of the route of the rateLimit event. If you were reading Ratelimiter#buckets by those keys or matching on route, this is the part where I say sorry.
+- Fixed the bucket sweep never deleting a bucket that had been used at least once unless Discord happened to leave it totally full. So, basically every bucket. Memory would only ever go up until a restart.
+	- The sweep also runs every minute instead of every hour since interactions make a bucket or two each. A bucket only gets deleted once it's idle and its limit has reset, so nothing is lost.
+- Fixed a bucket with nothing left to send still waiting out its rate limit, which kept the process from exiting until the limit reset. That's up to 10 minutes if the last thing your script did was rename a channel.
+- Fixed a negative (or NaN) retryLimit retrying forever. Yes, the retry logic again.
+- Retries of failed requests now wait 250ms first instead of instantly hitting the same outage again.
+- 429 responses that aren't JSON (Cloudflare's ban page is HTML) now reject with a DiscordAPIError instead of a SyntaxError about an unexpected "<".
+- Added a requestTimeout option to SnowTransfer and the RequestHandler. Defaults to 60 seconds, 0 disables it.
+	- Previously a connection that stalled would hold up every other request on that route until node gave up on it, which takes minutes.
+	- This covers the whole request including uploads, so if you send big files over a slow connection, raise it.
+- ChannelMethods#createMessage, ChannelMethods#editMessage and WebhookMethods#executeWebhook no longer throw about IsComponentsV2 when embeds is an empty Array, which is how you'd clear the embeds off of an old message to convert it.
+	- The check lives in Constants#assertNotComponentsV2WithContent now instead of being copy pasted 3 times.
+- More tests for all of the above.
 
 # 0.19.1
 Security, bug fixes and route changes

@@ -35,6 +35,8 @@ export type SnowTransferOptions = {
 	retryRequests: boolean;
 	/** How many times requests should be retried if they fail and can be retried. */
 	retryLimit: number;
+	/** How long in milliseconds a request may take in total before it is aborted. 0 disables the timeout. Defaults to 60000 */
+	requestTimeout: number;
 };
 
 export type RESTPostAPIAttachmentsRefreshURLsResult = {

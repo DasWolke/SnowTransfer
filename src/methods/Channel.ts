@@ -281,11 +281,7 @@ class ChannelMethods {
 		if (typeof data === "string") data = { content: data };
 		const payload = Constants.cloneUserInput(data);
 
-		if (
-			(payload.content || payload.embeds) &&
-			payload.flags &&
-			(payload.flags & MessageFlags.IsComponentsV2) === MessageFlags.IsComponentsV2
-		) throw new Error("The message flags was set to include IsComponentsV2, but content and/or embeds were also present. You can either have content/embeds or components v2, not both.");
+		Constants.assertNotComponentsV2WithContent(payload);
 
 		// Sanitize the message
 		payload.allowed_mentions ??= this.options.allowed_mentions;
@@ -526,11 +522,7 @@ class ChannelMethods {
 		if (typeof data === "string") data = { content: data };
 		const payload = Constants.cloneUserInput(data);
 
-		if (
-			(payload.content || payload.embeds) &&
-			payload.flags &&
-			(payload.flags & MessageFlags.IsComponentsV2) === MessageFlags.IsComponentsV2
-		) throw new Error("The message flags was set to include IsComponentsV2, but content and/or embeds were also present. You can either have content/embeds or components v2, not both.");
+		Constants.assertNotComponentsV2WithContent(payload);
 
 		// Sanitize the message
 		payload.allowed_mentions ??= this.options.allowed_mentions;

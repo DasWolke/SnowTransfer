@@ -5,6 +5,7 @@ import path = require("node:path");
 import { EventEmitter } from "node:events";
 import util = require("node:util");
 import nodeCrypto = require("node:crypto");
+import { setTimeout as sleep } from "node:timers/promises";
 
 import Endpoints = require("./Endpoints");
 const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, "../package.json"), { encoding: "utf8" })); // otherwise, the json was included in the build
@@ -17,16 +18,22 @@ declare global {
 	var snowtransferDebugLogging: boolean;
 }
 
-// const applicationJSONRegex = /application\/json/;
 const routeRegex = /\/([a-z-]+)\/(?:\d+)/g;
 const reactionsRegex = /\/reactions\/[^/]+/g;
 const reactionsUserRegex = /\/reactions\/:id\/[^/]+/g;
-const webhooksRegex = /^\/webhooks\/(\d+)\/[A-Za-z0-9-_]{64,}/;
+const webhooksRegex = /^\/webhooks\/(\d+)\/([^/]+)/;
+const interactionCallbackRegex = /^\/interactions\/(\d+)\/[^/]+\/callback/;
 const isMessageEndpointRegex = /\/messages\/:id$/;
 const isGuildChannelsRegex = /\/guilds\/\d+\/channels$/;
 const messagesRegex = /\/messages\/\d+$/;
 
 const disallowedBodyMethods = new Set(["head", "get", "delete"]);
+
+const RETRY_DELAY_MS = 250;
+
+function counterId(): string {
+	return new Array(3).fill(0).map(() => String.fromCodePoint(Math.floor(Math.random()*26+65))).join("");
+}
 
 /**
  * @since 0.3.0
@@ -98,7 +105,7 @@ export class IntervalCounter implements Counter {
 
 	private resetAt: number | null = null;
 
-	public readonly id = new Array(3).fill(0).map(() => String.fromCodePoint(Math.floor(Math.random()*26+65))).join("");
+	public readonly id = counterId();
 
 	/**
 	 * Create a new base bucket
@@ -176,7 +183,7 @@ export class LeakyCounter implements Counter {
 
 	private resetAt: number | null = null;
 
-	public readonly id = new Array(3).fill(0).map(() => String.fromCodePoint(Math.floor(Math.random()*26+65))).join("");
+	public readonly id = counterId();
 
 	/**
 	 * Create a new base bucket
@@ -271,13 +278,14 @@ export class Bucket {
 					if (this.pauseRequested) {
 						return this.sm.doTransition("pause");
 					}
+					// Checked before the counters so an idle bucket doesn't sit in cooldown with a timer that keeps the process alive
+					if (!this.calls.length) {
+						return this.sm.doTransition("empty");
+					}
 					if (!this.counters.every(c => c.canTake())) {
 						return this.sm.doTransition("cooldown");
 					}
-					if (this.calls.length) {
-						return this.sm.doTransition("run");
-					}
-					return this.sm.doTransition("empty");
+					return this.sm.doTransition("run");
 				}
 			],
 			onLeave: [],
@@ -318,7 +326,7 @@ export class Bucket {
 			])
 		});
 
-		// can't send more requests, waiting for rate limit reset. may or may not have pending requests
+		// can't send more requests, waiting for rate limit reset
 		this.sm.defineState("cooldown", {
 			onEnter: [
 				() => {
@@ -427,9 +435,9 @@ export class Ratelimiter {
 			if (!self) return clearInterval(sweep);
 			for (const [key, value] of self.buckets.entries()) {
 				const counter = value.counters[0];
-				if (value.sm.currentStateName === "ready" && value.calls.length === 0 && counter.hasReset()) self.buckets.delete(key);
+				if (value.sm.currentStateName === "ready" && value.calls.length === 0 && counter.timeUntilReset() === 0) self.buckets.delete(key);
 			}
-		}, 1*60*60*1000).unref();
+		}, 60*1000).unref(); // interactions make a bucket or two each, so they can't be left around for long
 	}
 
 	/**
@@ -442,8 +450,11 @@ export class Ratelimiter {
 	 */
 	public routify(url: string, method: string): string {
 		let route = url.replaceAll(routeRegex, function (match, p: string) {
-			return p === "channels" || p === "guilds" || p === "webhooks" ? match : `/${p}/:id`;
-		}).replaceAll(reactionsRegex, "/reactions/:id").replaceAll(reactionsUserRegex, "/reactions/:id/:userId").replace(webhooksRegex, "/webhooks/$1/:token");
+			return p === "channels" || p === "guilds" || p === "webhooks" || p === "interactions" ? match : `/${p}/:id`;
+		}).replaceAll(reactionsRegex, "/reactions/:id").replaceAll(reactionsUserRegex, "/reactions/:id/:userId")
+			// Discord limits interaction followups per token, and they all share the app id as their webhook id. Hashed to keep the token out of the key
+			.replace(webhooksRegex, (match, id: string, token: string) => `/webhooks/${id}/${nodeCrypto.createHash("sha256").update(token).digest("base64url").slice(0, 16)}`)
+			.replace(interactionCallbackRegex, "/interactions/$1/:token/callback");
 
 		if (method === "DELETE" && isMessageEndpointRegex.test(route)) route = method + route;
 		else if (method === "GET" && isGuildChannelsRegex.test(route)) route = "/guilds/:id/channels";
@@ -494,10 +505,12 @@ export type RequestHandlerOptions = {
 	baseURL: string;
 	/** If rate limit buckets should be ignored */
 	bypassBuckets: boolean;
-	/** If failed requests that can be retried should be retried, up to retryLimit times. */
+	/** If failed requests that can be retried should be retried, up to retryLimit times. Requests that aren't safe to repeat (like creating a message) can run twice if Discord did the work, but answered with an error. */
 	retryFailed: boolean;
 	/** How many times requests should be retried if they fail and can be retried. */
 	retryLimit: number;
+	/** How long in milliseconds a request may take in total before it is aborted. 0 disables the timeout. Defaults to 60000 */
+	requestTimeout: number;
 	headers: {
 		Authorization?: string;
 		"User-Agent": string;
@@ -530,6 +543,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 			bypassBuckets: options?.bypassBuckets ?? false,
 			retryFailed: options?.retryFailed ?? false,
 			retryLimit: options?.retryLimit ?? Constants.DEFAULT_RETRY_LIMIT,
+			requestTimeout: options?.requestTimeout ?? Constants.DEFAULT_REQUEST_TIMEOUT,
 			headers: {
 				"User-Agent": `Discordbot (https://github.com/DasWolke/SnowTransfer, ${version}) Node.js/${process.version}`
 			},
@@ -587,15 +601,22 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 					if (bkt) this._applyRatelimitHeaders(bkt, response.headers);
 
 					if (response.status && !Constants.OK_STATUS_CODES.has(response.status) && response.status !== 429) {
-						if (this.options.retryFailed && !Constants.DO_NOT_RETRY_STATUS_CODES.has(response.status) && retries !== 0) {
+						if (this.options.retryFailed && !Constants.DO_NOT_RETRY_STATUS_CODES.has(response.status) && retries > 0) {
 							await response.body?.cancel();
+							await sleep(RETRY_DELAY_MS);
 							return resolve(this.request(endpoint, params, method, dataType, data, extraHeaders, retries - 1, rawResponse ? true : undefined));
 						}
 						throw new DiscordAPIError(parseErrorBody(await response.text()), request, response);
 					}
 
 					if (response.status === 429) {
-						const b = await response.json() as RatelimitInfo; // Discord says it will be a JSON, so if there's an error, sucks
+						const text = await response.text();
+						let b: RatelimitInfo;
+						try {
+							b = JSON.parse(text);
+						} catch {
+							b = { message: text } as RatelimitInfo; // Cloudflare bans answer with a HTML page
+						}
 						if (b.global) this.ratelimiter.setGlobal(b.retry_after * 1000);
 						if (globalThis.snowtransferDebugLogging) console.log(`${new Date().toISOString()} [rate] [${bkt?.counters[0].id}] !! 429 - guess there was 0 remaining, wait another ${b.retry_after*1000} (route: ${this.ratelimiter.routify(endpoint, method.toUpperCase())})`);
 						this.emit("rateLimit", {
@@ -604,7 +625,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 							route: this.ratelimiter.routify(endpoint, method.toUpperCase())
 						});
 
-						if (this.options.retryFailed && retries !== 0) return resolve(this.request(endpoint, params, method, dataType, data, extraHeaders, 0, rawResponse ? true : undefined));
+						if (this.options.retryFailed && retries > 0) return resolve(this.request(endpoint, params, method, dataType, data, extraHeaders, 0, rawResponse ? true : undefined));
 
 						throw new DiscordAPIError({ message: b.message, code: b.code ?? 429 }, request, response);
 					}
@@ -631,7 +652,7 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 			};
 
 			if (this.options.bypassBuckets) fn();
-			else this.ratelimiter.queue(fn, endpoint, method.toUpperCase());
+			else this.ratelimiter.queue(fn, endpoint, method.toUpperCase()).catch(reject);
 		});
 	}
 
@@ -677,7 +698,8 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 		return this.options.fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
 			method: method.toUpperCase(),
 			headers,
-			body
+			body,
+			signal: this.options.requestTimeout ? AbortSignal.timeout(this.options.requestTimeout) : undefined
 		});
 	}
 
@@ -696,7 +718,8 @@ export class RequestHandler extends EventEmitter<HandlerEvents> {
 		return this.options.fetch(`${this.apiURL}${endpoint}${appendQuery(params)}`, {
 			method: method.toUpperCase(),
 			headers,
-			body: data
+			body: data,
+			signal: this.options.requestTimeout ? AbortSignal.timeout(this.options.requestTimeout) : undefined
 		});
 	}
 }
